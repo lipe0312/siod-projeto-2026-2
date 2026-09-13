@@ -1,0 +1,12 @@
+# Ambiente
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env
+
+# Dados baixados (contêm dados pessoais; nunca versionar)
+data/
+
+# Ferramentas locais
+.claude
+.DS_Store
