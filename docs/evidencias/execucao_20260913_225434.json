@@ -1,0 +1,782 @@
+{
+  "inicio": "2026-09-13 22:54:34",
+  "comando": "python -m pipeline --atualizar --evidencia docs/evidencias",
+  "duracao_segundos": 385.0,
+  "status": "ok",
+  "parametros": {
+    "fontes": [
+      "ibama",
+      "deter",
+      "lista_suja"
+    ],
+    "desde": "2021-01-01",
+    "atualizar": true
+  },
+  "fontes": [
+    {
+      "fonte": "ibge_municipios",
+      "tipo_dado": "API (JSON)",
+      "entrada": {
+        "arquivo": "data/raw/ibge_municipios.json",
+        "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",
+        "baixado_em_utc": "2026-09-14T01:54:35+00:00",
+        "cabecalho_http": {
+          "Content-Type": "application/json; charset=utf-8",
+          "Last-Modified": null,
+          "Content-Length": null
+        },
+        "sha256": "86ecdccdf97d72e7e5e46f0854cfcea8bacc28154cc1bc4ed0e6110e3a6c9c02",
+        "tamanho_bytes": 2470036,
+        "registros_recebidos": 5571
+      },
+      "transformacoes": [
+        "Normalização do nome (sem acento, maiúsculas, só letras e números) + UF como chave"
+      ],
+      "validacoes": [
+        {
+          "codigo": "IBGE_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta da API é uma lista de municípios com id e nome",
+          "severidade": "erro",
+          "tratamento": "interrompe IBAMA e DETER, que dependem da referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBGE_QUANTIDADE_INESPERADA",
+          "descricao": "Lista com ao menos 5.500 municípios",
+          "severidade": "erro",
+          "tratamento": "interrompe IBAMA e DETER, que dependem da referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBGE_UF_AUSENTE",
+          "descricao": "Município sem UF identificável",
+          "severidade": "erro",
+          "tratamento": "interrompe IBAMA e DETER, que dependem da referência",
+          "verificados": 5571,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBGE_CODIGO_DUPLICADO",
+          "descricao": "Código IBGE repetido",
+          "severidade": "erro",
+          "tratamento": "interrompe IBAMA e DETER, que dependem da referência",
+          "verificados": 5571,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBGE_NOME_UF_DUPLICADO",
+          "descricao": "Nome normalizado + UF repetido (impede resolver por nome)",
+          "severidade": "erro",
+          "tratamento": "interrompe IBAMA e DETER, que dependem da referência",
+          "verificados": 5571,
+          "ocorrencias": 0
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/ibge_municipios.parquet",
+        "registros_produzidos": 5571
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "ibama_embargos",
+      "tipo_dado": "tabular (CSV)",
+      "entrada": {
+        "arquivo": "data/raw/areas_embargadas.csv",
+        "url": "https://servicos.ibama.gov.br/ctf/publico/areasembargadas/arquivos/areas_embargadas.csv",
+        "baixado_em_utc": "2026-09-14T01:56:53+00:00",
+        "cabecalho_http": {
+          "Content-Type": "text/csv",
+          "Last-Modified": "Sun, 13 Sep 2026 22:38:38 GMT",
+          "Content-Length": "147986315"
+        },
+        "sha256": "d672efe2dd02999eae12a47511ce573612ce1ad6ec534858b7718023d32fe3ff",
+        "tamanho_bytes": 147986315,
+        "registros_recebidos": 91199,
+        "colunas_recebidas": 36
+      },
+      "transformacoes": [
+        "Leitura do CSV com separador ';', UTF-8 e todas as colunas como texto",
+        "Seleção das 16 colunas relevantes; remoção de espaços; texto vazio vira ausente",
+        "Identificador id_embargo = número + série + sequencial do termo",
+        "CPF/CNPJ reduzido a dígitos, validado e substituído por HMAC-SHA256 (documento original removido)",
+        "Datas convertidas de texto (DD/MM/AAAA HH:MM:SS); marcação pos_corte_eudr (após 31/12/2020)",
+        "Nome do município e UF padronizados pela referência do IBGE a partir do código",
+        "Área convertida de texto com vírgula decimal para número (hectares)",
+        "Geometria WKT lida e verificada (tipo, limites e validade topológica)",
+        "Remoção do documento original, do nome do responsável e de colunas não usadas"
+      ],
+      "validacoes": [
+        {
+          "codigo": "IBAMA_COLUNAS_OBRIGATORIAS",
+          "descricao": "Colunas obrigatórias presentes (ausentes: nenhuma)",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 16,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_SEM_REGISTROS",
+          "descricao": "Arquivo com ao menos um registro",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_NUMERO_TERMO_AUSENTE",
+          "descricao": "Registro sem número do termo de embargo",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 91199,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_ID_DUPLICADO",
+          "descricao": "id_embargo único",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 91199,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_DOC_AUSENTE",
+          "descricao": "CPF/CNPJ ausente",
+          "severidade": "alerta",
+          "tratamento": "registro mantido, sem vínculo por documento",
+          "verificados": 91199,
+          "ocorrencias": 9233
+        },
+        {
+          "codigo": "IBAMA_DOC_TAMANHO_INVALIDO",
+          "descricao": "CPF/CNPJ sem 11 ou 14 dígitos",
+          "severidade": "alerta",
+          "tratamento": "documento anulado",
+          "verificados": 91199,
+          "ocorrencias": 2
+        },
+        {
+          "codigo": "IBAMA_DOC_DV_INVALIDO",
+          "descricao": "CPF/CNPJ com dígito verificador inválido",
+          "severidade": "alerta",
+          "tratamento": "documento anulado",
+          "verificados": 91199,
+          "ocorrencias": 164
+        },
+        {
+          "codigo": "IBAMA_DATA_EMBARGO_INVALIDA",
+          "descricao": "Data do embargo fora do formato esperado ou anterior a 1980",
+          "severidade": "alerta",
+          "tratamento": "data anulada",
+          "verificados": 91199,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_DATA_EMBARGO_FUTURA",
+          "descricao": "Data do embargo posterior à data de execução",
+          "severidade": "alerta",
+          "tratamento": "data anulada",
+          "verificados": 91199,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "IBAMA_MUNICIPIO_DESCONHECIDO",
+          "descricao": "Código de município inexistente na referência do IBGE",
+          "severidade": "alerta",
+          "tratamento": "mantido com nome e UF da própria base",
+          "verificados": 91199,
+          "ocorrencias": 17
+        },
+        {
+          "codigo": "IBAMA_MUNICIPIO_UF_DIVERGENTE",
+          "descricao": "Código do município pertence a outra UF",
+          "severidade": "alerta",
+          "tratamento": "mantido; UF passa a ser a do município no IBGE",
+          "verificados": 91199,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_COORD_INCOMPLETA",
+          "descricao": "Só latitude ou só longitude preenchida",
+          "severidade": "alerta",
+          "tratamento": "coordenada anulada",
+          "verificados": 91199,
+          "ocorrencias": 1087
+        },
+        {
+          "codigo": "IBAMA_COORD_ZERO",
+          "descricao": "Coordenada (0, 0)",
+          "severidade": "alerta",
+          "tratamento": "coordenada anulada",
+          "verificados": 91199,
+          "ocorrencias": 3180
+        },
+        {
+          "codigo": "IBAMA_COORD_FORA_BRASIL",
+          "descricao": "Coordenada fora do retângulo do território brasileiro",
+          "severidade": "alerta",
+          "tratamento": "coordenada anulada",
+          "verificados": 91199,
+          "ocorrencias": 255
+        },
+        {
+          "codigo": "IBAMA_AREA_INVALIDA",
+          "descricao": "Área embargada não numérica",
+          "severidade": "alerta",
+          "tratamento": "área anulada",
+          "verificados": 91199,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_AREA_NAO_POSITIVA",
+          "descricao": "Área embargada igual a zero ou negativa",
+          "severidade": "alerta",
+          "tratamento": "área anulada",
+          "verificados": 91199,
+          "ocorrencias": 406
+        },
+        {
+          "codigo": "IBAMA_BIOMA_NORMALIZADO",
+          "descricao": "Bioma com repetição, ordem variável ou sem acento",
+          "severidade": "correcao",
+          "tratamento": "itens únicos, ordenados e acentuados",
+          "verificados": 56469,
+          "ocorrencias": 44619
+        },
+        {
+          "codigo": "IBAMA_BIOMA_DESCONHECIDO",
+          "descricao": "Bioma fora do domínio conhecido",
+          "severidade": "alerta",
+          "tratamento": "item desconhecido removido",
+          "verificados": 56469,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_GEOM_ILEGIVEL",
+          "descricao": "WKT que não pode ser lido",
+          "severidade": "alerta",
+          "tratamento": "geometria anulada",
+          "verificados": 50524,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "IBAMA_GEOM_TIPO_INVALIDO",
+          "descricao": "Geometria que não é polígono ou multipolígono",
+          "severidade": "alerta",
+          "tratamento": "geometria anulada",
+          "verificados": 50524,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_GEOM_FORA_BRASIL",
+          "descricao": "Geometria fora do retângulo do território brasileiro",
+          "severidade": "alerta",
+          "tratamento": "geometria anulada",
+          "verificados": 50524,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "IBAMA_GEOM_INVALIDA",
+          "descricao": "Polígono topologicamente inválido (ex.: autointerseção)",
+          "severidade": "alerta",
+          "tratamento": "geometria mantida sem correção",
+          "verificados": 50524,
+          "ocorrencias": 117
+        },
+        {
+          "codigo": "IBAMA_SEM_VINCULO_NEM_LOCALIZACAO",
+          "descricao": "Sem documento válido, sem geometria e sem coordenada válida",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 91199,
+          "ocorrencias": 252
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/ibama_embargos.parquet",
+        "registros_produzidos": 90947,
+        "registros_com_alerta": 14070,
+        "colunas": [
+          "id_embargo",
+          "num_tad",
+          "ser_tad",
+          "seq_tad",
+          "data_embargo",
+          "data_ultima_alteracao",
+          "pos_corte_eudr",
+          "documento_hash",
+          "tipo_documento",
+          "cod_municipio",
+          "municipio",
+          "uf",
+          "latitude",
+          "longitude",
+          "area_ha",
+          "biomas",
+          "geometria_wkt",
+          "descricao_infracao",
+          "alertas"
+        ],
+        "arquivo_descartados": "data/processed/ibama_embargos_descartados.parquet",
+        "registros_descartados": 252
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "inpe_deter",
+      "tipo_dado": "API (WFS/GeoJSON)",
+      "entrada": {
+        "servico": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+        "filtro": "view_date>='2021-01-01' AND classname IN ('DESMATAMENTO_CR','DESMATAMENTO_VEG')",
+        "manifestos": {
+          "amazonia": "data/raw/inpe_deter/amazonia/desde_2021-01-01/manifesto.json",
+          "cerrado": "data/raw/inpe_deter/cerrado/desde_2021-01-01/manifesto.json"
+        },
+        "camadas": {
+          "amazonia": {
+            "anunciados": 146543,
+            "recebidos": 146543,
+            "particoes": 69
+          },
+          "cerrado": {
+            "anunciados": 87234,
+            "recebidos": 87234,
+            "particoes": 69
+          }
+        },
+        "registros_recebidos": 233777
+      },
+      "transformacoes": [
+        "Requisição ao WFS em partições mensais (uma requisição completa por mês, sem paginação), com cada resposta gravada compactada em data/raw/inpe_deter/",
+        "Conversão de cada feature GeoJSON em linha: propriedades selecionadas e geometria em WKT (6 casas decimais)",
+        "Identificador id_alerta = camada + gid + hash de (gid, data, município, geometria), porque o gid não é único: 1849 gids são um mesmo alerta dividido entre municípios e 39890 gids são reutilizados por alertas de datas diferentes",
+        "Datas da imagem e do mês de publicação convertidas de texto",
+        "Código IBGE do município: o da fonte (Amazônia) ou resolvido por nome + UF (Cerrado, que não traz código)",
+        "Área do trecho no município (areamunkm), em km²"
+      ],
+      "validacoes": [
+        {
+          "codigo": "DETER_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta é FeatureCollection com lista de features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 138,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PARTICAO_INCOMPLETA",
+          "descricao": "Resposta com menos features do que o próprio serviço anunciou",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 138,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_CRS_INESPERADO",
+          "descricao": "Sistema de coordenadas diferente de EPSG::4674 (SIRGAS 2000)",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 2,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_CONTAGEM_DIVERGENTE_AMAZONIA",
+          "descricao": "Alertas recebidos (146543) diferentes do total anunciado no início da coleta (146543)",
+          "severidade": "alerta",
+          "tratamento": "segue com o que foi recebido; indica mudança na base durante a coleta",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_CONTAGEM_DIVERGENTE_CERRADO",
+          "descricao": "Alertas recebidos (87234) diferentes do total anunciado no início da coleta (87234)",
+          "severidade": "alerta",
+          "tratamento": "segue com o que foi recebido; indica mudança na base durante a coleta",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PROPRIEDADE_GID_AUSENTE",
+          "descricao": "Propriedade 'gid' ausente em todas as features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PROPRIEDADE_CLASSNAME_AUSENTE",
+          "descricao": "Propriedade 'classname' ausente em todas as features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PROPRIEDADE_VIEW_DATE_AUSENTE",
+          "descricao": "Propriedade 'view_date' ausente em todas as features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PROPRIEDADE_UF_AUSENTE",
+          "descricao": "Propriedade 'uf' ausente em todas as features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_PROPRIEDADE_MUNICIPALITY_AUSENTE",
+          "descricao": "Propriedade 'municipality' ausente em todas as features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_GID_AUSENTE",
+          "descricao": "Feature sem identificador gid",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_GEOM_AUSENTE",
+          "descricao": "Feature sem geometria legível",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_ALERTA_DUPLICADO",
+          "descricao": "Mesmo gid, data, município e geometria recebidos mais de uma vez",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_CLASSE_FORA_DO_RECORTE",
+          "descricao": "Classe diferente de desmatamento",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_DATA_INVALIDA",
+          "descricao": "Data da imagem ausente ou fora do formato AAAA-MM-DD",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_DATA_FORA_DO_RECORTE",
+          "descricao": "Data da imagem antes de 2021-01-01 ou depois da execução",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_GEOM_FORA_BRASIL",
+          "descricao": "Geometria fora do retângulo do território brasileiro",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_UF_INVALIDA",
+          "descricao": "UF fora das 27 siglas",
+          "severidade": "alerta",
+          "tratamento": "mantido",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_MUNICIPIO_APELIDO",
+          "descricao": "Nome de município diferente do oficial (tabela de apelidos)",
+          "severidade": "correcao",
+          "tratamento": "nome substituído pelo oficial antes de buscar o código",
+          "verificados": 233777,
+          "ocorrencias": 90
+        },
+        {
+          "codigo": "DETER_MUNICIPIO_CODIGO_DIVERGENTE",
+          "descricao": "Código IBGE da fonte diferente do código obtido pelo nome",
+          "severidade": "alerta",
+          "tratamento": "mantido o código da fonte",
+          "verificados": 146543,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_MUNICIPIO_NAO_IDENTIFICADO",
+          "descricao": "Município sem código IBGE válido",
+          "severidade": "alerta",
+          "tratamento": "código anulado",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_AREA_NAO_POSITIVA",
+          "descricao": "Área ausente, zero ou negativa",
+          "severidade": "alerta",
+          "tratamento": "área anulada",
+          "verificados": 233777,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "DETER_GEOM_INVALIDA",
+          "descricao": "Polígono topologicamente inválido",
+          "severidade": "alerta",
+          "tratamento": "geometria mantida sem correção",
+          "verificados": 233777,
+          "ocorrencias": 17841
+        },
+        {
+          "codigo": "DETER_GEOMETRIA_REPETIDA",
+          "descricao": "Mesma classe, data e geometria em gids diferentes",
+          "severidade": "alerta",
+          "tratamento": "mantido",
+          "verificados": 233777,
+          "ocorrencias": 6
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/inpe_deter_alertas.parquet",
+        "registros_produzidos": 233777,
+        "registros_com_alerta": 17847,
+        "por_camada": {
+          "amazonia": 146543,
+          "cerrado": 87234
+        },
+        "colunas": [
+          "id_alerta",
+          "camada",
+          "gid",
+          "classe",
+          "data_imagem",
+          "mes_publicacao",
+          "uf",
+          "cod_municipio",
+          "municipio",
+          "area_km2",
+          "satelite",
+          "sensor",
+          "geometria_wkt",
+          "alertas"
+        ],
+        "arquivo_descartados": "data/processed/inpe_deter_alertas_descartados.parquet",
+        "registros_descartados": 0
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "mte_lista_suja",
+      "tipo_dado": "documento (PDF)",
+      "entrada": {
+        "arquivo": "data/raw/lista_suja.pdf",
+        "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+        "baixado_em_utc": "2026-09-14T02:00:56+00:00",
+        "cabecalho_http": {
+          "Content-Type": "application/pdf",
+          "Last-Modified": null,
+          "Content-Length": "496146"
+        },
+        "sha256": "4e6d71ce78820323d73613ef437d6c1e69ca7fd459eb94f6f12639fcea64f7b4",
+        "tamanho_bytes": 496146,
+        "paginas": 45,
+        "linhas_de_tabela": 714,
+        "registros_recebidos": 579
+      },
+      "transformacoes": [
+        "Extração do texto e da tabela de cada página do PDF (pdfplumber)",
+        "Segmentação das 714 linhas extraídas: 45 cabeçalhos repetidos e 90 títulos de página removidos; 579 registros",
+        "CPF/CNPJ reduzido a dígitos, validado e substituído por HMAC-SHA256; nome do empregador removido",
+        "CNAE validado; marcação cnae_agropecuaria para as divisões 01 a 03 (seção A)",
+        "Datas de decisão e inclusão convertidas de texto; data de atualização lida do cabeçalho do documento"
+      ],
+      "validacoes": [
+        {
+          "codigo": "LS_DOCUMENTO_VAZIO",
+          "descricao": "Nenhum texto extraído do PDF",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_PAGINA_SEM_TEXTO",
+          "descricao": "Página sem texto extraível",
+          "severidade": "alerta",
+          "tratamento": "página ignorada",
+          "verificados": 45,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_DATA_ATUALIZACAO_AUSENTE",
+          "descricao": "Data de atualização do cadastro não encontrada no documento",
+          "severidade": "alerta",
+          "tratamento": "campo data_atualizacao_cadastro fica vazio",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_CABECALHO_INESPERADO",
+          "descricao": "Cabeçalho da tabela diferente das 10 colunas esperadas",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 45,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_LINHA_NAO_RECONHECIDA",
+          "descricao": "Linha que não é cabeçalho, título nem registro",
+          "severidade": "descarte",
+          "tratamento": "linha vai para descartados",
+          "verificados": 714,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_SEM_REGISTROS",
+          "descricao": "Nenhum registro extraído do documento",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_ID_DUPLICADO",
+          "descricao": "ID do registro único",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 579,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_DOC_FORMATO_INVALIDO",
+          "descricao": "CPF/CNPJ ausente ou sem 11 ou 14 dígitos",
+          "severidade": "alerta",
+          "tratamento": "documento anulado",
+          "verificados": 579,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_DOC_DV_INVALIDO",
+          "descricao": "CPF/CNPJ com dígito verificador inválido",
+          "severidade": "alerta",
+          "tratamento": "documento anulado",
+          "verificados": 579,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_DOC_REPETIDO",
+          "descricao": "Mesmo empregador em mais de um registro",
+          "severidade": "alerta",
+          "tratamento": "mantido (estabelecimentos diferentes)",
+          "verificados": 579,
+          "ocorrencias": 22
+        },
+        {
+          "codigo": "LS_UF_INVALIDA",
+          "descricao": "UF ausente ou fora das 27 siglas",
+          "severidade": "alerta",
+          "tratamento": "UF anulada",
+          "verificados": 579,
+          "ocorrencias": 3
+        },
+        {
+          "codigo": "LS_ANO_ACAO_INVALIDO",
+          "descricao": "Ano da ação fiscal ausente ou fora de 1995 até o ano atual",
+          "severidade": "alerta",
+          "tratamento": "ano anulado",
+          "verificados": 579,
+          "ocorrencias": 3
+        },
+        {
+          "codigo": "LS_TRABALHADORES_INVALIDO",
+          "descricao": "Número de trabalhadores ausente ou não inteiro positivo",
+          "severidade": "alerta",
+          "tratamento": "valor anulado",
+          "verificados": 579,
+          "ocorrencias": 2
+        },
+        {
+          "codigo": "LS_CNAE_FORMATO_INVALIDO",
+          "descricao": "CNAE ausente ou fora do formato 9999-9/99",
+          "severidade": "alerta",
+          "tratamento": "CNAE anulado",
+          "verificados": 579,
+          "ocorrencias": 3
+        },
+        {
+          "codigo": "LS_DATA_DECISAO_INVALIDA",
+          "descricao": "Data da decisão ausente, fora do formato ou futura",
+          "severidade": "alerta",
+          "tratamento": "data anulada",
+          "verificados": 579,
+          "ocorrencias": 3
+        },
+        {
+          "codigo": "LS_DATA_INCLUSAO_INVALIDA",
+          "descricao": "Data de inclusão ausente, fora do formato ou futura",
+          "severidade": "alerta",
+          "tratamento": "datas anuladas",
+          "verificados": 579,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "LS_INCLUSAO_MULTIPLOS_PERIODOS",
+          "descricao": "Célula de inclusão com mais de uma data (vários períodos)",
+          "severidade": "correcao",
+          "tratamento": "primeira e última data extraídas em colunas separadas",
+          "verificados": 579,
+          "ocorrencias": 10
+        },
+        {
+          "codigo": "LS_INCLUSAO_ANTES_DA_DECISAO",
+          "descricao": "Inclusão no cadastro anterior à decisão administrativa",
+          "severidade": "alerta",
+          "tratamento": "mantido",
+          "verificados": 579,
+          "ocorrencias": 1
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/mte_lista_suja.parquet",
+        "registros_produzidos": 579,
+        "registros_com_alerta": 26,
+        "colunas": [
+          "id_registro",
+          "documento_hash",
+          "tipo_documento",
+          "uf",
+          "estabelecimento",
+          "cnae",
+          "cnae_agropecuaria",
+          "trabalhadores_envolvidos",
+          "ano_acao_fiscal",
+          "data_decisao",
+          "data_inclusao",
+          "data_inclusao_ultima",
+          "data_atualizacao_cadastro",
+          "alertas"
+        ],
+        "registros_descartados": 0
+      },
+      "status": "ok",
+      "mensagem": ""
+    }
+  ]
+}

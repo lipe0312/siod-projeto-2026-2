@@ -1,0 +1,111 @@
+2026-09-13 22:54:34 INFO    Início: python -m pipeline --atualizar --evidencia docs/evidencias
+2026-09-13 22:54:34 INFO    Baixando https://servicodados.ibge.gov.br/api/v1/localidades/municipios (tentativa 1 de 3)
+2026-09-13 22:54:35 INFO    [ibge_municipios] IBGE_ESTRUTURA_RESPOSTA: 0 de 1 | interrompe IBAMA e DETER, que dependem da referência
+2026-09-13 22:54:35 INFO    [ibge_municipios] IBGE_QUANTIDADE_INESPERADA: 0 de 1 | interrompe IBAMA e DETER, que dependem da referência
+2026-09-13 22:54:35 INFO    [ibge_municipios] IBGE_UF_AUSENTE: 0 de 5571 | interrompe IBAMA e DETER, que dependem da referência
+2026-09-13 22:54:35 INFO    [ibge_municipios] IBGE_CODIGO_DUPLICADO: 0 de 5571 | interrompe IBAMA e DETER, que dependem da referência
+2026-09-13 22:54:35 INFO    [ibge_municipios] IBGE_NOME_UF_DUPLICADO: 0 de 5571 | interrompe IBAMA e DETER, que dependem da referência
+2026-09-13 22:54:35 INFO    [ibge_municipios] transformação: Normalização do nome (sem acento, maiúsculas, só letras e números) + UF como chave
+2026-09-13 22:54:35 INFO    Baixando https://servicos.ibama.gov.br/ctf/publico/areasembargadas/arquivos/areas_embargadas.csv (tentativa 1 de 3)
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Leitura do CSV com separador ';', UTF-8 e todas as colunas como texto
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_COLUNAS_OBRIGATORIAS: 0 de 16 | interrompe a fonte
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_SEM_REGISTROS: 0 de 1 | interrompe a fonte
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Seleção das 16 colunas relevantes; remoção de espaços; texto vazio vira ausente
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_NUMERO_TERMO_AUSENTE: 0 de 91199 | registro vai para descartados
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Identificador id_embargo = número + série + sequencial do termo
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_ID_DUPLICADO: 0 de 91199 | interrompe a fonte
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_DOC_AUSENTE: 9233 de 91199 | registro mantido, sem vínculo por documento
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_DOC_TAMANHO_INVALIDO: 2 de 91199 | documento anulado
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_DOC_DV_INVALIDO: 164 de 91199 | documento anulado
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: CPF/CNPJ reduzido a dígitos, validado e substituído por HMAC-SHA256 (documento original removido)
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_DATA_EMBARGO_INVALIDA: 0 de 91199 | data anulada
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_DATA_EMBARGO_FUTURA: 1 de 91199 | data anulada
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Datas convertidas de texto (DD/MM/AAAA HH:MM:SS); marcação pos_corte_eudr (após 31/12/2020)
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_MUNICIPIO_DESCONHECIDO: 17 de 91199 | mantido com nome e UF da própria base
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_MUNICIPIO_UF_DIVERGENTE: 0 de 91199 | mantido; UF passa a ser a do município no IBGE
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Nome do município e UF padronizados pela referência do IBGE a partir do código
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_COORD_INCOMPLETA: 1087 de 91199 | coordenada anulada
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_COORD_ZERO: 3180 de 91199 | coordenada anulada
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_COORD_FORA_BRASIL: 255 de 91199 | coordenada anulada
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_AREA_INVALIDA: 0 de 91199 | área anulada
+2026-09-13 22:56:54 WARNING [ibama_embargos] IBAMA_AREA_NAO_POSITIVA: 406 de 91199 | área anulada
+2026-09-13 22:56:54 INFO    [ibama_embargos] transformação: Área convertida de texto com vírgula decimal para número (hectares)
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_BIOMA_NORMALIZADO: 44619 de 56469 | itens únicos, ordenados e acentuados
+2026-09-13 22:56:54 INFO    [ibama_embargos] IBAMA_BIOMA_DESCONHECIDO: 0 de 56469 | item desconhecido removido
+2026-09-13 22:56:55 WARNING [ibama_embargos] IBAMA_GEOM_ILEGIVEL: 1 de 50524 | geometria anulada
+2026-09-13 22:56:55 INFO    [ibama_embargos] IBAMA_GEOM_TIPO_INVALIDO: 0 de 50524 | geometria anulada
+2026-09-13 22:56:55 INFO    [ibama_embargos] IBAMA_GEOM_FORA_BRASIL: 0 de 50524 | geometria anulada
+2026-09-13 22:56:55 WARNING [ibama_embargos] IBAMA_GEOM_INVALIDA: 117 de 50524 | geometria mantida sem correção
+2026-09-13 22:56:55 INFO    [ibama_embargos] transformação: Geometria WKT lida e verificada (tipo, limites e validade topológica)
+2026-09-13 22:56:55 WARNING [ibama_embargos] IBAMA_SEM_VINCULO_NEM_LOCALIZACAO: 252 de 91199 | registro vai para descartados
+2026-09-13 22:56:55 INFO    [ibama_embargos] transformação: Remoção do documento original, do nome do responsável e de colunas não usadas
+2026-09-13 22:56:57 INFO    [inpe_deter] amazonia: 146543 alertas anunciados, pedidos em 69 partições mensais
+2026-09-13 22:57:30 INFO    [inpe_deter] amazonia: partição 12 de 69
+2026-09-13 22:57:58 INFO    [inpe_deter] amazonia: partição 24 de 69
+2026-09-13 22:58:27 INFO    [inpe_deter] amazonia: partição 36 de 69
+2026-09-13 22:58:51 INFO    [inpe_deter] amazonia: partição 48 de 69
+2026-09-13 22:59:12 INFO    [inpe_deter] amazonia: partição 60 de 69
+2026-09-13 22:59:29 INFO    [inpe_deter] amazonia: partição 69 de 69
+2026-09-13 22:59:29 INFO    [inpe_deter] cerrado: 87234 alertas anunciados, pedidos em 69 partições mensais
+2026-09-13 22:59:39 INFO    [inpe_deter] cerrado: partição 12 de 69
+2026-09-13 22:59:50 INFO    [inpe_deter] cerrado: partição 24 de 69
+2026-09-13 23:00:03 INFO    [inpe_deter] cerrado: partição 36 de 69
+2026-09-13 23:00:15 INFO    [inpe_deter] cerrado: partição 48 de 69
+2026-09-13 23:00:20 WARNING Falha na requisição ao INPE (HTTPError); nova tentativa em 5s
+2026-09-13 23:00:32 INFO    [inpe_deter] cerrado: partição 60 de 69
+2026-09-13 23:00:43 INFO    [inpe_deter] cerrado: partição 69 de 69
+2026-09-13 23:00:43 INFO    [inpe_deter] transformação: Requisição ao WFS em partições mensais (uma requisição completa por mês, sem paginação), com cada resposta gravada compactada em data/raw/inpe_deter/
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_ESTRUTURA_RESPOSTA: 0 de 138 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PARTICAO_INCOMPLETA: 0 de 138 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_CRS_INESPERADO: 0 de 2 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_CONTAGEM_DIVERGENTE_AMAZONIA: 0 de 1 | segue com o que foi recebido; indica mudança na base durante a coleta
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_CONTAGEM_DIVERGENTE_CERRADO: 0 de 1 | segue com o que foi recebido; indica mudança na base durante a coleta
+2026-09-13 23:00:51 INFO    [inpe_deter] transformação: Conversão de cada feature GeoJSON em linha: propriedades selecionadas e geometria em WKT (6 casas decimais)
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PROPRIEDADE_GID_AUSENTE: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PROPRIEDADE_CLASSNAME_AUSENTE: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PROPRIEDADE_VIEW_DATE_AUSENTE: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PROPRIEDADE_UF_AUSENTE: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_PROPRIEDADE_MUNICIPALITY_AUSENTE: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_GID_AUSENTE: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:51 INFO    [inpe_deter] DETER_GEOM_AUSENTE: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] transformação: Identificador id_alerta = camada + gid + hash de (gid, data, município, geometria), porque o gid não é único: 1849 gids são um mesmo alerta dividido entre municípios e 39890 gids são reutilizados por alertas de datas diferentes
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_ALERTA_DUPLICADO: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_CLASSE_FORA_DO_RECORTE: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_DATA_INVALIDA: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_DATA_FORA_DO_RECORTE: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_GEOM_FORA_BRASIL: 0 de 233777 | registro vai para descartados
+2026-09-13 23:00:52 INFO    [inpe_deter] transformação: Datas da imagem e do mês de publicação convertidas de texto
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_UF_INVALIDA: 0 de 233777 | mantido
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_MUNICIPIO_APELIDO: 90 de 233777 | nome substituído pelo oficial antes de buscar o código
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_MUNICIPIO_CODIGO_DIVERGENTE: 0 de 146543 | mantido o código da fonte
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_MUNICIPIO_NAO_IDENTIFICADO: 0 de 233777 | código anulado
+2026-09-13 23:00:52 INFO    [inpe_deter] transformação: Código IBGE do município: o da fonte (Amazônia) ou resolvido por nome + UF (Cerrado, que não traz código)
+2026-09-13 23:00:52 INFO    [inpe_deter] DETER_AREA_NAO_POSITIVA: 0 de 233777 | área anulada
+2026-09-13 23:00:52 INFO    [inpe_deter] transformação: Área do trecho no município (areamunkm), em km²
+2026-09-13 23:00:52 WARNING [inpe_deter] DETER_GEOM_INVALIDA: 17841 de 233777 | geometria mantida sem correção
+2026-09-13 23:00:52 WARNING [inpe_deter] DETER_GEOMETRIA_REPETIDA: 6 de 233777 | mantido
+2026-09-13 23:00:53 INFO    Baixando https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf (tentativa 1 de 3)
+2026-09-13 23:00:59 INFO    [mte_lista_suja] transformação: Extração do texto e da tabela de cada página do PDF (pdfplumber)
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_DOCUMENTO_VAZIO: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_PAGINA_SEM_TEXTO: 0 de 45 | página ignorada
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_DATA_ATUALIZACAO_AUSENTE: 0 de 1 | campo data_atualizacao_cadastro fica vazio
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_CABECALHO_INESPERADO: 0 de 45 | interrompe a fonte
+2026-09-13 23:00:59 INFO    [mte_lista_suja] transformação: Segmentação das 714 linhas extraídas: 45 cabeçalhos repetidos e 90 títulos de página removidos; 579 registros
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_LINHA_NAO_RECONHECIDA: 0 de 714 | linha vai para descartados
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_SEM_REGISTROS: 0 de 1 | interrompe a fonte
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_ID_DUPLICADO: 0 de 579 | interrompe a fonte
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_DOC_FORMATO_INVALIDO: 0 de 579 | documento anulado
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_DOC_DV_INVALIDO: 0 de 579 | documento anulado
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_DOC_REPETIDO: 22 de 579 | mantido (estabelecimentos diferentes)
+2026-09-13 23:00:59 INFO    [mte_lista_suja] transformação: CPF/CNPJ reduzido a dígitos, validado e substituído por HMAC-SHA256; nome do empregador removido
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_UF_INVALIDA: 3 de 579 | UF anulada
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_ANO_ACAO_INVALIDO: 3 de 579 | ano anulado
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_TRABALHADORES_INVALIDO: 2 de 579 | valor anulado
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_CNAE_FORMATO_INVALIDO: 3 de 579 | CNAE anulado
+2026-09-13 23:00:59 INFO    [mte_lista_suja] transformação: CNAE validado; marcação cnae_agropecuaria para as divisões 01 a 03 (seção A)
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_DATA_DECISAO_INVALIDA: 3 de 579 | data anulada
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_DATA_INCLUSAO_INVALIDA: 0 de 579 | datas anuladas
+2026-09-13 23:00:59 INFO    [mte_lista_suja] LS_INCLUSAO_MULTIPLOS_PERIODOS: 10 de 579 | primeira e última data extraídas em colunas separadas
+2026-09-13 23:00:59 WARNING [mte_lista_suja] LS_INCLUSAO_ANTES_DA_DECISAO: 1 de 579 | mantido
+2026-09-13 23:00:59 INFO    [mte_lista_suja] transformação: Datas de decisão e inclusão convertidas de texto; data de atualização lida do cabeçalho do documento
+2026-09-13 23:00:59 INFO    Fim: status ok em 385.0 s. Relatório: data/processed/relatorio_execucao.md
