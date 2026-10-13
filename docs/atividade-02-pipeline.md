@@ -1,6 +1,6 @@
 # Atividade 02 — Pipeline inicial de dados
 
-Execução de referência em 13/09/2026, com o comando `python -m pipeline --atualizar --evidencia docs/evidencias`. Status **ok**, duração de 385,0 s. O relatório completo e o log estão em [`docs/evidencias/`](evidencias/).
+Execução de referência em 13/09/2026, com o comando `python -m pipeline --atualizar --evidencia docs/evidencias/atividade-02`. Status **ok**, duração de 385,0 s. O relatório completo e o log estão em [`docs/evidencias/`](evidencias/).
 
 ## 1. Definição da entrada
 
@@ -73,7 +73,7 @@ python -m pipeline                                  # todas as fontes
 python -m pipeline --fontes ibama deter lista_suja  # escolher fontes
 python -m pipeline --desde 2021-01-01               # início do recorte do DETER
 python -m pipeline --atualizar                      # baixar tudo de novo
-python -m pipeline --evidencia docs/evidencias      # copiar relatório e log da execução
+python -m pipeline --evidencia docs/evidencias/atividade-02      # copiar relatório e log da execução
 python -m pytest                                    # testes
 ```
 
@@ -187,7 +187,7 @@ Além dessas, duas verificações de execução:
 
 ## 5. Evidência de execução
 
-Arquivos: [`execucao_20260913_225434.md`](evidencias/execucao_20260913_225434.md) (relatório legível), [`execucao_20260913_225434.json`](evidencias/execucao_20260913_225434.json) (mesmo conteúdo, estruturado) e [`execucao_20260913_225434.log`](evidencias/execucao_20260913_225434.log) (mensagens da execução). Nenhum deles contém CPF, CNPJ ou nome.
+Arquivos: [`execucao_20260913_225434.md`](evidencias/atividade-02/execucao_20260913_225434.md) (relatório legível), [`execucao_20260913_225434.json`](evidencias/atividade-02/execucao_20260913_225434.json) (mesmo conteúdo, estruturado) e [`execucao_20260913_225434.log`](evidencias/atividade-02/execucao_20260913_225434.log) (mensagens da execução). Nenhum deles contém CPF, CNPJ ou nome.
 
 | Fonte | Recebidos | Produzidos | Descartados | Com alerta | Principais ocorrências |
 |---|---:|---:|---:|---:|---|
@@ -226,7 +226,7 @@ Por fim, 7,6% das geometrias do DETER são topologicamente inválidas, o que pre
 | `pipeline/` | Novo | Código do pipeline (seção 3) |
 | `tests/` | Novo | Comprova cada validação com dados sintéticos (seção 4) |
 | `docs/atividade-02-pipeline.md` | Novo | Este documento: entrada, transformação, validações, evidência e decisão |
-| `docs/evidencias/execucao_20260913_225434.md`, `.json`, `.log` | Novo | Evidência da execução de referência (seção 5) |
+| `docs/evidencias/atividade-02/execucao_20260913_225434.md`, `.json`, `.log` | Novo | Evidência da execução de referência (seção 5) |
 | `docs/arquitetura/adr/0001` a `0006` | Novo | Registro das decisões técnicas que tiveram alternativas reais |
 | `docs/arquitetura/arquitetura.md` | Alterado | Estava vazio; agora é a versão 1, com fontes e pipeline definidos (seção 6) |
 | `docs/arquitetura/adr/.gitkeep` | Removido | A pasta passou a ter conteúdo |

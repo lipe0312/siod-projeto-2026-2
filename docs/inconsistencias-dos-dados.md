@@ -1,6 +1,6 @@
 # Inconsistências dos dados
 
-Resumo das inconsistências encontradas nas fontes do projeto e de como cada uma é tratada. Os números vêm da execução de referência do pipeline ([`docs/evidencias/`](evidencias/)) e do notebook da Atividade 01. Como as fontes são atualizadas continuamente, os valores podem variar entre execuções.
+Resumo das inconsistências encontradas nas fontes do projeto e de como cada uma é tratada. Os números vêm da execução de referência do pipeline ([`docs/evidencias/atividade-02/`](evidencias/atividade-02/)) e do notebook da Atividade 01. Como as fontes são atualizadas continuamente, os valores podem variar entre execuções.
 
 Tratamentos usados:
 - **erro:** interrompe a fonte;

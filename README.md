@@ -46,7 +46,7 @@ O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identifi
 | Atividade | O que entrega | Documento com a explicação completa | Onde está o que foi produzido |
 |---|---|---|---|
 | **01 — Caracterização e avaliação dos dados** | Fonte, qualidade dos dados, dicionário mínimo, análise exploratória e síntese técnica | [`docs/atividade-01-dados.md`](docs/atividade-01-dados.md) | [`notebooks/01_exploracao_dados.ipynb`](notebooks/01_exploracao_dados.ipynb) |
-| **02 — Pipeline inicial de dados** | Pipeline para CSV, API e PDF, com validações comprovadas por testes, evidência de execução, arquitetura e decisões | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | [`pipeline/`](pipeline/), [`tests/`](tests/), [`docs/evidencias/`](docs/evidencias/), [`docs/arquitetura/`](docs/arquitetura/) |
+| **02 — Pipeline inicial de dados** | Pipeline para CSV, API e PDF, com validações comprovadas por testes, evidência de execução, arquitetura e decisões | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | [`pipeline/`](pipeline/), [`tests/`](tests/), [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/), [`docs/arquitetura/`](docs/arquitetura/) |
 
 Os dois documentos trazem os números medidos, o que cada verificação encontrou e o motivo de cada decisão. Este README explica como reproduzir tudo.
 
@@ -162,9 +162,9 @@ python -m pipeline --help
 | Tabelas tratadas | `data/processed/ibama_embargos.parquet`, `inpe_deter_alertas.parquet`, `mte_lista_suja.parquet`, `ibge_municipios.parquet` |
 | Registros descartados, com o motivo | `data/processed/ibama_embargos_descartados.parquet`, `inpe_deter_alertas_descartados.parquet` |
 | Arquivos brutos e procedência | `data/raw/` (cada arquivo com um `.meta.json`; as respostas do INPE com um `manifesto.json`) |
-| Execução de referência, para comparar | [`docs/evidencias/`](docs/evidencias/) |
+| Execução de referência, para comparar | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) |
 
-O processo termina com código 0 quando todas as fontes processam sem erro. Para comparar com a execução de referência, abra `data/processed/relatorio_execucao.md` ao lado do relatório em `docs/evidencias/`. O status deve ser `ok` e as contagens devem ser iguais ou muito próximas, pelo mesmo motivo de atualização das fontes.
+O processo termina com código 0 quando todas as fontes processam sem erro. Para comparar com a execução de referência, abra `data/processed/relatorio_execucao.md` ao lado do relatório em `docs/evidencias/atividade-02/`. O status deve ser `ok` e as contagens devem ser iguais ou muito próximas, pelo mesmo motivo de atualização das fontes.
 
 Para conferir rapidamente quantos registros cada tabela tem (o comando é igual nos três sistemas):
 
@@ -215,7 +215,7 @@ $env:SIOD_CHAVE_PSEUDONIMIZACAO = "sua-chave"         # Windows (PowerShell)
 | [`tests/test_documentos.py`](tests/test_documentos.py) | CPF/CNPJ e pseudonimização | 02 |
 | [`tests/test_download.py`](tests/test_download.py) | Download truncado e registro de procedência | 02 |
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
-| [`docs/evidencias/`](docs/evidencias/) | Relatório e log da execução de referência | 02 |
+| [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |
 | [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md) | Arquitetura (versão 1) | 02 |
 | [`docs/arquitetura/adr/`](docs/arquitetura/adr/) | Registros de decisão técnica | 02 |
 | [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 e 02 |
