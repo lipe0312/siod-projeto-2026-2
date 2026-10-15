@@ -1,6 +1,6 @@
 # Arquitetura
 
-Versão 1 — 13/09/2026 (Atividade 02).
+Versão 2 — 14/10/2026 (Atividade 03). Versão 1 — 13/09/2026 (Atividade 02).
 
 ## O que este documento cobre
 
@@ -26,6 +26,12 @@ flowchart LR
       F3["MTE · Lista Suja<br/>PDF"]
       F4["IBGE · Municípios<br/>API · JSON (referência)"]
     end
+    subgraph SOB["Fontes sob demanda — Atividade 03"]
+      D1["SICAR · CAR<br/>API WFS · GeoJSON"]
+      D2["INPE · PRODES<br/>API WFS · GeoJSON"]
+      D3["AB+S · validação<br/>API · JSON"]
+    end
+    CRZ["Cruzamento<br/>objeto → CAR · DETER × PRODES"]
     subgraph PIPE["Pipeline — implementado"]
       P1["Obtenção<br/>arquivo bruto + SHA-256"] --> P2["Leitura<br/>CSV · GeoJSON · tabela do PDF"]
       P2 --> P3["Padronização<br/>tipos, município, bioma, geometria"]
@@ -46,6 +52,11 @@ flowchart LR
   F4 --> P1
   P5 --> S1
   P4 --> S2
+  D1 --> CRZ
+  D2 --> CRZ
+  S1 --> CRZ
+  CRZ -.-> IA
+  D3 -.-> UI
   S1 -.-> PER -.-> API -.-> UI
   API <-.-> IA
   UI -.- USR
@@ -83,6 +94,22 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 Cada arquivo bruto tem ao lado um `.meta.json` com URL, data do download, cabeçalho HTTP e SHA-256. As respostas do DETER têm um `manifesto.json` com o filtro usado, o total anunciado pelo serviço e o hash de cada mês.
 
 A referência do IBGE entrou nesta versão porque a camada Cerrado do DETER não traz código de município ([ADR 0005](adr/0005-resolver-municipio-dos-alertas-deter-pela-referencia-do-ibge.md)).
+
+### Fontes sob demanda (Atividade 03)
+
+SICAR, PRODES e AB+S não são carregados em lote: consulta-se só o que o caso toca. Não entram em `python -m pipeline` nem no relatório de execução. Cada consulta devolve o DataFrame tratado e o `ResultadoFonte`, com o mesmo tratamento e as mesmas severidades das fontes em lote, e grava a resposta bruta com um `.meta.json` (URL, parâmetros, data UTC, status HTTP, SHA-256) por `pipeline/download.consultar`. A mesma consulta repetida reaproveita o que foi gravado.
+
+| Fonte | Tipo | Consulta | Bruto guardado em | Módulo |
+|---|---|---|---|---|
+| SICAR — CAR | API (WFS, GeoJSON); uma camada por UF | Por município, retângulo ou ponto; TLS antigo com certificado verificado ([ADR 0007](adr/0007-obter-o-car-pelo-wfs-publico-do-sicar.md)) | `data/raw/sicar/<uf>/` | `pipeline/fontes/sicar.py` |
+| INPE — PRODES | API (WFS, GeoJSON); um workspace por bioma | Por bioma, retângulo ou UF, um ano PRODES por requisição | `data/raw/inpe_prodes/<bioma>/<recorte>/<ano>.json.gz` | `pipeline/fontes/inpe_prodes.py` |
+| INPE — DETER por ano PRODES | API (WFS, GeoJSON) | Por camada e UF, um ano PRODES por requisição, para a comparação com o PRODES | `data/raw/inpe_deter/sob_demanda/` | `inpe_deter.consultar_recorte` |
+| AB+S — validação do relatório | API (JSON) | Um código de autenticidade por vez, com o formato validado antes ([ADR 0008](adr/0008-usar-o-ab-s-como-referencia-sem-declarar-conformidade.md)) | `data/raw/ab_s/<endpoint>/`, com CPF/CNPJ pseudonimizados antes de gravar | `pipeline/fontes/ab_s.py` |
+| IBGE — malha do município | API (GeoJSON) | Um município por vez, para conferir a posição do CAR | `data/raw/ibge_malhas/` | `sicar.malha_municipio` |
+
+O acesso aos serviços WFS (requisição, contagem e filtros espaciais) fica em `pipeline/wfs.py`, usado pelo DETER, pelo PRODES e pelo SICAR. Nos WFS 2.0 em EPSG:4674, o filtro espacial sem SRS lê (latitude, longitude); a ordem fica em `config.ORDEM_EIXOS_FILTRO`, com teste.
+
+O cruzamento entre fontes começa em `pipeline/cruzamento.py`: para cada embargo ou alerta, uma consulta ao SICAR pelo retângulo do objeto e a classificação de cada par objeto-CAR em principal, parcial ou tangente, com `fracao_objeto`, `fracao_car` e `largura_m`. A comparação DETER × PRODES (`inpe_prodes.confirmar_alertas`) segue a escada da [ADR 0009](adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md). O caderno [`notebooks/02_fontes_antes_e_depois.ipynb`](../../notebooks/02_fontes_antes_e_depois.ipynb) mostra cada fonte antes e depois do tratamento.
 
 ## Pipeline
 
@@ -122,6 +149,9 @@ A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, boolean
 - [0004 — Coletar alertas DETER de desmatamento em partições mensais e identificar cada alerta pelo conteúdo](adr/0004-coletar-alertas-deter-em-particoes-mensais-e-identificar-pelo-conteudo.md)
 - [0005 — Resolver o município dos alertas DETER pela referência do IBGE](adr/0005-resolver-municipio-dos-alertas-deter-pela-referencia-do-ibge.md)
 - [0006 — Extrair a Lista Suja diretamente do PDF oficial](adr/0006-extrair-a-lista-suja-diretamente-do-pdf-oficial.md)
+- [0007 — Obter o CAR pelo WFS público do SICAR e atribuir embargos e alertas pela área de interseção](adr/0007-obter-o-car-pelo-wfs-publico-do-sicar.md)
+- [0008 — Usar o AB+S como referência sem declarar conformidade](adr/0008-usar-o-ab-s-como-referencia-sem-declarar-conformidade.md)
+- [0009 — Combinar DETER e PRODES pela data da imagem e pela cobertura de cada bioma](adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md)
 
 ## Onde entra a inteligência
 
@@ -160,3 +190,4 @@ Nesta versão, a fatia está pronta até a saída do pipeline.
 | 1 | 13/09/2026 | O alerta DETER passou a ser identificado pelo conteúdo (gid, data, município, geometria) | O `gid` repete para trechos de um alerta em municípios vizinhos (Cerrado) e é reutilizado por alertas diferentes (Amazônia) |
 | 1 | 13/09/2026 | A pseudonimização ficou dentro do pipeline | Dados pessoais não devem chegar às camadas seguintes |
 | 1 | 13/09/2026 | Registros inválidos são marcados em vez de removidos | A decisão sobre usar ou não um registro com problema pertence à regra de cruzamento, não ao pipeline |
+| 2 | 14/10/2026 | SICAR, PRODES e AB+S entraram como fontes sob demanda, com cache do bruto, e o cruzamento objeto → CAR em `pipeline/cruzamento.py` | Atividade 03: consulta-se só a área ou o relatório do caso; não há carga em massa dessas fontes |

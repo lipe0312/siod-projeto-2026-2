@@ -23,3 +23,20 @@ def ref_municipios():
 
 def ocorrencias(resultado, codigo):
     return next(v.ocorrencias for v in resultado.validacoes if v.codigo == codigo)
+
+
+def pytest_addoption(parser):
+    parser.addoption("--rede", action="store_true", help="roda também os testes que consultam serviços reais")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "rede: consulta um serviço real; só roda com --rede")
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--rede"):
+        return
+    pular = pytest.mark.skip(reason="consulta à rede; use --rede")
+    for item in items:
+        if "rede" in item.keywords:
+            item.add_marker(pular)

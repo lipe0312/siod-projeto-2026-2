@@ -4,15 +4,13 @@ import gzip
 import hashlib
 import json
 import logging
-import re
-import time
 from datetime import datetime, timezone
 
 import pandas as pd
 import requests
 import shapely
 
-from pipeline import config
+from pipeline import config, wfs
 from pipeline.municipios import normalizar_nome, resolver_por_nome
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -42,28 +40,16 @@ def particoes_mensais(desde: str, hoje: pd.Timestamp) -> list[tuple[str, str]]:
     return intervalos
 
 
+def _url(camada: dict) -> str:
+    return config.URL_WFS_INPE.format(workspace=camada["workspace"])
+
+
 def _requisitar(camada: dict, parametros: dict, tentativas: int = 4) -> requests.Response:
-    url = config.URL_WFS_INPE.format(workspace=camada["workspace"])
-    base = {"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeName": camada["tipo"]}
-    for tentativa in range(1, tentativas + 1):
-        try:
-            r = requests.get(url, params={**base, **parametros}, timeout=300, headers={"User-Agent": config.USER_AGENT})
-            r.raise_for_status()
-            return r
-        except requests.RequestException as e:
-            if tentativa == tentativas:
-                raise
-            espera = 5 * tentativa
-            log.warning("Falha na requisição ao INPE (%s); nova tentativa em %ss", type(e).__name__, espera)
-            time.sleep(espera)
+    return wfs.requisitar(_url(camada), camada["tipo"], parametros, tentativas=tentativas)
 
 
 def contar(camada: dict, cql: str) -> int:
-    texto = _requisitar(camada, {"resultType": "hits", "CQL_FILTER": cql}).text
-    achado = re.search(r'numberMatched="(\d+)"', texto)
-    if not achado:
-        raise ValueError("resposta de contagem do WFS sem numberMatched")
-    return int(achado.group(1))
+    return wfs.contar(_url(camada), camada["tipo"], cql)
 
 
 def baixar_camada(nome: str, desde: str, hoje: pd.Timestamp, atualizar: bool) -> dict:
@@ -323,3 +309,45 @@ def executar(ref_municipios: pd.DataFrame, hoje: pd.Timestamp, desde: str = conf
     }
     resultado.status = "ok"
     return resultado
+
+
+def periodos_prodes(desde: str, ate: str) -> list[tuple[str, str]]:
+    """Intervalos [início, fim) cortados em 01/08, o início do ano PRODES, de `desde` até `ate` (exclusivo)."""
+    inicio, limite = pd.Timestamp(desde), pd.Timestamp(ate)
+    intervalos = []
+    while inicio < limite:
+        corte = pd.Timestamp(year=inicio.year + (inicio.month >= 8), month=8, day=1)
+        fim = min(corte, limite)
+        intervalos.append((inicio.strftime("%Y-%m-%d"), fim.strftime("%Y-%m-%d")))
+        inicio = fim
+    return intervalos
+
+
+def consultar_recorte(nome: str, uf: str, desde: str, ate: str, ref_municipios: pd.DataFrame, hoje: pd.Timestamp,
+                      atualizar: bool = False) -> tuple[pd.DataFrame, pd.DataFrame, ResultadoFonte]:
+    """Consulta sob demanda: alertas de desmatamento de uma camada e UF, um ano PRODES por requisição.
+
+    Serve para comparar com o PRODES, que é organizado por ano PRODES (01/08 a 31/07). Cada resposta fica em
+    data/raw/inpe_deter/sob_demanda/ com .meta.json, e o tratamento e as validações são os mesmos do lote.
+    """
+    camada = config.CAMADAS_DETER[nome]
+    resultado = ResultadoFonte("inpe_deter", "API (WFS/GeoJSON), sob demanda")
+    pasta = config.DADOS_BRUTOS / "inpe_deter" / "sob_demanda" / f"{nome}_{uf.lower()}"
+    respostas, metas = [], []
+    for inicio, fim in periodos_prodes(desde, ate):
+        cql = f"uf='{uf}' AND view_date>='{inicio}' AND view_date<'{fim}' AND {filtro_classes()}"
+        resposta, meta = wfs.consultar_geojson(_url(camada), camada["tipo"], cql, pasta / f"{inicio}_{fim}.json.gz",
+                                               atualizar=atualizar, limite=config.DETER_LIMITE_POR_REQUISICAO)
+        respostas.append(resposta)
+        metas.append({"periodo": f"{inicio} a {fim}", "anunciado": resposta.get("numberMatched"),
+                      "recebido": len(resposta.get("features") or []), "sha256": meta["sha256"],
+                      "consultado_em_utc": meta["consultado_em_utc"]})
+    resultado.entrada = {"servico": _url(camada), "camada": camada["tipo"], "uf": uf, "desde": desde, "ate": ate,
+                         "requisicoes": metas}
+    resultado.transformar("Requisição ao WFS por ano PRODES (01/08 a 31/07), com cada resposta gravada compactada "
+                          "em data/raw/inpe_deter/sob_demanda/")
+    esperados = {nome: sum(r.get("numberMatched") or 0 for r in respostas)}
+    saida, descartados = transformar({nome: respostas}, esperados, ref_municipios, desde, hoje, resultado)
+    resultado.saida = {"registros_produzidos": len(saida), "registros_descartados": len(descartados)}
+    resultado.status = "ok"
+    return saida, descartados, resultado

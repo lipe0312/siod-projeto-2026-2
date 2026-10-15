@@ -10,4 +10,5 @@ data/
 
 # Ferramentas locais
 .claude
+.serena
 .DS_Store

@@ -41,6 +41,57 @@ UFS = frozenset(
     "AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split()
 )
 
+# Nome da UF por extenso (como o PRODES Cerrado grava o campo `state`) -> sigla.
+NOMES_UF = {
+    "ACRE": "AC", "ALAGOAS": "AL", "AMAZONAS": "AM", "AMAPA": "AP", "BAHIA": "BA", "CEARA": "CE",
+    "DISTRITO FEDERAL": "DF", "ESPIRITO SANTO": "ES", "GOIAS": "GO", "MARANHAO": "MA", "MINAS GERAIS": "MG",
+    "MATO GROSSO DO SUL": "MS", "MATO GROSSO": "MT", "PARA": "PA", "PARAIBA": "PB", "PERNAMBUCO": "PE", "PIAUI": "PI",
+    "PARANA": "PR", "RIO DE JANEIRO": "RJ", "RIO GRANDE DO NORTE": "RN", "RONDONIA": "RO", "RORAIMA": "RR",
+    "RIO GRANDE DO SUL": "RS", "SANTA CATARINA": "SC", "SERGIPE": "SE", "SAO PAULO": "SP", "TOCANTINS": "TO",
+}
+
+# ---------------------------------------------------------------------------------------------------------------
+# Fontes consultadas sob demanda (Atividade 03). Não entram na execução em lote: cada consulta grava a resposta
+# bruta em data/raw/<fonte>/ com um .meta.json e devolve o DataFrame tratado e o ResultadoFonte.
+# ---------------------------------------------------------------------------------------------------------------
+
+# Ordem dos eixos nos filtros espaciais do CQL (BBOX e POINT sem SRS) nos WFS 2.0 em EPSG:4674 (SICAR e
+# TerraBrasilis): latitude antes de longitude. Na ordem trocada o serviço devolve zero feições, sem erro.
+# A resposta GeoJSON vem em (longitude, latitude).
+ORDEM_EIXOS_FILTRO = ("lat", "lon")
+CRS_ESPERADO_WFS = "EPSG::4674"  # SIRGAS 2000, o mesmo do DETER
+PAUSA_ENTRE_CONSULTAS_S = 0.5
+
+# SICAR: uma camada por UF. O servidor só aceita TLS antigo (ver pipeline/fontes/sicar.py).
+URL_WFS_SICAR = "https://geoserver.car.gov.br/geoserver/sicar/wfs"
+CAMADA_SICAR = "sicar:sicar_imoveis_{uf}"
+STATUS_CAR = frozenset({"AT", "PE", "SU", "CA"})
+URL_MALHA_MUNICIPIO = ("https://servicodados.ibge.gov.br/api/v3/malhas/municipios/{cod}"
+                       "?formato=application/vnd.geo%2Bjson&qualidade=maxima")
+
+# Recorte da Atividade 03: os 10 maiores produtores de café de MG na PAM/IBGE 2025 (tabela 1613, café em grão).
+MUNICIPIOS_CAFE_MG = {
+    "3148103": "Patrocínio", "3139409": "Manhuaçu", "3143104": "Monte Carmelo", "3129707": "Ibiraci",
+    "3111606": "Campos Gerais", "3169406": "Três Pontas", "3166808": "Serra do Salitre", "3103504": "Araguari",
+    "3101607": "Alfenas", "3155504": "Rio Paranaíba",
+}
+
+# PRODES (incremento anual de desmatamento), um workspace por bioma no TerraBrasilis. `uf_por_extenso` diz como
+# cada camada grava a UF: o Cerrado usa o nome por extenso ("MINAS GERAIS"), a Mata Atlântica a sigla ("MG").
+CAMADAS_PRODES = {
+    "cerrado": {"workspace": "prodes-cerrado-nb", "tipo": "prodes-cerrado-nb:yearly_deforestation",
+                "uf_por_extenso": True},
+    "mata_atlantica": {"workspace": "prodes-mata-atlantica-nb", "tipo": "prodes-mata-atlantica-nb:yearly_deforestation",
+                       "uf_por_extenso": False},
+}
+PRODES_LIMITE_POR_REQUISICAO = 50000
+# Fração mínima do alerta DETER coberta pelo PRODES para contar como confirmação (ADR 0009).
+PRODES_LIMIAR_CONFIRMACAO = 0.10
+
+# AB+S (Agro Brasil + Sustentável): API pública de validação do relatório, consultada por código de autenticidade.
+URL_AB_S_PUBLICO = "https://agrobrasil.agricultura.gov.br/abs/backend/api/public"
+AB_S_ENDPOINTS = ("qualificacao", "habilitacao", "area-producao")
+
 # Grafia encontrada na base do IBAMA -> grafia padronizada.
 BIOMAS = {
     "Amazonia": "Amazônia",

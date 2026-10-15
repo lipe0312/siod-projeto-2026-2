@@ -47,8 +47,9 @@ O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identifi
 |---|---|---|---|
 | **01 — Caracterização e avaliação dos dados** | Fonte, qualidade dos dados, dicionário mínimo, análise exploratória e síntese técnica | [`docs/atividade-01-dados.md`](docs/atividade-01-dados.md) | [`notebooks/01_exploracao_dados.ipynb`](notebooks/01_exploracao_dados.ipynb) |
 | **02 — Pipeline inicial de dados** | Pipeline para CSV, API e PDF, com validações comprovadas por testes, evidência de execução, arquitetura e decisões | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | [`pipeline/`](pipeline/), [`tests/`](tests/), [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/), [`docs/arquitetura/`](docs/arquitetura/) |
+| **03 — Investigação de fontes: CAR, PRODES e AB+S** | CAR pelo WFS do SICAR, PRODES e a escada entre fontes de desmatamento, AB+S como referência; as três como fontes sob demanda do pipeline e a atribuição de embargo ou alerta a um CAR | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e [`docs/atividade-03/`](docs/atividade-03/) | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb), [`pipeline/fontes/`](pipeline/fontes/), [`pipeline/cruzamento.py`](pipeline/cruzamento.py), [`tests/`](tests/) |
 
-Os dois documentos trazem os números medidos, o que cada verificação encontrou e o motivo de cada decisão. Este README explica como reproduzir tudo.
+Os documentos trazem os números medidos, o que cada verificação encontrou e o motivo de cada decisão. Este README explica como reproduzir tudo.
 
 ## Arquitetura
 
@@ -59,7 +60,8 @@ Versão 1 em [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md
 1. Validar a dor com técnicos de assistência técnica e de cooperativas.
 2. Definir a camada de persistência e carregar nela as saídas do pipeline.
 3. Montar uma amostra simulada de produtores, com gabarito, e implementar a regra de cruzamento da fatia vertical.
-4. Incluir no pipeline o PRODES dos demais biomas e as bases de terras indígenas, unidades de conservação e florestas públicas.
+4. Incluir as bases de terras indígenas, unidades de conservação e florestas públicas, e o PRODES dos biomas além do Cerrado e da Mata Atlântica.
+5. Obter um relatório AB+S real para registrar a primeira resposta válida da API pública.
 
 ## Como reproduzir na sua máquina
 
@@ -135,7 +137,7 @@ As fontes são atualizadas continuamente, então as contagens podem variar um po
 python -m pytest
 ```
 
-O resultado esperado é `51 passed`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação ao teste que a comprova.
+O resultado esperado é `91 passed, 1 skipped`: 51 testes da Atividade 02 e 40 da Atividade 03. O teste ignorado é marcado `rede` e consulta o SICAR de verdade; ele só roda com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
 
 **b) Execução completa.** Baixa as quatro fontes e gera as saídas:
 
@@ -182,6 +184,27 @@ export SIOD_CHAVE_PSEUDONIMIZACAO="sua-chave"        # macOS / Linux
 $env:SIOD_CHAVE_PSEUDONIMIZACAO = "sua-chave"         # Windows (PowerShell)
 ```
 
+### 4. Atividade 03 — fontes sob demanda e o caderno das fontes
+
+SICAR (CAR), PRODES e AB+S não entram em `python -m pipeline`: são consultados sob demanda, só para a área ou o relatório do caso. Cada consulta devolve o DataFrame tratado e o `ResultadoFonte` com as validações, e grava a resposta bruta em `data/raw/<fonte>/` com um `.meta.json` (URL, parâmetros, data UTC, SHA-256). Repetir a mesma consulta reaproveita o que foi gravado; `atualizar=True` consulta de novo.
+
+```python
+from pipeline import cruzamento
+from pipeline.fontes import ab_s, inpe_prodes, sicar
+
+car, resultado = sicar.consultar_ponto(-18.94, -46.99)                    # CAR que contém o ponto (lat, lon)
+car, resultado = sicar.consultar_municipio("3148103")                     # todos os CARs de Patrocínio (MG)
+prodes, resultado = inpe_prodes.consultar("cerrado", uf="MG", desde=2019) # PRODES, um ano por requisição
+```
+
+O caderno [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) mostra, para cada fonte, o dado bruto, o dado tratado, as validações e os casos de erro que motivaram cada tratamento. Ele lê as saídas de `python -m pipeline`, então rode o pipeline antes:
+
+```bash
+jupyter nbconvert --to notebook --execute notebooks/02_fontes_antes_e_depois.ipynb --output-dir data/notebook_executado
+```
+
+A primeira execução consulta o SICAR (10 municípios e uma consulta por embargo ou alerta do recorte, com pausa entre elas), o PRODES e o DETER do Cerrado de MG e a API do AB+S, e leva alguns minutos; as seguintes reaproveitam as respostas gravadas (cerca de 30 MB em `data/raw/`). As contagens podem mudar um pouco quando as fontes são atualizadas. A explicação de cada número está em [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e nos documentos de [`docs/atividade-03/`](docs/atividade-03/).
+
 ### Problemas comuns
 
 | Situação | O que fazer |
@@ -200,7 +223,7 @@ $env:SIOD_CHAVE_PSEUDONIMIZACAO = "sua-chave"         # Windows (PowerShell)
 | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | Entrada, transformações, validações com seus testes, evidência, arquitetura e registro de decisão | 02 |
 | [`pipeline/__main__.py`](pipeline/__main__.py) | Linha de comando: ordem das fontes, isolamento de falhas, relatório final | 02 |
 | [`pipeline/config.py`](pipeline/config.py) | Endereços das fontes, caminhos e constantes (UFs, biomas, limites do Brasil, classes DETER) | 02 |
-| [`pipeline/download.py`](pipeline/download.py) | Download com procedência, novas tentativas e conferência de tamanho | 02 |
+| [`pipeline/download.py`](pipeline/download.py) | Download com procedência, novas tentativas e conferência de tamanho; consulta com cache para as fontes sob demanda | 02 e 03 |
 | [`pipeline/validacao.py`](pipeline/validacao.py) | Registro de cada validação (código, severidade, tratamento, contagens) e coluna `alertas` | 02 |
 | [`pipeline/documentos.py`](pipeline/documentos.py) | Dígito verificador de CPF/CNPJ e pseudonimização | 02 |
 | [`pipeline/municipios.py`](pipeline/municipios.py) | Referência de municípios do IBGE e resolução de município por nome | 02 |
@@ -208,6 +231,11 @@ $env:SIOD_CHAVE_PSEUDONIMIZACAO = "sua-chave"         # Windows (PowerShell)
 | [`pipeline/fontes/ibama_embargos.py`](pipeline/fontes/ibama_embargos.py) | Fonte tabular: embargos do IBAMA (CSV) | 02 |
 | [`pipeline/fontes/inpe_deter.py`](pipeline/fontes/inpe_deter.py) | Fonte API: alertas de desmatamento do INPE (WFS/GeoJSON) | 02 |
 | [`pipeline/fontes/mte_lista_suja.py`](pipeline/fontes/mte_lista_suja.py) | Fonte documento: Lista Suja do Ministério do Trabalho (PDF) | 02 |
+| [`pipeline/wfs.py`](pipeline/wfs.py) | Requisição, contagem e filtros espaciais (ordem dos eixos) comuns aos serviços WFS | 03 |
+| [`pipeline/fontes/sicar.py`](pipeline/fontes/sicar.py) | Fonte sob demanda: CAR pelo WFS do SICAR, por município, retângulo ou ponto | 03 |
+| [`pipeline/fontes/inpe_prodes.py`](pipeline/fontes/inpe_prodes.py) | Fonte sob demanda: PRODES por bioma e ano; confirmação dos alertas DETER | 03 |
+| [`pipeline/fontes/ab_s.py`](pipeline/fontes/ab_s.py) | Fonte sob demanda: validação do relatório AB+S pelo código de autenticidade | 03 |
+| [`pipeline/cruzamento.py`](pipeline/cruzamento.py) | Atribuição de embargo ou alerta a um CAR (principal, parcial, tangente) | 03 |
 | [`tests/test_ibama_embargos.py`](tests/test_ibama_embargos.py) | Validações da fonte IBAMA | 02 |
 | [`tests/test_inpe_deter.py`](tests/test_inpe_deter.py) | Validações da fonte DETER, incluindo identificador e completude das partições | 02 |
 | [`tests/test_mte_lista_suja.py`](tests/test_mte_lista_suja.py) | Segmentação e validações da Lista Suja | 02 |
@@ -215,8 +243,11 @@ $env:SIOD_CHAVE_PSEUDONIMIZACAO = "sua-chave"         # Windows (PowerShell)
 | [`tests/test_documentos.py`](tests/test_documentos.py) | CPF/CNPJ e pseudonimização | 02 |
 | [`tests/test_download.py`](tests/test_download.py) | Download truncado e registro de procedência | 02 |
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
+| [`tests/test_sicar.py`](tests/test_sicar.py), [`test_inpe_prodes.py`](tests/test_inpe_prodes.py), [`test_ab_s.py`](tests/test_ab_s.py), [`test_cruzamento.py`](tests/test_cruzamento.py) | Validações das fontes sob demanda, ordem dos eixos, regra de confirmação do PRODES e de atribuição ao CAR | 03 |
+| [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
+| [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |
 | [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md) | Arquitetura (versão 1) | 02 |
 | [`docs/arquitetura/adr/`](docs/arquitetura/adr/) | Registros de decisão técnica | 02 |
-| [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 e 02 |
-| `data/` | Gerada localmente: `raw/` (baixados), `processed/` (saídas), `logs/`, chave de pseudonimização. Não é versionada porque contém dados pessoais | 01 e 02 |
+| [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 a 03 |
+| `data/` | Gerada localmente: `raw/` (baixados), `processed/` (saídas), `logs/`, chave de pseudonimização. Não é versionada porque contém dados pessoais | 01 a 03 |

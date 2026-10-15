@@ -1,5 +1,6 @@
 """Download de arquivos brutos com registro de procedência."""
 
+import gzip
 import hashlib
 import json
 import logging
@@ -41,6 +42,46 @@ def _baixar_uma_vez(url: str, temporario: Path) -> dict:
     if esperado and r.headers.get("Content-Encoding") is None and int(esperado) != recebido:
         raise DownloadIncompleto(f"recebidos {recebido} de {esperado} bytes")
     return cabecalho
+
+
+def consultar(url: str, destino: Path, parametros: dict | None = None, sessao: requests.Session | None = None,
+              atualizar: bool = False, tratar=None, tentativas: int = 4, pausa: float = 0) -> tuple[bytes, dict]:
+    """GET com cache, para as fontes consultadas sob demanda.
+
+    Se `destino` já existe (e não se pediu `atualizar`), devolve o que está gravado sem ir à rede. Senão, faz a
+    requisição e grava a resposta (compactada se `destino` termina em .gz) e o `.meta.json` ao lado, com URL,
+    parâmetros, data UTC, status HTTP e SHA-256. Qualquer status HTTP é gravado: quem chama decide o que significa.
+    `tratar(conteudo) -> (conteudo, nota)` é aplicado antes de gravar (ex.: pseudonimizar documentos).
+    Só falha de rede é repetida. `pausa` (segundos) é respeitada depois de cada ida à rede.
+    """
+    meta_caminho = destino.parent / (destino.name.removesuffix(".gz").rsplit(".", 1)[0] + ".meta.json")
+    if destino.exists() and meta_caminho.exists() and not atualizar:
+        conteudo = destino.read_bytes()
+        return (gzip.decompress(conteudo) if destino.suffix == ".gz" else conteudo), json.loads(meta_caminho.read_text())
+    cliente = sessao or requests
+    for tentativa in range(1, tentativas + 1):
+        try:
+            consultado_em = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            inicio = time.perf_counter()
+            r = cliente.get(url, params=parametros, timeout=TIMEOUT, headers={"User-Agent": config.USER_AGENT})
+            break
+        except requests.RequestException as e:
+            if tentativa == tentativas:
+                raise
+            log.warning("Falha na consulta a %s (%s); nova tentativa em %ds", url, type(e).__name__, 5 * tentativa)
+            time.sleep(5 * tentativa)
+    conteudo, nota = tratar(r.content) if tratar else (r.content, None)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_bytes(gzip.compress(conteudo, mtime=0) if destino.suffix == ".gz" else conteudo)
+    meta = {"url": url, "parametros": parametros or {}, "url_completa": r.url, "consultado_em_utc": consultado_em,
+            "status_http": r.status_code, "segundos": round(time.perf_counter() - inicio, 3),
+            "content_type": r.headers.get("Content-Type"), "tamanho_bytes": len(conteudo),
+            "sha256": hashlib.sha256(conteudo).hexdigest()}
+    if nota:
+        meta["tratamento_antes_de_gravar"] = nota
+    meta_caminho.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    time.sleep(pausa)
+    return conteudo, meta
 
 
 def baixar(url: str, destino: Path, atualizar: bool = False) -> dict:

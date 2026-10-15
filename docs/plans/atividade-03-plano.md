@@ -14,45 +14,54 @@ Também atende ao que foi pedido na avaliação da Atividade 2: mostrar dado rea
 
 - **Fonte aberta e gratuita primeiro.** Tudo que entra no projeto agora pode ser acessado sem contrato e sem pagamento. Fontes pagas ou contratadas ficam registradas como **fontes de produção**: seriam as principais se o projeto fosse ao ar, mas não são usadas agora (seção 7).
 - **O projeto não declara conformidade.** Ele aponta indícios com fonte e data. Quando existe resultado oficial do AB+S, ele é a referência e é citado, nunca reescrito.
-- **Toda conclusão tem evidência conferível.** Cada afirmação deste plano e dos documentos que ele gera aponta para um arquivo em `docs/evidencias/`.
+- **Toda conclusão tem evidência conferível.** Cada afirmação deste plano e dos documentos que ele gera aponta para o módulo que o gera em `pipeline/` e para a seção do caderno `notebooks/02_fontes_antes_e_depois.ipynb` que o reproduz, ou é marcada como resultado do estudo exploratório de 13/10/2026.
 - **Toda saída é visual.** Cada frente termina com tabela, mapa ou gráfico, não só com texto.
 - **Sem pular etapas da disciplina.** Pesquisa e testes exploratórios podem andar livres; a integração no pipeline segue o cronograma (persistência na Aula 04, ML na Aula 09, LLM na Aula 10).
 
 ## 3. Organização das saídas
 
-Documentação e evidência ficam separadas. A documentação é para ler, estudar e montar slides. A evidência é para conferir: código que gerou o resultado, resposta bruta das APIs e tabelas.
+Documentação, código e dados ficam separados. `docs/` tem só texto e figuras: é a base de estudo e dos slides. Os estudos exploratórios de 13/10/2026 viraram módulos do pipeline no padrão da Atividade 02 e um caderno de visualização. SICAR, PRODES e AB+S são **fontes sob demanda**: consulta-se só a área ou o relatório do caso, e não há carga em massa. Cada consulta devolve o DataFrame tratado e o `ResultadoFonte`, e grava a resposta bruta em `data/raw/<fonte>/` com um `.meta.json`.
 
 ```
 docs/
 ├── atividade-01-dados.md
 ├── atividade-02-pipeline.md
+├── atividade-03-investigacao.md         conclusões da atividade e índice
 ├── atividade-03/                        DOCUMENTAÇÃO (base de estudo e slides)
-│   ├── README.md                        conclusões da atividade e índice
 │   ├── car.md                           frente A
 │   ├── ab-s-validacao-cruzada.md        frente B
 │   ├── prodes-e-escada-de-fontes.md     frente C
-│   └── figuras/                         PNG gerados pelos scripts (mapas, gráficos, prints)
-├── evidencias/                          EVIDÊNCIA BRUTA (para conferir, não para ler)
-│   ├── atividade-02/                    execução de referência atual, movida para cá
-│   └── atividade-03/
-│       ├── car/                         scripts .py, respostas .json/.xml, tabelas .csv
-│       ├── ab-s/
-│       └── prodes/
+│   └── figuras/                         PNG dos estudos (mapas, gráficos, prints)
+├── evidencias/atividade-02/             execução de referência da Atividade 02 (já entregue)
 ├── arquitetura/
-│   ├── arquitetura.md                   atualizada com as fontes novas
+│   ├── arquitetura.md                   atualizada com as fontes sob demanda
 │   └── adr/                             0007, 0008 e 0009 novos
-├── inconsistencias-dos-dados.md         atualizado com SICAR e PRODES
+├── inconsistencias-dos-dados.md         atualizado com SICAR, PRODES e AB+S
 └── plans/
     └── atividade-03-plano.md            este plano
+
+notebooks/02_fontes_antes_e_depois.ipynb VISUALIZAÇÃO: cada fonte antes e depois do tratamento, executado e salvo
+
+pipeline/                                CÓDIGO
+├── wfs.py                               requisição, contagem e filtros WFS (DETER, PRODES, SICAR)
+├── cruzamento.py                        atribuição embargo/alerta → CAR (frente A)
+└── fontes/
+    ├── sicar.py                         frente A, sob demanda
+    ├── ab_s.py                          frente B, sob demanda
+    └── inpe_prodes.py                   frente C, sob demanda
+
+tests/test_{sicar,ab_s,inpe_prodes,cruzamento}.py
+
+data/                                    DADOS (fora do Git)
+└── raw/{sicar,ab_s,inpe_prodes}/        respostas como vieram da fonte, com .meta.json (cache das consultas)
 ```
 
 Regras:
 
-- Cada script de evidência é numerado (`01_...py`), roda a partir da raiz do repositório e grava a saída na própria pasta.
-- Cada pasta de evidência tem um `LEIA-ME.md` de poucas linhas: o que cada arquivo é e como regerar.
-- Resposta de API é guardada como veio, com data da consulta e SHA-256 no nome ou em um `.meta.json`, no mesmo padrão de `pipeline/download.py`.
-- Nenhum CPF, CNPJ ou nome de pessoa vai para a evidência. Dados pessoais são pseudonimizados com `pipeline/documentos.py::pseudonimizar`.
-- A pasta `docs/evidencias/` atual vai para `docs/evidencias/atividade-02/`. Os links precisam ser atualizados em `README.md` (linhas 165 e 218) e em `docs/atividade-02-pipeline.md` (linhas 3, 76, 190 e 229). O código não muda, porque o caminho é passado por `--evidencia`.
+- Cada fonte sob demanda segue o contrato das fontes em lote: transformação explícita, validações registradas com `resultado.validar(...)` e testes com dados pequenos escritos no próprio teste.
+- As fontes sob demanda não entram em `python -m pipeline` nem no relatório de execução da Atividade 02.
+- Resposta de API é guardada como veio, com data da consulta e SHA-256 em um `.meta.json`, no mesmo padrão de `pipeline/download.py`.
+- Nenhum CPF, CNPJ ou nome de pessoa vai para as saídas. Dados pessoais são pseudonimizados com `pipeline/documentos.py::pseudonimizar`.
 
 ## 4. Panorama das fontes abertas (testado em 13/10/2026)
 
@@ -106,9 +115,9 @@ O mesmo cruzamento vale no sentido inverso, sem o técnico: cada embargo IBAMA e
 
 | # | Tarefa | Saída | Pronto quando |
 |---|---|---|---|
-| A1 | Script que baixa o CAR de um conjunto de municípios cafeeiros de MG, um município por requisição, conferindo `numberMatched` contra o recebido (mesmo padrão da partição mensal do DETER, ADR 0004) | `evidencias/atividade-03/car/01_coleta_municipios.py` + `.csv` com contagem e tempo por município | Todos os municípios com anunciado = recebido |
-| A2 | Estudo de inconsistências do CAR: códigos repetidos, geometria inválida, área zero, status e condição, sobreposição entre CARs do mesmo município | `02_inconsistencias.py` + tabela; atualização de `inconsistencias-dos-dados.md` | Cada problema com contagem e tratamento proposto |
-| A3 | Regra de atribuição embargo/alerta → CAR: fração do embargo dentro de cada CAR e fração do CAR atingida. Classificar em **principal**, **parcial** e **tangente** (limiares definidos pelos dados, não arbitrados) | `03_atribuicao.py` + histograma das frações + mapa de 3 casos reais | Limiares justificados por um gráfico; casos tangentes separados |
+| A1 | Script que baixa o CAR de um conjunto de municípios cafeeiros de MG, um município por requisição, conferindo `numberMatched` contra o recebido (mesmo padrão da partição mensal do DETER, ADR 0004) | `sicar.consultar_municipios`; caderno, seção 5 | Todos os municípios com anunciado = recebido |
+| A2 | Estudo de inconsistências do CAR: códigos repetidos, geometria inválida, área zero, status e condição, sobreposição entre CARs do mesmo município | Validações `CAR_*` em `sicar.transformar`; atualização de `inconsistencias-dos-dados.md` | Cada problema com contagem e tratamento proposto |
+| A3 | Regra de atribuição embargo/alerta → CAR: fração do embargo dentro de cada CAR e fração do CAR atingida. Classificar em **principal**, **parcial** e **tangente** (limiares definidos pelos dados, não arbitrados) | `cruzamento.atribuir_car` + histograma das frações + mapa de casos reais (caderno, seção 8) | Limiares justificados por um gráfico; casos tangentes separados |
 | A4 | Confirmar o significado de `AT`, `PE`, `SU` e `CA` e das condições na documentação do Serviço Florestal Brasileiro | Tabela de códigos com fonte | Cada código com fonte oficial, ou marcado como "inferido" |
 | A5 | Investigar a divergência de área AB+S × SICAR | Nota em `car.md` | Origem da área do AB+S identificada ou declarada como pendência |
 | A6 | Decisão em ADR: SICAR WFS como fonte do CAR, escada de obtenção, regra de atribuição e o ajuste de TLS | `adr/0007-obter-o-car-pelo-wfs-publico-do-sicar.md` | ADR no formato MADR, como os anteriores |
@@ -176,9 +185,9 @@ Cada critério do AB+S é mapeado para o critério equivalente do projeto, usand
 
 | # | Tarefa | Saída | Pronto quando |
 |---|---|---|---|
-| B1 | Repetir os testes da API pública e guardar as respostas brutas | `evidencias/atividade-03/ab-s/01_endpoints_publicos.py` + `.json` | Respostas de 404 guardadas com data e hash |
-| B2 | Extrair o UUID do PDF (texto via `pdfplumber`; QR como alternativa) e validar o formato de 36 caracteres | `02_extrair_uuid.py` | Extração funcionando no PDF disponível |
-| B3 | **Conseguir um UUID real** (ação do autor, não automatizável) e guardar a resposta válida | `03_resposta_valida.json` (pseudonimizada) | Uma resposta 200 com estrutura documentada campo a campo |
+| B1 | Repetir os testes da API pública e guardar as respostas brutas | `ab_s.consultar` + resposta bruta em `data/raw/ab_s/` | Respostas de 404 guardadas com data e hash |
+| B2 | Extrair o UUID do PDF (texto via `pdfplumber`; QR como alternativa) e validar o formato de 36 caracteres | `ab_s.extrair_uuid` e `ab_s.validar_uuid` | Extração funcionando no PDF disponível |
+| B3 | **Conseguir um UUID real** (ação do autor, não automatizável) e guardar a resposta válida | Resposta pseudonimizada em `data/raw/ab_s/` | Uma resposta 200 com estrutura documentada campo a campo |
 | B4 | Mapear critério AB+S → critério do projeto | Tabela em `ab-s-validacao-cruzada.md` | Todos os critérios do relatório mapeados, inclusive os "não verificados" |
 | B5 | Viabilidade para o técnico: o que ele precisa (carteira inteira, periódica) × o que o canal público oferece (um relatório por vez, depende do produtor emitir) × lacuna | Tabela | Conclusão explícita sobre o uso em carteira |
 | B6 | ADR da regra de referência e da blindagem | `adr/0008-usar-o-ab-s-como-referencia-sem-declarar-conformidade.md` | ADR no formato MADR |
@@ -236,10 +245,10 @@ A última linha é a principal proteção contra falso negativo: um bioma sem fo
 | # | Tarefa | Saída | Pronto quando |
 |---|---|---|---|
 | C1 | Confirmar o calendário do ano PRODES e o significado de `year`, `image_date` e `publish_year` na documentação do INPE | Nota com fonte | Regra de filtro pela data de corte justificada |
-| C2 | Coletar Mata Atlântica e Cerrado nos municípios do recorte (filtro espacial ou por `state`), conferindo `numberMatched` | `evidencias/atividade-03/prodes/01_coleta.py` + contagens | Anunciado = recebido |
-| C3 | Estudo de inconsistências: unicidade do `uuid`, geometria inválida, classes, nuvem (`def_cloud`) | `02_inconsistencias.py` + tabela | Mesmo nível do estudo do DETER |
+| C2 | Coletar Mata Atlântica e Cerrado nos municípios do recorte (filtro espacial ou por `state`), conferindo `numberMatched` | `inpe_prodes.consultar` + contagens | Anunciado = recebido |
+| C3 | Estudo de inconsistências: unicidade do `uuid`, geometria inválida, classes, nuvem (`def_cloud`) | Validações `PRODES_*` em `inpe_prodes.transformar` + tabela | Mesmo nível do estudo do DETER |
 | C4 | Tabela de cobertura: bioma × fonte × último dado disponível × data de publicação | Tabela + gráfico de linha do tempo | Datas lidas do serviço, não de notícia |
-| C5 | Sobreposição DETER × PRODES no Cerrado do recorte: quantos alertas o PRODES confirmou | `03_deter_x_prodes.py` + matriz | Taxa de confirmação medida |
+| C5 | Sobreposição DETER × PRODES no Cerrado do recorte: quantos alertas o PRODES confirmou | `inpe_prodes.confirmar_alertas` + matriz (caderno, seção 6) | Taxa de confirmação medida |
 | C6 | ADR da escada | `adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md` | ADR no formato MADR |
 
 ### Visualização desta frente
@@ -268,17 +277,17 @@ As frentes A e C são independentes e podem rodar em paralelo. A frente B depend
 
 | Pacote | Depende de | Entrega |
 |---|---|---|
-| 0. Reorganizar `docs/evidencias/` e corrigir links | — | Estrutura da seção 3 |
+| 0. Separar documentação, código e dados | — | Estrutura da seção 3 |
 | A1–A6 | 0 | `docs/atividade-03/car.md`, evidências, ADR 0007 |
 | C1–C6 | 0 | `docs/atividade-03/prodes-e-escada-de-fontes.md`, evidências, ADR 0009 |
 | B1, B2, B4, B5, B6 | 0 | `docs/atividade-03/ab-s-validacao-cruzada.md`, ADR 0008 |
 | B3 | Autor conseguir um relatório real | Resposta válida documentada |
 | D1–D5 | A e C concluídas | Módulos e testes |
-| Fechamento | Tudo acima | `docs/atividade-03/README.md`, `inconsistencias-dos-dados.md` e `arquitetura.md` atualizados |
+| Fechamento | Tudo acima | `docs/atividade-03-investigacao.md`, `inconsistencias-dos-dados.md` e `arquitetura.md` atualizados |
 
 Instruções comuns a todo agente:
 
-- Nenhum número sem evidência em `docs/evidencias/atividade-03/`.
+- Nenhum número sem o código que o gere (módulo em `pipeline/` ou caderno).
 - Nada de `verify=False`, varredura de UUID ou coleta fora do recorte.
 - Escrita direta, em português, no mesmo tom dos documentos existentes.
 - Commits sem assinatura de ferramenta.
