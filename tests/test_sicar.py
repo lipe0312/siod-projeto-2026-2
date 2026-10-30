@@ -121,3 +121,8 @@ def test_rede_municipio_real_anunciado_igual_a_recebido(tmp_path, monkeypatch):
     assert requisicao["anunciado"] == requisicao["recebido"] == r.entrada["registros_recebidos"] > 0
     assert len(saida) == requisicao["recebido"]
     assert isinstance(saida, pd.DataFrame)
+
+
+def test_codigo_fora_do_formato_nao_e_consultado():
+    with pytest.raises(ValueError, match="fora do formato"):
+        sicar.consultar_codigo("MG-3148103-123")

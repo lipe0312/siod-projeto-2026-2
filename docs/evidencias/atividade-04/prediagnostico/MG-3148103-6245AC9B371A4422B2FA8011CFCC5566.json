@@ -1,0 +1,312 @@
+{
+  "consulta": {
+    "cod_imovel": "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566",
+    "lat": null,
+    "lon": null,
+    "documento_informado": true,
+    "gerado_em": "2026-10-30 00:45:07"
+  },
+  "imovel": {
+    "cod_imovel": "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566",
+    "uf": "MG",
+    "cod_municipio": "3148103",
+    "municipio": "Patrocínio",
+    "tipo_imovel": "IRU",
+    "status_imovel": "AT",
+    "condicao": "Aguardando análise",
+    "area_geom_ha": 474.9882237986723,
+    "m_fiscal": 11.8446,
+    "fracao_coberta_por_outros": 0.0,
+    "data_atualizacao": "2025-05-16",
+    "status_texto": "Ativo"
+  },
+  "resultado": {
+    "situacao": "com pendência",
+    "resumo": "1 pendência(s) com causa e fonte identificadas",
+    "contagem": {
+      "pendência": 1,
+      "indício": 0,
+      "sem ocorrência": 3,
+      "não verificado": 6,
+      "inconclusivo": 0
+    }
+  },
+  "criterios": [
+    {
+      "chave": "car",
+      "criterio": "CAR",
+      "criterio_ab_s": 3,
+      "situacao": "sem ocorrência",
+      "evidencia": "Ativo · Aguardando análise",
+      "encaminhamento": "—",
+      "fonte": "SICAR"
+    },
+    {
+      "chave": "embargo",
+      "criterio": "Embargo IBAMA",
+      "criterio_ab_s": 7,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum embargo dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "IBAMA"
+    },
+    {
+      "chave": "desmatamento",
+      "criterio": "Desmatamento após 31/12/2020 (EUDR)",
+      "criterio_ab_s": null,
+      "situacao": "pendência",
+      "evidencia": "3 alerta(s) DETER (56.6 ha no imóvel): 2 confirmado, 1 não confirmado; 8 polígono(s) PRODES após 2020 (64.6 ha no imóvel)",
+      "encaminhamento": "Verificar se a supressão teve autorização (ASV). Mesmo autorizada, área desmatada após 31/12/2020 não atende à EUDR para a produção que sai dela.",
+      "fonte": "INPE DETER e PRODES"
+    },
+    {
+      "chave": "lista_suja",
+      "criterio": "Lista Suja (trabalho escravo)",
+      "criterio_ab_s": 4,
+      "situacao": "sem ocorrência",
+      "evidencia": "Documento não consta no Cadastro de Empregadores",
+      "encaminhamento": "—",
+      "fonte": "MTE"
+    },
+    {
+      "chave": "ab_s_1",
+      "criterio": "Fundiária: dados cadastrais",
+      "criterio_ab_s": 1,
+      "situacao": "não verificado",
+      "evidencia": "SNCR não tem consulta aberta por imóvel",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA (SNCR)"
+    },
+    {
+      "chave": "ab_s_2",
+      "criterio": "Fundiária: dados geoespaciais",
+      "criterio_ab_s": 2,
+      "situacao": "não verificado",
+      "evidencia": "Download do SIGEF exige login gov.br",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "SIGEF-GEO (INCRA)"
+    },
+    {
+      "chave": "ab_s_5",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "não verificado",
+      "evidencia": "Fonte aberta existe; ainda não integrada",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "FUNAI"
+    },
+    {
+      "chave": "ab_s_6",
+      "criterio": "Sobreposição: área quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "não verificado",
+      "evidencia": "Sem fonte aberta integrada",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA"
+    },
+    {
+      "chave": "ab_s_8",
+      "criterio": "Sobreposição: CAR x SIGEF-GEO",
+      "criterio_ab_s": 8,
+      "situacao": "não verificado",
+      "evidencia": "Depende do critério 2",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "CAR e SIGEF-GEO"
+    },
+    {
+      "chave": "ab_s_9",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "não verificado",
+      "evidencia": "Sem fonte aberta integrada",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "MMA"
+    }
+  ],
+  "evidencias": {
+    "embargos": [],
+    "alertas": [
+      {
+        "id_alerta": "cerrado:2011289_hist:44c5d9587dc5",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2022-08-04T00:00:00.000",
+        "area_km2": 0.0853976703,
+        "satelite": "CBERS-4",
+        "inter_ha": 8.4585379895,
+        "fracao_objeto": 1.0,
+        "largura_m": 128.7852335763,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2023"
+      },
+      {
+        "id_alerta": "cerrado:2023712_hist:487e6851589b",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-06-03T00:00:00.000",
+        "area_km2": 0.1671843945,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 16.7118568034,
+        "fracao_objeto": 0.9865610924,
+        "largura_m": 144.4242296684,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "cerrado:2026427_hist:aef5fd5f7824",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-07-09T00:00:00.000",
+        "area_km2": 0.3124869055,
+        "satelite": "CBERS-4A",
+        "inter_ha": 31.4455972818,
+        "fracao_objeto": 1.0,
+        "largura_m": 179.4412981867,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2023"
+      }
+    ],
+    "prodes": [
+      {
+        "uuid": "b3478ab7-59ce-4335-8036-278fb05a48b7",
+        "bioma": "cerrado",
+        "ano_prodes": 2021,
+        "data_imagem": "2021-07-12T00:00:00.000",
+        "area_km2": 0.0134623434,
+        "inter_ha": 0.2226258173,
+        "fracao_objeto": 0.1646303872,
+        "largura_m": 13.272548604,
+        "classe": "parcial"
+      },
+      {
+        "uuid": "28c1346e-e72d-41ea-961f-eb3cb8ccdb8a",
+        "bioma": "cerrado",
+        "ano_prodes": 2022,
+        "data_imagem": "2022-07-07T00:00:00.000",
+        "area_km2": 0.041550089,
+        "inter_ha": 4.1736556883,
+        "fracao_objeto": 1.0,
+        "largura_m": 74.9716609303,
+        "classe": "principal"
+      },
+      {
+        "uuid": "d659f2b0-b61d-477a-9a03-250beb0d3996",
+        "bioma": "cerrado",
+        "ano_prodes": 2022,
+        "data_imagem": "2022-07-07T00:00:00.000",
+        "area_km2": 0.0164336043,
+        "inter_ha": 1.6507365057,
+        "fracao_objeto": 1.0,
+        "largura_m": 37.2826283263,
+        "classe": "principal"
+      },
+      {
+        "uuid": "595d0656-97f5-43ae-b23a-b47c04830f07",
+        "bioma": "cerrado",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-10T00:00:00.000",
+        "area_km2": 0.0883453597,
+        "inter_ha": 8.8741849117,
+        "fracao_objeto": 1.0,
+        "largura_m": 83.7258134251,
+        "classe": "principal"
+      },
+      {
+        "uuid": "0f4689d5-19b9-4391-b4ef-69825da06fe8",
+        "bioma": "cerrado",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-10T00:00:00.000",
+        "area_km2": 0.0162598444,
+        "inter_ha": 1.6332816039,
+        "fracao_objeto": 1.0,
+        "largura_m": 59.1729032129,
+        "classe": "principal"
+      },
+      {
+        "uuid": "e714809b-4a32-43e0-b8ba-158c27645bf1",
+        "bioma": "cerrado",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-10T00:00:00.000",
+        "area_km2": 0.3151702486,
+        "inter_ha": 31.6584663165,
+        "fracao_objeto": 1.0,
+        "largura_m": 158.4650524418,
+        "classe": "principal"
+      },
+      {
+        "uuid": "4ff61a99-0892-4611-83ac-43eb8bdd2e95",
+        "bioma": "cerrado",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-10T00:00:00.000",
+        "area_km2": 0.0636930728,
+        "inter_ha": 6.3978926041,
+        "fracao_objeto": 1.0,
+        "largura_m": 86.0387061379,
+        "classe": "principal"
+      },
+      {
+        "uuid": "b7c5e45a-3ff6-4b2a-a98f-aa79b3488284",
+        "bioma": "cerrado",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-10T00:00:00.000",
+        "area_km2": 0.1043141996,
+        "inter_ha": 9.959073106,
+        "fracao_objeto": 0.9504530212,
+        "largura_m": 98.4229408037,
+        "classe": "principal"
+      }
+    ],
+    "lista_suja": []
+  },
+  "geometria_car": "MULTIPOLYGON (((-47.22505694 -18.74840196, -47.22468897 -18.74861896, -47.22459295 -18.748918, -47.22481394 -18.749676, -47.22468598 -18.75016301, -47.22447694 -18.75049103, -47.22414996 -18.75063104, -47.22336701 -18.75066203, -47.22306003 -18.75054798, -47.22274799 -18.75028704, -47.22246602 -18.749817, -47.22239597 -18.74971703, -47.22233698 -18.74967997, -47.22225898 -18.74968199, -47.22222301 -18.74970102, -47.22219094 -18.74980103, -47.22207702 -18.75116602, -47.22187696 -18.75138301, -47.22165502 -18.751443, -47.22149399 -18.751404, -47.22136197 -18.75131398, -47.22117602 -18.75108802, -47.220972 -18.75098097, -47.22016194 -18.75083198, -47.22004399 -18.75080999, -47.219928 -18.75084397, -47.21978794 -18.75098004, -47.21971596 -18.75108802, -47.21972501 -18.75118501, -47.21978801 -18.751435, -47.21990797 -18.75156699, -47.220121 -18.75167403, -47.22043602 -18.75165601, -47.22098302 -18.75178004, -47.22111895 -18.75184201, -47.22126902 -18.75201402, -47.22129897 -18.75220903, -47.22126296 -18.75263796, -47.22123099 -18.752789, -47.22115702 -18.75288897, -47.22087901 -18.75311998, -47.22078895 -18.75316504, -47.220655 -18.75316699, -47.22045796 -18.753122, -47.21986698 -18.75265897, -47.21965298 -18.75253604, -47.21933396 -18.75243, -47.21917296 -18.75230599, -47.21908901 -18.75214404, -47.21908696 -18.75198004, -47.21901298 -18.75178202, -47.218839 -18.75166702, -47.21862997 -18.75160402, -47.21824299 -18.75165196, -47.21749297 -18.75193996, -47.21746702 -18.75277704, -47.21712901 -18.75316204, -47.21670695 -18.753203, -47.21606797 -18.75313696, -47.21544001 -18.75317402, -47.21484698 -18.753344, -47.21431794 -18.75323103, -47.21422398 -18.75327496, -47.21419595 -18.753546, -47.21438396 -18.75392296, -47.21422198 -18.75425501, -47.21359094 -18.75483397, -47.21344596 -18.75520404, -47.21328197 -18.75533804, -47.21242201 -18.75575603, -47.211874 -18.75622399, -47.21230601 -18.75658903, -47.21279798 -18.75678897, -47.21292602 -18.75716303, -47.21271801 -18.75746998, -47.21066797 -18.75753804, -47.21064697 -18.75770205, -47.21071002 -18.75784004, -47.21174797 -18.75895701, -47.21216995 -18.75941801, -47.21229397 -18.75924302, -47.21249894 -18.75929199, -47.21250695 -18.75960804, -47.21235095 -18.75973002, -47.21233298 -18.76012604, -47.21244802 -18.76018601, -47.212444 -18.76045197, -47.21256295 -18.76050602, -47.21275998 -18.76073104, -47.21267698 -18.76085197, -47.21267297 -18.76107503, -47.21298001 -18.76102497, -47.21345299 -18.76129505, -47.21354901 -18.76149597, -47.21338101 -18.76149001, -47.21342894 -18.76165401, -47.21369802 -18.76188405, -47.21390002 -18.76190098, -47.21398095 -18.76212999, -47.21388695 -18.76219298, -47.21391494 -18.76234701, -47.21407495 -18.76245197, -47.21430901 -18.76246997, -47.21436399 -18.76256299, -47.21406796 -18.76275898, -47.21404098 -18.76293697, -47.21418196 -18.76295698, -47.21422497 -18.76303397, -47.214776 -18.76323203, -47.21480199 -18.76337001, -47.21455102 -18.76337199, -47.214418 -18.76350399, -47.21450194 -18.76373802, -47.21443196 -18.76398499, -47.214762 -18.76423598, -47.21454497 -18.76524703, -47.21480001 -18.76534598, -47.21454902 -18.76567304, -47.21431103 -18.76560902, -47.21400595 -18.76591902, -47.21394499 -18.766203, -47.21405895 -18.76635403, -47.21404195 -18.76651203, -47.21422594 -18.766783, -47.21372101 -18.76696502, -47.21344694 -18.76707901, -47.21347798 -18.76716897, -47.21361397 -18.76718397, -47.21340802 -18.76746796, -47.21338495 -18.76761898, -47.21329095 -18.76766698, -47.21329994 -18.76775304, -47.21363697 -18.76808199, -47.21373897 -18.76831201, -47.21369301 -18.76861198, -47.21345894 -18.76851404, -47.21388096 -18.76965798, -47.21414999 -18.76989099, -47.21412198 -18.77038197, -47.21413902 -18.77050299, -47.21419397 -18.77066601, -47.21394396 -18.77069905, -47.213796 -18.77059503, -47.21358695 -18.77087399, -47.21363995 -18.77102601, -47.21342399 -18.77149501, -47.21363802 -18.77160403, -47.213754 -18.77191003, -47.21374702 -18.77203603, -47.21359497 -18.77209798, -47.21347099 -18.77203704, -47.213382 -18.77221504, -47.21354498 -18.77221302, -47.21323298 -18.77266897, -47.21351795 -18.77277905, -47.21351295 -18.77291197, -47.21359998 -18.77294698, -47.21375395 -18.77332199, -47.21372399 -18.77364201, -47.21393898 -18.77369402, -47.21491999 -18.773898, -47.21554502 -18.77388498, -47.21607101 -18.773811, -47.216112 -18.77356601, -47.21662801 -18.77312099, -47.21734698 -18.77259101, -47.21776595 -18.77220099, -47.21803799 -18.77200401, -47.21855296 -18.771574, -47.21985203 -18.77041099, -47.21999797 -18.77066497, -47.22057002 -18.77132097, -47.22059201 -18.77134898, -47.220984 -18.77172396, -47.22176599 -18.77306601, -47.22195998 -18.77325203, -47.22306501 -18.77370099, -47.22491497 -18.77437103, -47.22525199 -18.77447197, -47.22547397 -18.77447104, -47.22602194 -18.77481498, -47.22629699 -18.77522999, -47.22626102 -18.77535796, -47.22576994 -18.77588001, -47.22596294 -18.77594699, -47.22725998 -18.77634901, -47.22900797 -18.77684798, -47.230225 -18.77666003, -47.23021994 -18.77671501, -47.23145302 -18.77660201, -47.23185899 -18.77651604, -47.23183897 -18.77644999, -47.23247601 -18.776276, -47.23333799 -18.77594405, -47.23356799 -18.77588304, -47.23387598 -18.775724, -47.23397996 -18.77572004, -47.234044 -18.77575098, -47.23419798 -18.77583603, -47.23430999 -18.77585899, -47.23440897 -18.77587903, -47.23501897 -18.77596296, -47.23517101 -18.77603701, -47.23522595 -18.77601098, -47.23574869 -18.77586381, -47.23497178 -18.77380839, -47.23411264 -18.77148415, -47.23325903 -18.76917401, -47.23315403 -18.76889102, -47.23304038 -18.76853505, -47.23267887 -18.76768219, -47.22979577 -18.75952653, -47.22926995 -18.75781303, -47.22878765 -18.75626402, -47.22742695 -18.75194709, -47.22696177 -18.75046399, -47.22651298 -18.749045, -47.22632399 -18.74871801, -47.22578894 -18.74843399, -47.22505694 -18.74840196)))",
+  "procedencia": [
+    {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://servicos.ibama.gov.br/ctf/publico/areasembargadas/arquivos/areas_embargadas.csv",
+      "data": "2026-09-14",
+      "sha256": "d672efe2dd02999eae12a47511ce573612ce1ad6ec534858b7718023d32fe3ff",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-09-13",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-09-14",
+      "sha256": "4e6d71ce78820323d73613ef437d6c1e69ca7fd459eb94f6f12639fcea64f7b4",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
+      "fonte": "SICAR (WFS)",
+      "como": "sob demanda",
+      "url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+      "data": "2026-10-30",
+      "sha256": "c9a5e42cbd294f8ddf512db0f742a1a15b13ad5b2f5699da132eadc60a4e78cf",
+      "arquivo": "data/raw/sicar/mg/codigo_9897d33854a7eaa0.geojson.gz"
+    },
+    {
+      "fonte": "INPE PRODES prodes-cerrado-nb (WFS)",
+      "como": "sob demanda, 7 requisições",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-cerrado-nb/ows",
+      "data": "2026-10-30",
+      "sha256": "7 respostas, cada uma no seu .meta.json",
+      "arquivo": "data/raw/inpe_prodes/cerrado/bbox_-47.2357_-18.7768_-47.2106_-18.7484"
+    },
+    {
+      "fonte": "INPE PRODES prodes-mata-atlantica-nb (WFS)",
+      "como": "sob demanda, 7 requisições",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-mata-atlantica-nb/ows",
+      "data": "2026-10-30",
+      "sha256": "7 respostas, cada uma no seu .meta.json",
+      "arquivo": "data/raw/inpe_prodes/mata_atlantica/bbox_-47.2357_-18.7768_-47.2106_-18.7484"
+    }
+  ]
+}

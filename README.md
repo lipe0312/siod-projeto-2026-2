@@ -205,6 +205,18 @@ jupyter nbconvert --to notebook --execute notebooks/02_fontes_antes_e_depois.ipy
 
 A primeira execução consulta o SICAR (10 municípios e uma consulta por embargo ou alerta do recorte, com pausa entre elas), o PRODES e o DETER do Cerrado de MG e a API do AB+S, e leva alguns minutos; as seguintes reaproveitam as respostas gravadas (cerca de 30 MB em `data/raw/`). As contagens podem mudar um pouco quando as fontes são atualizadas. A explicação de cada número está em [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e nos documentos de [`docs/atividade-03/`](docs/atividade-03/).
 
+### 5. Pré-diagnóstico de um imóvel
+
+Do ponto de vista do produtor: para um CAR, junta o status no SICAR, os embargos do IBAMA (pelo polígono, pela coordenada ou pelo documento), os alertas DETER confirmados ou não pelo PRODES, os polígonos PRODES após 2020 e a Lista Suja. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`. Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com a evidência, o encaminhamento e a procedência. Precisa dos parquets de `python -m pipeline`.
+
+```bash
+python -m pipeline.prediagnostico --demo                                   # 5 CARs reais prontos; abra data/processed/prediagnostico/index.html
+python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
+python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada da sede
+```
+
+O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado em claro. Prints e fichas da demonstração estão em [`docs/evidencias/atividade-04/prediagnostico/`](docs/evidencias/atividade-04/prediagnostico/).
+
 ### Problemas comuns
 
 | Situação | O que fazer |
@@ -236,6 +248,8 @@ A primeira execução consulta o SICAR (10 municípios e uma consulta por embarg
 | [`pipeline/fontes/inpe_prodes.py`](pipeline/fontes/inpe_prodes.py) | Fonte sob demanda: PRODES por bioma e ano; confirmação dos alertas DETER | 03 |
 | [`pipeline/fontes/ab_s.py`](pipeline/fontes/ab_s.py) | Fonte sob demanda: validação do relatório AB+S pelo código de autenticidade | 03 |
 | [`pipeline/cruzamento.py`](pipeline/cruzamento.py) | Atribuição de embargo ou alerta a um CAR (principal, parcial, tangente) | 03 |
+| [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py) | Pré-diagnóstico de um imóvel: critérios, situação, evidência, encaminhamento e procedência | 04 |
+| [`pipeline/ficha_html.py`](pipeline/ficha_html.py) | Ficha do pré-diagnóstico em HTML, com o mapa do imóvel em SVG | 04 |
 | [`tests/test_ibama_embargos.py`](tests/test_ibama_embargos.py) | Validações da fonte IBAMA | 02 |
 | [`tests/test_inpe_deter.py`](tests/test_inpe_deter.py) | Validações da fonte DETER, incluindo identificador e completude das partições | 02 |
 | [`tests/test_mte_lista_suja.py`](tests/test_mte_lista_suja.py) | Segmentação e validações da Lista Suja | 02 |
@@ -244,6 +258,7 @@ A primeira execução consulta o SICAR (10 municípios e uma consulta por embarg
 | [`tests/test_download.py`](tests/test_download.py) | Download truncado e registro de procedência | 02 |
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
 | [`tests/test_sicar.py`](tests/test_sicar.py), [`test_inpe_prodes.py`](tests/test_inpe_prodes.py), [`test_ab_s.py`](tests/test_ab_s.py), [`test_cruzamento.py`](tests/test_cruzamento.py) | Validações das fontes sob demanda, ordem dos eixos, regra de confirmação do PRODES e de atribuição ao CAR | 03 |
+| [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
 | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |

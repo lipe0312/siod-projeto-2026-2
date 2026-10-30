@@ -200,18 +200,21 @@ def classificar_alerta(fracao_posterior: float, fracao_anterior: float, data_ale
 
 
 def confirmar_alertas(alertas: pd.DataFrame, prodes: pd.DataFrame,
-                      limiar: float = config.PRODES_LIMIAR_CONFIRMACAO) -> pd.DataFrame:
+                      limiar: float = config.PRODES_LIMIAR_CONFIRMACAO, ultimo_ano: int | None = None) -> pd.DataFrame:
     """Situação de cada alerta DETER (colunas data_imagem e geometria_wkt) diante do PRODES tratado.
 
     confirmado: PRODES com imagem na data do alerta ou depois cobre ao menos `limiar` do alerta;
     já suprimido antes: a cobertura só existe com PRODES de imagem anterior ao alerta;
     não confirmado: nenhuma das duas, com o alerta num ano PRODES já publicado;
     aguardando consolidação: nenhuma das duas, com o alerta depois de 31/07 do último ano publicado.
+
+    `ultimo_ano`: último ano PRODES publicado. Sem ele, vale o maior ano presente em `prodes`, o que só serve quando
+    `prodes` cobre uma área grande (num recorte pequeno, um ano publicado pode não ter polígono nenhum).
     """
     pg = [shapely.make_valid(g) for g in shapely.from_wkt(prodes["geometria_wkt"].to_numpy())]
     datas_prodes = prodes["data_imagem"].to_numpy()
     anos_prodes = prodes["ano_prodes"].to_numpy()
-    fim_ultimo_ano = pd.Timestamp(f"{int(prodes['ano_prodes'].max())}-07-31")
+    fim_ultimo_ano = pd.Timestamp(f"{int(ultimo_ano or prodes['ano_prodes'].max())}-07-31")
     arvore = STRtree(pg)
     linhas = []
     for wkt, d in zip(alertas["geometria_wkt"], pd.to_datetime(alertas["data_imagem"])):

@@ -10,6 +10,7 @@ baixa o nível de segurança das cifras e aceita a renegociação legada, com a 
 import hashlib
 import json
 import logging
+import re
 import ssl
 
 import numpy as np
@@ -258,6 +259,14 @@ def consultar_bbox(limites: tuple[float, float, float, float], uf: str = "MG",
                    atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
     """Imóveis que tocam o retângulo `limites` = (lon_min, lat_min, lon_max, lat_max), sem filtro de município."""
     return _consultar_filtro("bbox", wfs.filtro_bbox(CAMPO_GEOMETRIA, limites), uf, atualizar)
+
+
+def consultar_codigo(cod_imovel: str, atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
+    """O imóvel com o código dado; a UF sai do próprio código. Código fora do formato não é consultado."""
+    cod = cod_imovel.strip().upper()
+    if not re.fullmatch(FORMATO_CODIGO, cod):
+        raise ValueError(f"código do CAR fora do formato UF-IBGE(7)-32 hexadecimais: {cod_imovel!r}")
+    return _consultar_filtro("codigo", f"cod_imovel='{cod}'", cod[:2], atualizar)
 
 
 def consultar_ponto(lat: float, lon: float, uf: str = "MG", atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:

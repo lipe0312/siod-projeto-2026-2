@@ -1,0 +1,52 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Demonstração do pré-diagnóstico</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#66645e;--bd:#e2e0d8;--car:#2f7d4f;--carf:rgba(47,125,79,.08);
+--emb:#c0392b;--alt:#d9822b;--prd:#7b4fb0;--pend:#b3261e;--pendb:#fbe9e7;--ind:#8a5a00;--indb:#fdf1d8;--ok:#1e6b3c;
+--okb:#e3f2e8;--nv:#55575c;--nvb:#ecedef;--inc:#3b4a8a;--incb:#e6e9f6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;
+--mut:#a3a199;--bd:#34332f;--car:#5fbf86;--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;
+--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;
+--inc:#9fb0f2;--incb:#1f2440}}
+:root[data-theme="dark"]{--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;--mut:#a3a199;--bd:#34332f;--car:#5fbf86;
+--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;
+--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;--inc:#9fb0f2;--incb:#1f2440}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);
+font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 60px}
+h1{font:600 26px/1.2 Georgia,serif;margin:4px 0 6px}h2{font:600 18px/1.3 Georgia,serif;margin:0 0 12px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--mut)}
+.mut{color:var(--mut)}.mono{font-family:Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-top:18px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.pend{color:var(--pend);background:var(--pendb)}.ind{color:var(--ind);background:var(--indb)}
+.ok{color:var(--ok);background:var(--okb)}.nv{color:var(--nv);background:var(--nvb)}.inc{color:var(--inc);background:var(--incb)}
+.resultado{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.resultado .badge{font-size:16px;padding:6px 16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fatos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.fato b{display:block;font-size:18px}.fato span{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.tabela{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+svg.mapa{width:100%;height:auto;background:var(--bg);border-radius:8px;border:1px solid var(--bd)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:10px}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.como dt{margin-top:8px}.como dd{margin:2px 0 0;color:var(--mut)}
+.aviso{border-left:4px solid var(--ind);padding:10px 14px;background:var(--indb);border-radius:6px;margin-top:18px}
+a{color:var(--inc)}
+</style></head><body><main><div class="eyebrow">Demonstração</div><h1>Pré-diagnóstico de pendências</h1>
+<p class="mut">CARs reais do recorte de café de MG, consultados no SICAR e cruzados com IBAMA, DETER, PRODES e Lista
+Suja. O documento usado é um CPF fictício, para mostrar a Lista Suja verificada sem dado pessoal.</p>
+<a class="card" style="display:block;text-decoration:none;color:inherit" href="MG-3148103-6245AC9B371A4422B2FA8011CFCC5566.html">
+<div class="resultado"><span class="badge pend">com pendência</span><b>Patrocínio: desmatamento após 2020 confirmado pelo PRODES</b></div>
+<p class="mono mut">MG-3148103-6245AC9B371A4422B2FA8011CFCC5566</p><div class="chips"><span class="badge pend">1 pendência</span><span class="badge ok">3 sem ocorrência</span><span class="badge nv">6 não verificado</span></div></a><a class="card" style="display:block;text-decoration:none;color:inherit" href="MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4.html">
+<div class="resultado"><span class="badge pend">com pendência</span><b>Serra do Salitre: embargo e 8 alertas DETER aguardando o PRODES</b></div>
+<p class="mono mut">MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4</p><div class="chips"><span class="badge pend">1 pendência</span><span class="badge ind">1 indício</span><span class="badge ok">2 sem ocorrência</span><span class="badge nv">6 não verificado</span></div></a><a class="card" style="display:block;text-decoration:none;color:inherit" href="MG-3148103-627F1606409049ABAB34A913E6F37010.html">
+<div class="resultado"><span class="badge pend">com pendência</span><b>Patrocínio: embargo e alerta sobre área já suprimida antes</b></div>
+<p class="mono mut">MG-3148103-627F1606409049ABAB34A913E6F37010</p><div class="chips"><span class="badge pend">1 pendência</span><span class="badge ind">1 indício</span><span class="badge ok">2 sem ocorrência</span><span class="badge nv">6 não verificado</span></div></a><a class="card" style="display:block;text-decoration:none;color:inherit" href="MG-3148103-A63D0A01090844CF89342D2544C5847F.html">
+<div class="resultado"><span class="badge pend">com pendência</span><b>Patrocínio: CAR com notificação pendente, embargos e alertas</b></div>
+<p class="mono mut">MG-3148103-A63D0A01090844CF89342D2544C5847F</p><div class="chips"><span class="badge pend">2 pendência</span><span class="badge ind">1 indício</span><span class="badge ok">1 sem ocorrência</span><span class="badge nv">6 não verificado</span></div></a><a class="card" style="display:block;text-decoration:none;color:inherit" href="MG-3148103-5527FB32FFB24B7F850B487724583043.html">
+<div class="resultado"><span class="badge ok">sem pendência nas fontes verificadas</span><b>Patrocínio: CAR analisado, nada encontrado nas fontes verificadas</b></div>
+<p class="mono mut">MG-3148103-5527FB32FFB24B7F850B487724583043</p><div class="chips"><span class="badge ok">4 sem ocorrência</span><span class="badge nv">6 não verificado</span></div></a></main></body></html>

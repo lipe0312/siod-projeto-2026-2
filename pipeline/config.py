@@ -87,6 +87,19 @@ CAMADAS_PRODES = {
 PRODES_LIMITE_POR_REQUISICAO = 50000
 # Fração mínima do alerta DETER coberta pelo PRODES para contar como confirmação (ADR 0009).
 PRODES_LIMIAR_CONFIRMACAO = 0.10
+# Último ano PRODES publicado (o ano 2026 respondeu vazio na consulta por UF de 14/10/2026). Fixo até o PRODES
+# virar fonte em lote com verificação mensal de atualização.
+PRODES_ULTIMO_ANO_PUBLICADO = 2025
+
+# Pré-diagnóstico: pasta das fichas e CARs da demonstração (recorte de café de MG, todos com SICAR em cache).
+PREDIAGNOSTICO = DADOS_PROCESSADOS / "prediagnostico"
+CARS_DEMONSTRACAO = {
+    "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566": "Patrocínio: desmatamento após 2020 confirmado pelo PRODES",
+    "MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4": "Serra do Salitre: embargo e 8 alertas DETER aguardando o PRODES",
+    "MG-3148103-627F1606409049ABAB34A913E6F37010": "Patrocínio: embargo e alerta sobre área já suprimida antes",
+    "MG-3148103-A63D0A01090844CF89342D2544C5847F": "Patrocínio: CAR com notificação pendente, embargos e alertas",
+    "MG-3148103-5527FB32FFB24B7F850B487724583043": "Patrocínio: CAR analisado, nada encontrado nas fontes verificadas",
+}
 
 # AB+S (Agro Brasil + Sustentável): API pública de validação do relatório, consultada por código de autenticidade.
 URL_AB_S_PUBLICO = "https://agrobrasil.agricultura.gov.br/abs/backend/api/public"
