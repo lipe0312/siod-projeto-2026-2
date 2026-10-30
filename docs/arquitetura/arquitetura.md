@@ -1,6 +1,6 @@
 # Arquitetura
 
-Versão 2 — 14/10/2026 (Atividade 03). Versão 1 — 13/09/2026 (Atividade 02).
+Versão 3 — 30/10/2026 (Atividade 04). Versão 2 — 14/10/2026 (Atividade 03). Versão 1 — 13/09/2026 (Atividade 02).
 
 ## O que este documento cobre
 
@@ -13,7 +13,7 @@ Para cada camada, o documento registra:
 - qual é a parte mais arriscada;
 - qual é a fatia vertical.
 
-Nesta versão só **fontes de dados** e **pipeline** estão definidas, porque foram implementadas. As demais camadas são previstas e serão decididas nas aulas correspondentes. Decisões com alternativas reais ficam registradas em [`adr/`](adr/).
+Nesta versão **fontes de dados** e **pipeline** estão definidas, porque foram implementadas, e a **regra de cruzamento** existe como pré-diagnóstico por imóvel, com saída em ficha HTML (Atividade 04). As demais camadas são previstas e serão decididas nas aulas correspondentes. Decisões com alternativas reais ficam registradas em [`adr/`](adr/).
 
 ## Visão geral
 
@@ -79,7 +79,7 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 | API / serviço | Responder, por produtor, quais pendências existem e com qual evidência | Prevista — Aula 05 |
 | Interface | Painel para o técnico priorizar produtores | Prevista — Aulas 06 e 07 |
 | Usuários e permissões | Cada técnico vê apenas os produtores que atende | Prevista — Aula 08 |
-| Inteligência | Regra de cruzamento como linha de base. ML ou LLM entram só se a regra se mostrar insuficiente na avaliação | Prevista — Aulas 09 a 11 |
+| Inteligência | Regra de cruzamento como linha de base. ML ou LLM entram só se a regra se mostrar insuficiente na avaliação | Regra implementada em `pipeline/prediagnostico.py` (Atividade 04), sem gabarito independente; ML e LLM previstos para as Aulas 09 a 11 |
 | Operação e observabilidade | Execução agendada, monitoramento e implantação | Parcial: log e relatório por execução; o restante está previsto para as Aulas 12 a 14 |
 
 ## Fontes de dados
@@ -90,6 +90,7 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 | INPE — DETER Amazônia e Cerrado | API (WFS, GeoJSON) | Uma requisição por mês de imagem, sem autenticação | Classes de desmatamento com imagem desde 01/01/2021 | `data/raw/inpe_deter/<camada>/desde_<data>/<AAAA-MM>.json.gz` |
 | MTE — Cadastro de Empregadores | Documento (PDF) | Download direto do gov.br | Documento completo | `data/raw/lista_suja.pdf` |
 | IBGE — Municípios | API (JSON) | Requisição única, sem autenticação | Lista completa | `data/raw/ibge_municipios.json` |
+| INPE — PRODES (lote, Atividade 04) | API (WFS, GeoJSON) | Contagem por ano a cada 30 dias; baixa só o ano que mudou e o último publicado ([ADR 0010](adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)) | MG, Cerrado e Mata Atlântica, anos desde 2019 (`config.PRODES_UFS_LOTE`) | `data/raw/inpe_prodes/lote/`, com `manifesto.json` |
 
 Cada arquivo bruto tem ao lado um `.meta.json` com URL, data do download, cabeçalho HTTP e SHA-256. As respostas do DETER têm um `manifesto.json` com o filtro usado, o total anunciado pelo serviço e o hash de cada mês.
 
@@ -152,6 +153,7 @@ A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, boolean
 - [0007 — Obter o CAR pelo WFS público do SICAR e atribuir embargos e alertas pela área de interseção](adr/0007-obter-o-car-pelo-wfs-publico-do-sicar.md)
 - [0008 — Usar o AB+S como referência sem declarar conformidade](adr/0008-usar-o-ab-s-como-referencia-sem-declarar-conformidade.md)
 - [0009 — Combinar DETER e PRODES pela data da imagem e pela cobertura de cada bioma](adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md)
+- [0010 — Persistir o PRODES em lote e verificar a publicação todo mês](adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)
 
 ## Onde entra a inteligência
 
@@ -177,7 +179,7 @@ O que ainda falta é a localização da área de produção, que terá de ser in
 
 Embargos do IBAMA e alertas do DETER passam pelo pipeline, entram na persistência e são cruzados por uma regra para um conjunto de produtores de teste. Uma consulta na API devolve as pendências com a fonte de cada uma, e uma tela as mostra ao técnico.
 
-Nesta versão, a fatia está pronta até a saída do pipeline.
+Nesta versão, a fatia vai da saída do pipeline até a regra de cruzamento: `python -m pipeline.prediagnostico` gera, para um CAR, a ficha em HTML, Markdown e JSON ([demonstração](../evidencias/atividade-04/prediagnostico/index.html)). Faltam persistência, API e a tela do técnico; a ficha HTML é estática e faz as vezes da interface na demonstração.
 
 ## Histórico
 
@@ -191,3 +193,4 @@ Nesta versão, a fatia está pronta até a saída do pipeline.
 | 1 | 13/09/2026 | A pseudonimização ficou dentro do pipeline | Dados pessoais não devem chegar às camadas seguintes |
 | 1 | 13/09/2026 | Registros inválidos são marcados em vez de removidos | A decisão sobre usar ou não um registro com problema pertence à regra de cruzamento, não ao pipeline |
 | 2 | 14/10/2026 | SICAR, PRODES e AB+S entraram como fontes sob demanda, com cache do bruto, e o cruzamento objeto → CAR em `pipeline/cruzamento.py` | Atividade 03: consulta-se só a área ou o relatório do caso; não há carga em massa dessas fontes |
+| 3 | 30/10/2026 | Pré-diagnóstico por imóvel (`pipeline/prediagnostico.py`) com ficha HTML; PRODES do recorte persistido em lote com verificação mensal | Atividade 04: a regra de cruzamento passou a ter saída para o técnico; o último ano do PRODES estava numa constante e já estava defasado (ADR 0010) |

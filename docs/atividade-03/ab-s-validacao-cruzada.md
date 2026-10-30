@@ -64,6 +64,8 @@ Revisão do que o plano prevê para esta tarefa:
 | O que o QR codifica | Não testado | Não há leitor de QR no ambiente do projeto (`opencv` ou `pyzbar`). A hipótese é a página `validar-qualificacao/{uuid}`, que usa a mesma API |
 | Pseudonimização da resposta | Implementada sem resposta real para testar | `ab_s.pseudonimizar_resposta` troca CPF/CNPJ pelo HMAC de `pipeline/documentos.py` em qualquer campo do JSON antes de gravar; testada com resposta sintética |
 
+**Situação em 30/10/2026:** continua pendente. O pré-diagnóstico da Atividade 04 já usa `ab_s.CRITERIOS` para exibir os 6 critérios sem fonte aberta como "não verificado", mas ainda não recebe o PDF do relatório nem mostra o resultado oficial ao lado. O que falta obter e as opções estão em [`../atividade-04-prediagnostico.md`](../atividade-04-prediagnostico.md), seções 4 e 6.
+
 Quando houver um UUID real, o procedimento é `ab_s.consultar(uuid, chave)`: valida o formato, consulta uma vez cada endpoint e grava a resposta pseudonimizada em `data/raw/ab_s/`. Falta documentar a resposta campo a campo.
 
 ## 5. Extração do código de autenticidade (B2)

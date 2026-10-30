@@ -95,6 +95,19 @@ Consultado sob demanda ([`pipeline/fontes/inpe_prodes.py`](../pipeline/fontes/in
 | `main_class` diferente de `DESMATAMENTO`, `uuid` nulo ou repetido | 0 | Descarte |
 | Polígono do PRODES 2021 sobre alerta DETER com imagem entre 01/08 e 31/12/2020 (supressão possivelmente anterior ao corte, datada de 2021) | 166 alertas | A escada de fontes combina DETER e PRODES ([ADR 0009](arquitetura/adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md)) |
 
+### PRODES em lote (Atividade 04): MG, Cerrado e Mata Atlântica, 112.817 polígonos de 2019 a 2026
+
+Execução de 30/10/2026 em [`evidencias/atividade-04/prodes-lote/`](evidencias/atividade-04/prodes-lote/).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| `main_class` diferente de `DESMATAMENTO` (ex.: `RESERVATORIO`) | 100 | Descarte |
+| Geometria inválida | 12.211 | Correção com `make_valid` |
+| UF por extenso | 62.897 | Correção para a sigla |
+| `image_date` fora do ano PRODES | 59.838 | Alerta; vale `image_date` |
+| `area_km` difere mais de 10% da área calculada | 1.654 | Alerta; usar a área calculada |
+| Último ano publicado diferente do que o código supunha: Cerrado 2026 já publicado, constante em 2025 | 1 bioma | O último ano passou a vir da contagem do serviço ([ADR 0010](arquitetura/adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)) |
+
 ## AB+S — API pública de validação
 
 Consultada sob demanda, um relatório por vez ([`pipeline/fontes/ab_s.py`](../pipeline/fontes/ab_s.py)); detalhe em [`atividade-03/ab-s-validacao-cruzada.md`](atividade-03/ab-s-validacao-cruzada.md).

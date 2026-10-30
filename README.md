@@ -33,7 +33,7 @@ A caracterização completa está em [`docs/atividade-01-dados.md`](docs/ativida
 
 O maior risco é atribuir uma pendência ao produtor errado ou deixar de apontar uma pendência real. As bases públicas não trazem o código do CAR, e parte dos registros não tem localização.
 
-O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identificar o responsável e localizar a área. O próximo é avaliar o cruzamento em uma amostra de produtores com gabarito conhecido.
+O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identificar o responsável e localizar a área. A Atividade 04 conferiu o pré-diagnóstico em 6 CARs reais, mas com o resultado esperado escrito pelo próprio autor: é teste de regressão, não medida de acerto. O próximo é um gabarito independente, com relatórios AB+S reais ou revisão de um técnico.
 
 ## O que mudou após a caracterização dos dados
 
@@ -48,6 +48,7 @@ O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identifi
 | **01 — Caracterização e avaliação dos dados** | Fonte, qualidade dos dados, dicionário mínimo, análise exploratória e síntese técnica | [`docs/atividade-01-dados.md`](docs/atividade-01-dados.md) | [`notebooks/01_exploracao_dados.ipynb`](notebooks/01_exploracao_dados.ipynb) |
 | **02 — Pipeline inicial de dados** | Pipeline para CSV, API e PDF, com validações comprovadas por testes, evidência de execução, arquitetura e decisões | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | [`pipeline/`](pipeline/), [`tests/`](tests/), [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/), [`docs/arquitetura/`](docs/arquitetura/) |
 | **03 — Investigação de fontes: CAR, PRODES e AB+S** | CAR pelo WFS do SICAR, PRODES e a escada entre fontes de desmatamento, AB+S como referência; as três como fontes sob demanda do pipeline e a atribuição de embargo ou alerta a um CAR | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e [`docs/atividade-03/`](docs/atividade-03/) | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb), [`pipeline/fontes/`](pipeline/fontes/), [`pipeline/cruzamento.py`](pipeline/cruzamento.py), [`tests/`](tests/) |
+| **04 — Pré-diagnóstico por imóvel e PRODES em lote** | Ficha por CAR com situação, evidência, encaminhamento e procedência de cada critério; demonstração com 6 CARs reais; PRODES persistido com verificação mensal da publicação | [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py), [`pipeline/ficha_html.py`](pipeline/ficha_html.py), [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) (página da demonstração: [`prediagnostico/index.html`](docs/evidencias/atividade-04/prediagnostico/index.html)) |
 
 Os documentos trazem os números medidos, o que cada verificação encontrou e o motivo de cada decisão. Este README explica como reproduzir tudo.
 
@@ -57,11 +58,13 @@ Versão 1 em [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md
 
 ## Próximos passos
 
-1. Validar a dor com técnicos de assistência técnica e de cooperativas.
-2. Definir a camada de persistência e carregar nela as saídas do pipeline.
-3. Montar uma amostra simulada de produtores, com gabarito, e implementar a regra de cruzamento da fatia vertical.
-4. Incluir as bases de terras indígenas, unidades de conservação e florestas públicas, e o PRODES dos biomas além do Cerrado e da Mata Atlântica e de outras UFs no lote.
-5. Obter um relatório AB+S real para registrar a primeira resposta válida da API pública.
+Detalhe e decisões em aberto em [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md), seções 5 e 6.
+
+1. Obter um relatório AB+S real (PDF, com consentimento do titular) para registrar a primeira resposta válida da API e montar um gabarito independente do pipeline.
+2. Aceitar o PDF do AB+S no pré-diagnóstico e mostrar o resultado oficial ao lado de cada critério.
+3. Incluir as bases de terras indígenas, unidades de conservação e áreas quilombolas, que hoje aparecem como "não verificado".
+4. Definir a camada de persistência e carregar nela os parquets e as fichas, com histórico.
+5. Agendar a verificação mensal do PRODES e validar a dor com técnicos de assistência técnica e de cooperativas.
 
 ## Como reproduzir na sua máquina
 
@@ -279,9 +282,11 @@ O pré-diagnóstico lê esse parquet quando o imóvel está numa UF do recorte; 
 | [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro, avaliação esperado x obtido | 04 |
 | [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote com serviço falso: reaproveita dentro do mês, ano novo, ano consolidado alterado, último ano que recua | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
+| [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | Pré-diagnóstico, PRODES em lote, o que a avaliação mede, AB+S pendente, próximos passos e decisões em aberto | 04 |
+| [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) | Fichas da demonstração (HTML, MD, JSON, print) e execuções do PRODES em lote | 04 |
 | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |
 | [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md) | Arquitetura (versão 1) | 02 |
 | [`docs/arquitetura/adr/`](docs/arquitetura/adr/) | Registros de decisão técnica | 02 |
-| [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 a 03 |
-| `data/` | Gerada localmente: `raw/` (baixados), `processed/` (saídas), `logs/`, chave de pseudonimização. Não é versionada porque contém dados pessoais | 01 a 03 |
+| [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 a 04 |
+| `data/` | Gerada localmente: `raw/` (baixados), `processed/` (saídas), `logs/`, chave de pseudonimização. Não é versionada porque contém dados pessoais | 01 a 04 |
