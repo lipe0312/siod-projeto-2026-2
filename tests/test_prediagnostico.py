@@ -170,3 +170,27 @@ def test_escreve_json_markdown_e_html_sem_documento_em_claro(tmp_path):
     for arquivo in caminhos.values():
         texto = arquivo.read_text()
         assert CPF_VALIDO not in texto and somente_digitos(pd.Series([CPF_VALIDO])).iloc[0] not in texto
+
+
+def test_html_mostra_como_o_resultado_se_formou_e_a_linha_do_tempo():
+    from pipeline import ficha_html
+
+    ficha = diagnosticar(emb=embargos(("dentro", DENTRO, None, None)), alt=alertas(("a1", DENTRO, "2025-08-28")))
+    ficha = {"consulta": {"gerado_em": "2026-10-30 10:00:00", "documento_informado": False,
+                          "prodes": {"origem": "lote", "ultimo_ano_do_imovel": 2025, "verificado_em": "2026-10-30"}},
+             **ficha, "procedencia": []}
+    html = ficha_html.renderizar(ficha)
+    assert "Como o resultado foi formado" in html and "1 pendência basta → com pendência" in html
+    assert html.count(' vale">') == 1 and '<span class="pend vale">1 pendência basta' in html  # só a regra aplicada
+    assert "Linha do tempo" in html and "PRODES publicado até 31/07/2025" in html and ">A1<" in html
+
+
+def test_indice_confere_esperado_com_obtido():
+    from pipeline import ficha_html
+
+    ficha = {"consulta": {"gerado_em": "2026-10-30 10:00:00"}, **diagnosticar(alt=alertas(("a1", DENTRO,
+                                                                                             "2025-08-28")))}
+    certo = {"caso": "certo", "esperado": {"desmatamento": "indício", "resultado": "com indício"}}
+    errado = {"caso": "errado", "esperado": {"desmatamento": "pendência"}}
+    html = ficha_html.indice([(ficha, certo, "a.html"), (ficha, errado, "b.html")])
+    assert "<b>1 de 2</b>" in html and "✕ desmatamento" in html

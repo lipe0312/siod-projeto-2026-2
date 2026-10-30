@@ -1,0 +1,28 @@
+2026-10-30 01:06:27 INFO    Início: python -m pipeline --fontes prodes --evidencia docs/evidencias/atividade-04/prodes-lote
+2026-10-30 01:06:36 INFO    [inpe_prodes] cerrado: último ano publicado 2026
+2026-10-30 01:07:33 INFO    [inpe_prodes] mata_atlantica: último ano publicado 2025
+2026-10-30 01:08:09 INFO    [inpe_prodes] transformação: Verificação da publicação a cada 30 dias: contagem por ano no Brasil e por ano e UF no recorte; baixa só o que mudou e sempre o último ano publicado
+2026-10-30 01:08:09 INFO    [inpe_prodes] PRODES_ULTIMO_ANO_RECUOU: 0 de 2 | interrompe; conferir o serviço antes de substituir o parquet
+2026-10-30 01:08:09 INFO    [inpe_prodes] PRODES_SEM_ANO_PUBLICADO: 0 de 2 | interrompe a fonte
+2026-10-30 01:08:09 INFO    [inpe_prodes] PRODES_NOVO_ANO_PUBLICADO: 0 de 2 | baixado; alertas DETER do ano passam a ser confirmados ou não
+2026-10-30 01:08:09 INFO    [inpe_prodes] PRODES_ANO_CONSOLIDADO_ALTERADO: 0 de 15 | substituído pelo novo; mudança fica no histórico do manifesto
+2026-10-30 01:08:09 INFO    [inpe_prodes] PRODES_ANO_SEM_POLIGONO_NO_RECORTE: 0 de 15 | mantido; conferir se a UF está no bioma
+2026-10-30 01:08:10 INFO    [inpe_prodes] PRODES_ESTRUTURA_RESPOSTA: 0 de 15 | interrompe a consulta
+2026-10-30 01:08:10 INFO    [inpe_prodes] PRODES_PARTICAO_INCOMPLETA: 0 de 15 | interrompe a consulta; repetir
+2026-10-30 01:08:10 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 15 | interrompe a consulta
+2026-10-30 01:08:13 INFO    [inpe_prodes] transformação: Conversão de cada feature GeoJSON em linha: propriedades e geometria
+2026-10-30 01:08:13 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 112817 | registro vai para descartados
+2026-10-30 01:08:13 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 112817 | registro vai para descartados
+2026-10-30 01:08:13 WARNING [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 100 de 112817 | registro vai para descartados
+2026-10-30 01:08:13 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 112717 | registro vai para descartados
+2026-10-30 01:08:14 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 12211 de 112717 | shapely.make_valid antes de qualquer interseção
+2026-10-30 01:08:16 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 62897 de 112717 | convertida para a sigla
+2026-10-30 01:08:16 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 112717 | UF anulada
+2026-10-30 01:08:16 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 112717 | sem data não entra na comparação com a data de corte
+2026-10-30 01:08:16 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 59838 de 112717 | mantido; a regra usa image_date, não year
+2026-10-30 01:08:16 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 112717 | mantido e marcado
+2026-10-30 01:08:16 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 112717 | campo ignorado
+2026-10-30 01:08:16 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-10-30 01:08:17 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 1654 de 112717 | usar a área calculada
+2026-10-30 01:08:17 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-10-30 01:08:18 INFO    Fim: status ok em 111.1 s. Relatório: data/processed/relatorio_execucao.md

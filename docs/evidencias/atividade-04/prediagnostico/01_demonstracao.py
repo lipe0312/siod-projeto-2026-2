@@ -28,9 +28,9 @@ def main() -> None:
         if arquivo.suffix in (".html", ".md", ".json"):
             shutil.copy(arquivo, PASTA / arquivo.name)
     if Path(CHROME).exists():
-        print_da_pagina(indice, PASTA / "index.png", 1100)
+        print_da_pagina(indice, PASTA / "index.png", 2300)
         for cod in config.CARS_DEMONSTRACAO:
-            print_da_pagina(config.PREDIAGNOSTICO / f"{cod}.html", PASTA / f"{cod}.png", 3000)
+            print_da_pagina(config.PREDIAGNOSTICO / f"{cod}.html", PASTA / f"{cod}.png", 3600)
 
 
 if __name__ == "__main__":

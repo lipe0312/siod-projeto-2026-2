@@ -1,0 +1,120 @@
+{
+  "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+  "proxima_verificacao": "2026-11-29",
+  "ufs": [
+    "MG"
+  ],
+  "desde": 2019,
+  "ultimo_ano_publicado": {
+    "cerrado": 2026,
+    "mata_atlantica": 2025
+  },
+  "anos": {
+    "cerrado": {
+      "2019/MG": {
+        "anunciado": 5551,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-30T04:06:36+00:00"
+      },
+      "2020/MG": {
+        "anunciado": 8646,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-30T04:06:42+00:00"
+      },
+      "2021/MG": {
+        "anunciado": 10365,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-30T04:06:49+00:00"
+      },
+      "2022/MG": {
+        "anunciado": 10245,
+        "data_imagem_min": "2022-07-06",
+        "data_imagem_max": "2022-09-11",
+        "baixado_em_utc": "2026-10-30T04:06:56+00:00"
+      },
+      "2023/MG": {
+        "anunciado": 8355,
+        "data_imagem_min": "2023-06-30",
+        "data_imagem_max": "2023-09-25",
+        "baixado_em_utc": "2026-10-30T04:07:02+00:00"
+      },
+      "2024/MG": {
+        "anunciado": 6374,
+        "data_imagem_min": "2024-07-12",
+        "data_imagem_max": "2024-08-25",
+        "baixado_em_utc": "2026-10-30T04:07:09+00:00"
+      },
+      "2025/MG": {
+        "anunciado": 7141,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-30T04:07:15+00:00"
+      },
+      "2026/MG": {
+        "anunciado": 6220,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-30T04:07:21+00:00"
+      }
+    },
+    "mata_atlantica": {
+      "2019/MG": {
+        "anunciado": 8843,
+        "data_imagem_min": "2019-06-19",
+        "data_imagem_max": "2019-09-13",
+        "baixado_em_utc": "2026-10-30T04:07:34+00:00"
+      },
+      "2020/MG": {
+        "anunciado": 6704,
+        "data_imagem_min": "2020-01-11",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-30T04:07:39+00:00"
+      },
+      "2021/MG": {
+        "anunciado": 7255,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-09-18",
+        "baixado_em_utc": "2026-10-30T04:07:44+00:00"
+      },
+      "2022/MG": {
+        "anunciado": 7430,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-11",
+        "baixado_em_utc": "2026-10-30T04:07:49+00:00"
+      },
+      "2023/MG": {
+        "anunciado": 7439,
+        "data_imagem_min": "2023-06-10",
+        "data_imagem_max": "2023-10-25",
+        "baixado_em_utc": "2026-10-30T04:07:54+00:00"
+      },
+      "2024/MG": {
+        "anunciado": 7172,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-09-29",
+        "baixado_em_utc": "2026-10-30T04:07:59+00:00"
+      },
+      "2025/MG": {
+        "anunciado": 5077,
+        "data_imagem_min": "2025-06-26",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-30T04:08:05+00:00"
+      }
+    }
+  },
+  "arquivo": "data/processed/inpe_prodes.parquet",
+  "sha256": "96999de3cff95c97c42200a0c6480297ba452c00d69b02909b5a72141404938b",
+  "historico": [
+    {
+      "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+      "mudancas": [],
+      "ultimo_ano_publicado": {
+        "cerrado": 2026,
+        "mata_atlantica": 2025
+      }
+    }
+  ]
+}

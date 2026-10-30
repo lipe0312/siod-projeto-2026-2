@@ -1,0 +1,252 @@
+{
+  "ufs": [
+    "MG"
+  ],
+  "desde": 2019,
+  "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+  "proxima_verificacao": "2026-11-29",
+  "biomas": {
+    "cerrado": {
+      "camada": "prodes-cerrado-nb:yearly_deforestation",
+      "servico": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-cerrado-nb/ows",
+      "anunciado_brasil": {
+        "2019": 51073,
+        "2020": 69299,
+        "2021": 76321,
+        "2022": 74598,
+        "2023": 68612,
+        "2024": 62372,
+        "2025": 58780,
+        "2026": 52934,
+        "2027": 0
+      },
+      "ultimo_ano_publicado": 2026,
+      "anos": {
+        "2019/MG": {
+          "ano": 2019,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2019",
+          "anunciado": 5551,
+          "recebido": 5551,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2019.json.gz",
+          "baixado_em_utc": "2026-10-30T04:06:36+00:00",
+          "sha256_resposta": "732ac547240666f43b48eef61e63b984b0553b0e1f069e8f34cc84391a3910df",
+          "sha256_conteudo": "bc406ee477966b8e206b133878018b4f068cc312606a1f86166760fbd219ca47",
+          "data_imagem_min": "2019-07-02",
+          "data_imagem_max": "2019-09-11"
+        },
+        "2020/MG": {
+          "ano": 2020,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2020",
+          "anunciado": 8646,
+          "recebido": 8646,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2020.json.gz",
+          "baixado_em_utc": "2026-10-30T04:06:42+00:00",
+          "sha256_resposta": "622762f15033f6b904870c047ebd3dbdc2516bfa075ef2ffe68fb20c7c833a6f",
+          "sha256_conteudo": "cac2966880392425434509ce74a4af13b43dd68ef6b62ac0d0fa7a924fe39a1a",
+          "data_imagem_min": "2020-07-02",
+          "data_imagem_max": "2020-10-08"
+        },
+        "2021/MG": {
+          "ano": 2021,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2021",
+          "anunciado": 10365,
+          "recebido": 10365,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2021.json.gz",
+          "baixado_em_utc": "2026-10-30T04:06:49+00:00",
+          "sha256_resposta": "f8d1e93ad77f1e45f060b9d46775d28317b6f3c4e0e186b766965ed813dd2a23",
+          "sha256_conteudo": "b71dc982e9aea10d089e1eab27c1deafa064ebc82f552773a3b81530fe645ff7",
+          "data_imagem_min": "2021-07-05",
+          "data_imagem_max": "2021-09-16"
+        },
+        "2022/MG": {
+          "ano": 2022,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2022",
+          "anunciado": 10245,
+          "recebido": 10245,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2022.json.gz",
+          "baixado_em_utc": "2026-10-30T04:06:56+00:00",
+          "sha256_resposta": "c353ba3fb0d6cb1dff6266a22a7954e4f3a2cf3d06b198bb34801dd829634c40",
+          "sha256_conteudo": "521391d66f41cb68f63a7e370328c51d26cde41658526dde468f5520a0c214f6",
+          "data_imagem_min": "2022-07-06",
+          "data_imagem_max": "2022-09-11"
+        },
+        "2023/MG": {
+          "ano": 2023,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2023",
+          "anunciado": 8355,
+          "recebido": 8355,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2023.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:02+00:00",
+          "sha256_resposta": "a8e0215c1474f79fdf32bfe89e4867925384a15739d42dc3212442565ad36dc2",
+          "sha256_conteudo": "138ff7c4f71af4cc283b7f2bca7d928c9d1aeb62bf66bc1baaf91c155a106294",
+          "data_imagem_min": "2023-06-30",
+          "data_imagem_max": "2023-09-25"
+        },
+        "2024/MG": {
+          "ano": 2024,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2024",
+          "anunciado": 6374,
+          "recebido": 6374,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2024.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:09+00:00",
+          "sha256_resposta": "1d0e0d3e814d3d1970d6759b7bbc34517e165dcaf657d92296cd02f029d408d4",
+          "sha256_conteudo": "c100c06ec445e62d80e9d9e3a1ad9a78400bb4616a522308ce19a14f1af5d984",
+          "data_imagem_min": "2024-07-12",
+          "data_imagem_max": "2024-08-25"
+        },
+        "2025/MG": {
+          "ano": 2025,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2025",
+          "anunciado": 7141,
+          "recebido": 7141,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2025.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:15+00:00",
+          "sha256_resposta": "a140e6a2ecba717df85cd4bbc49ef6839c8a90acf8787deeaadd345340807dc5",
+          "sha256_conteudo": "79e9d537b2b3b37d4c5ee2f1531bada18cbd54020718288e8dec2bca722a1630",
+          "data_imagem_min": "2025-07-11",
+          "data_imagem_max": "2025-08-28"
+        },
+        "2026/MG": {
+          "ano": 2026,
+          "uf": "MG",
+          "cql": "state='MINAS GERAIS' AND year=2026",
+          "anunciado": 6220,
+          "recebido": 6220,
+          "arquivo": "data/raw/inpe_prodes/lote/cerrado/mg/2026.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:21+00:00",
+          "sha256_resposta": "b66ad98eb7ed14803ed5f28d4286c7ae24ac9bef1ef2fe9f9b7d52b2c1295181",
+          "sha256_conteudo": "f1ae80f974a4c0a29b26601add38410406cb06f6fd1c027fc28f4bf1f3d9758c",
+          "data_imagem_min": "2026-07-27",
+          "data_imagem_max": "2026-08-12"
+        }
+      }
+    },
+    "mata_atlantica": {
+      "camada": "prodes-mata-atlantica-nb:yearly_deforestation",
+      "servico": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-mata-atlantica-nb/ows",
+      "anunciado_brasil": {
+        "2019": 32510,
+        "2020": 23420,
+        "2021": 26588,
+        "2022": 25389,
+        "2023": 20211,
+        "2024": 13724,
+        "2025": 11221,
+        "2026": 0,
+        "2027": 0
+      },
+      "ultimo_ano_publicado": 2025,
+      "anos": {
+        "2019/MG": {
+          "ano": 2019,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2019",
+          "anunciado": 8843,
+          "recebido": 8843,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2019.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:34+00:00",
+          "sha256_resposta": "384c82c6f39c7539d9b52ecfe5abceaa3888c71cad54d2aa51f02010d0ec257a",
+          "sha256_conteudo": "99ccf610d7638d86be6ad09eafecca15a7c38836b54fbd51aff9a436f15c14a1",
+          "data_imagem_min": "2019-06-19",
+          "data_imagem_max": "2019-09-13"
+        },
+        "2020/MG": {
+          "ano": 2020,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2020",
+          "anunciado": 6704,
+          "recebido": 6704,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2020.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:39+00:00",
+          "sha256_resposta": "1e22264dd9f32c4a43380d12ceda1db03ec696302db5ec51db1ca45e1069ea43",
+          "sha256_conteudo": "8a0c28003f645eec5b214f821b84ccdbbba9b9e8ee28227597e02856554a5e49",
+          "data_imagem_min": "2020-01-11",
+          "data_imagem_max": "2020-10-08"
+        },
+        "2021/MG": {
+          "ano": 2021,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2021",
+          "anunciado": 7255,
+          "recebido": 7255,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2021.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:44+00:00",
+          "sha256_resposta": "23952010d44b9fe2708dc8f0a7d14b612e9496b360ef1123cd4c1c6c77cf29b2",
+          "sha256_conteudo": "ae3ff1b9d1b4d9b21ce298144100e16631438f205cb4485886d627271c35d7e7",
+          "data_imagem_min": "2021-05-20",
+          "data_imagem_max": "2021-09-18"
+        },
+        "2022/MG": {
+          "ano": 2022,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2022",
+          "anunciado": 7430,
+          "recebido": 7430,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2022.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:49+00:00",
+          "sha256_resposta": "6dd19adaac756ee612a36e456daedf2e82868c94231708cc3cbaf528ef243063",
+          "sha256_conteudo": "1acf237aa554ce80ad3c767f4b8ee81cbac7dbe195a28324a92901d16a6ce15d",
+          "data_imagem_min": "2022-06-08",
+          "data_imagem_max": "2022-09-11"
+        },
+        "2023/MG": {
+          "ano": 2023,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2023",
+          "anunciado": 7439,
+          "recebido": 7439,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2023.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:54+00:00",
+          "sha256_resposta": "a2e7529e725184081903feea0e88bb39072735ac343e39c2bfc9dcaf8525b43f",
+          "sha256_conteudo": "2bd0180d416e875b6e14efd6f0eb6d997a0090ef30e0c574da034821f04a74c8",
+          "data_imagem_min": "2023-06-10",
+          "data_imagem_max": "2023-10-25"
+        },
+        "2024/MG": {
+          "ano": 2024,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2024",
+          "anunciado": 7172,
+          "recebido": 7172,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2024.json.gz",
+          "baixado_em_utc": "2026-10-30T04:07:59+00:00",
+          "sha256_resposta": "3181105114e816ff40217456fb606bc9f2978337cdb0d0d9b952389e4a75d8b9",
+          "sha256_conteudo": "81b620525ee1b469958c0ddc4e4bfa6fdf3d2d7aef0c818318953b96d4ba363e",
+          "data_imagem_min": "2024-07-11",
+          "data_imagem_max": "2024-09-29"
+        },
+        "2025/MG": {
+          "ano": 2025,
+          "uf": "MG",
+          "cql": "state='MG' AND year=2025",
+          "anunciado": 5077,
+          "recebido": 5077,
+          "arquivo": "data/raw/inpe_prodes/lote/mata_atlantica/mg/2025.json.gz",
+          "baixado_em_utc": "2026-10-30T04:08:05+00:00",
+          "sha256_resposta": "983b08c181214a92ad0144acfecaa7e87d18c8c1ef079af92bb7f5ec747fcb4f",
+          "sha256_conteudo": "61eb11572e9fa89357410dbef98699acffa1231a5b88d4ea415d8d13977ab08f",
+          "data_imagem_min": "2025-06-26",
+          "data_imagem_max": "2025-10-16"
+        }
+      }
+    }
+  },
+  "mudancas": [],
+  "historico": [
+    {
+      "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+      "mudancas": [],
+      "ultimo_ano_publicado": {
+        "cerrado": 2026,
+        "mata_atlantica": 2025
+      }
+    }
+  ]
+}

@@ -1,7 +1,11 @@
-"""Fonte sob demanda: PRODES do INPE (incremento anual de desmatamento), pelo WFS do TerraBrasilis.
+"""Fonte PRODES do INPE (incremento anual de desmatamento), pelo WFS do TerraBrasilis. Duas formas de uso:
 
-Consulta por bioma e retângulo (BBOX) ou UF, um ano PRODES por requisição, com cache da resposta bruta em
-data/raw/inpe_prodes/. Devolve o DataFrame tratado e o ResultadoFonte.
+- em lote (`executar`, chamado por `python -m pipeline --fontes prodes`): os anos desde config.PRODES_DESDE nas UFs
+  de config.PRODES_UFS_LOTE viram data/processed/inpe_prodes.parquet. A publicação é verificada a cada
+  config.PRODES_INTERVALO_VERIFICACAO_DIAS (ver `verificar_e_baixar`);
+- sob demanda (`consultar`): por bioma e retângulo (BBOX) ou UF, para imóvel fora do recorte do lote.
+
+Um ano PRODES por requisição, com a resposta bruta gravada compactada em data/raw/inpe_prodes/.
 
 Regras de leitura (docs/atividade-03/prodes-e-escada-de-fontes.md):
 - a data que vale para a data de corte é `image_date` (recomendação do INPE); `publish_year` é sempre 01/01 do
@@ -10,14 +14,18 @@ Regras de leitura (docs/atividade-03/prodes-e-escada-de-fontes.md):
 - o identificador é o `uuid`; a UF vem por extenso no Cerrado ("MINAS GERAIS") e como sigla na Mata Atlântica.
 """
 
+import gzip
+import hashlib
+import json
 import logging
 import math
+from datetime import datetime, timezone
 
 import pandas as pd
 import shapely
 from shapely.strtree import STRtree
 
-from pipeline import config, wfs
+from pipeline import config, download, wfs
 from pipeline.municipios import normalizar_nome
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -70,7 +78,9 @@ def resposta_para_tabela(resposta: dict) -> pd.DataFrame:
     return pd.DataFrame(linhas).reindex(columns=colunas)
 
 
-def transformar(respostas: list[dict], bioma: str, resultado: ResultadoFonte) -> tuple[pd.DataFrame, pd.DataFrame]:
+def transformar(respostas: list[dict], bioma: str | list[str], resultado: ResultadoFonte,
+               hoje: pd.Timestamp | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """`bioma`: um para todas as respostas, ou um por resposta (o lote junta os biomas numa só tabela)."""
     problemas = [p for p in map(wfs.problema_estrutural, respostas) if p]
     resultado.validar("PRODES_ESTRUTURA_RESPOSTA", "Resposta é FeatureCollection com lista de features"
                       + (f" ({problemas[0]})" if problemas else ""), "erro", "interrompe a consulta",
@@ -80,8 +90,10 @@ def transformar(respostas: list[dict], bioma: str, resultado: ResultadoFonte) ->
     resultado.validar("PRODES_CRS_INESPERADO", f"CRS diferente de {config.CRS_ESPERADO_WFS} (SIRGAS 2000)", "erro",
                       "interrompe a consulta", sum(not wfs.crs_esperado(r) for r in respostas if r["features"]),
                       len(respostas))
-    tabelas = [resposta_para_tabela(r) for r in respostas]
-    df = pd.concat(tabelas, ignore_index=True) if tabelas else resposta_para_tabela({"features": []})
+    biomas = [bioma] * len(respostas) if isinstance(bioma, str) else bioma
+    tabelas = [resposta_para_tabela(r).assign(bioma=b) for r, b in zip(respostas, biomas)]
+    df = (pd.concat(tabelas, ignore_index=True) if tabelas else
+          resposta_para_tabela({"features": []}).assign(bioma=pd.Series(dtype="object")))
     resultado.entrada["registros_recebidos"] = len(df)
     resultado.transformar("Conversão de cada feature GeoJSON em linha: propriedades e geometria")
 
@@ -130,6 +142,11 @@ def transformar(respostas: list[dict], bioma: str, resultado: ResultadoFonte) ->
     resultado.validar("PRODES_DATA_FORA_DO_ANO_PRODES", "image_date fora de 01/08 do ano anterior a 31/07 do year",
                       "alerta", "mantido; a regra usa image_date, não year", fora_do_ano, n)
     marcas.marcar("DATA_FORA_DO_ANO_PRODES", fora_do_ano)
+    if hoje is not None:
+        futura = df["data_imagem"] > hoje
+        resultado.validar("PRODES_DATA_IMAGEM_FUTURA", "image_date depois da data da execução", "alerta",
+                          "mantido e marcado", futura, n)
+        marcas.marcar("DATA_IMAGEM_FUTURA", futura)
     publish = df["publish_year"].astype("string") != df["ano_prodes"].astype("string") + "-01-01"
     resultado.validar("PRODES_PUBLISH_YEAR_DIVERGENTE", "publish_year diferente de 01/01 do year", "alerta",
                       "campo ignorado", publish, n)
@@ -144,7 +161,6 @@ def transformar(respostas: list[dict], bioma: str, resultado: ResultadoFonte) ->
     marcas.marcar("AREA_DIVERGENTE", divergente)
     resultado.transformar("Área calculada da geometria em projeção equivalente local (km²)")
 
-    df["bioma"] = bioma
     df["classe"] = df["class_name"]
     df["satelite"], df["sensor"] = df["satellite"], df["sensor"]
     df["geometria_wkt"] = shapely.to_wkt(df["geom"].to_numpy(), rounding_precision=-1, trim=True) if n else []
@@ -185,6 +201,190 @@ def consultar(bioma: str = "cerrado", limites: tuple | None = None, uf: str | No
                        "por_ano": saida["ano_prodes"].value_counts().sort_index().to_dict()}
     resultado.status = "ok"
     return saida, resultado
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Lote: recorte por UF, com verificação mensal da publicação
+# ---------------------------------------------------------------------------------------------------------------
+
+PASTA_LOTE = config.DADOS_BRUTOS / "inpe_prodes" / "lote"
+ARQ_SAIDA = config.DADOS_PROCESSADOS / "inpe_prodes.parquet"
+ARQ_DESCARTADOS = config.DADOS_PROCESSADOS / "inpe_prodes_descartados.parquet"
+ARQ_PUBLICACAO = config.DADOS_PROCESSADOS / "inpe_prodes_publicacao.json"
+
+
+def _relativo(caminho) -> str:
+    return str(caminho.relative_to(config.RAIZ)) if caminho.is_relative_to(config.RAIZ) else str(caminho)
+
+
+def hash_conteudo(resposta: dict) -> str:
+    """SHA-256 das feições ordenadas pelo uuid. O hash da resposta inteira muda a cada pedido (o GeoServer grava
+    `timeStamp`), então é este que diz se o INPE mudou um ano já baixado."""
+    feicoes = sorted(resposta["features"], key=lambda f: str((f.get("properties") or {}).get("uuid")))
+    return hashlib.sha256(json.dumps(feicoes, sort_keys=True).encode()).hexdigest()
+
+
+def contagem_por_ano(bioma: str, ate: int) -> dict[str, int]:
+    """Polígonos anunciados pelo serviço em cada ano, no Brasil inteiro (diz se o ano foi publicado)."""
+    camada = config.CAMADAS_PRODES[bioma]
+    return {str(ano): wfs.contar(_url(camada), camada["tipo"], f"year={ano}")
+            for ano in range(config.PRODES_DESDE, ate + 1)}
+
+
+def ultimo_ano(contagens: dict[str, int]) -> int | None:
+    publicados = [int(a) for a, n in contagens.items() if n]
+    return max(publicados) if publicados else None
+
+
+def _datas(resposta: dict) -> tuple[str | None, str | None]:
+    datas = sorted(d for f in resposta["features"] if (d := (f.get("properties") or {}).get("image_date")))
+    return (datas[0], datas[-1]) if datas else (None, None)
+
+
+def _verificacao_em_dia(anterior: dict | None, hoje: pd.Timestamp) -> bool:
+    if not anterior or anterior.get("ufs") != list(config.PRODES_UFS_LOTE) or anterior.get("desde") != config.PRODES_DESDE:
+        return False
+    ultima = pd.Timestamp(anterior["verificado_em_utc"][:10])
+    return (hoje.normalize() - ultima).days < config.PRODES_INTERVALO_VERIFICACAO_DIAS
+
+
+def verificar_e_baixar(hoje: pd.Timestamp, atualizar: bool = False, verificar: bool = False) -> tuple[dict, bool]:
+    """Verifica a publicação e baixa só o que mudou. Devolve (manifesto, se a verificação foi feita agora).
+
+    Dentro do intervalo de verificação (e sem `atualizar` nem `verificar`), reaproveita o manifesto sem ir à rede.
+    Fora dele, para cada bioma: conta os polígonos de cada ano no Brasil (o último ano com polígono é o último
+    publicado) e, em cada ano e UF do recorte, compara a contagem com a do manifesto. Baixa de novo o ano cuja
+    contagem mudou, o ano que ainda não estava no manifesto e sempre o último ano publicado (o INPE pode revisá-lo
+    sem mudar a contagem). Cada mudança encontrada vai para o histórico do manifesto.
+    """
+    arq = PASTA_LOTE / "manifesto.json"
+    anterior = json.loads(arq.read_text()) if arq.exists() else None
+    if _verificacao_em_dia(anterior, hoje) and not (atualizar or verificar):
+        log.info("[inpe_prodes] verificação de %s ainda vale (a cada %d dias); sem consulta ao serviço",
+                 anterior["verificado_em_utc"][:10], config.PRODES_INTERVALO_VERIFICACAO_DIAS)
+        return anterior, False
+    mesmo_recorte = bool(anterior) and anterior.get("ufs") == list(config.PRODES_UFS_LOTE) and \
+        anterior.get("desde") == config.PRODES_DESDE
+    agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    manifesto = {"ufs": list(config.PRODES_UFS_LOTE), "desde": config.PRODES_DESDE, "verificado_em_utc": agora,
+                 "proxima_verificacao": (hoje + pd.Timedelta(days=config.PRODES_INTERVALO_VERIFICACAO_DIAS))
+                 .strftime("%Y-%m-%d"), "biomas": {}, "mudancas": [],
+                 "historico": (anterior or {}).get("historico", []) if mesmo_recorte else []}
+    for bioma, camada in config.CAMADAS_PRODES.items():
+        antes = anterior["biomas"].get(bioma, {}) if mesmo_recorte else {}
+        contagens = contagem_por_ano(bioma, hoje.year + 1)
+        ultimo = ultimo_ano(contagens)
+        info = {"camada": camada["tipo"], "servico": _url(camada), "anunciado_brasil": contagens,
+                "ultimo_ano_publicado": ultimo, "anos": {}}
+        ultimo_antes = antes.get("ultimo_ano_publicado")
+        if ultimo_antes and ultimo != ultimo_antes:
+            manifesto["mudancas"].append({"bioma": bioma, "ano": ultimo,
+                                          "tipo": "novo ano publicado" if (ultimo or 0) > ultimo_antes
+                                          else "último ano publicado recuou", "antes": ultimo_antes, "agora": ultimo})
+        log.info("[inpe_prodes] %s: último ano publicado %s", bioma, ultimo)
+        for ano in range(config.PRODES_DESDE, (ultimo or 0) + 1):
+            for uf in config.PRODES_UFS_LOTE:
+                chave = f"{ano}/{uf}"
+                velho = antes.get("anos", {}).get(chave)
+                cql = filtro(ano, uf=uf, bioma=bioma)
+                anunciado = wfs.contar(_url(camada), camada["tipo"], cql)
+                destino = PASTA_LOTE / bioma / uf.lower() / f"{ano}.json.gz"
+                if (velho and not atualizar and velho["anunciado"] == anunciado and ano != ultimo
+                        and destino.exists()):
+                    info["anos"][chave] = velho
+                    continue
+                resposta, meta = wfs.consultar_geojson(_url(camada), camada["tipo"], cql, destino, atualizar=True,
+                                                       limite=config.PRODES_LIMITE_POR_REQUISICAO)
+                inicio, fim = _datas(resposta)
+                registro = {"ano": ano, "uf": uf, "cql": cql, "anunciado": resposta.get("numberMatched", anunciado),
+                            "recebido": len(resposta.get("features") or []), "arquivo": meta["arquivo"],
+                            "baixado_em_utc": meta["consultado_em_utc"], "sha256_resposta": meta["sha256"],
+                            "sha256_conteudo": hash_conteudo(resposta), "data_imagem_min": inicio,
+                            "data_imagem_max": fim}
+                if velho and velho["sha256_conteudo"] != registro["sha256_conteudo"]:
+                    manifesto["mudancas"].append({
+                        "bioma": bioma, "ano": ano, "uf": uf, "antes": velho["anunciado"], "agora": registro["anunciado"],
+                        "tipo": "ano consolidado alterado" if ultimo and ano < ultimo else "último ano revisado"})
+                elif not velho and mesmo_recorte:
+                    manifesto["mudancas"].append({"bioma": bioma, "ano": ano, "uf": uf, "tipo": "ano baixado pela "
+                                                  "primeira vez", "antes": None, "agora": registro["anunciado"]})
+                info["anos"][chave] = registro
+        manifesto["biomas"][bioma] = info
+    manifesto["historico"].append({"verificado_em_utc": agora, "mudancas": manifesto["mudancas"],
+                                   "ultimo_ano_publicado": {b: i["ultimo_ano_publicado"]
+                                                            for b, i in manifesto["biomas"].items()}})
+    PASTA_LOTE.mkdir(parents=True, exist_ok=True)
+    arq.write_text(json.dumps(manifesto, indent=2, ensure_ascii=False))
+    return manifesto, True
+
+
+def executar(hoje: pd.Timestamp, atualizar: bool = False, verificar: bool = False) -> ResultadoFonte:
+    resultado = ResultadoFonte("inpe_prodes", "API (WFS/GeoJSON), lote com verificação mensal")
+    manifesto, verificado_agora = verificar_e_baixar(hoje, atualizar, verificar)
+    biomas = manifesto["biomas"]
+    resultado.entrada = {
+        "servico": config.URL_WFS_INPE.format(workspace="{bioma}"), "ufs": manifesto["ufs"],
+        "desde": manifesto["desde"], "manifesto": _relativo(PASTA_LOTE / "manifesto.json"),
+        "verificacao": "feita nesta execução" if verificado_agora else "reaproveitada (dentro do intervalo)",
+        "verificado_em_utc": manifesto["verificado_em_utc"], "proxima_verificacao": manifesto["proxima_verificacao"],
+        "ultimo_ano_publicado": {b: i["ultimo_ano_publicado"] for b, i in biomas.items()},
+        "mudancas": manifesto["mudancas"] if verificado_agora else [],
+    }
+    resultado.transformar(f"Verificação da publicação a cada {config.PRODES_INTERVALO_VERIFICACAO_DIAS} dias: "
+                          "contagem por ano no Brasil e por ano e UF no recorte; baixa só o que mudou e sempre o "
+                          "último ano publicado")
+    mudancas = resultado.entrada["mudancas"]
+    n_anos = sum(len(i["anos"]) for i in biomas.values())
+    resultado.validar("PRODES_ULTIMO_ANO_RECUOU", "Último ano publicado menor que o da verificação anterior", "erro",
+                      "interrompe; conferir o serviço antes de substituir o parquet",
+                      sum(m["tipo"] == "último ano publicado recuou" for m in mudancas), len(biomas))
+    resultado.validar("PRODES_SEM_ANO_PUBLICADO", "Bioma sem nenhum ano com polígono no serviço", "erro",
+                      "interrompe a fonte", sum(i["ultimo_ano_publicado"] is None for i in biomas.values()), len(biomas))
+    resultado.validar("PRODES_NOVO_ANO_PUBLICADO", "Ano PRODES novo desde a verificação anterior", "alerta",
+                      "baixado; alertas DETER do ano passam a ser confirmados ou não",
+                      sum(m["tipo"] == "novo ano publicado" for m in mudancas), len(biomas))
+    resultado.validar("PRODES_ANO_CONSOLIDADO_ALTERADO", "Ano anterior ao último mudou de conteúdo (o PRODES "
+                      "consolidado não deveria mudar)", "alerta", "substituído pelo novo; mudança fica no histórico do "
+                      "manifesto", sum(m["tipo"] == "ano consolidado alterado" for m in mudancas), n_anos)
+    vazios = [c for i in biomas.values() for c, a in i["anos"].items() if a["anunciado"] == 0]
+    resultado.validar("PRODES_ANO_SEM_POLIGONO_NO_RECORTE", "Ano publicado sem nenhum polígono numa UF do recorte",
+                      "alerta", "mantido; conferir se a UF está no bioma", len(vazios), n_anos)
+
+    respostas, rotulos = [], []
+    for bioma, info in biomas.items():
+        for a in info["anos"].values():
+            respostas.append(json.loads(gzip.decompress((config.RAIZ / a["arquivo"]).read_bytes())))
+            rotulos.append(bioma)
+    saida, descartados = transformar(respostas, rotulos, resultado, hoje)
+    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
+    saida.to_parquet(ARQ_SAIDA, index=False)
+    descartados.to_parquet(ARQ_DESCARTADOS, index=False)
+    publicacao = {
+        "verificado_em_utc": manifesto["verificado_em_utc"], "proxima_verificacao": manifesto["proxima_verificacao"],
+        "ufs": manifesto["ufs"], "desde": manifesto["desde"],
+        "ultimo_ano_publicado": resultado.entrada["ultimo_ano_publicado"],
+        "anos": {b: {c: {k: a[k] for k in ("anunciado", "data_imagem_min", "data_imagem_max", "baixado_em_utc")}
+                     for c, a in i["anos"].items()} for b, i in biomas.items()},
+        "arquivo": _relativo(ARQ_SAIDA), "sha256": download.sha256(ARQ_SAIDA),
+        "historico": manifesto["historico"],
+    }
+    ARQ_PUBLICACAO.write_text(json.dumps(publicacao, indent=2, ensure_ascii=False))
+    resultado.saida = {
+        "arquivo": _relativo(ARQ_SAIDA), "registros_produzidos": len(saida),
+        "registros_com_alerta": int((saida["alertas"] != "").sum()),
+        "por_bioma_e_ano": {f"{b}/{a}": int(n) for (b, a), n in saida.groupby(["bioma", "ano_prodes"]).size().items()},
+        "colunas": list(saida.columns), "arquivo_descartados": _relativo(ARQ_DESCARTADOS),
+        "registros_descartados": len(descartados), "arquivo_publicacao": _relativo(ARQ_PUBLICACAO),
+    }
+    resultado.status = "ok"
+    return resultado
+
+
+def ler_publicacao() -> dict | None:
+    """Situação do PRODES em lote (inpe_prodes_publicacao.json), ou None se o lote ainda não rodou."""
+    if not (ARQ_PUBLICACAO.exists() and ARQ_SAIDA.exists()):
+        return None
+    return json.loads(ARQ_PUBLICACAO.read_text())
 
 
 def classificar_alerta(fracao_posterior: float, fracao_anterior: float, data_alerta: pd.Timestamp,

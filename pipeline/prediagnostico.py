@@ -3,7 +3,8 @@
 Do ponto de vista do produtor (o cruzamento.py parte do embargo ou do alerta). Para um CAR:
 - CAR: status e condição no SICAR (consulta sob demanda);
 - embargo IBAMA: polígono ou coordenada do embargo dentro do CAR, e embargo em nome do documento informado;
-- desmatamento após 31/12/2020: alertas DETER dentro do CAR, confirmados ou não pelo PRODES, e polígonos PRODES;
+- desmatamento após 31/12/2020: alertas DETER dentro do CAR, confirmados ou não pelo PRODES, e polígonos PRODES
+  (do parquet do lote quando a UF está no recorte; senão, consulta sob demanda);
 - Lista Suja: documento informado (pseudonimizado com a chave do pipeline, nunca gravado em claro);
 - demais critérios do AB+S: "não verificado", nunca "conforme".
 
@@ -14,6 +15,7 @@ atestado de conformidade.
 """
 
 import argparse
+import functools
 import json
 import logging
 import sys
@@ -23,6 +25,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import shapely
+from shapely.strtree import STRtree
 
 from pipeline import config, cruzamento, relatorio
 from pipeline.documentos import carregar_chave, pseudonimizar, somente_digitos
@@ -214,8 +217,11 @@ def resultado_geral(criterios: list[dict]) -> dict:
 
 def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFrame, lista_suja: pd.DataFrame,
                  prodes: pd.DataFrame, documento_hash: str | None = None,
-                 ultimo_ano_prodes: int = config.PRODES_ULTIMO_ANO_PUBLICADO) -> dict:
-    """Ficha do imóvel `car` (DataFrame tratado do SICAR com uma linha). As fontes entram já tratadas."""
+                 ultimo_ano_prodes: int | None = None) -> dict:
+    """Ficha do imóvel `car` (DataFrame tratado do SICAR com uma linha). As fontes entram já tratadas.
+
+    `ultimo_ano_prodes`: último ano PRODES publicado; separa alerta "não confirmado" de "aguardando consolidação".
+    """
     linha = car.iloc[0]
     car_geom = shapely.make_valid(shapely.from_wkt(linha["geometria_wkt"]))
     imovel = {c: (None if pd.isna(linha[c]) else getattr(linha[c], "item", lambda: linha[c])()) for c in
@@ -249,18 +255,27 @@ def ficha_inconclusiva(motivo: str, candidatos: list[str] | None = None) -> dict
 # ---------------------------------------------------------------------------------------------------------------
 
 def _procedencia_lote() -> list[dict]:
-    caminho = config.DADOS_PROCESSADOS / "relatorio_execucao.json"
-    execucao = json.loads(caminho.read_text()) if caminho.exists() else {"fontes": []}
+    """Última execução bem-sucedida de cada fonte em lote (procedencia_fontes.json, gravado por python -m pipeline;
+    o relatório da última execução completa cobre o que ainda não estiver lá)."""
+    fontes = {}
+    relatorio_exec = config.DADOS_PROCESSADOS / "relatorio_execucao.json"
+    if relatorio_exec.exists():
+        execucao = json.loads(relatorio_exec.read_text())
+        fontes = {f["fonte"]: {"executado_em": execucao.get("inicio", ""), **f} for f in execucao["fontes"]
+                  if f["status"] == "ok"}
+    procedencia = config.DADOS_PROCESSADOS / "procedencia_fontes.json"
+    if procedencia.exists():
+        fontes.update(json.loads(procedencia.read_text()))
     nomes = {"ibama_embargos": "IBAMA, áreas embargadas (CSV)", "inpe_deter": "INPE DETER (WFS, em lote)",
              "mte_lista_suja": "MTE, Cadastro de Empregadores (PDF)"}
     saida = []
-    for f in execucao["fontes"]:
-        if f["fonte"] in nomes:
-            e = f["entrada"]
-            saida.append({"fonte": nomes[f["fonte"]], "como": "lote", "url": e.get("url") or e.get("servico"),
-                          "data": (e.get("baixado_em_utc") or execucao.get("inicio", ""))[:10],
+    for fonte, nome in nomes.items():
+        if fonte in fontes:
+            e, s = fontes[fonte]["entrada"], fontes[fonte]["saida"]
+            saida.append({"fonte": nome, "como": "lote", "url": e.get("url") or e.get("servico"),
+                          "data": (e.get("baixado_em_utc") or fontes[fonte]["executado_em"])[:10],
                           "sha256": e.get("sha256", "por partição, no relatório de execução"),
-                          "arquivo": f["saida"].get("arquivo")})
+                          "arquivo": s.get("arquivo")})
     return saida
 
 
@@ -278,15 +293,44 @@ def _procedencia_consulta(nome: str, resultado) -> list[dict]:
              "arquivo": str(Path(reqs[0]["arquivo"]).parent)}] if reqs else []
 
 
-def consultar_prodes(limites: tuple, atualizar: bool = False) -> tuple[pd.DataFrame, list]:
-    """PRODES dos biomas configurados no retângulo do imóvel, de 2019 ao último ano publicado."""
-    tabelas, resultados = [], []
+@functools.cache
+def _prodes_lote() -> tuple[pd.DataFrame, STRtree]:
+    df = pd.read_parquet(inpe_prodes.ARQ_SAIDA)
+    return df, STRtree(shapely.from_wkt(df["geometria_wkt"].to_numpy()))
+
+
+def ultimo_ano_do_imovel(prodes: pd.DataFrame, ultimo_por_bioma: dict[str, int]) -> int:
+    """Último ano publicado nos biomas com PRODES em volta do imóvel (o menor, se forem dois): no Cerrado o ano
+    pode já ter saído e na Mata Atlântica não. Sem polígono em volta, vale o menor de todos."""
+    biomas = set(prodes["bioma"]) & set(ultimo_por_bioma) or set(ultimo_por_bioma)
+    return min(ultimo_por_bioma[b] for b in biomas)
+
+
+def obter_prodes(uf: str, limites: tuple, atualizar: bool = False) -> tuple[pd.DataFrame, dict, list[dict]]:
+    """PRODES em volta do imóvel (retângulo `limites`): do parquet do lote se a UF está no recorte; senão, consulta
+    sob demanda. Devolve (polígonos, situação da publicação, procedência)."""
+    publicacao = inpe_prodes.ler_publicacao()
+    if publicacao and uf in publicacao["ufs"] and not atualizar:
+        df, arvore = _prodes_lote()
+        recorte = df.iloc[np.sort(arvore.query(shapely.box(*limites)))].reset_index(drop=True)
+        situacao = {"origem": "lote", "ultimo_ano_publicado": publicacao["ultimo_ano_publicado"],
+                    "verificado_em": publicacao["verificado_em_utc"][:10],
+                    "proxima_verificacao": publicacao["proxima_verificacao"]}
+        procedencia = [{"fonte": "INPE PRODES (parquet do lote)", "como": "lote, verificação mensal",
+                        "url": config.URL_WFS_INPE.format(workspace="prodes-*"),
+                        "data": f"verificado em {situacao['verificado_em']}", "sha256": publicacao["sha256"],
+                        "arquivo": publicacao["arquivo"]}]
+        return recorte, situacao, procedencia
+    tabelas, procedencia, ultimos = [], [], {}
     for bioma in config.CAMADAS_PRODES:
-        df, r = inpe_prodes.consultar(bioma, limites=limites, desde=2019, ate=config.PRODES_ULTIMO_ANO_PUBLICADO,
+        ultimos[bioma] = inpe_prodes.ultimo_ano(inpe_prodes.contagem_por_ano(bioma, pd.Timestamp.today().year + 1))
+        df, r = inpe_prodes.consultar(bioma, limites=limites, desde=config.PRODES_DESDE, ate=ultimos[bioma],
                                       atualizar=atualizar)
         tabelas.append(df)
-        resultados.append(r)
-    return pd.concat(tabelas, ignore_index=True), resultados
+        procedencia += _procedencia_consulta(f"INPE PRODES {r.entrada['camada'].split(':')[0]} (WFS)", r)
+    situacao = {"origem": "sob demanda", "ultimo_ano_publicado": ultimos,
+                "verificado_em": pd.Timestamp.today().strftime("%Y-%m-%d"), "proxima_verificacao": None}
+    return pd.concat(tabelas, ignore_index=True), situacao, procedencia
 
 
 def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float | None = None,
@@ -314,13 +358,13 @@ def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float
         documento_hash = pseudonimizar(numeros, carregar_chave()).iloc[0]
 
     limites = shapely.from_wkt(car.at[0, "geometria_wkt"]).bounds
-    prodes, r_prodes = consultar_prodes(limites, atualizar)
-    for r in r_prodes:
-        procedencia += _procedencia_consulta(f"INPE PRODES {r.entrada['camada'].split(':')[0]} (WFS)", r)
+    prodes, publicacao, proc_prodes = obter_prodes(car.at[0, "uf"], limites, atualizar)
+    ultimo = ultimo_ano_do_imovel(prodes, publicacao["ultimo_ano_publicado"])
+    consulta["prodes"] = {**publicacao, "ultimo_ano_do_imovel": ultimo}
     ler = lambda nome: pd.read_parquet(config.DADOS_PROCESSADOS / f"{nome}.parquet")
     ficha = diagnosticar(car, ler("ibama_embargos"), ler("inpe_deter_alertas"), ler("mte_lista_suja"), prodes,
-                         documento_hash)
-    return {"consulta": consulta, **ficha, "procedencia": _procedencia_lote() + procedencia}
+                         documento_hash, ultimo)
+    return {"consulta": consulta, **ficha, "procedencia": _procedencia_lote() + proc_prodes + procedencia}
 
 
 def _registros(df: pd.DataFrame) -> list[dict]:
@@ -366,16 +410,17 @@ def escrever(ficha: dict, pasta: Path = config.PREDIAGNOSTICO) -> dict[str, Path
 
 
 def demonstracao(atualizar: bool = False) -> Path:
-    """Fichas dos CARs de demonstração (config.CARS_DEMONSTRACAO) e uma página índice."""
+    """Fichas dos CARs de demonstração (config.CARS_DEMONSTRACAO) e uma página índice, que compara o resultado de
+    cada critério com o esperado para o caso."""
     from pipeline import ficha_html
 
     fichas = []
-    for cod, descricao in config.CARS_DEMONSTRACAO.items():
+    for cod, caso in config.CARS_DEMONSTRACAO.items():
         ficha = executar(cod, documento=DOCUMENTO_DEMONSTRACAO, atualizar=atualizar)
         caminhos = escrever(ficha)
-        fichas.append((ficha, descricao, caminhos["html"].name))
+        fichas.append((ficha, caso, caminhos["html"].name))
     indice = config.PREDIAGNOSTICO / "index.html"
-    indice.write_text(ficha_html.indice(fichas), encoding="utf-8")
+    indice.write_text(ficha_html.indice(fichas, inpe_prodes.ler_publicacao()), encoding="utf-8")
     return indice
 
 
@@ -390,7 +435,8 @@ def main(argv=None) -> int:
     alvo.add_argument("--ponto", nargs=2, type=float, metavar=("LAT", "LON"), help="coordenada da sede")
     alvo.add_argument("--demo", action="store_true", help="gera as fichas dos CARs de demonstração")
     parser.add_argument("--documento", help="CPF ou CNPJ do proprietário (pseudonimizado, nunca gravado)")
-    parser.add_argument("--atualizar", action="store_true", help="consulta de novo o SICAR e o PRODES")
+    parser.add_argument("--atualizar", action="store_true",
+                        help="consulta de novo o SICAR e o PRODES (este sob demanda, mesmo com o lote)")
     args = parser.parse_args(argv)
     relatorio.configurar_log(config.LOGS / f"prediagnostico_{datetime.now():%Y%m%d_%H%M%S}.log")
 

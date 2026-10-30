@@ -151,7 +151,7 @@ Fonte: caderno, seção 6 (`inpe_prodes.confirmar_alertas`). Lá o período depo
 
 ![Alertas DETER no Cerrado de MG segundo o PRODES](figuras/prodes/deter-x-prodes-cerrado-mg.png)
 
-Nos anos consolidados (2021 a 2025), **69,6%** dos alertas (3.907 de 5.612) e 71,9% da área foram confirmados (caderno, seção 6). Os 13,7% não confirmados são o falso positivo do DETER que o PRODES corrige. Os 16,7% "já suprimidos antes" são alertas sobre área que o PRODES já tinha registrado: não é desmatamento novo naquela data.
+Nos anos consolidados (2021 a 2025), **69,6%** dos alertas (3.907 de 5.612) e 71,9% da área foram confirmados (caderno, seção 6). Os 13,7% não confirmados são o teto do falso positivo do DETER, não o falso positivo em si: parte vem do método (limiar de 10%, diferença de resolução e de área mínima entre os mapeamentos, desalinhamento de geometria). Os 16,7% "já suprimidos antes" são alertas sobre área que o PRODES já tinha registrado: não é desmatamento novo naquela data.
 
 Os 3.316 alertas depois de julho de 2025 mostram por que o DETER é indispensável no Cerrado: o PRODES de 2026 ainda não existe.
 

@@ -1,0 +1,246 @@
+{
+  "inicio": "2026-10-30 01:11:48",
+  "comando": "python -m pipeline --fontes prodes --evidencia docs/evidencias/atividade-04/prodes-lote",
+  "duracao_segundos": 8.1,
+  "status": "ok",
+  "parametros": {
+    "fontes": [
+      "prodes"
+    ],
+    "desde": "2021-01-01",
+    "atualizar": false,
+    "verificar_prodes": false
+  },
+  "fontes": [
+    {
+      "fonte": "inpe_prodes",
+      "tipo_dado": "API (WFS/GeoJSON), lote com verificação mensal",
+      "entrada": {
+        "servico": "https://terrabrasilis.dpi.inpe.br/geoserver/{bioma}/ows",
+        "ufs": [
+          "MG"
+        ],
+        "desde": 2019,
+        "manifesto": "data/raw/inpe_prodes/lote/manifesto.json",
+        "verificacao": "reaproveitada (dentro do intervalo)",
+        "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+        "proxima_verificacao": "2026-11-29",
+        "ultimo_ano_publicado": {
+          "cerrado": 2026,
+          "mata_atlantica": 2025
+        },
+        "mudancas": [],
+        "registros_recebidos": 112817
+      },
+      "transformacoes": [
+        "Verificação da publicação a cada 30 dias: contagem por ano no Brasil e por ano e UF no recorte; baixa só o que mudou e sempre o último ano publicado",
+        "Conversão de cada feature GeoJSON em linha: propriedades e geometria",
+        "publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)",
+        "Área calculada da geometria em projeção equivalente local (km²)"
+      ],
+      "validacoes": [
+        {
+          "codigo": "PRODES_ULTIMO_ANO_RECUOU",
+          "descricao": "Último ano publicado menor que o da verificação anterior",
+          "severidade": "erro",
+          "tratamento": "interrompe; conferir o serviço antes de substituir o parquet",
+          "verificados": 2,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_SEM_ANO_PUBLICADO",
+          "descricao": "Bioma sem nenhum ano com polígono no serviço",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 2,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_NOVO_ANO_PUBLICADO",
+          "descricao": "Ano PRODES novo desde a verificação anterior",
+          "severidade": "alerta",
+          "tratamento": "baixado; alertas DETER do ano passam a ser confirmados ou não",
+          "verificados": 2,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_ANO_CONSOLIDADO_ALTERADO",
+          "descricao": "Ano anterior ao último mudou de conteúdo (o PRODES consolidado não deveria mudar)",
+          "severidade": "alerta",
+          "tratamento": "substituído pelo novo; mudança fica no histórico do manifesto",
+          "verificados": 15,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_ANO_SEM_POLIGONO_NO_RECORTE",
+          "descricao": "Ano publicado sem nenhum polígono numa UF do recorte",
+          "severidade": "alerta",
+          "tratamento": "mantido; conferir se a UF está no bioma",
+          "verificados": 15,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta é FeatureCollection com lista de features",
+          "severidade": "erro",
+          "tratamento": "interrompe a consulta",
+          "verificados": 15,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_PARTICAO_INCOMPLETA",
+          "descricao": "Recebido diferente do numberMatched anunciado pelo serviço",
+          "severidade": "erro",
+          "tratamento": "interrompe a consulta; repetir",
+          "verificados": 15,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_CRS_INESPERADO",
+          "descricao": "CRS diferente de EPSG::4674 (SIRGAS 2000)",
+          "severidade": "erro",
+          "tratamento": "interrompe a consulta",
+          "verificados": 15,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_UUID_AUSENTE",
+          "descricao": "Polígono sem uuid",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 112817,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_UUID_DUPLICADO",
+          "descricao": "uuid repetido (retângulos ou anos que se sobrepõem trazem o mesmo polígono)",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 112817,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_CLASSE_FORA_DO_DOMINIO",
+          "descricao": "main_class diferente de DESMATAMENTO (ex.: RESERVATORIO)",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 112817,
+          "ocorrencias": 100
+        },
+        {
+          "codigo": "PRODES_GEOM_AUSENTE",
+          "descricao": "Geometria nula ou vazia",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 112717,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid antes de qualquer interseção",
+          "verificados": 112717,
+          "ocorrencias": 12211
+        },
+        {
+          "codigo": "PRODES_UF_NORMALIZADA",
+          "descricao": "UF gravada por extenso (ex.: MINAS GERAIS)",
+          "severidade": "correcao",
+          "tratamento": "convertida para a sigla",
+          "verificados": 112717,
+          "ocorrencias": 62897
+        },
+        {
+          "codigo": "PRODES_UF_INVALIDA",
+          "descricao": "UF que não é sigla nem nome de UF",
+          "severidade": "alerta",
+          "tratamento": "UF anulada",
+          "verificados": 112717,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_DATA_IMAGEM_AUSENTE",
+          "descricao": "image_date nula ou fora do formato AAAA-MM-DD",
+          "severidade": "alerta",
+          "tratamento": "sem data não entra na comparação com a data de corte",
+          "verificados": 112717,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_DATA_FORA_DO_ANO_PRODES",
+          "descricao": "image_date fora de 01/08 do ano anterior a 31/07 do year",
+          "severidade": "alerta",
+          "tratamento": "mantido; a regra usa image_date, não year",
+          "verificados": 112717,
+          "ocorrencias": 59838
+        },
+        {
+          "codigo": "PRODES_DATA_IMAGEM_FUTURA",
+          "descricao": "image_date depois da data da execução",
+          "severidade": "alerta",
+          "tratamento": "mantido e marcado",
+          "verificados": 112717,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_PUBLISH_YEAR_DIVERGENTE",
+          "descricao": "publish_year diferente de 01/01 do year",
+          "severidade": "alerta",
+          "tratamento": "campo ignorado",
+          "verificados": 112717,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_AREA_DIVERGENTE",
+          "descricao": "area_km difere mais de 10% da área calculada da geometria",
+          "severidade": "alerta",
+          "tratamento": "usar a área calculada",
+          "verificados": 112717,
+          "ocorrencias": 1654
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/inpe_prodes.parquet",
+        "registros_produzidos": 112717,
+        "registros_com_alerta": 60594,
+        "por_bioma_e_ano": {
+          "cerrado/2019": 5551,
+          "cerrado/2020": 8646,
+          "cerrado/2021": 10365,
+          "cerrado/2022": 10245,
+          "cerrado/2023": 8355,
+          "cerrado/2024": 6374,
+          "cerrado/2025": 7141,
+          "cerrado/2026": 6220,
+          "mata_atlantica/2019": 8828,
+          "mata_atlantica/2020": 6681,
+          "mata_atlantica/2021": 7254,
+          "mata_atlantica/2022": 7424,
+          "mata_atlantica/2023": 7400,
+          "mata_atlantica/2024": 7169,
+          "mata_atlantica/2025": 5064
+        },
+        "colunas": [
+          "uuid",
+          "bioma",
+          "ano_prodes",
+          "data_imagem",
+          "uf",
+          "classe",
+          "area_km2_fonte",
+          "area_km2",
+          "satelite",
+          "sensor",
+          "geometria_wkt",
+          "alertas"
+        ],
+        "arquivo_descartados": "data/processed/inpe_prodes_descartados.parquet",
+        "registros_descartados": 100,
+        "arquivo_publicacao": "data/processed/inpe_prodes_publicacao.json"
+      },
+      "status": "ok",
+      "mensagem": ""
+    }
+  ]
+}

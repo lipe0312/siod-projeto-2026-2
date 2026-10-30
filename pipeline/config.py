@@ -87,18 +87,40 @@ CAMADAS_PRODES = {
 PRODES_LIMITE_POR_REQUISICAO = 50000
 # Fração mínima do alerta DETER coberta pelo PRODES para contar como confirmação (ADR 0009).
 PRODES_LIMIAR_CONFIRMACAO = 0.10
-# Último ano PRODES publicado (o ano 2026 respondeu vazio na consulta por UF de 14/10/2026). Fixo até o PRODES
-# virar fonte em lote com verificação mensal de atualização.
-PRODES_ULTIMO_ANO_PUBLICADO = 2025
+# PRODES em lote (python -m pipeline --fontes prodes): anos desde PRODES_DESDE, recortados pelas UFs abaixo (o
+# Brasil inteiro passa de 50 mil polígonos por ano e bioma). O PRODES sai uma vez por ano, em data que o INPE não
+# fixa; por isso a publicação é verificada a cada PRODES_INTERVALO_VERIFICACAO_DIAS: o último ano publicado vem da
+# contagem do próprio serviço, não de uma constante. Imóvel fora dessas UFs é consultado sob demanda.
+PRODES_DESDE = 2019
+PRODES_UFS_LOTE = ("MG",)
+PRODES_INTERVALO_VERIFICACAO_DIAS = 30
 
 # Pré-diagnóstico: pasta das fichas e CARs da demonstração (recorte de café de MG, todos com SICAR em cache).
 PREDIAGNOSTICO = DADOS_PROCESSADOS / "prediagnostico"
+# `esperado`: situação de cada critério verificado e do resultado, conferida na página da demonstração.
+_LIMPO = {"car": "sem ocorrência", "embargo": "sem ocorrência", "desmatamento": "sem ocorrência",
+          "lista_suja": "sem ocorrência"}
 CARS_DEMONSTRACAO = {
-    "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566": "Patrocínio: desmatamento após 2020 confirmado pelo PRODES",
-    "MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4": "Serra do Salitre: embargo e 8 alertas DETER aguardando o PRODES",
-    "MG-3148103-627F1606409049ABAB34A913E6F37010": "Patrocínio: embargo e alerta sobre área já suprimida antes",
-    "MG-3148103-A63D0A01090844CF89342D2544C5847F": "Patrocínio: CAR com notificação pendente, embargos e alertas",
-    "MG-3148103-5527FB32FFB24B7F850B487724583043": "Patrocínio: CAR analisado, nada encontrado nas fontes verificadas",
+    "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566": {
+        "caso": "Patrocínio: desmatamento após 2020 confirmado pelo PRODES",
+        "esperado": {**_LIMPO, "desmatamento": "pendência", "resultado": "com pendência"}},
+    "MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4": {
+        # Até a verificação de 30/10/2026 os 8 alertas (ago./set. 2025) aguardavam o PRODES; o Cerrado 2026 os confirmou.
+        "caso": "Serra do Salitre: embargo e 8 alertas DETER de 2025 confirmados pelo PRODES 2026",
+        "esperado": {**_LIMPO, "embargo": "pendência", "desmatamento": "pendência", "resultado": "com pendência"}},
+    "MG-3148103-A0B17B31272E42CEA4B4C06338C310AF": {
+        "caso": "Patrocínio: 3 alertas DETER de ago. 2026, depois do último PRODES (aguardando)",
+        "esperado": {**_LIMPO, "desmatamento": "indício", "resultado": "com indício"}},
+    "MG-3148103-627F1606409049ABAB34A913E6F37010": {
+        "caso": "Patrocínio: embargo e alerta sobre área já suprimida antes",
+        "esperado": {**_LIMPO, "embargo": "pendência", "desmatamento": "indício", "resultado": "com pendência"}},
+    "MG-3148103-A63D0A01090844CF89342D2544C5847F": {
+        "caso": "Patrocínio: CAR com notificação pendente, embargos e alerta confirmado",
+        "esperado": {"car": "indício", "embargo": "pendência", "desmatamento": "pendência",
+                     "lista_suja": "sem ocorrência", "resultado": "com pendência"}},
+    "MG-3148103-5527FB32FFB24B7F850B487724583043": {
+        "caso": "Patrocínio: CAR analisado, nada encontrado nas fontes verificadas",
+        "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
 }
 
 # AB+S (Agro Brasil + Sustentável): API pública de validação do relatório, consultada por código de autenticidade.

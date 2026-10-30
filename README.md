@@ -60,7 +60,7 @@ Versão 1 em [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md
 1. Validar a dor com técnicos de assistência técnica e de cooperativas.
 2. Definir a camada de persistência e carregar nela as saídas do pipeline.
 3. Montar uma amostra simulada de produtores, com gabarito, e implementar a regra de cruzamento da fatia vertical.
-4. Incluir as bases de terras indígenas, unidades de conservação e florestas públicas, e o PRODES dos biomas além do Cerrado e da Mata Atlântica.
+4. Incluir as bases de terras indígenas, unidades de conservação e florestas públicas, e o PRODES dos biomas além do Cerrado e da Mata Atlântica e de outras UFs no lote.
 5. Obter um relatório AB+S real para registrar a primeira resposta válida da API pública.
 
 ## Como reproduzir na sua máquina
@@ -137,7 +137,7 @@ As fontes são atualizadas continuamente, então as contagens podem variar um po
 python -m pytest
 ```
 
-O resultado esperado é `91 passed, 1 skipped`: 51 testes da Atividade 02 e 40 da Atividade 03. O teste ignorado é marcado `rede` e consulta o SICAR de verdade; ele só roda com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
+O resultado esperado é `121 passed, 2 skipped`: 51 testes da Atividade 02, 40 da Atividade 03 e 30 da Atividade 04. Os testes ignorados são marcados `rede` e consultam o SICAR e o PRODES de verdade; só rodam com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
 
 **b) Execução completa.** Baixa as quatro fontes e gera as saídas:
 
@@ -148,9 +148,10 @@ python -m pipeline
 A primeira execução baixa cerca de 180 MB e leva de 6 a 7 minutos, a maior parte na coleta dos alertas do INPE. As execuções seguintes reaproveitam o que já foi baixado. Outras opções:
 
 ```bash
-python -m pipeline --fontes ibama              # só uma ou algumas fontes: ibama, deter, lista_suja
+python -m pipeline --fontes ibama              # só uma ou algumas fontes: ibama, deter, prodes, lista_suja
 python -m pipeline --desde 2021-01-01          # início do recorte dos alertas DETER
 python -m pipeline --atualizar                 # baixar tudo de novo
+python -m pipeline --fontes prodes --verificar-prodes  # verificar a publicação do PRODES antes de 30 dias
 python -m pipeline --evidencia minha_execucao  # copiar relatório e log para uma pasta
 python -m pipeline --help
 ```
@@ -207,15 +208,32 @@ A primeira execução consulta o SICAR (10 municípios e uma consulta por embarg
 
 ### 5. Pré-diagnóstico de um imóvel
 
-Do ponto de vista do produtor: para um CAR, junta o status no SICAR, os embargos do IBAMA (pelo polígono, pela coordenada ou pelo documento), os alertas DETER confirmados ou não pelo PRODES, os polígonos PRODES após 2020 e a Lista Suja. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`. Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com a evidência, o encaminhamento e a procedência. Precisa dos parquets de `python -m pipeline`.
+Do ponto de vista do produtor: para um CAR, junta o status no SICAR, os embargos do IBAMA (pelo polígono, pela coordenada ou pelo documento), os alertas DETER confirmados ou não pelo PRODES, os polígonos PRODES após 2020 e a Lista Suja. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`. Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com a evidência, o encaminhamento e a procedência. Precisa dos parquets de `python -m pipeline` (com o PRODES, seção 6). A página da demonstração confere o resultado de cada caso com o esperado, e cada ficha mostra como o resultado se formou e a linha do tempo das evidências diante da data de corte.
 
 ```bash
-python -m pipeline.prediagnostico --demo                                   # 5 CARs reais prontos; abra data/processed/prediagnostico/index.html
+python -m pipeline.prediagnostico --demo                                   # 6 CARs reais prontos; abra data/processed/prediagnostico/index.html
 python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
 python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada da sede
 ```
 
 O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado em claro. Prints e fichas da demonstração estão em [`docs/evidencias/atividade-04/prediagnostico/`](docs/evidencias/atividade-04/prediagnostico/).
+
+### 6. PRODES em lote, conferido todo mês
+
+O PRODES sai uma vez por ano, sem data fixa. `python -m pipeline --fontes prodes` grava os anos desde 2019 do Cerrado e da Mata Atlântica em MG (`config.PRODES_UFS_LOTE`) em `data/processed/inpe_prodes.parquet`, limpo e validado como as outras fontes. A cada execução:
+
+- se a última verificação tem menos de 30 dias, não vai à rede;
+- senão, conta os polígonos de cada ano no Brasil: o último ano com polígono é o último publicado (não há mais ano fixo no código);
+- em cada ano e UF, compara a contagem com a gravada no manifesto e baixa de novo só o que mudou, mais o último ano publicado (o INPE pode revisá-lo);
+- registra ano novo, ano consolidado alterado e último ano revisado no histórico, em `data/processed/inpe_prodes_publicacao.json`, com as datas de imagem (mínima e máxima) de cada ano.
+
+Para rodar todo mês sozinho, agende no `crontab -e` (exemplo, todo dia 1 às 6h):
+
+```
+0 6 1 * * cd /caminho/siod-projeto-2026-2 && .venv/bin/python -m pipeline --fontes prodes
+```
+
+O pré-diagnóstico lê esse parquet quando o imóvel está numa UF do recorte; fora dele, consulta o PRODES sob demanda. Na primeira verificação (30/10/2026), o Cerrado já tinha o ano 2026 publicado, e isso confirmou 8 alertas de 2025 que antes apareciam como "aguardando consolidação". Evidência em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
 
 ### Problemas comuns
 
@@ -245,7 +263,7 @@ O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado e
 | [`pipeline/fontes/mte_lista_suja.py`](pipeline/fontes/mte_lista_suja.py) | Fonte documento: Lista Suja do Ministério do Trabalho (PDF) | 02 |
 | [`pipeline/wfs.py`](pipeline/wfs.py) | Requisição, contagem e filtros espaciais (ordem dos eixos) comuns aos serviços WFS | 03 |
 | [`pipeline/fontes/sicar.py`](pipeline/fontes/sicar.py) | Fonte sob demanda: CAR pelo WFS do SICAR, por município, retângulo ou ponto | 03 |
-| [`pipeline/fontes/inpe_prodes.py`](pipeline/fontes/inpe_prodes.py) | Fonte sob demanda: PRODES por bioma e ano; confirmação dos alertas DETER | 03 |
+| [`pipeline/fontes/inpe_prodes.py`](pipeline/fontes/inpe_prodes.py) | PRODES em lote com verificação mensal da publicação (04) e sob demanda por bioma e ano; confirmação dos alertas DETER | 03, 04 |
 | [`pipeline/fontes/ab_s.py`](pipeline/fontes/ab_s.py) | Fonte sob demanda: validação do relatório AB+S pelo código de autenticidade | 03 |
 | [`pipeline/cruzamento.py`](pipeline/cruzamento.py) | Atribuição de embargo ou alerta a um CAR (principal, parcial, tangente) | 03 |
 | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py) | Pré-diagnóstico de um imóvel: critérios, situação, evidência, encaminhamento e procedência | 04 |
@@ -258,7 +276,8 @@ O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado e
 | [`tests/test_download.py`](tests/test_download.py) | Download truncado e registro de procedência | 02 |
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
 | [`tests/test_sicar.py`](tests/test_sicar.py), [`test_inpe_prodes.py`](tests/test_inpe_prodes.py), [`test_ab_s.py`](tests/test_ab_s.py), [`test_cruzamento.py`](tests/test_cruzamento.py) | Validações das fontes sob demanda, ordem dos eixos, regra de confirmação do PRODES e de atribuição ao CAR | 03 |
-| [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro | 04 |
+| [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro, avaliação esperado x obtido | 04 |
+| [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote com serviço falso: reaproveita dentro do mês, ano novo, ano consolidado alterado, último ano que recua | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
 | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |
