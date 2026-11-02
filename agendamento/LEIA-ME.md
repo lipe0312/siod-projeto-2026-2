@@ -22,6 +22,12 @@ launchctl list | grep siod          # confere que entrou
 launchctl start br.ufba.siod.rotina-mensal   # roda agora, para testar
 ```
 
+**Projeto dentro de `~/Documents`, `~/Desktop` ou `~/Downloads`:** a proteção de privacidade do macOS (TCC) impede o processo iniciado pelo launchd de ler essas pastas. Em 02/11/2026, a primeira execução falhou com `can't open input file` (código 127, em `data/logs/agendamento/launchd.err`). Há duas saídas:
+* dar acesso a `/bin/zsh` em Ajustes do Sistema → Privacidade e Segurança → Acesso Total ao Disco (botão +, ⌘⇧G, `/bin/zsh`). O acesso vale para qualquer script zsh, por isso a decisão é do dono da máquina;
+* mover o projeto para fora dessas pastas (ex.: `~/projetos/`) e reinstalar o plist.
+
+Depois, `launchctl kickstart gui/$(id -u)/br.ufba.siod.rotina-mensal` roda na hora. Confira com `launchctl print gui/$(id -u)/br.ufba.siod.rotina-mensal | grep "last exit"`: deve dar 0, ou 1 se alguma fonte falhar (detalhe no log da rotina).
+
 Para remover: `launchctl unload ~/Library/LaunchAgents/br.ufba.siod.rotina-mensal.plist` e apagar o arquivo.
 
 Em Linux, a linha equivalente do `crontab -e` é `0 3 2 * * /bin/zsh /caminho/do/projeto/agendamento/rotina_mensal.sh`. Num servidor sempre ligado, o `cron` basta.
