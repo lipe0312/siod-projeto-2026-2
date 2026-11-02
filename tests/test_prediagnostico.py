@@ -74,10 +74,11 @@ def situacoes(ficha):
 def test_imovel_sem_nada_nas_fontes_e_sem_pendencia_mas_nao_e_conforme():
     ficha = diagnosticar(documento=CPF_VALIDO)
     s = situacoes(ficha)
-    assert [s["car"], s["embargo"], s["desmatamento"], s["lista_suja"]] == ["sem ocorrência"] * 4
+    assert [s["car"], s["embargo"], s["desmatamento"], s["lista_suja"], s["terra_indigena"], s["quilombola"],
+            s["unidade_conservacao"]] == ["sem ocorrência"] * 7
     assert ficha["resultado"]["situacao"] == "sem pendência nas fontes verificadas"
-    # Os critérios do AB+S sem fonte aberta aparecem como "não verificado", nunca como conformes.
-    assert ficha["resultado"]["contagem"]["não verificado"] == 6
+    # Os critérios do AB+S sem fonte aberta (1, 2 e 8) aparecem como "não verificado", nunca como conformes.
+    assert ficha["resultado"]["contagem"]["não verificado"] == 3
     assert not any("conforme" == c["situacao"] for c in ficha["criterios"])
 
 
@@ -149,10 +150,19 @@ def test_ponto_em_dois_cars_e_inconclusivo(monkeypatch):
     class R:
         entrada = {"servico": "sicar", "requisicoes": []}
 
-    monkeypatch.setattr(prediagnostico.sicar, "consultar_ponto", lambda lat, lon, atualizar: (dois, R()))
+    monkeypatch.setattr(prediagnostico.territorio, "uf_do_ponto", lambda lat, lon: "MG")
+    monkeypatch.setattr(prediagnostico.sicar, "consultar_ponto", lambda lat, lon, uf, atualizar: (dois, R()))
     ficha = prediagnostico.executar(lat=Y0 + 0.005, lon=X0 + 0.005)
     assert ficha["resultado"]["situacao"] == "inconclusivo"
     assert len(ficha["imovel"]["candidatos"]) == 2
+
+
+def test_ponto_fora_do_brasil_e_inconclusivo_sem_consultar_o_sicar(monkeypatch):
+    monkeypatch.setattr(prediagnostico.territorio, "uf_do_ponto", lambda lat, lon: None)
+    monkeypatch.setattr(prediagnostico.sicar, "consultar_ponto", lambda *a, **k: pytest.fail("consultou o SICAR"))
+    ficha = prediagnostico.executar(lat=-20.0, lon=-30.0)
+    assert ficha["resultado"]["situacao"] == "inconclusivo"
+    assert "fora do território" in ficha["criterios"][0]["evidencia"]
 
 
 def test_escreve_json_markdown_e_html_sem_documento_em_claro(tmp_path):

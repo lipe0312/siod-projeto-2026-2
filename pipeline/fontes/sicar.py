@@ -19,7 +19,7 @@ import requests
 import shapely
 from requests.adapters import HTTPAdapter
 
-from pipeline import config, wfs
+from pipeline import config, vetor, wfs
 from pipeline.download import baixar
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -140,7 +140,7 @@ def transformar(respostas: list[dict], resultado: ResultadoFonte,
     invalida = pd.Series(~shapely.is_valid(g), index=df.index) if n else pd.Series(False, index=df.index)
     resultado.validar("CAR_GEOM_INVALIDA", "Geometria inválida (autointerseção)", "correcao",
                       "shapely.make_valid antes de medir", invalida, n)
-    g = shapely.make_valid(g) if n else g
+    g = vetor.tornar_validas(g) if n else g
     df["geom"] = g
     df["area_geom_ha"] = area_ha(g) if n else []
 
@@ -219,13 +219,36 @@ def malha_municipio(cod_ibge: str, atualizar: bool = False):
     destino = config.DADOS_BRUTOS / "ibge_malhas" / f"{cod_ibge}.geojson"
     baixar(config.URL_MALHA_MUNICIPIO.format(cod=cod_ibge), destino, atualizar)
     fc = json.loads(destino.read_text())
-    return shapely.make_valid(shapely.from_geojson(json.dumps(fc["features"][0]["geometry"])))
+    return vetor.tornar_valida(shapely.from_geojson(json.dumps(fc["features"][0]["geometry"])))
 
 
-def consultar_municipios(cods_ibge, uf: str = "MG", atualizar: bool = False,
+def uf_do_municipio(cod_ibge: str) -> str:
+    uf = config.CODIGO_UF_IBGE.get(str(cod_ibge)[:2])
+    if not uf:
+        raise ValueError(f"código IBGE de município fora do formato: {cod_ibge!r}")
+    return uf
+
+
+def uf_da_area(lat: float, lon: float) -> str:
+    """UF pelo contorno do IBGE (pipeline/territorio.py). Ponto fora do Brasil não é consultado."""
+    from pipeline import territorio
+
+    uf = territorio.uf_do_ponto(lat, lon)
+    if not uf:
+        raise ValueError(f"ponto fora do território brasileiro: lat {lat}, lon {lon}")
+    return uf
+
+
+def consultar_municipios(cods_ibge, uf: str | None = None, atualizar: bool = False,
                          conferir_malha: bool = True) -> tuple[pd.DataFrame, ResultadoFonte]:
-    """Todos os imóveis de cada município (uma requisição por município). A sobreposição é medida no conjunto."""
+    """Todos os imóveis de cada município (uma requisição por município, todos da mesma UF, deduzida do código IBGE).
+    A sobreposição é medida no conjunto."""
     cods = [str(c) for c in cods_ibge]
+    ufs = {uf_do_municipio(c) for c in cods}
+    if uf is None and len(ufs) == 1:
+        uf = ufs.pop()
+    elif ufs != {uf}:
+        raise ValueError(f"municípios de UFs diferentes ({sorted(ufs)}) ou fora da UF {uf}")
     resultado = _resultado("município", f"cod_municipio_ibge IN {cods}", uf)
     respostas = []
     for cod in cods:
@@ -240,7 +263,8 @@ def consultar_municipios(cods_ibge, uf: str = "MG", atualizar: bool = False,
     return saida, resultado
 
 
-def consultar_municipio(cod_ibge: str, uf: str = "MG", atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
+def consultar_municipio(cod_ibge: str, uf: str | None = None,
+                        atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
     return consultar_municipios([cod_ibge], uf, atualizar)
 
 
@@ -255,9 +279,12 @@ def _consultar_filtro(tipo: str, cql: str, uf: str, atualizar: bool) -> tuple[pd
     return saida, resultado
 
 
-def consultar_bbox(limites: tuple[float, float, float, float], uf: str = "MG",
+def consultar_bbox(limites: tuple[float, float, float, float], uf: str | None = None,
                    atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
-    """Imóveis que tocam o retângulo `limites` = (lon_min, lat_min, lon_max, lat_max), sem filtro de município."""
+    """Imóveis que tocam o retângulo `limites` = (lon_min, lat_min, lon_max, lat_max), sem filtro de município. Sem
+    `uf`, vale a UF que contém o centro do retângulo (num retângulo de divisa, informe a UF de cada lado)."""
+    if uf is None:
+        uf = uf_da_area((limites[1] + limites[3]) / 2, (limites[0] + limites[2]) / 2)
     return _consultar_filtro("bbox", wfs.filtro_bbox(CAMPO_GEOMETRIA, limites), uf, atualizar)
 
 
@@ -269,9 +296,11 @@ def consultar_codigo(cod_imovel: str, atualizar: bool = False) -> tuple[pd.DataF
     return _consultar_filtro("codigo", f"cod_imovel='{cod}'", cod[:2], atualizar)
 
 
-def consultar_ponto(lat: float, lon: float, uf: str = "MG", atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
-    """Imóveis que contêm o ponto (sede, coordenada de GPS)."""
-    return _consultar_filtro("ponto", wfs.filtro_ponto(CAMPO_GEOMETRIA, lat, lon), uf, atualizar)
+def consultar_ponto(lat: float, lon: float, uf: str | None = None,
+                    atualizar: bool = False) -> tuple[pd.DataFrame, ResultadoFonte]:
+    """Imóveis que contêm o ponto (sede, coordenada de GPS). Sem `uf`, vale a UF do contorno que contém o ponto."""
+    return _consultar_filtro("ponto", wfs.filtro_ponto(CAMPO_GEOMETRIA, lat, lon), uf or uf_da_area(lat, lon),
+                             atualizar)
 
 
 def geometrias(df: pd.DataFrame) -> np.ndarray:

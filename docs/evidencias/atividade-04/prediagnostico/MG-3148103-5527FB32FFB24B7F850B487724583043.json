@@ -4,17 +4,30 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-10-30 01:12:06",
+    "gerado_em": "2026-11-02 12:37:15",
     "prodes": {
       "origem": "lote",
+      "uf": "MG",
       "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
         "cerrado": 2026,
-        "mata_atlantica": 2025
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
       },
-      "verificado_em": "2026-10-30",
+      "ultima_imagem": {
+        "caatinga": "2025-10-16",
+        "cerrado": "2026-08-12",
+        "mata_atlantica": "2025-10-16"
+      },
+      "verificado_em": "2026-10-31",
       "proxima_verificacao": "2026-11-29",
-      "ultimo_ano_do_imovel": 2025
-    }
+      "ultimo_ano_do_imovel": 2026
+    },
+    "biomas": [
+      "cerrado"
+    ]
   },
   "imovel": {
     "cod_imovel": "MG-3148103-5527FB32FFB24B7F850B487724583043",
@@ -36,8 +49,8 @@
     "contagem": {
       "pendência": 0,
       "indício": 0,
-      "sem ocorrência": 4,
-      "não verificado": 6,
+      "sem ocorrência": 7,
+      "não verificado": 3,
       "inconclusivo": 0
     }
   },
@@ -49,7 +62,8 @@
       "situacao": "sem ocorrência",
       "evidencia": "Ativo · Analisado, em conformidade com a Lei nº 12.651/2012, com ativos ambientais",
       "encaminhamento": "—",
-      "fonte": "SICAR"
+      "fonte": "SICAR",
+      "aviso": null
     },
     {
       "chave": "embargo",
@@ -58,7 +72,8 @@
       "situacao": "sem ocorrência",
       "evidencia": "Nenhum embargo dentro do imóvel",
       "encaminhamento": "—",
-      "fonte": "IBAMA"
+      "fonte": "IBAMA",
+      "aviso": null
     },
     {
       "chave": "desmatamento",
@@ -67,7 +82,8 @@
       "situacao": "sem ocorrência",
       "evidencia": "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel",
       "encaminhamento": "—",
-      "fonte": "INPE DETER e PRODES"
+      "fonte": "INPE DETER e PRODES",
+      "aviso": null
     },
     {
       "chave": "lista_suja",
@@ -76,43 +92,58 @@
       "situacao": "sem ocorrência",
       "evidencia": "Documento não consta no Cadastro de Empregadores",
       "encaminhamento": "—",
-      "fonte": "MTE"
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "encaminhamento": "—",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
     },
     {
       "chave": "ab_s_1",
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "SNCR não tem consulta aberta por imóvel",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "INCRA (SNCR)"
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
     },
     {
       "chave": "ab_s_2",
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Download do SIGEF exige login gov.br",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "SIGEF-GEO (INCRA)"
-    },
-    {
-      "chave": "ab_s_5",
-      "criterio": "Sobreposição: terras indígenas",
-      "criterio_ab_s": 5,
-      "situacao": "não verificado",
-      "evidencia": "Fonte aberta existe; ainda não integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "FUNAI"
-    },
-    {
-      "chave": "ab_s_6",
-      "criterio": "Sobreposição: área quilombola",
-      "criterio_ab_s": 6,
-      "situacao": "não verificado",
-      "evidencia": "Sem fonte aberta integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "INCRA"
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
     },
     {
       "chave": "ab_s_8",
@@ -121,33 +152,52 @@
       "situacao": "não verificado",
       "evidencia": "Depende do critério 2",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "CAR e SIGEF-GEO"
-    },
-    {
-      "chave": "ab_s_9",
-      "criterio": "Sobreposição: unidade de conservação",
-      "criterio_ab_s": 9,
-      "situacao": "não verificado",
-      "evidencia": "Sem fonte aberta integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "MMA"
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
     }
   ],
   "evidencias": {
     "embargos": [],
     "alertas": [],
     "prodes": [],
-    "lista_suja": []
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [],
+    "unidade_conservacao": []
   },
   "geometria_car": "MULTIPOLYGON (((-46.84273286 -19.11909711, -46.84256089 -19.11860948, -46.842713 -19.11813156, -46.84270281 -19.11785394, -46.84280656 -19.11750944, -46.84282355 -19.11731652, -46.84297378 -19.11708526, -46.84341173 -19.11480354, -46.84512698 -19.11268453, -46.84629002 -19.1138719, -46.84740727 -19.1140613, -46.84875278 -19.11503132, -46.85038257 -19.11660825, -46.85056579 -19.1164218, -46.85062091 -19.11634316, -46.85095331 -19.11628998, -46.85105004 -19.11619872, -46.85104541 -19.1160769, -46.85113714 -19.11585761, -46.85130711 -19.1159132, -46.851693 -19.1157141, -46.85165112 -19.11559902, -46.85208639 -19.11542468, -46.85240834 -19.11538671, -46.85260059 -19.11537622, -46.85276978 -19.11537646, -46.85297943 -19.11537805, -46.85302242 -19.11541097, -46.85347454 -19.11572145, -46.85338996 -19.11609263, -46.85341336 -19.11669483, -46.85365289 -19.11698396, -46.8540866 -19.1176715, -46.8543945 -19.11800851, -46.85482112 -19.1185364, -46.85507397 -19.11939696, -46.85509784 -19.12007291, -46.85499586 -19.12104331, -46.85547361 -19.12186819, -46.855588 -19.1221051, -46.85590556 -19.12290303, -46.85591704 -19.12322172, -46.85555246 -19.12342282, -46.85511165 -19.1234378, -46.8547096 -19.12353674, -46.85474776 -19.12386867, -46.85468437 -19.12408442, -46.85448789 -19.12417635, -46.85428314 -19.12420086, -46.85420827 -19.12433613, -46.85383151 -19.12451658, -46.85377464 -19.1244149, -46.85391097 -19.12387586, -46.85382364 -19.1235867, -46.85345688 -19.12309985, -46.85305856 -19.12279709, -46.85252259 -19.12257362, -46.85217062 -19.12267831, -46.85157552 -19.12263631, -46.850972 -19.12257937, -46.85061598 -19.12257645, -46.85050405 -19.12254002, -46.85026442 -19.12239226, -46.85008772 -19.12226635, -46.85009322 -19.122194, -46.85037542 -19.12204976, -46.85046832 -19.12168687, -46.85012012 -19.1215997, -46.84966919 -19.12140054, -46.84901711 -19.12053933, -46.848729 -19.12017003, -46.84858927 -19.11997041, -46.84863391 -19.11983286, -46.84850421 -19.11971409, -46.84717768 -19.11994479, -46.84705127 -19.1201402, -46.84704672 -19.12038259, -46.8467092 -19.12063867, -46.8465658 -19.12060624, -46.84658677 -19.120128, -46.84651075 -19.12001606, -46.84614809 -19.12004702, -46.84570925 -19.11993017, -46.84558038 -19.12021233, -46.84501789 -19.1204048, -46.8446746 -19.12036857, -46.84409739 -19.12038383, -46.84400555 -19.12030362, -46.84404091 -19.12004747, -46.84384074 -19.11999974, -46.84367445 -19.11983663, -46.84325449 -19.11966913, -46.84310742 -19.11959643, -46.84270875 -19.1194889, -46.84232814 -19.11959335, -46.84243682 -19.11939819, -46.84273418 -19.11924739, -46.84273286 -19.11909711)))",
   "procedencia": [
     {
-      "fonte": "INPE PRODES (parquet do lote)",
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição MG)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-30",
-      "sha256": "96999de3cff95c97c42200a0c6480297ba452c00d69b02909b5a72141404938b",
-      "arquivo": "data/processed/inpe_prodes.parquet"
+      "data": "verificado em 2026-10-31",
+      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6",
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet"
     },
     {
       "fonte": "SICAR (WFS)",

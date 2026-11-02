@@ -41,8 +41,9 @@ def numero_anunciado(texto: str) -> int:
     return int(achado.group(1))
 
 
-def contar(url: str, tipo: str, cql: str, sessao: requests.Session | None = None) -> int:
-    return numero_anunciado(requisitar(url, tipo, {"resultType": "hits", "CQL_FILTER": cql}, sessao).text)
+def contar(url: str, tipo: str, cql: str, sessao: requests.Session | None = None, tentativas: int = 4) -> int:
+    return numero_anunciado(requisitar(url, tipo, {"resultType": "hits", "CQL_FILTER": cql}, sessao,
+                                       tentativas).text)
 
 
 def _lat_lon(lat: float, lon: float) -> tuple[float, float]:
@@ -64,15 +65,24 @@ def filtro_ponto(campo: str, lat: float, lon: float) -> str:
 
 
 def consultar_geojson(url: str, tipo: str, cql: str, destino: Path, sessao: requests.Session | None = None,
-                      atualizar: bool = False, limite: int | None = None) -> tuple[dict, dict]:
-    """GetFeature em GeoJSON com cache em `destino` (ver pipeline.download.consultar). Devolve (resposta, meta)."""
+                      atualizar: bool = False, limite: int | None = None, tentativas: int = 4) -> tuple[dict, dict]:
+    """GetFeature em GeoJSON com cache em `destino` (ver pipeline.download.consultar). Devolve (resposta, meta).
+    Erro de servidor (5xx, comum no TerraBrasilis) é repetido com espera crescente; 4xx não."""
     parametros = {"service": "WFS", "version": "2.0.0", "request": "GetFeature", "typeName": tipo,
                   "outputFormat": "application/json", "CQL_FILTER": cql}
     if limite:
         parametros["count"] = limite
-    conteudo, meta = consultar(url, destino, parametros, sessao, atualizar, pausa=config.PAUSA_ENTRE_CONSULTAS_S)
-    if meta.get("status_http") != 200:
-        raise requests.HTTPError(f"WFS respondeu HTTP {meta.get('status_http')} para {cql}")
+    for tentativa in range(1, tentativas + 1):
+        # Na repetição, consulta de novo: o que ficou gravado é a resposta de erro.
+        conteudo, meta = consultar(url, destino, parametros, sessao, atualizar or tentativa > 1,
+                                   pausa=config.PAUSA_ENTRE_CONSULTAS_S)
+        status = meta.get("status_http")
+        if status == 200:
+            break
+        if status is not None and status < 500 or tentativa == tentativas:
+            raise requests.HTTPError(f"WFS respondeu HTTP {status} para {cql}")
+        log.warning("WFS respondeu HTTP %s para %s; nova tentativa em %ss", status, cql, 10 * tentativa)
+        time.sleep(10 * tentativa)
     arquivo = destino.relative_to(config.RAIZ) if destino.is_relative_to(config.RAIZ) else destino
     return json.loads(conteudo), {**meta, "arquivo": str(arquivo)}
 

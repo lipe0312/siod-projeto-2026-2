@@ -1,6 +1,6 @@
 """Gera as fichas dos CARs de demonstração, copia para esta pasta e tira um print de cada página com o Chrome.
 
-Roda da raiz: .venv/bin/python docs/evidencias/atividade-04/prediagnostico/01_demonstracao.py
+Roda da raiz: .venv/bin/python docs/evidencias/atividade-04/prediagnostico/01_demonstracao.py [--sem-baixar-prodes]
 """
 
 import shutil
@@ -23,14 +23,16 @@ def print_da_pagina(html: Path, png: Path, altura: int) -> None:
 
 def main() -> None:
     relatorio.configurar_log(config.LOGS / "prediagnostico_demonstracao.log")
-    indice = prediagnostico.demonstracao()
+    # --sem-baixar-prodes: não inclui UF nova no lote (TerraBrasilis fora do ar); o desmatamento dela fica inconclusivo.
+    indice = prediagnostico.demonstracao(baixar_prodes="--sem-baixar-prodes" not in sys.argv)
+    nomes = {"index"} | set(config.CARS_DEMONSTRACAO)
     for arquivo in config.PREDIAGNOSTICO.glob("*"):
-        if arquivo.suffix in (".html", ".md", ".json"):
+        if arquivo.suffix in (".html", ".md", ".json") and arquivo.stem in nomes:
             shutil.copy(arquivo, PASTA / arquivo.name)
     if Path(CHROME).exists():
-        print_da_pagina(indice, PASTA / "index.png", 2300)
+        print_da_pagina(indice, PASTA / "index.png", 4600)
         for cod in config.CARS_DEMONSTRACAO:
-            print_da_pagina(config.PREDIAGNOSTICO / f"{cod}.html", PASTA / f"{cod}.png", 3600)
+            print_da_pagina(config.PREDIAGNOSTICO / f"{cod}.html", PASTA / f"{cod}.png", 4400)
 
 
 if __name__ == "__main__":

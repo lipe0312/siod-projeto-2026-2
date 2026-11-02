@@ -4,17 +4,30 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-10-30 01:12:05",
+    "gerado_em": "2026-11-02 12:37:12",
     "prodes": {
       "origem": "lote",
+      "uf": "MG",
       "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
         "cerrado": 2026,
-        "mata_atlantica": 2025
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
       },
-      "verificado_em": "2026-10-30",
+      "ultima_imagem": {
+        "caatinga": "2025-10-16",
+        "cerrado": "2026-08-12",
+        "mata_atlantica": "2025-10-16"
+      },
+      "verificado_em": "2026-10-31",
       "proxima_verificacao": "2026-11-29",
       "ultimo_ano_do_imovel": 2026
-    }
+    },
+    "biomas": [
+      "cerrado"
+    ]
   },
   "imovel": {
     "cod_imovel": "MG-3166808-A726F93D7AFF4A0883BFDEA10D64B1F4",
@@ -36,8 +49,8 @@
     "contagem": {
       "pendência": 2,
       "indício": 0,
-      "sem ocorrência": 2,
-      "não verificado": 6,
+      "sem ocorrência": 5,
+      "não verificado": 3,
       "inconclusivo": 0
     }
   },
@@ -49,7 +62,8 @@
       "situacao": "sem ocorrência",
       "evidencia": "Ativo · Aguardando análise",
       "encaminhamento": "—",
-      "fonte": "SICAR"
+      "fonte": "SICAR",
+      "aviso": null
     },
     {
       "chave": "embargo",
@@ -58,7 +72,8 @@
       "situacao": "pendência",
       "evidencia": "1 embargo(s): TAD JW4PF93W (polígono)",
       "encaminhamento": "Consultar o termo de embargo no IBAMA (número e série do TAD) e o processo. O crédito rural é vedado com embargo ativo (MCR, Seção 2-9); o desembargo depende da regularização da área.",
-      "fonte": "IBAMA"
+      "fonte": "IBAMA",
+      "aviso": null
     },
     {
       "chave": "desmatamento",
@@ -67,7 +82,8 @@
       "situacao": "pendência",
       "evidencia": "8 alerta(s) DETER (73.2 ha no imóvel): 8 confirmado; 1 polígono(s) PRODES após 2020 (77.4 ha no imóvel)",
       "encaminhamento": "Verificar se a supressão teve autorização (ASV). Mesmo autorizada, área desmatada após 31/12/2020 não atende à EUDR para a produção que sai dela.",
-      "fonte": "INPE DETER e PRODES"
+      "fonte": "INPE DETER e PRODES",
+      "aviso": null
     },
     {
       "chave": "lista_suja",
@@ -76,43 +92,58 @@
       "situacao": "sem ocorrência",
       "evidencia": "Documento não consta no Cadastro de Empregadores",
       "encaminhamento": "—",
-      "fonte": "MTE"
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "encaminhamento": "—",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
     },
     {
       "chave": "ab_s_1",
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "SNCR não tem consulta aberta por imóvel",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "INCRA (SNCR)"
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
     },
     {
       "chave": "ab_s_2",
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Download do SIGEF exige login gov.br",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "SIGEF-GEO (INCRA)"
-    },
-    {
-      "chave": "ab_s_5",
-      "criterio": "Sobreposição: terras indígenas",
-      "criterio_ab_s": 5,
-      "situacao": "não verificado",
-      "evidencia": "Fonte aberta existe; ainda não integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "FUNAI"
-    },
-    {
-      "chave": "ab_s_6",
-      "criterio": "Sobreposição: área quilombola",
-      "criterio_ab_s": 6,
-      "situacao": "não verificado",
-      "evidencia": "Sem fonte aberta integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "INCRA"
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
     },
     {
       "chave": "ab_s_8",
@@ -121,16 +152,8 @@
       "situacao": "não verificado",
       "evidencia": "Depende do critério 2",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "CAR e SIGEF-GEO"
-    },
-    {
-      "chave": "ab_s_9",
-      "criterio": "Sobreposição: unidade de conservação",
-      "criterio_ab_s": 9,
-      "situacao": "não verificado",
-      "evidencia": "Sem fonte aberta integrada",
-      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
-      "fonte": "MMA"
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
     }
   ],
   "evidencias": {
@@ -270,17 +293,44 @@
         "classe": "principal"
       }
     ],
-    "lista_suja": []
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [],
+    "unidade_conservacao": []
   },
   "geometria_car": "MULTIPOLYGON (((-46.54549851 -19.24170708, -46.5452515 -19.24171974, -46.54504319 -19.24201603, -46.54506205 -19.24216097, -46.54494346 -19.24235667, -46.5446665 -19.24247249, -46.54442355 -19.24236034, -46.5440539 -19.24234042, -46.54385583 -19.24249139, -46.54354056 -19.24301861, -46.54335528 -19.24336667, -46.54317167 -19.24388417, -46.54287056 -19.24456083, -46.54245667 -19.24506917, -46.54222556 -19.24554139, -46.54188139 -19.24597444, -46.5416575 -19.24649444, -46.54134972 -19.24717194, -46.54156833 -19.24742694, -46.54189306 -19.24757028, -46.54216194 -19.24776583, -46.54271972 -19.24811694, -46.54299056 -19.24842194, -46.54321167 -19.24871083, -46.54314417 -19.24875306, -46.54302222 -19.24905278, -46.54272278 -19.25015722, -46.54247778 -19.25105528, -46.54211306 -19.252355, -46.54196417 -19.25288417, -46.54176444 -19.25361472, -46.541765 -19.25434944, -46.54176694 -19.25488, -46.54196833 -19.25505472, -46.54216639 -19.25513556, -46.54284556 -19.25548833, -46.54287722 -19.255425, -46.54339889 -19.25433778, -46.54400222 -19.25307583, -46.54460222 -19.25184444, -46.54485583 -19.25170056, -46.54517472 -19.25157972, -46.54559694 -19.251615, -46.54582333 -19.25139556, -46.54607 -19.25137111, -46.54623361 -19.2513875, -46.54628944 -19.25126583, -46.54607917 -19.25108972, -46.54591056 -19.25087306, -46.54557417 -19.25060861, -46.5452525 -19.25026389, -46.54531056 -19.25024111, -46.54585667 -19.25015472, -46.54688667 -19.25029139, -46.547785 -19.25028806, -46.54822861 -19.2501825, -46.54901667 -19.25001028, -46.54936944 -19.24992528, -46.54974194 -19.2498425, -46.550275 -19.24971639, -46.55088167 -19.24972472, -46.55144972 -19.24942861, -46.55195583 -19.24913833, -46.55257194 -19.24885472, -46.55274917 -19.24868861, -46.55261889 -19.24830056, -46.55278083 -19.24796, -46.55265139 -19.24748389, -46.552565 -19.24655389, -46.55212 -19.24647444, -46.55212694 -19.24632028, -46.55229722 -19.24638083, -46.55235944 -19.246205, -46.55207 -19.24584472, -46.55208222 -19.24566611, -46.55192639 -19.24531833, -46.5514125 -19.24483444, -46.551195 -19.24421417, -46.55104833 -19.24402889, -46.55023722 -19.24399111, -46.54998778 -19.24414389, -46.54981 -19.24440056, -46.54943683 -19.24380916, -46.54926377 -19.24368504, -46.54892744 -19.24348569, -46.54877126 -19.24323349, -46.54849725 -19.24287252, -46.54833802 -19.24269109, -46.54813173 -19.24265345, -46.54780762 -19.24247802, -46.54750703 -19.24240756, -46.54709377 -19.24231176, -46.54678016 -19.24228225, -46.54659448 -19.24214008, -46.5463673 -19.241965, -46.54607111 -19.24193606, -46.54584197 -19.24181612, -46.54549851 -19.24170708)))",
   "procedencia": [
     {
-      "fonte": "INPE PRODES (parquet do lote)",
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição MG)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-30",
-      "sha256": "96999de3cff95c97c42200a0c6480297ba452c00d69b02909b5a72141404938b",
-      "arquivo": "data/processed/inpe_prodes.parquet"
+      "data": "verificado em 2026-10-31",
+      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6",
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet"
     },
     {
       "fonte": "SICAR (WFS)",

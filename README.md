@@ -33,7 +33,7 @@ A caracterização completa está em [`docs/atividade-01-dados.md`](docs/ativida
 
 O maior risco é atribuir uma pendência ao produtor errado ou deixar de apontar uma pendência real. As bases públicas não trazem o código do CAR, e parte dos registros não tem localização.
 
-O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identificar o responsável e localizar a área. A Atividade 04 conferiu o pré-diagnóstico em 6 CARs reais, mas com o resultado esperado escrito pelo próprio autor: é teste de regressão, não medida de acerto. O próximo é um gabarito independente, com relatórios AB+S reais ou revisão de um técnico.
+O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identificar o responsável e localizar a área. A Atividade 04 conferiu o pré-diagnóstico em 17 CARs reais de 8 UFs, mas com o resultado esperado escrito pelo próprio autor: é teste de regressão, não medida de acerto. O gabarito passa a ser o relatório AB+S do mesmo imóvel, conferido depois do cruzamento ([ADR 0012](docs/arquitetura/adr/0012-conferir-o-prediagnostico-com-o-relatorio-ab-s-do-imovel.md)).
 
 ## O que mudou após a caracterização dos dados
 
@@ -48,7 +48,7 @@ O primeiro teste foi a Atividade 01, que mediu quanto das bases permite identifi
 | **01 — Caracterização e avaliação dos dados** | Fonte, qualidade dos dados, dicionário mínimo, análise exploratória e síntese técnica | [`docs/atividade-01-dados.md`](docs/atividade-01-dados.md) | [`notebooks/01_exploracao_dados.ipynb`](notebooks/01_exploracao_dados.ipynb) |
 | **02 — Pipeline inicial de dados** | Pipeline para CSV, API e PDF, com validações comprovadas por testes, evidência de execução, arquitetura e decisões | [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) | [`pipeline/`](pipeline/), [`tests/`](tests/), [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/), [`docs/arquitetura/`](docs/arquitetura/) |
 | **03 — Investigação de fontes: CAR, PRODES e AB+S** | CAR pelo WFS do SICAR, PRODES e a escada entre fontes de desmatamento, AB+S como referência; as três como fontes sob demanda do pipeline e a atribuição de embargo ou alerta a um CAR | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e [`docs/atividade-03/`](docs/atividade-03/) | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb), [`pipeline/fontes/`](pipeline/fontes/), [`pipeline/cruzamento.py`](pipeline/cruzamento.py), [`tests/`](tests/) |
-| **04 — Pré-diagnóstico por imóvel e PRODES em lote** | Ficha por CAR com situação, evidência, encaminhamento e procedência de cada critério; demonstração com 6 CARs reais; PRODES persistido com verificação mensal da publicação | [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py), [`pipeline/ficha_html.py`](pipeline/ficha_html.py), [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) (página da demonstração: [`prediagnostico/index.html`](docs/evidencias/atividade-04/prediagnostico/index.html)) |
+| **04 — Pré-diagnóstico por imóvel e PRODES em lote** | Ficha por CAR com situação, evidência, encaminhamento e procedência de cada critério; demonstração com 17 CARs reais de 8 UFs; PRODES persistido com verificação mensal da publicação | [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py), [`pipeline/ficha_html.py`](pipeline/ficha_html.py), [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) (página da demonstração: [`prediagnostico/index.html`](docs/evidencias/atividade-04/prediagnostico/index.html)) |
 
 Os documentos trazem os números medidos, o que cada verificação encontrou e o motivo de cada decisão. Este README explica como reproduzir tudo.
 
@@ -58,13 +58,19 @@ Versão 1 em [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md
 
 ## Próximos passos
 
-Detalhe e decisões em aberto em [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md), seções 5 e 6.
+Detalhe e decisões em [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md), seções 8 e 9.
 
-1. Obter um relatório AB+S real (PDF, com consentimento do titular) para registrar a primeira resposta válida da API e montar um gabarito independente do pipeline.
+Decisões de 30/10/2026:
+- Parquet particionado por UF, sem custo; PostgreSQL + PostGIS fica para o futuro, sem prioridade ([ADR 0011](docs/arquitetura/adr/0011-persistir-em-parquet-por-uf-e-adiar-o-postgis.md)).
+- AB+S como gabarito ([ADR 0012](docs/arquitetura/adr/0012-conferir-o-prediagnostico-com-o-relatorio-ab-s-do-imovel.md)).
+- Brasil inteiro por UF, sem aceitar dado incompleto como limpo ([ADR 0013](docs/arquitetura/adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)).
+- Terras indígenas, quilombolas e unidades de conservação por sobreposição ([ADR 0014](docs/arquitetura/adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)).
+
+1. Obter um relatório AB+S real para registrar a primeira resposta válida e começar a matriz de concordância.
 2. Aceitar o PDF do AB+S no pré-diagnóstico e mostrar o resultado oficial ao lado de cada critério.
-3. Incluir as bases de terras indígenas, unidades de conservação e áreas quilombolas, que hoje aparecem como "não verificado".
-4. Definir a camada de persistência e carregar nela os parquets e as fichas, com histórico.
-5. Agendar a verificação mensal do PRODES e validar a dor com técnicos de assistência técnica e de cooperativas.
+3. Integrar os critérios 2 e 8 (SIGEF) quando o acervo do INCRA voltar a ter endereço público.
+4. Agendar a verificação mensal no `crontab` e validar a dor com técnicos de assistência técnica e de cooperativas.
+5. Futuro, sem prioridade: PostgreSQL + PostGIS quando houver API e mais de um usuário.
 
 ## Como reproduzir na sua máquina
 
@@ -140,7 +146,7 @@ As fontes são atualizadas continuamente, então as contagens podem variar um po
 python -m pytest
 ```
 
-O resultado esperado é `121 passed, 2 skipped`: 51 testes da Atividade 02, 40 da Atividade 03 e 30 da Atividade 04. Os testes ignorados são marcados `rede` e consultam o SICAR e o PRODES de verdade; só rodam com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
+O resultado esperado é `157 passed, 2 skipped`: 51 testes da Atividade 02, 42 da Atividade 03 e 64 da Atividade 04. Os testes ignorados são marcados `rede` e consultam o SICAR e o PRODES de verdade; só rodam com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
 
 **b) Execução completa.** Baixa as quatro fontes e gera as saídas:
 
@@ -151,7 +157,8 @@ python -m pipeline
 A primeira execução baixa cerca de 180 MB e leva de 6 a 7 minutos, a maior parte na coleta dos alertas do INPE. As execuções seguintes reaproveitam o que já foi baixado. Outras opções:
 
 ```bash
-python -m pipeline --fontes ibama              # só uma ou algumas fontes: ibama, deter, prodes, lista_suja
+python -m pipeline --fontes ibama              # só uma ou algumas: ibama, deter, prodes, lista_suja,
+                                               # terras_indigenas, unidades_conservacao, quilombolas
 python -m pipeline --desde 2021-01-01          # início do recorte dos alertas DETER
 python -m pipeline --atualizar                 # baixar tudo de novo
 python -m pipeline --fontes prodes --verificar-prodes  # verificar a publicação do PRODES antes de 30 dias
@@ -209,34 +216,47 @@ jupyter nbconvert --to notebook --execute notebooks/02_fontes_antes_e_depois.ipy
 
 A primeira execução consulta o SICAR (10 municípios e uma consulta por embargo ou alerta do recorte, com pausa entre elas), o PRODES e o DETER do Cerrado de MG e a API do AB+S, e leva alguns minutos; as seguintes reaproveitam as respostas gravadas (cerca de 30 MB em `data/raw/`). As contagens podem mudar um pouco quando as fontes são atualizadas. A explicação de cada número está em [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md) e nos documentos de [`docs/atividade-03/`](docs/atividade-03/).
 
-### 5. Pré-diagnóstico de um imóvel
+### 5. Pré-diagnóstico de um imóvel, em qualquer UF
 
-Do ponto de vista do produtor: para um CAR, junta o status no SICAR, os embargos do IBAMA (pelo polígono, pela coordenada ou pelo documento), os alertas DETER confirmados ou não pelo PRODES, os polígonos PRODES após 2020 e a Lista Suja. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`. Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com a evidência, o encaminhamento e a procedência. Precisa dos parquets de `python -m pipeline` (com o PRODES, seção 6). A página da demonstração confere o resultado de cada caso com o esperado, e cada ficha mostra como o resultado se formou e a linha do tempo das evidências diante da data de corte.
+Do ponto de vista do produtor: para um CAR, junta
+- o status no SICAR;
+- os embargos do IBAMA (pelo polígono, pela coordenada ou pelo documento);
+- os alertas DETER, confirmados ou não pelo PRODES, e os polígonos PRODES após 2020;
+- a Lista Suja;
+- a sobreposição com terras indígenas (FUNAI), territórios quilombolas (IBGE) e unidades de conservação (CNUC).
+
+Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com evidência, encaminhamento e procedência. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`.
+
+Antes, rode `python -m pipeline` com todas as fontes. O PRODES de uma UF é baixado na primeira vez que um imóvel dela é consultado (seção 6). Nessa primeira vez a consulta demora: o TerraBrasilis responde 502 com frequência, e o pipeline repete e divide o pedido.
 
 ```bash
-python -m pipeline.prediagnostico --demo                                   # 6 CARs reais prontos; abra data/processed/prediagnostico/index.html
+python -m pipeline.prediagnostico --demo                                   # 17 CARs reais; abra data/processed/prediagnostico/index.html
+python -m pipeline.prediagnostico --demo --sem-baixar-prodes               # sem baixar UF nova: imóvel de UF fora do lote sai inconclusivo
 python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
-python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada da sede
+python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada; a UF vem do contorno
 ```
 
 O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado em claro. Prints e fichas da demonstração estão em [`docs/evidencias/atividade-04/prediagnostico/`](docs/evidencias/atividade-04/prediagnostico/).
 
-### 6. PRODES em lote, conferido todo mês
+### 6. PRODES em lote por UF, conferido todo mês
 
-O PRODES sai uma vez por ano, sem data fixa. `python -m pipeline --fontes prodes` grava os anos desde 2019 do Cerrado e da Mata Atlântica em MG (`config.PRODES_UFS_LOTE`) em `data/processed/inpe_prodes.parquet`, limpo e validado como as outras fontes. A cada execução:
+O PRODES sai uma vez por ano, sem data fixa. O lote guarda os anos desde 2019 dos biomas de cada UF, numa partição por UF: `data/processed/inpe_prodes/uf=XX/part.parquet`. Ele começa com MG (`config.PRODES_UFS_INICIAIS`) e ganha a UF de cada imóvel consultado. A UF de cada polígono vem do contorno do IBGE, não do campo `state` do INPE: o polígono de divisa entra nas duas UFs.
+
+A cada `python -m pipeline --fontes prodes`:
 
 - se a última verificação tem menos de 30 dias, não vai à rede;
-- senão, conta os polígonos de cada ano no Brasil: o último ano com polígono é o último publicado (não há mais ano fixo no código);
-- em cada ano e UF, compara a contagem com a gravada no manifesto e baixa de novo só o que mudou, mais o último ano publicado (o INPE pode revisá-lo);
-- registra ano novo, ano consolidado alterado e último ano revisado no histórico, em `data/processed/inpe_prodes_publicacao.json`, com as datas de imagem (mínima e máxima) de cada ano.
+- senão, conta os polígonos de cada ano no Brasil: o último ano com polígono é o último publicado;
+- em cada UF do lote, pede cada ano pelo retângulo da UF, dividido em quatro enquanto passar de 8 mil polígonos ou o serviço responder 502;
+- baixa de novo só o que mudou, mais o último ano publicado;
+- registra ano novo, ano consolidado alterado, último ano revisado e UF incluída no histórico (`data/processed/inpe_prodes_publicacao.json`), com a última imagem de cada bioma.
 
-Para rodar todo mês sozinho, agende no `crontab -e` (exemplo, todo dia 1 às 6h):
+Para rodar todo mês sozinho, agende no `crontab -e` (exemplo, todo dia 1 às 6h). Não tem custo:
 
 ```
 0 6 1 * * cd /caminho/siod-projeto-2026-2 && .venv/bin/python -m pipeline --fontes prodes
 ```
 
-O pré-diagnóstico lê esse parquet quando o imóvel está numa UF do recorte; fora dele, consulta o PRODES sob demanda. Na primeira verificação (30/10/2026), o Cerrado já tinha o ano 2026 publicado, e isso confirmou 8 alertas de 2025 que antes apareciam como "aguardando consolidação". Evidência em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
+Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa, Pantanal), a ficha avisa o período sem cobertura entre a última imagem PRODES e a data da consulta. Evidências em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
 
 ### Problemas comuns
 
@@ -268,6 +288,9 @@ O pré-diagnóstico lê esse parquet quando o imóvel está numa UF do recorte; 
 | [`pipeline/fontes/sicar.py`](pipeline/fontes/sicar.py) | Fonte sob demanda: CAR pelo WFS do SICAR, por município, retângulo ou ponto | 03 |
 | [`pipeline/fontes/inpe_prodes.py`](pipeline/fontes/inpe_prodes.py) | PRODES em lote com verificação mensal da publicação (04) e sob demanda por bioma e ano; confirmação dos alertas DETER | 03, 04 |
 | [`pipeline/fontes/ab_s.py`](pipeline/fontes/ab_s.py) | Fonte sob demanda: validação do relatório AB+S pelo código de autenticidade | 03 |
+| [`pipeline/territorio.py`](pipeline/territorio.py) | Contorno das UFs (IBGE) e dos biomas (INPE): UF de um ponto ou polígono | 04 |
+| [`pipeline/fontes/funai_terras_indigenas.py`](pipeline/fontes/funai_terras_indigenas.py), [`mma_unidades_conservacao.py`](pipeline/fontes/mma_unidades_conservacao.py), [`ibge_territorios_quilombolas.py`](pipeline/fontes/ibge_territorios_quilombolas.py) | Fontes em lote dos critérios 5, 9 e 6 do AB+S | 04 |
+| [`pipeline/vetor.py`](pipeline/vetor.py) | Leitura de shapefile em zip e validações de geometria das áreas protegidas | 04 |
 | [`pipeline/cruzamento.py`](pipeline/cruzamento.py) | Atribuição de embargo ou alerta a um CAR (principal, parcial, tangente) | 03 |
 | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py) | Pré-diagnóstico de um imóvel: critérios, situação, evidência, encaminhamento e procedência | 04 |
 | [`pipeline/ficha_html.py`](pipeline/ficha_html.py) | Ficha do pré-diagnóstico em HTML, com o mapa do imóvel em SVG | 04 |
@@ -280,13 +303,14 @@ O pré-diagnóstico lê esse parquet quando o imóvel está numa UF do recorte; 
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
 | [`tests/test_sicar.py`](tests/test_sicar.py), [`test_inpe_prodes.py`](tests/test_inpe_prodes.py), [`test_ab_s.py`](tests/test_ab_s.py), [`test_cruzamento.py`](tests/test_cruzamento.py) | Validações das fontes sob demanda, ordem dos eixos, regra de confirmação do PRODES e de atribuição ao CAR | 03 |
 | [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro, avaliação esperado x obtido | 04 |
-| [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote com serviço falso: reaproveita dentro do mês, ano novo, ano consolidado alterado, último ano que recua | 04 |
+| [`tests/test_territorio.py`](tests/test_territorio.py), [`tests/test_fontes_sobreposicao.py`](tests/test_fontes_sobreposicao.py) | UF pelo contorno, SICAR fora de MG; validações das três fontes novas e situação de cada sobreposição, fonte ausente, bioma sem DETER | 04 |
+| [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote por UF com serviço falso: partição pelo contorno, polígono de divisa nas duas UFs, UF que entra com o imóvel, retomada, divisão do retângulo, verificação mensal | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
 | [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | Pré-diagnóstico, PRODES em lote, o que a avaliação mede, AB+S pendente, próximos passos e decisões em aberto | 04 |
-| [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) | Fichas da demonstração (HTML, MD, JSON, print) e execuções do PRODES em lote | 04 |
+| [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) | Fichas da demonstração (HTML, MD, JSON, print), execuções do PRODES em lote, e fontes dos critérios do AB+S, teste nacional e medição de persistência (`cobertura-e-persistencia/`) | 04 |
 | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |
 | [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md) | Arquitetura (versão 1) | 02 |
 | [`docs/arquitetura/adr/`](docs/arquitetura/adr/) | Registros de decisão técnica | 02 |
-| [`requirements.txt`](requirements.txt) | Bibliotecas e versões | 01 a 04 |
+| [`requirements.txt`](requirements.txt) | Bibliotecas e versões (`pyshp` lê os shapefiles do CNUC e do IBGE) | 01 a 04 |
 | `data/` | Gerada localmente: `raw/` (baixados), `processed/` (saídas), `logs/`, chave de pseudonimização. Não é versionada porque contém dados pessoais | 01 a 04 |

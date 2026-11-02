@@ -31,9 +31,9 @@ CAMPOS_DOCUMENTO = re.compile(r"cpf|cnpj|documento", re.IGNORECASE)
 # fonte aberta que o projeto usa para cada um. O código interno é o da taxonomia do AB+S no código público do site.
 CRITERIOS = pd.DataFrame([
     (1, "Fundiária: dados cadastrais", "sim", "VERIFICACAO_DADOS_CADASTRAIS", "INCRA (SNCR)", "Conforme",
-     "nenhuma", "não verifica", "SNCR não tem consulta aberta por imóvel"),
+     "nenhuma", "não verifica", "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral"),
     (2, "Fundiária: dados geoespaciais", "não", "VERIFICACAO_DADOS_GEO", "SIGEF-GEO (INCRA)", "Não conforme",
-     "nenhuma", "não verifica", "Download do SIGEF exige login gov.br"),
+     "nenhuma", "não verifica", "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br"),
     (3, "Ambiental: CAR", "sim", "VERIFICACAO_CAR", "SICAR", "Conforme",
      "SICAR, WFS público (pipeline/fontes/sicar.py)", "parcial",
      "Existência e status do CAR; o vínculo CAR-SNCR não é verificável"),
@@ -41,16 +41,18 @@ CRITERIOS = pd.DataFrame([
      "Lista Suja, PDF oficial (pipeline/fontes/mte_lista_suja.py)", "verifica",
      "Por documento pseudonimizado; exige o CPF/CNPJ de cada proprietário"),
     (5, "Sobreposição: terras indígenas", "sim", "VERIFICACAO_SOBREPOSICAO_INDIGENA", "FUNAI", "Conforme",
-     "FUNAI, WFS (registrada, fora do plano)", "não verifica", "Fonte aberta existe; ainda não integrada"),
+     "FUNAI, WFS (pipeline/fontes/funai_terras_indigenas.py)", "verifica", "Sobreposição com o polígono do CAR"),
     (6, "Sobreposição: área quilombola", "sim", "VERIFICACAO_SOBREPOSICAO_QUILOMBOLA", "INCRA", "Conforme",
-     "não levantada", "não verifica", ""),
+     "IBGE, territórios quilombolas do Censo 2022 (pipeline/fontes/ibge_territorios_quilombolas.py)", "parcial",
+     "Base do IBGE de 31/07/2022, não a do INCRA, que o AB+S consulta"),
     (7, "Ambiental: embargos do IBAMA", "não", "VERIFICACAO_EMBARGOS_IBAMA", "IBAMA", "Conforme",
      "IBAMA, CSV público (pipeline/fontes/ibama_embargos.py)", "verifica",
      "Por documento e, com o polígono do CAR, por sobreposição (pipeline/cruzamento.py)"),
     (8, "Sobreposição: CAR x SIGEF-GEO", "não", "VERIFICACAO_SOBREPOSICAO_GEO_CAR", "CAR e SIGEF-GEO",
      "Não conforme", "nenhuma", "não verifica", "Depende do critério 2"),
     (9, "Sobreposição: unidade de conservação", "sim", "VERIFICACAO_SOBREPOSICAO_UNIDADE_CONSERVACAO", "MMA",
-     "Conforme", "não levantada", "não verifica", ""),
+     "Conforme", "MMA, CNUC (pipeline/fontes/mma_unidades_conservacao.py)", "verifica",
+     "Sobreposição com o polígono do CAR; APA, ARIE e RPPN como indício"),
 ], columns=["n", "criterio_ab_s", "obrigatorio", "codigo_interno", "fonte_ab_s", "resultado_demonstracao",
             "fonte_aberta_projeto", "cobertura_projeto", "observacao"])
 

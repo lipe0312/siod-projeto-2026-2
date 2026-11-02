@@ -41,6 +41,23 @@ UFS = frozenset(
     "AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split()
 )
 
+# Prefixo de 2 dígitos do código IBGE do município -> sigla da UF.
+CODIGO_UF_IBGE = {
+    "11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP", "17": "TO", "21": "MA", "22": "PI",
+    "23": "CE", "24": "RN", "25": "PB", "26": "PE", "27": "AL", "28": "SE", "29": "BA", "31": "MG", "32": "ES",
+    "33": "RJ", "35": "SP", "41": "PR", "42": "SC", "43": "RS", "50": "MS", "51": "MT", "52": "GO", "53": "DF",
+}
+
+# Referência territorial (pipeline/territorio.py): contorno das UFs (IBGE) e dos biomas (INPE). A UF de um ponto, de
+# um polígono PRODES ou de um imóvel vem do contorno, não de um campo de texto da fonte.
+URL_IBGE_MALHA_UFS = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR"
+                      "?formato=application/vnd.geo%2Bjson&intrarregiao=UF&qualidade=intermediaria")
+URL_INPE_BIOMAS = ("https://terrabrasilis.dpi.inpe.br/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature"
+                   "&typeName=prodes-brasil-nb:biomas_brasil&outputFormat=application/json")
+# Nome do bioma no INPE -> chave usada no projeto (a mesma de CAMADAS_PRODES).
+BIOMAS_INPE = {"Amazônia": "amazonia", "Caatinga": "caatinga", "Cerrado": "cerrado", "Mata Atlântica": "mata_atlantica",
+               "Pampa": "pampa", "Pantanal": "pantanal"}
+
 # Nome da UF por extenso (como o PRODES Cerrado grava o campo `state`) -> sigla.
 NOMES_UF = {
     "ACRE": "AC", "ALAGOAS": "AL", "AMAZONAS": "AM", "AMAPA": "AP", "BAHIA": "BA", "CEARA": "CE",
@@ -77,29 +94,62 @@ MUNICIPIOS_CAFE_MG = {
 }
 
 # PRODES (incremento anual de desmatamento), um workspace por bioma no TerraBrasilis. `uf_por_extenso` diz como
-# cada camada grava a UF: o Cerrado usa o nome por extenso ("MINAS GERAIS"), a Mata Atlântica a sigla ("MG").
+# cada camada grava a UF (o Cerrado usa o nome por extenso, "MINAS GERAIS"; as demais, a sigla); só a consulta sob
+# demanda filtra por esse campo: o lote recorta pelo contorno da UF. Na Amazônia vale a camada do bioma: a da Amazônia
+# Legal repete o Cerrado de MT, MA e TO.
 CAMADAS_PRODES = {
+    "amazonia": {"workspace": "prodes-amazon-nb", "tipo": "prodes-amazon-nb:yearly_deforestation_biome",
+                 "uf_por_extenso": False},
+    "caatinga": {"workspace": "prodes-caatinga-nb", "tipo": "prodes-caatinga-nb:yearly_deforestation",
+                 "uf_por_extenso": False},
     "cerrado": {"workspace": "prodes-cerrado-nb", "tipo": "prodes-cerrado-nb:yearly_deforestation",
                 "uf_por_extenso": True},
     "mata_atlantica": {"workspace": "prodes-mata-atlantica-nb", "tipo": "prodes-mata-atlantica-nb:yearly_deforestation",
                        "uf_por_extenso": False},
+    "pampa": {"workspace": "prodes-pampa-nb", "tipo": "prodes-pampa-nb:yearly_deforestation", "uf_por_extenso": False},
+    "pantanal": {"workspace": "prodes-pantanal-nb", "tipo": "prodes-pantanal-nb:yearly_deforestation",
+                 "uf_por_extenso": False},
 }
 PRODES_LIMITE_POR_REQUISICAO = 50000
+# Polígonos por requisição no lote: acima disso o retângulo da UF é dividido em quatro. Respostas grandes (perto do
+# limite do servidor) recebem 502 do gateway do TerraBrasilis; com até 8 mil polígonos, respondem.
+PRODES_POLIGONOS_POR_PARTE = 8000
 # Fração mínima do alerta DETER coberta pelo PRODES para contar como confirmação (ADR 0009).
 PRODES_LIMIAR_CONFIRMACAO = 0.10
-# PRODES em lote (python -m pipeline --fontes prodes): anos desde PRODES_DESDE, recortados pelas UFs abaixo (o
-# Brasil inteiro passa de 50 mil polígonos por ano e bioma). O PRODES sai uma vez por ano, em data que o INPE não
-# fixa; por isso a publicação é verificada a cada PRODES_INTERVALO_VERIFICACAO_DIAS: o último ano publicado vem da
-# contagem do próprio serviço, não de uma constante. Imóvel fora dessas UFs é consultado sob demanda.
+# PRODES em lote (python -m pipeline --fontes prodes): anos desde PRODES_DESDE, recortados por UF pelo contorno do
+# IBGE (ADR 0013). O lote começa com PRODES_UFS_INICIAIS e cresce a cada imóvel de UF nova que entra no
+# pré-diagnóstico (inpe_prodes.garantir_uf); as UFs ativas ficam no manifesto. O PRODES sai uma vez por ano, em data que
+# o INPE não fixa; por isso a publicação é verificada a cada PRODES_INTERVALO_VERIFICACAO_DIAS: o último ano publicado
+# vem da contagem do próprio serviço, não de uma constante.
 PRODES_DESDE = 2019
-PRODES_UFS_LOTE = ("MG",)
+PRODES_UFS_INICIAIS = ("MG",)
 PRODES_INTERVALO_VERIFICACAO_DIAS = 30
 
-# Pré-diagnóstico: pasta das fichas e CARs da demonstração (recorte de café de MG, todos com SICAR em cache).
+# Sobreposição com áreas protegidas (critérios 5, 6 e 9 do AB+S; ADR 0014). Fontes nacionais, em lote.
+URL_WFS_FUNAI = "https://geoserver.funai.gov.br/geoserver/Funai/ows"
+CAMADA_FUNAI_TIS = "Funai:tis_poligonais"
+# O servidor da FUNAI não envia o certificado intermediário; este é o endereço AIA do próprio certificado (Sectigo).
+FUNAI_INTERMEDIARIO = "http://crt.sectigo.com/SectigoPublicServerAuthenticationCAOVR36.crt"
+FUNAI_FASES = ("Em Estudo", "Delimitada", "Declarada", "Homologada", "Regularizada", "Encaminhada RI")
+URL_CKAN_MMA = "https://dados.mma.gov.br/api/3/action/package_show"
+CNUC_CONJUNTO = "unidadesdeconservacao"
+URL_IBGE_QUILOMBOLAS = ("https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_"
+                        "universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip")
+QUILOMBOLAS_DATA_REFERENCIA = "2022-07-31"  # data de referência do Censo 2022 para os territórios delimitados
+QUILOMBOLAS_SITUACOES = ("ESTUDO TÉCNICO", "RTID", "DELIMITADO", "PORTARIA", "DECRETO", "TITULADO")
+# Categorias do SNUC (Lei 9.985/2000) em que a sobreposição é indício, não pendência: admitem propriedade privada.
+# Proteção integral e as demais de uso sustentável (Floresta, RESEX, RDS, Reserva de Fauna) são de domínio público.
+UC_CATEGORIAS_INDICIO = ("Área de Proteção Ambiental", "Área de Relevante Interesse Ecológico",
+                         "Reserva Particular do Patrimônio Natural")
+UC_GRUPOS = ("Proteção Integral", "Uso Sustentável")
+UC_POLIGONO_ESQUEMATICO = "Polígono é uma representação esquemática da localização da UC"
+
+# Pré-diagnóstico: pasta das fichas e CARs da demonstração (6 do café de MG, 1 por bioma no resto do país e 4 com sobreposição a área protegida).
 PREDIAGNOSTICO = DADOS_PROCESSADOS / "prediagnostico"
 # `esperado`: situação de cada critério verificado e do resultado, conferida na página da demonstração.
 _LIMPO = {"car": "sem ocorrência", "embargo": "sem ocorrência", "desmatamento": "sem ocorrência",
-          "lista_suja": "sem ocorrência"}
+          "lista_suja": "sem ocorrência", "terra_indigena": "sem ocorrência", "quilombola": "sem ocorrência",
+          "unidade_conservacao": "sem ocorrência"}
 CARS_DEMONSTRACAO = {
     "MG-3148103-6245AC9B371A4422B2FA8011CFCC5566": {
         "caso": "Patrocínio: desmatamento após 2020 confirmado pelo PRODES",
@@ -121,6 +171,44 @@ CARS_DEMONSTRACAO = {
     "MG-3148103-5527FB32FFB24B7F850B487724583043": {
         "caso": "Patrocínio: CAR analisado, nada encontrado nas fontes verificadas",
         "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
+    # Um imóvel por bioma fora de MG (teste de 30/10/2026, docs/evidencias/atividade-04/cobertura-e-persistencia/),
+    # conferidos em 01/11/2026, com as 8 UFs no lote do PRODES. O esperado foi escrito depois de conferir a evidência de
+    # cada ficha: teste de regressão, não gabarito.
+    "PA-1505502-D0CAA14AD3D349D7BCA887F8A15D861E": {
+        "caso": "Paragominas (PA), Amazônia: PRODES 2021 (data incerta diante do corte)",
+        "esperado": {**_LIMPO, "desmatamento": "indício", "resultado": "com indício"}},
+    "MT-5107925-7B98698040DE4C439D7B67CDA0EDDC60": {
+        "caso": "Sorriso (MT), Cerrado", "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
+    "BA-2918407-1689993146174173AC37FC0818E09A85": {
+        "caso": "Juazeiro (BA), Caatinga: sem DETER, com aviso de cobertura",
+        "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
+    "RS-4317103-9D7ED9AE1A034779AF519FCDEE36FFB6": {
+        "caso": "Rosário do Sul (RS), Pampa: sem DETER, com aviso de cobertura",
+        "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
+    "MS-5003207-620BD0D082F34232BBBFCF2F71811690": {
+        "caso": "Corumbá (MS), Pantanal: 342 ha de PRODES após 2020",
+        "esperado": {**_LIMPO, "desmatamento": "pendência", "resultado": "com pendência"}},
+    "SP-3543402-0381059FD0A5487594C09A887A5D2BC8": {
+        "caso": "Ribeirão Preto (SP), Cerrado e Mata Atlântica",
+        "esperado": {**_LIMPO, "resultado": "sem pendência nas fontes verificadas"}},
+    "PR-4104808-358E3C8A7E234C429B2AA0F3F683B005": {
+        "caso": "Cascavel (PR), Mata Atlântica: CAR com notificação",
+        "esperado": {**_LIMPO, "car": "indício", "resultado": "com indício"}},
+    # Sobreposição com área protegida (critérios 5, 6 e 9 do AB+S; ADR 0014).
+    "MS-5006358-72D1C0B44C904850BD9F4A222CA93285": {
+        "caso": "Paranhos (MS): CAR dentro da TI Ypoi/Triunfo (declarada) e de APA",
+        "esperado": {**_LIMPO, "car": "indício", "terra_indigena": "pendência", "unidade_conservacao": "indício",
+                     "resultado": "com pendência"}},
+    "PA-1506807-C4579B9B17F64708B80882FC553E51FE": {
+        "caso": "Santarém (PA): CAR dentro do território quilombola Saracura",
+        "esperado": {**_LIMPO, "car": "indício", "quilombola": "pendência", "resultado": "com pendência"}},
+    "MG-3164100-799AE47FE0684CDEB8107378921FB1B7": {
+        "caso": "São Pedro do Suaçuí (MG): CAR dentro de APA (indício) e PRODES após 2020",
+        "esperado": {**_LIMPO, "desmatamento": "pendência", "unidade_conservacao": "indício",
+                     "resultado": "com pendência"}},
+    "MG-3160207-F518ED7FF13744F8B6CC0E04B04CC63E": {
+        "caso": "Santo Antônio do Itambé (MG): CAR dentro de parque estadual e de APA",
+        "esperado": {**_LIMPO, "unidade_conservacao": "pendência", "resultado": "com pendência"}},
 }
 
 # AB+S (Agro Brasil + Sustentável): API pública de validação do relatório, consultada por código de autenticidade.

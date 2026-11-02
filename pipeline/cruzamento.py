@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import shapely
 
+from pipeline import vetor
 from pipeline.fontes import sicar
 from pipeline.validacao import ResultadoFonte
 
@@ -61,7 +62,7 @@ def pares_objeto_car(objeto, cars: pd.DataFrame) -> pd.DataFrame:
                "fracao_objeto", "fracao_car", "largura_m", "classe"]
     if cars.empty:
         return pd.DataFrame(columns=colunas)
-    cg = shapely.make_valid(sicar.geometrias(cars))
+    cg = vetor.tornar_validas(sicar.geometrias(cars))
     toca = shapely.intersects(cg, objeto)
     cars, cg = cars[toca], cg[toca]
     pc, po = sicar.projetar(cg), sicar.projetar(objeto)
@@ -88,7 +89,7 @@ def situacao(principal: int, parcial: int, tangente: int) -> str:
     return "só parciais" if parcial > 0 else "só tangentes"
 
 
-def atribuir_car(objetos: pd.DataFrame, uf: str = "MG", consultar=sicar.consultar_bbox,
+def atribuir_car(objetos: pd.DataFrame, uf: str | None = None, consultar=sicar.consultar_bbox,
                  atualizar: bool = False) -> tuple[pd.DataFrame, pd.DataFrame, ResultadoFonte]:
     """Para cada objeto (colunas id_objeto e geometria_wkt), consulta o SICAR pelo BBOX e classifica os pares.
 
@@ -96,7 +97,7 @@ def atribuir_car(objetos: pd.DataFrame, uf: str = "MG", consultar=sicar.consulta
     """
     resultado = ResultadoFonte("cruzamento_car", "cruzamento (SICAR por BBOX)")
     objetos = objetos.reset_index(drop=True).copy()
-    geoms = shapely.make_valid(shapely.from_wkt(objetos["geometria_wkt"].to_numpy()))
+    geoms = vetor.tornar_validas(shapely.from_wkt(objetos["geometria_wkt"].to_numpy()))
     objetos["area_ha"] = sicar.area_ha(geoms)
     resultado.entrada = {"objetos": len(objetos), "por_tipo": objetos["tipo"].value_counts().to_dict()
                          if "tipo" in objetos else {}}

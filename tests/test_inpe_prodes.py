@@ -42,6 +42,12 @@ def test_classe_fora_do_dominio_e_uuid_repetido_sao_descartados():
     assert sorted(descartados["motivo"]) == ["PRODES_CLASSE_FORA_DO_DOMINIO", "PRODES_UUID_DUPLICADO"]
 
 
+def test_classe_em_minusculas_e_normalizada_e_mantida():
+    saida, descartados, r = processar(resposta([poligono("a", classe="desmatamento"), poligono("b")]))
+    assert saida["uuid"].tolist() == ["a", "b"] and descartados.empty
+    assert ocorrencias(r, "PRODES_CLASSE_CAIXA_DIFERENTE") == 1
+
+
 def test_uf_por_extenso_vira_sigla():
     saida, _, r = processar(resposta([poligono("a"), poligono("b", uf="MG")]))
     assert saida["uf"].tolist() == ["MG", "MG"] and ocorrencias(r, "PRODES_UF_NORMALIZADA") == 1
@@ -99,3 +105,13 @@ def test_confirmar_alertas_com_poligonos():
 
 def test_ano_prodes_comeca_em_agosto():
     assert inpe_prodes.ano_prodes(pd.Series(["2020-07-31", "2020-08-01"])).tolist() == [2020, 2021]
+
+
+def test_anel_degenerado_e_corrigido_sem_interromper():
+    # Anel com dois pontos distintos: o make_valid padrão do GEOS recusa ("mixed-dimension"); a correção mantém a área.
+    degenerado = {"type": "MultiPolygon", "coordinates": [
+        quadrado(X0, Y0)["coordinates"][0],
+        [[[X0 + 0.5, Y0], [X0 + 0.5001, Y0], [X0 + 0.5, Y0], [X0 + 0.5, Y0]]]]}
+    saida, _, r = processar(resposta([poligono("a", geometria=degenerado, area=1.0)]))
+    assert len(saida) == 1 and ocorrencias(r, "PRODES_GEOM_INVALIDA") == 1
+    assert shapely.from_wkt(saida.at[0, "geometria_wkt"]).area > 0

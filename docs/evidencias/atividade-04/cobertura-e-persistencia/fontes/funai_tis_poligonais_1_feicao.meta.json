@@ -1,0 +1,18 @@
+{
+  "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+  "parametros": {
+    "service": "WFS",
+    "version": "2.0.0",
+    "request": "GetFeature",
+    "typeName": "Funai:tis_poligonais",
+    "outputFormat": "application/json",
+    "count": "1"
+  },
+  "url_completa": "https://geoserver.funai.gov.br/geoserver/Funai/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=Funai%3Atis_poligonais&outputFormat=application%2Fjson&count=1",
+  "consultado_em_utc": "2026-10-30T23:51:30+00:00",
+  "status_http": 200,
+  "segundos": 0.107,
+  "content_type": "application/json;charset=UTF-8",
+  "tamanho_bytes": 4657,
+  "sha256": "0426b06afe6e7268c862882d9f84785adeab94f4124f19362d311665b4276922"
+}

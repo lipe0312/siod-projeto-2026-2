@@ -1,0 +1,247 @@
+{
+  "consulta": {
+    "cod_imovel": "MG-3160207-F518ED7FF13744F8B6CC0E04B04CC63E",
+    "lat": null,
+    "lon": null,
+    "documento_informado": true,
+    "gerado_em": "2026-11-02 12:37:29",
+    "prodes": {
+      "origem": "lote",
+      "uf": "MG",
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      },
+      "ultima_imagem": {
+        "caatinga": "2025-10-16",
+        "cerrado": "2026-08-12",
+        "mata_atlantica": "2025-10-16"
+      },
+      "verificado_em": "2026-10-31",
+      "proxima_verificacao": "2026-11-29",
+      "ultimo_ano_do_imovel": 2025
+    },
+    "biomas": [
+      "cerrado",
+      "mata_atlantica"
+    ]
+  },
+  "imovel": {
+    "cod_imovel": "MG-3160207-F518ED7FF13744F8B6CC0E04B04CC63E",
+    "uf": "MG",
+    "cod_municipio": "3160207",
+    "municipio": "Santo Antônio do Itambé",
+    "tipo_imovel": "IRU",
+    "status_imovel": "AT",
+    "condicao": "Aguardando análise",
+    "area_geom_ha": 531.383970882513,
+    "m_fiscal": 21.9949,
+    "fracao_coberta_por_outros": 0.0,
+    "data_atualizacao": "2025-03-07",
+    "status_texto": "Ativo"
+  },
+  "resultado": {
+    "situacao": "com pendência",
+    "resumo": "1 pendência(s) com causa e fonte identificadas",
+    "contagem": {
+      "pendência": 1,
+      "indício": 0,
+      "sem ocorrência": 6,
+      "não verificado": 3,
+      "inconclusivo": 0
+    }
+  },
+  "criterios": [
+    {
+      "chave": "car",
+      "criterio": "CAR",
+      "criterio_ab_s": 3,
+      "situacao": "sem ocorrência",
+      "evidencia": "Ativo · Aguardando análise",
+      "encaminhamento": "—",
+      "fonte": "SICAR",
+      "aviso": null
+    },
+    {
+      "chave": "embargo",
+      "criterio": "Embargo IBAMA",
+      "criterio_ab_s": 7,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum embargo dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "IBAMA",
+      "aviso": null
+    },
+    {
+      "chave": "desmatamento",
+      "criterio": "Desmatamento após 31/12/2020 (EUDR)",
+      "criterio_ab_s": null,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "INPE DETER e PRODES",
+      "aviso": "Mata Atlântica sem DETER: sem cobertura de 16/10/2025 até hoje (o próximo PRODES cobre esse período)"
+    },
+    {
+      "chave": "lista_suja",
+      "criterio": "Lista Suja (trabalho escravo)",
+      "criterio_ab_s": 4,
+      "situacao": "sem ocorrência",
+      "evidencia": "Documento não consta no Cadastro de Empregadores",
+      "encaminhamento": "—",
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "encaminhamento": "—",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "pendência",
+      "evidencia": "2 sobreposição(ões): ÁREA DE PROTEÇÃO AMBIENTAL ESTADUAL DAS ÁGUAS VERTENTES (Área de Proteção Ambiental, uso sustentável; 531.4 ha, 100% do imóvel); PARQUE ESTADUAL PICO DO ITAMBÉ (Parque, proteção integral; 531.4 ha, 100% do imóvel).",
+      "encaminhamento": "Unidade de conservação de proteção integral ou de domínio público: a atividade produtiva dentro dela depende do órgão gestor. Conferir o limite e o plano de manejo.",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_1",
+      "criterio": "Fundiária: dados cadastrais",
+      "criterio_ab_s": 1,
+      "situacao": "não verificado",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_2",
+      "criterio": "Fundiária: dados geoespaciais",
+      "criterio_ab_s": 2,
+      "situacao": "não verificado",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_8",
+      "criterio": "Sobreposição: CAR x SIGEF-GEO",
+      "criterio_ab_s": 8,
+      "situacao": "não verificado",
+      "evidencia": "Depende do critério 2",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
+    }
+  ],
+  "evidencias": {
+    "embargos": [],
+    "alertas": [],
+    "prodes": [],
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [],
+    "unidade_conservacao": [
+      {
+        "cd_cnuc": "0000.31.0405",
+        "nome": "ÁREA DE PROTEÇÃO AMBIENTAL ESTADUAL DAS ÁGUAS VERTENTES",
+        "categoria": "Área de Proteção Ambiental",
+        "grupo": "Uso Sustentável",
+        "esfera": "Estadual",
+        "uf": "MINAS GERAIS",
+        "orgao_gestor": "INSTITUTO ESTADUAL DE FLORESTAS DE MINAS GERAIS - MG",
+        "ano_criacao": 1998,
+        "qualidade_poligono": "Polígono corresponde ao memorial descritivo",
+        "so_ponto": false,
+        "alertas": "",
+        "inter_ha": 531.3839708825,
+        "fracao_car": 1.0,
+        "largura_m": 1110.3796967974,
+        "classe": "sobreposição"
+      },
+      {
+        "cd_cnuc": "0000.31.0404",
+        "nome": "PARQUE ESTADUAL PICO DO ITAMBÉ",
+        "categoria": "Parque",
+        "grupo": "Proteção Integral",
+        "esfera": "Estadual",
+        "uf": "MINAS GERAIS",
+        "orgao_gestor": "INSTITUTO ESTADUAL DE FLORESTAS DE MINAS GERAIS - MG",
+        "ano_criacao": 1998,
+        "qualidade_poligono": "Polígono corresponde ao memorial descritivo",
+        "so_ponto": false,
+        "alertas": "",
+        "inter_ha": 531.3839708825,
+        "fracao_car": 1.0,
+        "largura_m": 1110.3796967974,
+        "classe": "sobreposição"
+      }
+    ]
+  },
+  "geometria_car": "MULTIPOLYGON (((-43.347692 -18.414236, -43.345454 -18.414641, -43.342362 -18.414397, -43.338775 -18.415351, -43.33558 -18.415802, -43.332232 -18.417516, -43.330303 -18.417283, -43.328923 -18.418102, -43.327539 -18.420264, -43.327726 -18.42141, -43.328327 -18.42286, -43.328479 -18.423953, -43.328419 -18.42523, -43.326846 -18.42527, -43.325758 -18.426724, -43.325599 -18.429272, -43.325843 -18.430343, -43.325422 -18.430798, -43.326103 -18.432999, -43.326622 -18.434845, -43.326775 -18.434933, -43.3287 -18.434794, -43.33028 -18.435287, -43.330978 -18.435572, -43.335909 -18.435689, -43.336812 -18.435855, -43.337889 -18.436889, -43.338888 -18.437024, -43.339305 -18.435962, -43.341432 -18.435437, -43.342632 -18.435346, -43.344297 -18.434002, -43.345736 -18.432586, -43.346408 -18.431476, -43.346527 -18.430816, -43.347208 -18.429697, -43.34667 -18.429165, -43.348062 -18.427524, -43.349599 -18.425251, -43.350726 -18.424108, -43.351515 -18.423995, -43.353665 -18.422462, -43.354258 -18.41935, -43.354578 -18.417702, -43.353929 -18.417299, -43.351304 -18.41668, -43.351427 -18.414612, -43.347692 -18.414236)))",
+  "procedencia": [
+    {
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição MG)",
+      "como": "lote, verificação mensal",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
+      "data": "verificado em 2026-10-31",
+      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6",
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet"
+    },
+    {
+      "fonte": "SICAR (WFS)",
+      "como": "sob demanda",
+      "url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+      "data": "2026-10-31",
+      "sha256": "726b125b1207da88a2814d79e3022273b387a5c4fea58fe834799df14edf71bc",
+      "arquivo": "data/raw/sicar/mg/codigo_685f67a8a5d2866f.geojson.gz"
+    }
+  ]
+}

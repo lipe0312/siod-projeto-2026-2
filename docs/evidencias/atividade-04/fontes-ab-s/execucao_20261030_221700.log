@@ -1,0 +1,34 @@
+2026-10-30 22:17:00 INFO    Início: python -m pipeline --fontes terras_indigenas unidades_conservacao quilombolas --evidencia docs/evidencias/atividade-04/fontes-ab-s
+2026-10-30 22:17:00 INFO    [funai_terras_indigenas] transformação: Uma requisição com count (o serviço recusa pedido sem count); cadeia de certificado completada pelo endereço AIA, com verificação
+2026-10-30 22:17:00 INFO    [funai_terras_indigenas] TI_ESTRUTURA_RESPOSTA: 0 de 1 | interrompe a fonte
+2026-10-30 22:17:00 INFO    [funai_terras_indigenas] TI_RESPOSTA_INCOMPLETA: 0 de 1 | interrompe a fonte; repetir
+2026-10-30 22:17:00 INFO    [funai_terras_indigenas] TI_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] transformação: Conversão de cada feature GeoJSON em linha: propriedades e geometria
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] TI_GEOM_AUSENTE: 0 de 665 | registro vai para descartados
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] TI_GEOM_INVALIDA: 2 de 665 | shapely.make_valid antes de qualquer interseção
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] TI_CODIGO_DUPLICADO: 0 de 665 | registro vai para descartados
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] TI_FASE_FORA_DO_DOMINIO: 0 de 665 | mantida; tratada como terra indígena delimitada
+2026-10-30 22:17:01 INFO    [funai_terras_indigenas] TI_UF_INVALIDA: 0 de 665 | mantida; a UF vem do contorno no cruzamento
+2026-10-30 22:17:01 WARNING [funai_terras_indigenas] TI_DATA_ATUALIZACAO_AUSENTE: 143 de 665 | mantida; a ficha cita a data da coleta
+2026-10-30 22:17:01 INFO    Reutilizando arquivo já baixado: data/raw/cnuc/shp_cnuc_2025_08.zip
+2026-10-30 22:17:01 INFO    [mma_unidades_conservacao] transformação: Recurso escolhido pelo CKAN: o shapefile mais recente em dados.mma.gov.br (Polígono CNUC 2025_08)
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_PONTOS_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_TEXTO_TRUNCADO: 1 de 3122 | lido com o caractere de substituição
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] transformação: Camadas de polígonos e de pontos juntas; grupo dos pontos (PI/US) por extenso
+2026-10-30 22:17:04 WARNING [mma_unidades_conservacao] UC_GEOM_AUSENTE: 1 de 3302 | registro vai para descartados
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_GEOM_INVALIDA: 0 de 3301 | shapely.make_valid antes de qualquer interseção
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_CODIGO_DUPLICADO: 0 de 3302 | registro vai para descartados
+2026-10-30 22:17:04 INFO    [mma_unidades_conservacao] UC_GRUPO_FORA_DO_DOMINIO: 0 de 3301 | mantida; tratada como proteção integral (pendência)
+2026-10-30 22:17:04 WARNING [mma_unidades_conservacao] UC_SO_PONTO: 180 de 3301 | mantida; ponto dentro do imóvel é indício
+2026-10-30 22:17:04 WARNING [mma_unidades_conservacao] UC_POLIGONO_ESQUEMATICO: 99 de 3301 | mantida; sobreposição vira indício
+2026-10-30 22:17:05 INFO    Reutilizando arquivo já baixado: data/raw/ibge_territorios_quilombolas.zip
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_TEXTO_TRUNCADO: 0 de 495 | lido com o caractere de substituição
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] transformação: Leitura do shapefile; coordenada Z descartada (polígonos 2D)
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_GEOM_AUSENTE: 0 de 495 | registro vai para descartados
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_GEOM_INVALIDA: 0 de 495 | shapely.make_valid antes de qualquer interseção
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_CODIGO_DUPLICADO: 0 de 495 | registro vai para descartados
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_SITUACAO_FORA_DO_DOMINIO: 0 de 495 | mantido; tratado como território delimitado
+2026-10-30 22:17:05 INFO    [ibge_territorios_quilombolas] TQ_UF_INVALIDA: 0 de 495 | mantido
+2026-10-30 22:17:05 INFO    Fim: status ok em 5.6 s. Relatório: data/processed/relatorio_execucao.md

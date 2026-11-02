@@ -1,0 +1,256 @@
+{
+  "consulta": {
+    "cod_imovel": "MS-5003207-620BD0D082F34232BBBFCF2F71811690",
+    "lat": null,
+    "lon": null,
+    "documento_informado": true,
+    "gerado_em": "2026-11-02 12:37:23",
+    "prodes": {
+      "origem": "lote",
+      "uf": "MS",
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      },
+      "ultima_imagem": {
+        "cerrado": "2026-08-12",
+        "mata_atlantica": "2025-07-28",
+        "pantanal": "2025-08-12"
+      },
+      "verificado_em": "2026-10-31",
+      "proxima_verificacao": "2026-11-29",
+      "ultimo_ano_do_imovel": 2025
+    },
+    "biomas": [
+      "pantanal"
+    ]
+  },
+  "imovel": {
+    "cod_imovel": "MS-5003207-620BD0D082F34232BBBFCF2F71811690",
+    "uf": "MS",
+    "cod_municipio": "5003207",
+    "municipio": "Corumbá",
+    "tipo_imovel": "IRU",
+    "status_imovel": "AT",
+    "condicao": "Aguardando análise",
+    "area_geom_ha": 14053.513403483399,
+    "m_fiscal": 127.38,
+    "fracao_coberta_por_outros": 0.0,
+    "data_atualizacao": "2024-12-20",
+    "status_texto": "Ativo"
+  },
+  "resultado": {
+    "situacao": "com pendência",
+    "resumo": "1 pendência(s) com causa e fonte identificadas",
+    "contagem": {
+      "pendência": 1,
+      "indício": 0,
+      "sem ocorrência": 6,
+      "não verificado": 3,
+      "inconclusivo": 0
+    }
+  },
+  "criterios": [
+    {
+      "chave": "car",
+      "criterio": "CAR",
+      "criterio_ab_s": 3,
+      "situacao": "sem ocorrência",
+      "evidencia": "Ativo · Aguardando análise",
+      "encaminhamento": "—",
+      "fonte": "SICAR",
+      "aviso": null
+    },
+    {
+      "chave": "embargo",
+      "criterio": "Embargo IBAMA",
+      "criterio_ab_s": 7,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum embargo dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "IBAMA",
+      "aviso": null
+    },
+    {
+      "chave": "desmatamento",
+      "criterio": "Desmatamento após 31/12/2020 (EUDR)",
+      "criterio_ab_s": null,
+      "situacao": "pendência",
+      "evidencia": "4 polígono(s) PRODES após 2020 (342.3 ha no imóvel)",
+      "encaminhamento": "Verificar se a supressão teve autorização (ASV). Mesmo autorizada, área desmatada após 31/12/2020 não atende à EUDR para a produção que sai dela.",
+      "fonte": "INPE DETER e PRODES",
+      "aviso": "Pantanal sem DETER: sem cobertura de 12/08/2025 até hoje (o próximo PRODES cobre esse período)"
+    },
+    {
+      "chave": "lista_suja",
+      "criterio": "Lista Suja (trabalho escravo)",
+      "criterio_ab_s": 4,
+      "situacao": "sem ocorrência",
+      "evidencia": "Documento não consta no Cadastro de Empregadores",
+      "encaminhamento": "—",
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "encaminhamento": "—",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_1",
+      "criterio": "Fundiária: dados cadastrais",
+      "criterio_ab_s": 1,
+      "situacao": "não verificado",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_2",
+      "criterio": "Fundiária: dados geoespaciais",
+      "criterio_ab_s": 2,
+      "situacao": "não verificado",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_8",
+      "criterio": "Sobreposição: CAR x SIGEF-GEO",
+      "criterio_ab_s": 8,
+      "situacao": "não verificado",
+      "evidencia": "Depende do critério 2",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
+    }
+  ],
+  "evidencias": {
+    "embargos": [],
+    "alertas": [],
+    "prodes": [
+      {
+        "uuid": "82b89830-71cb-4849-a2e0-4bf62ebe7c09",
+        "bioma": "pantanal",
+        "ano_prodes": 2021,
+        "data_imagem": "2021-08-07T00:00:00.000",
+        "area_km2": 1.5425331527,
+        "inter_ha": 154.9455916009,
+        "fracao_objeto": 1.0,
+        "largura_m": 300.9701085102,
+        "classe": "principal"
+      },
+      {
+        "uuid": "6ec56ae2-3ddf-414e-9664-6da3748f6f20",
+        "bioma": "pantanal",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-08-06T00:00:00.000",
+        "area_km2": 0.3956636484,
+        "inter_ha": 4.9574865871,
+        "fracao_objeto": 0.1247323369,
+        "largura_m": 26.9949878458,
+        "classe": "parcial"
+      },
+      {
+        "uuid": "9ff95ceb-1e25-46c0-8840-3ab0c4691dc2",
+        "bioma": "pantanal",
+        "ano_prodes": 2024,
+        "data_imagem": "2024-08-27T00:00:00.000",
+        "area_km2": 1.7268486616,
+        "inter_ha": 170.3993168886,
+        "fracao_objeto": 0.9823567413,
+        "largura_m": 390.8007659898,
+        "classe": "principal"
+      },
+      {
+        "uuid": "2659126e-961d-4ef8-8dfc-02103452aefa",
+        "bioma": "pantanal",
+        "ano_prodes": 2025,
+        "data_imagem": "2025-07-27T00:00:00.000",
+        "area_km2": 0.1193163643,
+        "inter_ha": 11.9851150384,
+        "fracao_objeto": 1.0,
+        "largura_m": 32.2520101748,
+        "classe": "principal"
+      }
+    ],
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [],
+    "unidade_conservacao": []
+  },
+  "geometria_car": "MULTIPOLYGON (((-57.01547144 -19.02128116, -56.99457506 -19.03920024, -56.98556964 -19.04669224, -56.99266797 -19.05315673, -57.00044795 -19.06031775, -57.00043902 -19.061617, -57.00720303 -19.07445037, -57.00832845 -19.07591225, -57.00881427 -19.07766227, -57.0104221 -19.07993334, -57.01041214 -19.08480289, -57.01289096 -19.08895452, -57.01294094 -19.08979158, -57.01260064 -19.09262299, -57.01330309 -19.09411721, -57.01649469 -19.09752567, -57.01760109 -19.09852051, -57.01985383 -19.10017741, -57.02016833 -19.10104978, -57.02152437 -19.10227494, -57.02332925 -19.10278715, -57.02702675 -19.1057695, -57.02780547 -19.10629682, -57.02956872 -19.1069806, -57.03110902 -19.10712187, -57.0335542 -19.1094695, -57.03377113 -19.10935757, -57.03417664 -19.1098871, -57.03456651 -19.11155988, -57.03423109 -19.11299394, -57.03429103 -19.11456664, -57.03691725 -19.11498683, -57.041033 -19.11704807, -57.04121311 -19.11720609, -57.04129399 -19.11745623, -57.04327093 -19.11767169, -57.04413567 -19.11800732, -57.04671967 -19.11881636, -57.0467598 -19.11883144, -57.04712294 -19.11960659, -57.05028177 -19.12051312, -57.0525358 -19.12247202, -57.05318679 -19.12264779, -57.05555311 -19.12414932, -57.05618319 -19.12518149, -57.05649109 -19.12690196, -57.05767056 -19.12730567, -57.05843069 -19.12764226, -57.05980859 -19.12824371, -57.06028532 -19.12871179, -57.06288418 -19.12943266, -57.06361137 -19.13036943, -57.06876232 -19.1345892, -57.069281 -19.13542687, -57.07068267 -19.13644351, -57.07065149 -19.1373668, -57.07158677 -19.13973373, -57.07175898 -19.14083164, -57.07229256 -19.14108439, -57.07370815 -19.14248103, -57.07350125 -19.14273923, -57.07329592 -19.14635469, -57.06424513 -19.16429938, -57.1604173 -19.18249194, -57.16211194 -19.18410021, -57.16285547 -19.18400592, -57.16315342 -19.18424398, -57.16471487 -19.18521321, -57.16505959 -19.18493834, -57.16660822 -19.18525687, -57.16663782 -19.18527392, -57.16716575 -19.18539463, -57.16801328 -19.18570674, -57.16971686 -19.18600811, -57.17119606 -19.18704342, -57.17212429 -19.18719131, -57.17327007 -19.18781381, -57.17407453 -19.1877591, -57.17573281 -19.1880995, -57.17731504 -19.18820507, -57.17824403 -19.18870005, -57.17858779 -19.18931851, -57.17952661 -19.1900152, -57.18052913 -19.1901439, -57.18136291 -19.19062369, -57.18187919 -19.19111075, -57.18224981 -19.19183212, -57.18210622 -19.19438326, -57.18229113 -19.19471674, -57.18848702 -19.18859818, -57.09649792 -19.07205253, -57.09061685 -19.08086881, -57.01547144 -19.02128116)))",
+  "procedencia": [
+    {
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição MS)",
+      "como": "lote, verificação mensal",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
+      "data": "verificado em 2026-10-31",
+      "sha256": "41217f879d55f4f80a2f71d5e7c1ad29c7e1f36df9bf90271cb89fe1a3d92603",
+      "arquivo": "data/processed/inpe_prodes/uf=MS/part.parquet"
+    },
+    {
+      "fonte": "SICAR (WFS)",
+      "como": "sob demanda",
+      "url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+      "data": "2026-10-30",
+      "sha256": "f12356496e80c7aac9853d07578b737de02fdb41a5b3191c7c316d5438f9d289",
+      "arquivo": "data/raw/sicar/ms/codigo_f2e3f6aecef84f13.geojson.gz"
+    }
+  ]
+}

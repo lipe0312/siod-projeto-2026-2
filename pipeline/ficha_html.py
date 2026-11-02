@@ -5,7 +5,7 @@ from html import escape
 import pandas as pd
 import shapely
 
-from pipeline import config
+from pipeline import config, vetor
 from pipeline.fontes import sicar
 
 COR_SITUACAO = {"pendência": "pend", "indício": "ind", "sem ocorrência": "ok", "não verificado": "nv",
@@ -13,29 +13,35 @@ COR_SITUACAO = {"pendência": "pend", "indício": "ind", "sem ocorrência": "ok"
                 "sem pendência nas fontes verificadas": "ok"}
 
 SIMBOLO = {"pendência": "✕", "indício": "!", "sem ocorrência": "✓", "não verificado": "?", "inconclusivo": "…"}
-NOME_BIOMA = {"cerrado": "Cerrado", "mata_atlantica": "Mata Atlântica"}
-VERIFICADOS = ("car", "embargo", "desmatamento", "lista_suja")
+NOME_BIOMA = {"amazonia": "Amazônia", "caatinga": "Caatinga", "cerrado": "Cerrado", "mata_atlantica": "Mata Atlântica",
+              "pampa": "Pampa", "pantanal": "Pantanal"}
+VERIFICADOS = ("car", "embargo", "desmatamento", "lista_suja", "terra_indigena", "quilombola", "unidade_conservacao")
 NOME_CURTO = {"car": "CAR", "embargo": "Embargo IBAMA", "desmatamento": "Desmatamento pós-2020",
-              "lista_suja": "Lista Suja"}
+              "lista_suja": "Lista Suja", "terra_indigena": "Terra indígena", "quilombola": "Quilombola",
+              "unidade_conservacao": "Unidade de conservação"}
+# Áreas protegidas no mapa: (chave da evidência, letra, cor).
+PROTEGIDAS = (("terra_indigena", "T", "var(--ti)"), ("quilombola", "Q", "var(--tq)"),
+              ("unidade_conservacao", "U", "var(--uc)"))
 
 EXPLICACAO = [
     ("pendência", "Encontrada numa fonte oficial e impede crédito rural ou venda sob a EUDR."),
     ("indício", "Algo foi encontrado, mas precisa de conferência antes de virar pendência."),
     ("sem ocorrência", "A fonte foi consultada e não há nada contra o imóvel."),
     ("não verificado", "Não há fonte aberta integrada; nunca é lido como “conforme”."),
-    ("inconclusivo", "Falta uma entrada (por exemplo, o CAR não foi localizado)."),
+    ("inconclusivo", "Falta uma entrada (o CAR não foi localizado) ou a fonte não respondeu; nunca é lido como "
+                     "“sem ocorrência”."),
 ]
 
 CSS = """
 :root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#66645e;--bd:#e2e0d8;--car:#2f7d4f;--carf:rgba(47,125,79,.08);
---emb:#c0392b;--alt:#d9822b;--prd:#7b4fb0;--pend:#b3261e;--pendb:#fbe9e7;--ind:#8a5a00;--indb:#fdf1d8;--ok:#1e6b3c;
+--emb:#c0392b;--alt:#d9822b;--prd:#7b4fb0;--ti:#8d5524;--tq:#0f6e78;--uc:#3d7a1f;--pend:#b3261e;--pendb:#fbe9e7;--ind:#8a5a00;--indb:#fdf1d8;--ok:#1e6b3c;
 --okb:#e3f2e8;--nv:#55575c;--nvb:#ecedef;--inc:#3b4a8a;--incb:#e6e9f6}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;
 --mut:#a3a199;--bd:#34332f;--car:#5fbf86;--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;
---pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;
+--ti:#d9a066;--tq:#5cc6d0;--uc:#8fd16a;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;
 --inc:#9fb0f2;--incb:#1f2440}}
 :root[data-theme="dark"]{--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;--mut:#a3a199;--bd:#34332f;--car:#5fbf86;
---carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;
+--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;--ti:#d9a066;--tq:#5cc6d0;--uc:#8fd16a;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;
 --indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;--inc:#9fb0f2;--incb:#1f2440}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);
 font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
@@ -61,10 +67,11 @@ svg.mapa{width:100%;height:auto;background:var(--bg);border-radius:8px;border:1p
 .legenda i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
 .como dt{margin-top:8px}.como dd{margin:2px 0 0;color:var(--mut)}
 .aviso{border-left:4px solid var(--ind);padding:10px 14px;background:var(--indb);border-radius:6px;margin-top:18px}
+.cobertura{font-size:12.5px;color:var(--ind);margin-top:6px}
 a{color:var(--inc)}
-.fluxo{display:grid;grid-template-columns:repeat(4,1fr) 28px 1.15fr;gap:10px;align-items:stretch;margin-top:6px}
-@media(max-width:860px){.fluxo{grid-template-columns:1fr 1fr}.fluxo .seta{grid-column:1/-1;transform:rotate(90deg)}
-.fluxo .veredito{grid-column:1/-1}}
+.fluxo{display:grid;grid-template-columns:1fr 28px 230px;gap:10px;align-items:stretch;margin-top:6px}
+.passos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+@media(max-width:860px){.fluxo{grid-template-columns:1fr}.fluxo .seta{transform:rotate(90deg)}}
 .passo{border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;min-height:96px}
 .passo .ico{font-size:22px;font-weight:800;line-height:1}.passo b{font-size:14px;color:var(--tx)}
 .passo small{font-size:12.5px;color:var(--mut);line-height:1.35}
@@ -76,7 +83,9 @@ border:2px solid currentColor}.veredito b{font-size:18px}.veredito small{color:v
 .regras span.vale{border-color:currentColor;font-weight:600}
 .nvlinha{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:13px}
 svg.tempo{width:100%;height:auto;margin-top:6px}
-.matriz td,.matriz th{text-align:center}.matriz td:first-child,.matriz th:first-child{text-align:left}
+.matriz td,.matriz th{text-align:center;padding:7px 5px}.matriz th{font-size:10.5px;letter-spacing:.03em}
+.matriz td:first-child,.matriz th:first-child{text-align:left;min-width:210px}.matriz td{font-size:13.5px}
+.matriz .badge{white-space:normal;max-width:140px;line-height:1.25}.matriz .confere{white-space:nowrap}
 .ponto{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
 font-weight:800;font-size:13px}
 .confere{font-size:13px;font-weight:700}.confere.sim{color:var(--ok)}.confere.nao{color:var(--pend)}
@@ -116,7 +125,7 @@ def _caminho(geom, transformar) -> str:
 
 def mapa(ficha: dict, largura: int = 640) -> str:
     """CAR, embargos, alertas DETER e polígonos PRODES em SVG, com o número de cada evidência das tabelas."""
-    car = sicar.projetar(shapely.make_valid(shapely.from_wkt(ficha["geometria_car"])))
+    car = sicar.projetar(vetor.tornar_valida(shapely.from_wkt(ficha["geometria_car"])))
     x0, y0, x1, y1 = car.bounds
     margem = 0.12 * max(x1 - x0, y1 - y0)
     x0, y0, x1, y1 = x0 - margem, y0 - margem, x1 + margem, y1 + margem
@@ -127,10 +136,28 @@ def mapa(ficha: dict, largura: int = 640) -> str:
         return (x - x0) * escala, (y1 - y) * escala
 
     def desenhar(wkt):
-        return _caminho(sicar.projetar(shapely.make_valid(shapely.from_wkt(wkt))), transformar)
+        return _caminho(sicar.projetar(vetor.tornar_valida(shapely.from_wkt(wkt))), transformar)
 
     camadas, rotulos = [], []
     ev = ficha["evidencias"]
+    for chave, letra, cor in PROTEGIDAS:  # embaixo de tudo: são grandes; recortadas à vista para o SVG ficar leve
+        df = ev.get(chave, pd.DataFrame())
+        for i, r in enumerate(df.itertuples(), 1):
+            g = sicar.projetar(vetor.tornar_valida(shapely.from_wkt(r.geometria_wkt)))
+            fraco = ' opacity=".45"' if getattr(r, "classe", "") == "tangente" else ""
+            if g.geom_type in ("Point", "MultiPoint"):
+                p = g.centroid
+            else:
+                g = shapely.clip_by_rect(g, x0, y0, x1, y1)
+                if g.is_empty:
+                    continue
+                camadas.append(f'<path d="{_caminho(g, transformar)}" fill="{cor}" fill-opacity=".12" stroke="{cor}" '
+                               f'stroke-width="2" stroke-dasharray="8 4" fill-rule="evenodd"{fraco}/>')
+                p = g.representative_point()
+            px, py = transformar(p.x, p.y)
+            rotulos.append(f'<g{fraco}><rect x="{px - 13:.1f}" y="{py - 10:.1f}" width="26" height="20" rx="4" '
+                           f'fill="var(--card)" stroke="{cor}" stroke-width="2"/><text x="{px:.1f}" y="{py + 4:.1f}" '
+                           f'text-anchor="middle" font-size="11" font-weight="700" fill="{cor}">{letra}{i}</text></g>')
     estilos = [("prodes", "P", "var(--prd)", "var(--prd)", 'stroke-dasharray="5 3" fill-opacity=".22"'),
                ("alertas", "A", "var(--alt)", "var(--alt)", 'fill-opacity=".35"'),
                ("embargos", "E", "var(--emb)", "url(#hach)", "")]
@@ -203,7 +230,35 @@ def _evidencias(ev: dict) -> str:
         ["#", "Ano PRODES", "Data da imagem", "Bioma", "ha no imóvel", "% do polígono", "Classe"], prd,
         "Nenhum polígono PRODES de 2021 em diante toca o imóvel.")}
 <p class="mut">O ano PRODES 2021 vai de 01/08/2020 a 31/07/2021 e começa antes da data de corte: sozinho, conta como
-indício. De 2022 em diante, o desmatamento é posterior a 31/12/2020.</p></section>"""
+indício. De 2022 em diante, o desmatamento é posterior a 31/12/2020.</p></section>
+{_evidencias_protegidas(ev)}"""
+
+
+def _onde(r) -> list[str]:
+    if r.classe == "ponto dentro":
+        return [_td("—", True), _td("—", True), _td("ponto dentro")]
+    return [_td(_num(r.inter_ha), True), _td(_num(r.fracao_car * 100, 1) + "%", True), _td(escape(str(r.classe)))]
+
+
+def _evidencias_protegidas(ev: dict) -> str:
+    vazio = pd.DataFrame()
+    ti = [[_td(f"<b>T{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.fase))), _td(escape(str(r.etnia))),
+           *_onde(r), _td(_data(r.data_atualizacao))] for i, r in enumerate(ev.get("terra_indigena", vazio).itertuples(), 1)]
+    tq = [[_td(f"<b>Q{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.situacao).capitalize())), *_onde(r)]
+          for i, r in enumerate(ev.get("quilombola", vazio).itertuples(), 1)]
+    uc = [[_td(f"<b>U{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.categoria))), _td(escape(str(r.grupo))),
+           _td(escape(str(r.esfera))), *_onde(r)] for i, r in enumerate(ev.get("unidade_conservacao", vazio).itertuples(), 1)]
+    cab = ["ha no imóvel", "% do imóvel", "Classe"]
+    return f"""<section class="card"><h2>Áreas protegidas</h2>
+<h3 style="font-size:15px;margin:4px 0 8px">Terras indígenas (FUNAI)</h3>{_tabela(
+        ["#", "Terra indígena", "Fase", "Etnia", *cab, "Atualizada em"], ti, "Nenhuma terra indígena toca o imóvel.")}
+<h3 style="font-size:15px;margin:16px 0 8px">Territórios quilombolas (IBGE, base de 31/07/2022)</h3>{_tabela(
+        ["#", "Território", "Situação", *cab], tq, "Nenhum território quilombola delimitado toca o imóvel.")}
+<h3 style="font-size:15px;margin:16px 0 8px">Unidades de conservação (CNUC/MMA)</h3>{_tabela(
+        ["#", "Unidade", "Categoria", "Grupo", "Esfera", *cab], uc, "Nenhuma unidade de conservação toca o imóvel.")}
+<p class="mut">Classe: sobreposição atinge ao menos 5% do imóvel ou uma faixa mais larga que 30 m; tangente é contato de
+borda (diferença de desenho) e não conta. APA, ARIE e RPPN admitem propriedade privada: a sobreposição é indício.</p>
+</section>"""
 
 
 def _curto(texto: str, limite: int = 70) -> str:
@@ -222,17 +277,18 @@ def como_se_formou(ficha: dict) -> str:
         if not c:
             continue
         cls = COR_SITUACAO[c["situacao"]]
+        aviso = '<small class="cobertura">⚠ sem cobertura recente</small>' if c.get("aviso") else ""
         passos.append(f'<div class="passo {cls}"><span class="ico">{SIMBOLO[c["situacao"]]}</span>'
                       f'<b>{NOME_CURTO[chave]}</b><small>{escape(c["situacao"])} · {escape(_curto(c["evidencia"]))}'
-                      f'</small></div>')
+                      f'</small>{aviso}</div>')
     cls = COR_SITUACAO.get(res["situacao"], "nv")
-    regras = [("com pendência", "1 pendência basta"), ("com indício", "sem pendência, 1 indício"),
-              ("sem pendência nas fontes verificadas", "nada encontrado")]
+    regras = [("com pendência", "1 pendência basta"), ("inconclusivo", "sem pendência, 1 inconclusivo"),
+              ("com indício", "sem pendência, 1 indício"), ("sem pendência nas fontes verificadas", "nada encontrado")]
     chips = "".join(f'<span class="{COR_SITUACAO[r] + " vale" if r == res["situacao"] else ""}">{escape(t)} → '
                     f'{escape(r)}</span>' for r, t in regras)
     n_nv = sum(c["situacao"] == "não verificado" and c["chave"] not in VERIFICADOS for c in ficha["criterios"])
     return f"""<section class="card"><h2>Como o resultado foi formado</h2>
-<div class="fluxo">{''.join(passos)}<div class="seta">→</div>
+<div class="fluxo"><div class="passos">{''.join(passos)}</div><div class="seta">→</div>
 <div class="veredito {cls}"><span class="mut" style="font-size:12px">RESULTADO</span><b>{escape(res["situacao"])}</b>
 <small>{escape(res["resumo"])}</small></div></div>
 <div class="regras">{chips}</div>
@@ -325,7 +381,9 @@ def renderizar(ficha: dict) -> str:
                     for s, n in res["contagem"].items() if n)
     criterios = [[_td(escape(c["criterio"]) + (f'<div class="mut">AB+S nº {c["criterio_ab_s"]}</div>'
                                                if c["criterio_ab_s"] else '<div class="mut">EUDR</div>')),
-                  _td(_badge(c["situacao"])), _td(escape(c["evidencia"])), _td(escape(c["encaminhamento"])),
+                  _td(_badge(c["situacao"])), _td(escape(c["evidencia"]) + (
+                      f'<div class="cobertura">⚠ {escape(c["aviso"])}</div>' if c.get("aviso") else "")),
+                  _td(escape(c["encaminhamento"])),
                   _td(escape(c["fonte"]))] for c in ficha["criterios"]]
     procedencia = [[_td(escape(p["fonte"])), _td(escape(p["como"])), _td(escape(p["data"])),
                     _td(f'<span class="mono">{escape(str(p["sha256"])[:16])}…</span>'),
@@ -341,13 +399,16 @@ def renderizar(ficha: dict) -> str:
             ("Status do CAR", escape(str(im["status_texto"]))),
             ("Módulos fiscais", _num(im["m_fiscal"], 2)),
             ("Atualizado no SICAR", _data(im["data_atualizacao"])),
+            ("Bioma", escape(", ".join(NOME_BIOMA.get(b, b) for b in ficha["consulta"].get("biomas", [])) or "—")),
             *([("PRODES publicado até", f'{pr["ultimo_ano_do_imovel"]} <small class="mut">({escape(pr["origem"])}, '
-                f'{_data(pr["verificado_em"])})</small>')] if pr else [])])
+                f'{_data(pr["verificado_em"])})</small>')] if pr and pr.get("ultimo_ano_do_imovel") else [])])
         topo = f"""<section class="card grid"><div><h2>Mapa do imóvel</h2>{mapa(ficha)}
 <div class="legenda"><span><i style="border:2px solid var(--car);background:var(--carf)"></i>perímetro do CAR</span>
 <span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span><span><i style="background:var(--alt)"></i>alerta
-DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span><span class="mut">mais claro: na
-divisa, não atribuído</span></div></div>
+DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span><span><i
+style="border:2px dashed var(--ti)"></i>terra indígena (T)</span><span><i style="border:2px dashed var(--tq)"></i>quilombola
+(Q)</span><span><i style="border:2px dashed var(--uc)"></i>unidade de conservação (U)</span><span class="mut">mais
+claro: na divisa, não atribuído</span></div></div>
 <div><h2>Como ler esta ficha</h2><dl class="como">{como_ler}</dl></div></section>"""
         evidencias = _evidencias(ficha["evidencias"])
         topo += linha_do_tempo(ficha)
@@ -388,8 +449,8 @@ def _ponto(situacao: str) -> str:
 def _situacao_prodes(publicacao: dict | None) -> str:
     """Cartão com a situação do PRODES em lote: anos publicados por bioma, verificação e próxima verificação."""
     if not publicacao:
-        return ('<section class="card"><h2>PRODES</h2><p class="mut">Sem o lote do PRODES: consultado sob demanda '
-                '(rode <span class="mono">python -m pipeline --fontes prodes</span>).</p></section>')
+        return ('<section class="card"><h2>PRODES</h2><p class="mut">Sem o lote do PRODES (rode <span class="mono">'
+                'python -m pipeline --fontes prodes</span>).</p></section>')
     novos = {m["bioma"]: m["ano"] for h in publicacao["historico"][-1:] for m in h["mudancas"]
              if m["tipo"] == "novo ano publicado"}
     linhas = []
@@ -397,14 +458,18 @@ def _situacao_prodes(publicacao: dict | None) -> str:
         anos = "".join(f'<span class="{"pub" if a <= ultimo else ""}{" novo" if novos.get(bioma) == a else ""}">{a}'
                        f'</span>' for a in range(publicacao["desde"], pd.Timestamp(publicacao["verificado_em_utc"][:10])
                                                  .year + 1))
+        imagem = (publicacao.get("ultima_imagem") or {}).get(bioma)
         linhas.append(f'<tr><td><b>{escape(NOME_BIOMA.get(bioma, bioma))}</b></td><td><div class="anos">{anos}</div>'
-                      f'</td><td class="n">até {ultimo}</td></tr>')
-    return f"""<section class="card"><h2>PRODES: fonte em lote, conferida todo mês</h2>
+                      f'</td><td class="n">até {ultimo}</td><td class="n mut">última imagem {_data(imagem)}'
+                      f'{"" if bioma in config.CAMADAS_DETER else " · sem DETER"}</td></tr>')
+    return f"""<section class="card"><h2>PRODES: fonte em lote por UF, conferida todo mês</h2>
 <div class="placar"><div><span class="eyebrow">verificado em</span><br><b>{_data(publicacao["verificado_em_utc"])}</b></div>
 <div><span class="eyebrow">próxima verificação</span><br><b>{_data(publicacao["proxima_verificacao"])}</b></div>
-<div><span class="eyebrow">recorte</span><br><b>{escape(", ".join(publicacao["ufs"]))}</b></div></div>
+<div><span class="eyebrow">UFs no lote</span><br><b>{escape(", ".join(publicacao["ufs"]))}</b></div></div>
 <div class="tabela"><table><tbody>{''.join(linhas)}</tbody></table></div>
-<p class="mut" style="font-size:13px">Verde: ano publicado. Contorno: ano que apareceu na última verificação.</p>
+<p class="mut" style="font-size:13px">Verde: ano publicado. Contorno: ano que apareceu na última verificação. Cada UF
+entra no lote quando o primeiro imóvel dela é consultado. Em bioma sem DETER, depois da última imagem não há cobertura até
+o próximo PRODES.</p>
 </section>"""
 
 
@@ -431,11 +496,13 @@ def indice(fichas: list[tuple[dict, dict, str]], publicacao: dict | None = None)
 <div class="resultado">{_badge(res["situacao"])}<b>{escape(caso["caso"])}</b></div>
 <p class="mono mut">{escape(str(im.get("cod_imovel") or ""))}</p><div class="chips">{chips}</div></a>""")
     cab = "".join(f"<th>{NOME_CURTO[k]}</th>" for k in VERIFICADOS)
-    legenda = " ".join(f"{_ponto(s)} {escape(s)}" for s in ("pendência", "indício", "sem ocorrência", "não verificado"))
+    legenda = " ".join(f"{_ponto(s)} {escape(s)}" for s in ("pendência", "indício", "sem ocorrência", "inconclusivo",
+                                                             "não verificado"))
     return f"""<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Demonstração do pré-diagnóstico</title>
 <style>{CSS}</style></head><body><main><div class="eyebrow">Demonstração</div><h1>Pré-diagnóstico de pendências</h1>
-<p class="mut">CARs reais do recorte de café de MG, cruzados com IBAMA, DETER, PRODES e Lista Suja. CPF fictício.</p>
+<p class="mut">CARs reais: 6 do café de MG, 1 por bioma no resto do país e 4 com sobreposição a área protegida, cruzados com IBAMA, DETER, PRODES, Lista Suja,
+terras indígenas, territórios quilombolas e unidades de conservação. CPF fictício.</p>
 <section class="card"><h2>Avaliação: o pipeline acertou cada caso?</h2>
 <div class="placar"><div><b>{conferem} de {len(fichas)}</b><br><span class="mut">casos com o resultado esperado em
 todos os critérios</span></div></div>

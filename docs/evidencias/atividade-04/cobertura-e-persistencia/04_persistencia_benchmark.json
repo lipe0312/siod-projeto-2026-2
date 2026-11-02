@@ -1,0 +1,37 @@
+{
+ "cars": {
+  "municipio": "Patroc\u00ednio (MG)",
+  "amostra": 300
+ },
+ "parquet_strtree": {
+  "carga_s": 1.58,
+  "memoria_acrescida_mb": 1176,
+  "consulta_total_s": 0.002,
+  "consulta_media_ms": 0.01,
+  "disco_mb": 139.9,
+  "achados": 47,
+  "linhas": {
+   "prodes": 112717,
+   "deter": 233777,
+   "ibama": 50523
+  }
+ },
+ "duckdb_spatial": {
+  "carga_s": 1.4,
+  "consulta_total_s": 0.097,
+  "consulta_media_ms": 0.32,
+  "disco_mb": 370.2,
+  "achados": 47
+ },
+ "postgis": {
+  "carga_s": 12.17,
+  "consulta_total_s": 0.189,
+  "consulta_media_ms": 0.63,
+  "disco_mb": 276.8,
+  "achados": 47
+ },
+ "mesmos_achados_por_car": {
+  "duckdb": true,
+  "postgis": true
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "url": "https://sncr.serpro.gov.br/sncr-web/consultaPublica.jsf",
+  "parametros": {},
+  "url_completa": "https://sncr.serpro.gov.br/sncr-web/consultaPublica.jsf;jsessionid=5U5eQ5c1+UhVK0MroFk2fOHj.sncr-web6?windowId=7b7",
+  "consultado_em_utc": "2026-10-30T23:49:01+00:00",
+  "status_http": 200,
+  "segundos": 0.296,
+  "content_type": "text/html;charset=UTF-8",
+  "tamanho_bytes": 16738,
+  "sha256": "320ddffff663c6999cbc6a7bc17a9eb1476aebb06260415387bcab0376eedf76"
+}

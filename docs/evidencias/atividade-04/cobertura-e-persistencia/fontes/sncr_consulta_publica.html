@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml"><head>
+  		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/theme.css.jsf?ln=primefaces-bootstrap" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/rawline/css/rawline.css.jsf?ln=fonts" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/core.css.jsf?ln=css" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/core-dsgov-custom.css.jsf?ln=css" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/iframe-resizer.css.jsf?ln=css" /><link type="text/css" rel="stylesheet" href="/sncr-web/javax.faces.resource/primefaces.css.jsf?ln=primefaces" /><script type="text/javascript" src="/sncr-web/javax.faces.resource/jquery/jquery.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/primefaces.js.jsf?ln=primefaces"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/jquery/jquery-plugins.js.jsf?ln=primefaces"></script>
+    
+   <title>Consulta Pública</title>
+    
+   <link rel="shortcut icon" type="image/x-icon" href="/sncr-web/img/favicon.ico" />
+    <!-- &lt;link rel="manifest" href="/sncr-web/manifest.json"/&gt; -->
+
+   <!-- Fonte Rawline-->
+   <!-- &lt;h:outputStylesheet library="fonts" name="rawline/css/rawline.css" /&gt; -->
+   <!-- Fonte Raleway-->
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:300,400,500,600,700,800,900&amp;display=swap" />
+   <!-- Fontawesome-->
+  <!-- &lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"/&gt; -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+   <!-- Design System - DSGov CSS -->
+	
+	<!-- Design System - DSGov SCRIPTS -->
+    <!-- &lt;h:outputScript target="body" library="js" name="core-init.js" /&gt; -->	
+    
+    <!-- Google Analytics -->
+	<!-- Google Tag Manager -->
+	
+	 <!-- Pag Tesouro -->
+	
+	<!-- SCRIPTS SNCR -->
+		<!--  &lt;h:outputStylesheet library="css" name="externo.css" /&gt; --></head><body class="template-base">	
+
+      <!-- Google Tag Manager (noscript) -->
+      <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MHTM4HX" height="0" width="0" style="display:none;visibility:hidden">
+        </iframe>
+      </noscript>
+      <!-- End Google Tag Manager (noscript) -->
+      
+      <script type="text/javascript">
+	
+	    /* <![CDATA[ */
+		jQuery('#BAJBOnBack').ready(function(){
+				window.history.forward();
+		});
+	   /*]]>*/
+	   
+	   var charset = document.characterSet;
+
+	   if(!charset){
+		   charset = document.charset;
+		}
+
+		if(charset){
+			if(charset.toUpperCase() != 'UTF-8'){
+				if(window.location.href.indexOf('erroRNFDsGov.jsf')==-1){
+					setTimeout(function(){ window.location.href = '/sncr-web/public/pages/erro/erroRNFDsGov.jsf'; }, 1000);
+				}
+			}
+		}
+	   
+	</script>	
+	
+	<input type="text" name="hiddenpath" id="hiddenpath" style="display:none;" value="/sncr-web" />
+
+	<iframe src="/sncr-web/public/pages/blank.html" style="display:none;" id="BAJBOnBack" onunload="alert(\'de\')" onload="bajb_backdetect.BAJBFrame();"> 
+	</iframe><div id="j_idt36"></div><script id="j_idt36_s" type="text/javascript">PrimeFaces.cw('AjaxStatus','widget_j_idt36',{id:'j_idt36'});widget_j_idt36.bindCallback('ajaxStart',function(){if (exibirCarregando) statusDialog.show(); else exibirCarregando = true;});widget_j_idt36.bindCallback('ajaxComplete',function(){statusDialog.hide();aplicarMascaras();estiloDisable();});</script><div id="j_idt37" class="ui-dialog ui-widget ui-widget-content ui-overlay-hidden ui-corner-all ui-shadow"><div class="ui-dialog-content ui-widget-content"><img src="/sncr-web/img/ajaxloadingbar.gif" /></div></div><script id="j_idt37_s" type="text/javascript">$(function(){PrimeFaces.cw('Dialog','statusDialog',{id:'j_idt37',draggable:false,modal:true,position:'center top'});});</script><div id="j_idt39" class="ui-dialog ui-widget ui-widget-content ui-overlay-hidden ui-corner-all ui-shadow"><div class="ui-dialog-content ui-widget-content"><img src="/sncr-web/img/ajaxloadingbar.gif" /></div></div><script id="j_idt39_s" type="text/javascript">$(function(){PrimeFaces.cw('Dialog','statusDialogExtra',{id:'j_idt39',draggable:false,modal:true,position:'center top'});});</script>
+	  
+      
+       <!-- IMPLEMENTADO TEMPLATE INTERNO E EXTERNO-->
+		<header class="br-header  compact">
+			<div class="container-lg">
+
+<!--CABECALHO: COMUM A TODOS TEMPLATES QUE UTILIZA TEMPLATE INTERNO E EXTERNO -->
+<div class="header-top">
+      
+   <div class="header-logo"><img src="/sncr-web/javax.faces.resource/govbr.svg.jsf?ln=img" alt="Govbr" width="70%" />
+   </div>
+         
+   <div class="header-actions">
+       <div class="header-links dropdown">
+
+          <!-- LINKS DESSE MENU IMPLEMENTADO NO TEMPLATE DO SISTEMA DESTINO -->
+          
+       </div>
+       
+       <!-- MENU IMPLEMENTADO NO TEMPLATE DO SISTEMA DESTINO -->
+       <div class="header-login dropdown">  
+       </div>
+       
+   </div>
+            
+</div>
+      
+<div class="header-bottom">
+     <div class="header-menu">
+          <div class="header-info">
+            <div class="header-title">Plataforma de <strong>Governança Territorial</strong></div>
+            <!-- &lt;div class="header-subtitle"&gt;Subt&iacute;tulo do Header&lt;/div&gt; -->
+          </div>
+     </div>
+</div>
+			</div>
+		</header>
+      
+      
+      <!-- CONTEUDO PRINCIPAL-->
+      <section class="d-flex flex-fill mb-5" id="main-content">
+          <div class="container-lg" id="main">
+		<div class="row">
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			
+				<h3 class="text-blue-warm-vivid-70">Consulta Pública de Imóveis
+				</h3>
+		
+				<div class="custom-messages"><div id="messagesError" class="ui-messages ui-widget" aria-live="polite"></div><div id="messagesInfo" class="ui-messages ui-widget" aria-live="polite"></div>	
+				</div>
+<form id="formConsultaPublica" name="formConsultaPublica" method="post" action="/sncr-web/consultaPublica.jsf?windowId=7b7" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="formConsultaPublica" value="formConsultaPublica" />
+<div id="panelHCaptcha" class="ui-panel ui-widget ui-widget-content ui-corner-all"><div id="panelHCaptcha_content" class="ui-panel-content ui-widget-content">
+			<script src="https://hcaptcha.com/1/api.js"></script></div></div><script id="panelHCaptcha_s" type="text/javascript">PrimeFaces.cw('Panel','widget_panelHCaptcha',{id:'panelHCaptcha'});</script><label id="j_idt56" class="ui-outputlabel">Data da Última Geração: 01/10/2026</label>
+
+		<div class="row my-0">
+			<!-- COLUNA FORMULARIO -->
+			<div class="col-sm-12 col-md-6 col-lg-6">
+             
+				<fieldset>
+					<legend></legend>
+					<div class="row">
+
+						<div class="col-sm-12 col-md-8 col-lg-7 mb-4">
+							<!-- UF SEDE -->
+							<div class="br-input custom-messages"><label id="j_idt58" class="ui-outputlabel" for="selectUf">UF: (Obrigatório)<span class="ui-outputlabel-rfi">*</span></label>
+
+								<!-- TOOLTIP UF --><a id="infoUfSede" name="infoUfSede" href="#">
+									 <i class="fas fa-info-circle" aria-hidden="true"></i></a><div id="j_idt61" class="ui-tooltip ui-widget ui-widget-content ui-shadow ui-corner-all rounder-sm bg-blue-warm-vivid-60 text-pure-0 py-2x px-2x" style="width:20%;"><span class="text">Escolha o estado do município sede dos imóveis rurais.</span></div><script id="j_idt61_s" type="text/javascript">$(function(){PrimeFaces.cw('Tooltip','widget_j_idt61',{id:'j_idt61',showEffect:'fade',hideEffect:'fade',target:'infoUfSede'});});</script>
+									
+								<div class="custom-select" tabindex="0"><select id="selectUf" name="selectUf" size="1" tabindex="0" onchange="PrimeFaces.ab({source:this,event:'change',process:'selectUf',update:'selectMunicipio'}, arguments[1]);">	<option selected="selected">Selecione...</option>
+	<option value="2">Acre</option>
+	<option value="14">Alagoas</option>
+	<option value="6">Amapá</option>
+	<option value="3">Amazonas</option>
+	<option value="16">Bahia</option>
+	<option value="10">Ceará</option>
+	<option value="27">Distrito Federal</option>
+	<option value="18">Espírito Santo</option>
+	<option value="26">Goiás</option>
+	<option value="8">Maranhão</option>
+	<option value="25">Mato Grosso</option>
+	<option value="24">Mato Grosso Do Sul</option>
+	<option value="17">Minas Gerais</option>
+	<option value="5">Pará</option>
+	<option value="12">Paraíba</option>
+	<option value="21">Paraná</option>
+	<option value="13">Pernambuco</option>
+	<option value="9">Piauí</option>
+	<option value="19">Rio De Janeiro</option>
+	<option value="11">Rio Grande Do Norte</option>
+	<option value="23">Rio Grande Do Sul</option>
+	<option value="1">Rondônia</option>
+	<option value="4">Roraima</option>
+	<option value="22">Santa Catarina</option>
+	<option value="20">São Paulo</option>
+	<option value="15">Sergipe</option>
+	<option value="7">Tocantins</option>
+</select>
+								</div>
+							</div>
+							
+						</div>
+
+						<div class="col-sm-12 col-md-8 col-lg-7 mb-4">
+							
+							<!-- MUNICIPIO SEDE -->
+							<div class="br-input custom-messages"><label id="j_idt67" class="ui-outputlabel" for="selectMunicipio">Município: </label>
+
+								<!-- TOOLTIP MUNICIPIO SEDE --><a id="infoMunicipioSede" name="infoMunicipioSede" href="#">
+									 <i class="fas fa-info-circle" aria-hidden="true"></i></a><div id="j_idt70" class="ui-tooltip ui-widget ui-widget-content ui-shadow ui-corner-all rounder-sm bg-blue-warm-vivid-60 text-pure-0 py-2x px-2x" style="width:20%;"><span class="text">Escolha o município sede dos imóveis rurais.</span></div><script id="j_idt70_s" type="text/javascript">$(function(){PrimeFaces.cw('Tooltip','widget_j_idt70',{id:'j_idt70',showEffect:'fade',hideEffect:'fade',target:'infoMunicipioSede'});});</script>
+
+								<div class="custom-select" tabindex="0"><select id="selectMunicipio" name="selectMunicipio" size="1" tabindex="0">	<option selected="selected">Selecione...</option>
+</select>
+								</div>
+
+							</div>
+							
+						</div>
+
+					   	<div class="col-sm-12 col-md-8 col-lg-7 mb-4">
+
+							<!-- IMAGEM CAPTCHA --><span id="containerCaptcha">
+									<div id="captcha" class="h-captcha" data-sitekey="a9ff0054-70b1-4998-980b-f4ac5ecd1c75"></div></span>
+
+							<!-- BOT&Atilde;O DOWNLOAD -->
+							<div class="mt-3"><a id="botaoDownload" href="#" class="ui-commandlink ui-widget br-button primary mb-3" onclick="ocultarDialogCarregando();;PrimeFaces.addSubmitParam('formConsultaPublica',{'botaoDownload':'botaoDownload'}).submit('formConsultaPublica');" tabindex="0">
+									<i class="fas fa-download mr-2" aria-hidden="true"></i>Download</a>
+							</div>
+
+					  	</div>
+					</div>
+					<!-- FIM LINHA INPUTS -->
+				</fieldset>
+			</div>
+			<!-- FIM COLUNA FORMULARIO -->
+
+			<!-- INFO ORIENTACAO -->
+			<div class="col-sm-12 col-md-6 col-lg-6 pl-0">
+
+				<div class="br-card rounder-lg bg-blue-warm-vivid-60 text-pure-0">
+					<div class="card-header">
+						<div class="row">
+							<div class="col-sm-4 col-md-6 col-lg-8">
+								<h5 class="text-pure-0">Observações:</h5>
+							</div>
+						</div>
+					</div>
+					<div class="card-content">
+						<div class="col-auto">
+							<ul class="text-up-01 text-lg-up-02">
+								<li>Utilizar apenas separador ponto e vírgula (;).
+								</li>
+								<li>Utilizar codificação UNICODE(UTF-8).
+								</li>
+								<li>As informações apresentadas são declaratórias.
+								</li>
+								<li>Em caso de mais de um detentor para o mesmo imóvel, o número de linhas da planilha corresponderá ao número de detentores.
+								</li>
+								<li>Imóvel sem área ou com área igual a zero, estão pendentes de atualização no SNCR.
+								</li>
+							</ul>
+						</div>
+
+					</div>
+					<div class="card-footer"></div>
+				</div>
+
+				<!-- BOT&Atilde;O AVALIAR -->
+				<div class="row mb-5 d-flex justify-content-end">
+					<div class="col-sm-12 col-md-auto col-lg-auto mt-2 mt-lg-2">
+<script type="text/javascript" src="/sncr-web/javax.faces.resource/jsf.js.jsf?ln=javax.faces"></script>
+<a id="botaoLAvaliar" href="#" rel="noreferrer noopener" tabindex="0" title="Avaliar" onclick="mojarra.jsfcljs(document.getElementById('formConsultaPublica'),{'botaoLAvaliar':'botaoLAvaliar'},'_blank');return false" class="br-button block secondary">
+                                 <i class="fas fa-star mr-2" aria-hidden="true"></i>Avaliar</a>
+	                    
+					</div>
+				</div>
+			</div>
+            <!-- FIM INFO ORIENTACAO -->
+		</div><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="-3370622241137880709:2276866815195775742" autocomplete="off" />
+</form>
+				
+			</div>
+		</div>
+         </div>
+      </section>
+      
+      
+       <!-- IMPLEMENTADO TEMPLATE INTERNO E EXTERNO-->
+		<footer class="br-footer" id="footer">
+			<div class="container-lg">
+
+<!--RODAPE-->
+
+<div class="d-none d-sm-block">
+     <div class="row align-items-end justify-content-between py-5">
+
+          <div class="col social-network">
+            <p class="text-up-01 text-extra-bold text-uppercase">Redes Sociais</p>
+            <a href="https://www.facebook.com/gov.incra" target="_blank" aria-label="Facebook Incra">
+              <i class="fab fa-facebook-f pr-4" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.instagram.com/gov.incra" target="_blank" aria-label="Instagram Incra">
+                <i class="fab fa-instagram pr-4" aria-hidden="true"></i>
+            </a>
+            <a href="https://twitter.com/gov_incra" target="_blank" aria-label="Twitter Incra">
+                <i class="fab fa-twitter pr-4" aria-hidden="true"></i>
+            </a>            
+          </div>
+          
+          
+          <div class="col-sm-3 col-md-2">
+          </div>
+
+
+          <div class="col assigns text-right">
+             <a href="https://www.gov.br" target="_blank"><img src="/sncr-web/javax.faces.resource/govbr-negativa.svg.jsf?ln=img" alt="Portal Govbr" width="14%" class="ml-4" />
+             </a>
+             <a href="https://www.gov.br/incra" target="_blank"><img src="/sncr-web/javax.faces.resource/logo-incra-negativa.png.jsf?ln=img" alt="Incra" width="18%" class="ml-4" />
+             </a>
+             <a href="https://www.serpro.gov.br/" target="_blank"><img src="/sncr-web/javax.faces.resource/assinatura-serpro-sncr-2025-negativo.png.jsf?ln=img" alt="Serpro" width="20%" class="ml-4" />
+              </a>
+          </div>
+
+
+     </div>
+</div>
+			</div>
+		</footer><script type="text/javascript" src="/sncr-web/javax.faces.resource/core.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/core-instancia-componentes.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/configHeadGoogleAnalytics.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/configHeadGoogleTagManager.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/iframeResizer.min.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/iframe-resizer.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/html5.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/response.min.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/masks.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/jquery.maskMoney.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/jquery.cliqueNaLegenda.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/sncr-interface.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/main.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/browserbackbutton.js.jsf?ln=js"></script><script type="text/javascript" src="/sncr-web/javax.faces.resource/msgUTF8.js.jsf?ln=js"></script></body>
+</html>

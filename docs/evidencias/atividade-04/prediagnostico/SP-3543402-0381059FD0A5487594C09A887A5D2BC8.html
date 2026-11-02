@@ -1,0 +1,124 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Pré-diagnóstico do imóvel</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mut:#66645e;--bd:#e2e0d8;--car:#2f7d4f;--carf:rgba(47,125,79,.08);
+--emb:#c0392b;--alt:#d9822b;--prd:#7b4fb0;--ti:#8d5524;--tq:#0f6e78;--uc:#3d7a1f;--pend:#b3261e;--pendb:#fbe9e7;--ind:#8a5a00;--indb:#fdf1d8;--ok:#1e6b3c;
+--okb:#e3f2e8;--nv:#55575c;--nvb:#ecedef;--inc:#3b4a8a;--incb:#e6e9f6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;
+--mut:#a3a199;--bd:#34332f;--car:#5fbf86;--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;
+--ti:#d9a066;--tq:#5cc6d0;--uc:#8fd16a;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;
+--inc:#9fb0f2;--incb:#1f2440}}
+:root[data-theme="dark"]{--bg:#161614;--card:#1f1f1c;--tx:#ecebe6;--mut:#a3a199;--bd:#34332f;--car:#5fbf86;
+--carf:rgba(95,191,134,.10);--emb:#ff7b6b;--alt:#f3a75a;--prd:#b592e6;--ti:#d9a066;--tq:#5cc6d0;--uc:#8fd16a;--pend:#ff8a80;--pendb:#3a1f1c;--ind:#f2c46b;
+--indb:#352a14;--ok:#7fd3a0;--okb:#1a2e22;--nv:#b6b8bd;--nvb:#2a2b2e;--inc:#9fb0f2;--incb:#1f2440}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);
+font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:28px 16px 60px}
+h1{font:600 26px/1.2 Georgia,serif;margin:4px 0 6px}h2{font:600 18px/1.3 Georgia,serif;margin:0 0 12px}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--mut)}
+.mut{color:var(--mut)}.mono{font-family:Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-top:18px}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.pend{color:var(--pend);background:var(--pendb)}.ind{color:var(--ind);background:var(--indb)}
+.ok{color:var(--ok);background:var(--okb)}.nv{color:var(--nv);background:var(--nvb)}.inc{color:var(--inc);background:var(--incb)}
+.resultado{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.resultado .badge{font-size:16px;padding:6px 16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.fatos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.fato b{display:block;font-size:18px}.fato span{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.tabela{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+svg.mapa{width:100%;height:auto;background:var(--bg);border-radius:8px;border:1px solid var(--bd)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:10px}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.como dt{margin-top:8px}.como dd{margin:2px 0 0;color:var(--mut)}
+.aviso{border-left:4px solid var(--ind);padding:10px 14px;background:var(--indb);border-radius:6px;margin-top:18px}
+.cobertura{font-size:12.5px;color:var(--ind);margin-top:6px}
+a{color:var(--inc)}
+.fluxo{display:grid;grid-template-columns:1fr 28px 230px;gap:10px;align-items:stretch;margin-top:6px}
+.passos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+@media(max-width:860px){.fluxo{grid-template-columns:1fr}.fluxo .seta{transform:rotate(90deg)}}
+.passo{border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.passo .ico{font-size:22px;font-weight:800;line-height:1}.passo b{font-size:14px;color:var(--tx)}
+.passo small{font-size:12.5px;color:var(--mut);line-height:1.35}
+.seta{display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--mut)}
+.veredito{border-radius:10px;padding:12px;display:flex;flex-direction:column;justify-content:center;gap:4px;
+border:2px solid currentColor}.veredito b{font-size:18px}.veredito small{color:var(--mut);font-size:12.5px}
+.regras{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:13px}
+.regras span{padding:3px 10px;border-radius:999px;border:1px solid var(--bd);color:var(--mut)}
+.regras span.vale{border-color:currentColor;font-weight:600}
+.nvlinha{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:13px}
+svg.tempo{width:100%;height:auto;margin-top:6px}
+.matriz td,.matriz th{text-align:center;padding:7px 5px}.matriz th{font-size:10.5px;letter-spacing:.03em}
+.matriz td:first-child,.matriz th:first-child{text-align:left;min-width:210px}.matriz td{font-size:13.5px}
+.matriz .badge{white-space:normal;max-width:140px;line-height:1.25}.matriz .confere{white-space:nowrap}
+.ponto{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
+font-weight:800;font-size:13px}
+.confere{font-size:13px;font-weight:700}.confere.sim{color:var(--ok)}.confere.nao{color:var(--pend)}
+.placar{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:4px 0 14px}
+.placar b{font:600 32px/1 Georgia,serif}
+.anos{display:flex;gap:4px;flex-wrap:wrap}.anos span{font-size:12px;padding:2px 7px;border-radius:6px;
+background:var(--nvb);color:var(--nv)}.anos span.pub{background:var(--okb);color:var(--ok)}
+.anos span.novo{outline:2px solid var(--ok)}
+</style></head><body><main>
+<div class="eyebrow">Pré-diagnóstico de pendências socioambientais</div>
+<h1 class="mono" style="font-size:20px">SP-3543402-0381059FD0A5487594C09A887A5D2BC8</h1><p class="mut">Aguardando análise</p>
+<section class="card"><div class="resultado"><span class="badge ok">sem pendência nas fontes verificadas</span><div><b>Nada encontrado nas fontes verificadas.</b>
+<div class="mut">Gerado em 2026-11-02 12:37:24 · documento do proprietário
+informado (pseudonimizado)</div></div></div>
+<div class="chips"><span class="badge ok">7 sem ocorrência</span><span class="badge nv">3 não verificado</span></div><div class="fatos"><div class="fato"><span>Município</span><b>Ribeirão Preto/SP</b></div><div class="fato"><span>Área (geometria)</span><b>1.551,9 ha</b></div><div class="fato"><span>Status do CAR</span><b>Ativo</b></div><div class="fato"><span>Módulos fiscais</span><b>0,33</b></div><div class="fato"><span>Atualizado no SICAR</span><b>—</b></div><div class="fato"><span>Bioma</span><b>Cerrado, Mata Atlântica</b></div><div class="fato"><span>PRODES publicado até</span><b>2025 <small class="mut">(lote, 31/10/2026)</small></b></div></div></section>
+<section class="card"><h2>Como o resultado foi formado</h2>
+<div class="fluxo"><div class="passos"><div class="passo ok"><span class="ico">✓</span><b>CAR</b><small>sem ocorrência · Ativo</small></div><div class="passo ok"><span class="ico">✓</span><b>Embargo IBAMA</b><small>sem ocorrência · Nenhum embargo dentro do imóvel</small></div><div class="passo ok"><span class="ico">✓</span><b>Desmatamento pós-2020</b><small>sem ocorrência · Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel</small><small class="cobertura">⚠ sem cobertura recente</small></div><div class="passo ok"><span class="ico">✓</span><b>Lista Suja</b><small>sem ocorrência · Documento não consta no Cadastro de Empregadores</small></div><div class="passo ok"><span class="ico">✓</span><b>Terra indígena</b><small>sem ocorrência · Nenhuma sobreposição.</small></div><div class="passo ok"><span class="ico">✓</span><b>Quilombola</b><small>sem ocorrência · Nenhuma sobreposição. Base de 31/07/2022.</small></div><div class="passo ok"><span class="ico">✓</span><b>Unidade de conservação</b><small>sem ocorrência · Nenhuma sobreposição.</small></div></div><div class="seta">→</div>
+<div class="veredito ok"><span class="mut" style="font-size:12px">RESULTADO</span><b>sem pendência nas fontes verificadas</b>
+<small>Nada encontrado nas fontes verificadas</small></div></div>
+<div class="regras"><span class="">1 pendência basta → com pendência</span><span class="">sem pendência, 1 inconclusivo → inconclusivo</span><span class="">sem pendência, 1 indício → com indício</span><span class="ok vale">nada encontrado → sem pendência nas fontes verificadas</span></div>
+<div class="nvlinha nv">? 3 critérios do AB+S sem fonte aberta: <b>não verificados</b>, nunca lidos como conformes</div>
+</section>
+<section class="card grid"><div><h2>Mapa do imóvel</h2><svg class="mapa" viewBox="0 0 640 518" role="img"
+aria-label="Mapa do imóvel com as evidências encontradas">
+<defs><pattern id="hach" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+<rect width="7" height="7" fill="var(--emb)" fill-opacity=".18"/><line x1="0" y1="0" x2="0" y2="7" stroke="var(--emb)"
+stroke-width="2.5"/></pattern><clipPath id="vista"><rect width="640" height="518"/></clipPath></defs>
+<g clip-path="url(#vista)">
+<path d="M316.0,456.0L320.2,454.5L353.7,455.6L363.7,416.8L369.0,394.6L368.2,384.4L370.3,384.1L372.8,383.8L375.1,383.4L387.6,381.9L421.6,374.6L421.2,372.4L420.8,370.4L420.0,367.8L418.9,364.9L417.6,361.6L416.1,358.2L415.4,356.5L415.1,355.6L415.1,353.8L415.3,351.8L416.9,325.9L416.9,320.6L417.1,319.9L417.8,319.6L421.6,319.3L427.1,318.9L430.1,319.0L433.5,318.5L434.8,318.5L438.6,319.2L448.0,324.6L457.2,329.3L459.3,330.2L462.2,331.1L485.1,336.3L489.3,337.0L494.1,337.6L499.5,337.8L501.7,337.6L512.7,335.6L518.0,334.3L524.6,332.0L526.4,331.3L527.1,327.5L528.5,320.7L529.2,318.8L529.5,316.9L529.7,314.7L530.5,311.9L534.7,302.2L538.3,295.3L542.3,289.7L543.4,287.4L544.8,283.8L545.8,280.8L548.7,274.8L549.8,271.6L550.0,271.3L558.0,254.5L562.1,244.0L563.0,242.1L564.5,240.7L565.9,237.3L567.6,233.8L569.8,229.3L571.6,226.1L573.1,222.3L578.1,211.5L576.8,211.5L570.6,211.2L560.5,211.3L549.1,211.2L544.0,210.9L537.0,209.2L528.1,207.4L520.1,204.0L513.0,198.0L506.8,194.5L498.1,191.0L489.2,185.5L481.8,180.6L474.6,176.5L469.4,170.3L462.9,164.6L456.5,160.9L449.3,156.5L441.5,153.3L434.1,149.9L428.1,146.5L419.8,143.9L412.9,142.3L402.9,139.3L395.0,135.3L387.9,131.8L380.3,128.0L374.5,123.0L367.4,117.8L360.1,113.3L354.9,108.2L348.1,103.7L339.9,99.7L333.0,96.7L325.9,94.5L314.9,93.8L308.0,92.8L299.6,92.1L290.8,89.3L282.1,84.5L275.7,79.7L271.9,74.4L268.4,69.6L262.8,65.5L256.1,64.3L249.2,63.0L243.9,62.6L241.0,62.8L239.7,61.9L239.3,62.0L238.3,72.3L238.3,74.4L236.5,91.1L236.0,97.4L235.4,103.8L235.1,109.3L234.3,115.0L231.4,143.6L230.6,155.8L228.0,184.7L227.0,195.1L226.3,200.1L225.4,206.2L225.3,206.7L223.6,207.6L219.7,210.1L215.8,212.6L211.2,215.5L206.8,218.6L201.0,222.3L194.3,226.5L188.8,229.3L186.4,230.8L179.1,233.9L178.8,235.4L178.7,236.1L191.6,247.4L195.9,250.7L198.2,252.2L205.0,255.2L213.9,258.2L224.9,260.7L234.9,263.9L239.1,266.0L243.4,267.2L245.6,268.0L253.9,271.4L256.5,272.7L259.3,276.2L258.4,288.1L258.3,288.8L256.7,311.6L270.8,312.2L275.3,335.0L259.1,331.1L246.0,327.8L240.6,326.5L235.1,325.1L219.6,321.4L206.5,318.3L197.5,316.3L193.8,315.5L190.0,314.6L179.0,312.2L160.1,307.6L152.9,303.9L145.6,300.0L147.4,292.4L148.0,289.7L147.7,286.3L138.2,277.8L129.1,270.7L126.9,269.9L121.3,270.6L116.9,273.6L113.0,273.3L111.8,273.7L111.1,274.3L109.9,275.0L106.9,278.4L105.3,279.3L103.0,276.6L85.7,284.1L67.1,292.6L67.2,295.2L65.9,303.5L65.2,306.9L66.2,311.7L65.3,316.3L66.2,320.4L68.6,323.1L68.3,326.5L67.1,330.4L67.1,331.8L63.0,335.6L63.0,339.1L62.7,342.4L61.9,346.2L63.1,350.1L65.0,353.0L63.4,356.1L64.4,360.6L63.9,364.9L64.3,366.6L64.3,367.6L86.5,375.6L119.1,386.5L149.5,397.0L172.7,404.9L291.2,445.0L302.1,448.5L303.7,449.1L305.0,449.6L306.2,450.0L307.5,450.5L308.5,451.0L309.3,451.5L310.8,452.3L311.9,453.0L313.1,453.6L314.9,455.0L316.0,456.0Z" fill="var(--carf)" stroke="var(--car)" stroke-width="2.5" fill-rule="evenodd"/>
+</g>
+<g transform="translate(16,500)"><rect width="79.1" height="5" fill="var(--tx)"/>
+<text y="-6" font-size="12" fill="var(--tx)">1 km</text></g>
+<text x="624" y="26" text-anchor="end" font-size="14" font-weight="700" fill="var(--tx)">N ↑</text>
+</svg>
+<div class="legenda"><span><i style="border:2px solid var(--car);background:var(--carf)"></i>perímetro do CAR</span>
+<span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span><span><i style="background:var(--alt)"></i>alerta
+DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span><span><i
+style="border:2px dashed var(--ti)"></i>terra indígena (T)</span><span><i style="border:2px dashed var(--tq)"></i>quilombola
+(Q)</span><span><i style="border:2px dashed var(--uc)"></i>unidade de conservação (U)</span><span class="mut">mais
+claro: na divisa, não atribuído</span></div></div>
+<div><h2>Como ler esta ficha</h2><dl class="como"><dt><span class="badge pend">pendência</span></dt><dd>Encontrada numa fonte oficial e impede crédito rural ou venda sob a EUDR.</dd><dt><span class="badge ind">indício</span></dt><dd>Algo foi encontrado, mas precisa de conferência antes de virar pendência.</dd><dt><span class="badge ok">sem ocorrência</span></dt><dd>A fonte foi consultada e não há nada contra o imóvel.</dd><dt><span class="badge nv">não verificado</span></dt><dd>Não há fonte aberta integrada; nunca é lido como “conforme”.</dd><dt><span class="badge inc">inconclusivo</span></dt><dd>Falta uma entrada (o CAR não foi localizado) ou a fonte não respondeu; nunca é lido como “sem ocorrência”.</dd></dl></div></section><section class="card"><h2>Linha do tempo</h2>
+<svg class="tempo" viewBox="0 0 1040 218" role="img" aria-label="Datas das evidências e data de corte">
+<defs><pattern id="aguarda" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+<line x1="0" y1="0" x2="0" y2="8" stroke="var(--prd)" stroke-opacity=".25" stroke-width="3"/></pattern></defs>
+<rect x="128" y="38" width="223.8" height="146" fill="var(--nvb)" opacity=".6"/><rect x="351.8" y="38" width="672.2" height="146" fill="var(--pendb)" opacity=".55"/><text x="240" y="30" text-anchor="middle" font-size="12" fill="var(--mut)">antes do corte: não conta</text><text x="696" y="30" text-anchor="middle" font-size="12" fill="var(--pend)" font-weight="600">depois de 31/12/2020: conta para a EUDR</text><rect x="864.9" y="134" width="159.1" height="46" fill="url(#aguarda)"/><line x1="864.9" x2="864.9" y1="38" y2="184" stroke="var(--prd)" stroke-dasharray="3 3"/><text x="860.9" y="214" text-anchor="end" font-size="11" fill="var(--prd)">PRODES publicado até 31/07/2025</text><line x1="128.0" x2="128.0" y1="184" y2="189" stroke="var(--mut)"/><text x="183.5" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2019</text><line x1="239.9" x2="239.9" y1="184" y2="189" stroke="var(--mut)"/><text x="295.7" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2020</text><line x1="352.2" x2="352.2" y1="184" y2="189" stroke="var(--mut)"/><text x="407.7" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2021</text><line x1="464.1" x2="464.1" y1="184" y2="189" stroke="var(--mut)"/><text x="519.6" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2022</text><line x1="576.0" x2="576.0" y1="184" y2="189" stroke="var(--mut)"/><text x="631.5" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2023</text><line x1="687.9" x2="687.9" y1="184" y2="189" stroke="var(--mut)"/><text x="743.7" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2024</text><line x1="800.2" x2="800.2" y1="184" y2="189" stroke="var(--mut)"/><text x="855.7" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2025</text><line x1="912.1" x2="912.1" y1="184" y2="189" stroke="var(--mut)"/><text x="967.6" y="201" text-anchor="middle" font-size="11" fill="var(--mut)">2026</text><line x1="1024.0" x2="1024.0" y1="184" y2="189" stroke="var(--mut)"/><line x1="128" x2="1024" y1="184" y2="184" stroke="var(--bd)"/><text x="118" y="69" text-anchor="end" font-size="12.5" fill="var(--tx)" font-weight="600">Embargos IBAMA</text><text x="118" y="115" text-anchor="end" font-size="12.5" fill="var(--tx)" font-weight="600">Alertas DETER</text><text x="118" y="161" text-anchor="end" font-size="12.5" fill="var(--tx)" font-weight="600">PRODES</text><line x1="351.8" x2="351.8" y1="38" y2="189" stroke="var(--pend)" stroke-width="2.5"/><text x="355.8" y="214" font-size="11" font-weight="700" fill="var(--pend)">corte EUDR</text></svg>
+<div class="legenda"><span><i style="background:var(--nvb)"></i>antes do corte</span><span><i
+style="background:var(--pendb)"></i>depois do corte</span><span><i style="background:repeating-linear-gradient(45deg,
+var(--prd) 0 2px,transparent 2px 6px);opacity:.5"></i>alerta ainda sem PRODES publicado: só indício</span></div>
+</section>
+<section class="card"><h2>Critérios</h2><div class="tabela"><table><thead><tr><th>Critério</th><th>Situação</th><th>Evidência</th><th>Encaminhamento</th><th>Fonte</th></tr></thead><tbody><tr><td>CAR<div class="mut">AB+S nº 3</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Ativo · Aguardando análise</td><td>—</td><td>SICAR</td></tr><tr><td>Embargo IBAMA<div class="mut">AB+S nº 7</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Nenhum embargo dentro do imóvel</td><td>—</td><td>IBAMA</td></tr><tr><td>Desmatamento após 31/12/2020 (EUDR)<div class="mut">EUDR</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel<div class="cobertura">⚠ Mata Atlântica sem DETER: sem cobertura de 14/09/2025 até hoje (o próximo PRODES cobre esse período)</div></td><td>—</td><td>INPE DETER e PRODES</td></tr><tr><td>Lista Suja (trabalho escravo)<div class="mut">AB+S nº 4</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Documento não consta no Cadastro de Empregadores</td><td>—</td><td>MTE</td></tr><tr><td>Sobreposição: terras indígenas<div class="mut">AB+S nº 5</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Nenhuma sobreposição.</td><td>—</td><td>FUNAI</td></tr><tr><td>Sobreposição: território quilombola<div class="mut">AB+S nº 6</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Nenhuma sobreposição. Base de 31/07/2022.</td><td>—</td><td>IBGE (Censo 2022)</td></tr><tr><td>Sobreposição: unidade de conservação<div class="mut">AB+S nº 9</div></td><td><span class="badge ok">sem ocorrência</span></td><td>Nenhuma sobreposição.</td><td>—</td><td>MMA (CNUC)</td></tr><tr><td>Fundiária: dados cadastrais<div class="mut">AB+S nº 1</div></td><td><span class="badge nv">não verificado</span></td><td>A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral</td><td>Conferir no relatório do AgroBrasil+Sustentável do produtor.</td><td>INCRA (SNCR)</td></tr><tr><td>Fundiária: dados geoespaciais<div class="mut">AB+S nº 2</div></td><td><span class="badge nv">não verificado</span></td><td>Acervo do INCRA sem endereço público desde out./2026 e com login gov.br</td><td>Conferir no relatório do AgroBrasil+Sustentável do produtor.</td><td>SIGEF-GEO (INCRA)</td></tr><tr><td>Sobreposição: CAR x SIGEF-GEO<div class="mut">AB+S nº 8</div></td><td><span class="badge nv">não verificado</span></td><td>Depende do critério 2</td><td>Conferir no relatório do AgroBrasil+Sustentável do produtor.</td><td>CAR e SIGEF-GEO</td></tr></tbody></table></div></section>
+
+<section class="card"><h2>Embargos do IBAMA</h2><p class="mut">Nenhum embargo encontrado pelo polígono, pela coordenada ou pelo documento.</p></section>
+<section class="card"><h2>Alertas DETER (desde 01/01/2021)</h2><p class="mut">Nenhum alerta DETER toca o imóvel.</p></section>
+<section class="card"><h2>PRODES após 2020</h2><p class="mut">Nenhum polígono PRODES de 2021 em diante toca o imóvel.</p>
+<p class="mut">O ano PRODES 2021 vai de 01/08/2020 a 31/07/2021 e começa antes da data de corte: sozinho, conta como
+indício. De 2022 em diante, o desmatamento é posterior a 31/12/2020.</p></section>
+<section class="card"><h2>Áreas protegidas</h2>
+<h3 style="font-size:15px;margin:4px 0 8px">Terras indígenas (FUNAI)</h3><p class="mut">Nenhuma terra indígena toca o imóvel.</p>
+<h3 style="font-size:15px;margin:16px 0 8px">Territórios quilombolas (IBGE, base de 31/07/2022)</h3><p class="mut">Nenhum território quilombola delimitado toca o imóvel.</p>
+<h3 style="font-size:15px;margin:16px 0 8px">Unidades de conservação (CNUC/MMA)</h3><p class="mut">Nenhuma unidade de conservação toca o imóvel.</p>
+<p class="mut">Classe: sobreposição atinge ao menos 5% do imóvel ou uma faixa mais larga que 30 m; tangente é contato de
+borda (diferença de desenho) e não conta. APA, ARIE e RPPN admitem propriedade privada: a sobreposição é indício.</p>
+</section>
+<section class="card"><h2>Procedência das evidências</h2><div class="tabela"><table><thead><tr><th>Fonte</th><th>Como</th><th>Data</th><th>SHA-256</th><th>Arquivo</th></tr></thead><tbody><tr><td>FUNAI, terras indígenas (WFS, em lote)</td><td>lote</td><td>2026-10-31</td><td><span class="mono">ee8df87a9be9018e…</span></td><td><span class="mono">data/processed/funai_terras_indigenas.parquet</span></td></tr><tr><td>MMA, CNUC (shapefile, em lote)</td><td>lote</td><td>2026-10-31</td><td><span class="mono">97d754c1e01881d5…</span></td><td><span class="mono">data/processed/mma_unidades_conservacao.parquet</span></td></tr><tr><td>IBGE, territórios quilombolas 2022 (shapefile, em lote)</td><td>lote</td><td>2026-10-31</td><td><span class="mono">083d209197cc57a3…</span></td><td><span class="mono">data/processed/ibge_territorios_quilombolas.parquet</span></td></tr><tr><td>INPE PRODES (lote, partição SP)</td><td>lote, verificação mensal</td><td>verificado em 2026-10-31</td><td><span class="mono">e2b146a345116616…</span></td><td><span class="mono">data/processed/inpe_prodes/uf=SP/part.parquet</span></td></tr><tr><td>SICAR (WFS)</td><td>sob demanda</td><td>2026-10-30</td><td><span class="mono">8ffb4da6e4253f39…</span></td><td><span class="mono">data/raw/sicar/sp/codigo_bfdeac831ac6a306.geojson.gz</span></td></tr></tbody></table></div></section>
+<div class="aviso">Pré-diagnóstico feito só com bases públicas, com a evidência de cada pendência. Não é atestado de
+conformidade: critério sem fonte aberta aparece como &ldquo;não verificado&rdquo;, e o encaminhamento é uma orientação
+para o técnico.</div>
+</main></body></html>

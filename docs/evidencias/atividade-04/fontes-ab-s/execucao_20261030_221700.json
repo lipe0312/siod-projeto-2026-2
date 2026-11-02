@@ -1,0 +1,369 @@
+{
+  "inicio": "2026-10-30 22:17:00",
+  "comando": "python -m pipeline --fontes terras_indigenas unidades_conservacao quilombolas --evidencia docs/evidencias/atividade-04/fontes-ab-s",
+  "duracao_segundos": 5.6,
+  "status": "ok",
+  "parametros": {
+    "fontes": [
+      "terras_indigenas",
+      "unidades_conservacao",
+      "quilombolas"
+    ],
+    "desde": "2021-01-01",
+    "atualizar": false,
+    "verificar_prodes": false
+  },
+  "fontes": [
+    {
+      "fonte": "funai_terras_indigenas",
+      "tipo_dado": "API (WFS/GeoJSON)",
+      "entrada": {
+        "servico": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+        "camada": "Funai:tis_poligonais",
+        "arquivo": "data/raw/funai/tis_poligonais.json.gz",
+        "consultado_em_utc": "2026-10-31T00:51:04+00:00",
+        "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+        "anunciado": 665,
+        "registros_recebidos": 665
+      },
+      "transformacoes": [
+        "Uma requisição com count (o serviço recusa pedido sem count); cadeia de certificado completada pelo endereço AIA, com verificação",
+        "Conversão de cada feature GeoJSON em linha: propriedades e geometria"
+      ],
+      "validacoes": [
+        {
+          "codigo": "TI_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta é FeatureCollection com lista de features",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_RESPOSTA_INCOMPLETA",
+          "descricao": "Recebido diferente do numberMatched anunciado pelo serviço",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte; repetir",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_CRS_INESPERADO",
+          "descricao": "CRS diferente de EPSG::4674 (SIRGAS 2000)",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_GEOM_AUSENTE",
+          "descricao": "Feição sem geometria",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 665,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid antes de qualquer interseção",
+          "verificados": 665,
+          "ocorrencias": 2
+        },
+        {
+          "codigo": "TI_CODIGO_DUPLICADO",
+          "descricao": "terrai_codigo repetido",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 665,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_FASE_FORA_DO_DOMINIO",
+          "descricao": "fase_ti fora de Em Estudo, Delimitada, Declarada, Homologada, Regularizada, Encaminhada RI",
+          "severidade": "alerta",
+          "tratamento": "mantida; tratada como terra indígena delimitada",
+          "verificados": 665,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_UF_INVALIDA",
+          "descricao": "uf_sigla vazia ou com sigla que não é UF (a TI pode ter mais de uma UF)",
+          "severidade": "alerta",
+          "tratamento": "mantida; a UF vem do contorno no cruzamento",
+          "verificados": 665,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TI_DATA_ATUALIZACAO_AUSENTE",
+          "descricao": "data_atualizacao vazia ou fora do formato DD/MM/AAAA",
+          "severidade": "alerta",
+          "tratamento": "mantida; a ficha cita a data da coleta",
+          "verificados": 665,
+          "ocorrencias": 143
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/funai_terras_indigenas.parquet",
+        "registros_produzidos": 665,
+        "registros_descartados": 0,
+        "registros_com_alerta": 143,
+        "por_fase": {
+          "Regularizada": 494,
+          "Declarada": 73,
+          "Delimitada": 45,
+          "Encaminhada RI": 28,
+          "Homologada": 17,
+          "Em Estudo": 8
+        },
+        "colunas": [
+          "terrai_codigo",
+          "nome",
+          "etnia",
+          "fase",
+          "modalidade",
+          "uf",
+          "municipio",
+          "superficie_ha",
+          "data_atualizacao",
+          "geometria_wkt",
+          "alertas"
+        ]
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "mma_unidades_conservacao",
+      "tipo_dado": "tabular geoespacial (shapefile)",
+      "entrada": {
+        "conjunto": "unidadesdeconservacao",
+        "recurso": "Polígono CNUC 2025_08",
+        "recurso_criado_em": "2025-09-03T17:34:39.462912",
+        "catalogo_consultado_em_utc": "2026-10-30T23:53:20+00:00",
+        "arquivo": "data/raw/cnuc/shp_cnuc_2025_08.zip",
+        "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+        "baixado_em_utc": "2026-10-31T00:53:19+00:00",
+        "cabecalho_http": {
+          "Content-Type": "application/zip",
+          "Last-Modified": "Wed, 03 Sep 2025 17:34:39 GMT",
+          "Content-Length": null
+        },
+        "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+        "tamanho_bytes": 45856979,
+        "registros_recebidos": 3302,
+        "poligonos": 3122,
+        "pontos": 180
+      },
+      "transformacoes": [
+        "Recurso escolhido pelo CKAN: o shapefile mais recente em dados.mma.gov.br (Polígono CNUC 2025_08)",
+        "Camadas de polígonos e de pontos juntas; grupo dos pontos (PI/US) por extenso"
+      ],
+      "validacoes": [
+        {
+          "codigo": "UC_CRS_INESPERADO",
+          "descricao": "Sistema de referência diferente de SIRGAS 2000 no .prj",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UC_PONTOS_CRS_INESPERADO",
+          "descricao": "Sistema de referência diferente de SIRGAS 2000 no .prj",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UC_TEXTO_TRUNCADO",
+          "descricao": "Texto do DBF cortado no meio de um caractere UTF-8",
+          "severidade": "correcao",
+          "tratamento": "lido com o caractere de substituição",
+          "verificados": 3122,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "UC_GEOM_AUSENTE",
+          "descricao": "Feição sem geometria",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 3302,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "UC_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid antes de qualquer interseção",
+          "verificados": 3301,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UC_CODIGO_DUPLICADO",
+          "descricao": "cd_cnuc repetido (entre polígonos e pontos)",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 3302,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UC_GRUPO_FORA_DO_DOMINIO",
+          "descricao": "grupo fora de Proteção Integral, Uso Sustentável",
+          "severidade": "alerta",
+          "tratamento": "mantida; tratada como proteção integral (pendência)",
+          "verificados": 3301,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UC_SO_PONTO",
+          "descricao": "UC sem limite no CNUC, só com um ponto de localização",
+          "severidade": "alerta",
+          "tratamento": "mantida; ponto dentro do imóvel é indício",
+          "verificados": 3301,
+          "ocorrencias": 180
+        },
+        {
+          "codigo": "UC_POLIGONO_ESQUEMATICO",
+          "descricao": "Polígono é representação esquemática da localização da UC",
+          "severidade": "alerta",
+          "tratamento": "mantida; sobreposição vira indício",
+          "verificados": 3301,
+          "ocorrencias": 99
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/mma_unidades_conservacao.parquet",
+        "registros_produzidos": 3301,
+        "registros_descartados": 1,
+        "registros_com_alerta": 279,
+        "por_grupo": {
+          "Uso Sustentável": 2236,
+          "Proteção Integral": 1065
+        },
+        "colunas": [
+          "cd_cnuc",
+          "nome",
+          "categoria",
+          "grupo",
+          "esfera",
+          "uf",
+          "orgao_gestor",
+          "ano_criacao",
+          "qualidade_poligono",
+          "so_ponto",
+          "geometria_wkt",
+          "alertas"
+        ]
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "ibge_territorios_quilombolas",
+      "tipo_dado": "tabular geoespacial (shapefile)",
+      "entrada": {
+        "arquivo": "data/raw/ibge_territorios_quilombolas.zip",
+        "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+        "baixado_em_utc": "2026-10-31T00:53:24+00:00",
+        "cabecalho_http": {
+          "Content-Type": "application/zip",
+          "Last-Modified": "Fri, 22 Dec 2023 12:41:44 GMT",
+          "Content-Length": "2163151"
+        },
+        "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+        "tamanho_bytes": 2163151,
+        "data_referencia": "2022-07-31",
+        "registros_recebidos": 495
+      },
+      "transformacoes": [
+        "Leitura do shapefile; coordenada Z descartada (polígonos 2D)"
+      ],
+      "validacoes": [
+        {
+          "codigo": "TQ_CRS_INESPERADO",
+          "descricao": "Sistema de referência diferente de SIRGAS 2000 no .prj",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_TEXTO_TRUNCADO",
+          "descricao": "Texto do DBF cortado no meio de um caractere UTF-8",
+          "severidade": "correcao",
+          "tratamento": "lido com o caractere de substituição",
+          "verificados": 495,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_GEOM_AUSENTE",
+          "descricao": "Feição sem geometria",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 495,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid antes de qualquer interseção",
+          "verificados": 495,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_CODIGO_DUPLICADO",
+          "descricao": "COD_TQ repetido",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 495,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_SITUACAO_FORA_DO_DOMINIO",
+          "descricao": "STATUS fora de ESTUDO TÉCNICO, RTID, DELIMITADO, PORTARIA, DECRETO, TITULADO",
+          "severidade": "alerta",
+          "tratamento": "mantido; tratado como território delimitado",
+          "verificados": 495,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "TQ_UF_INVALIDA",
+          "descricao": "SG_UF que não é sigla de UF",
+          "severidade": "alerta",
+          "tratamento": "mantido",
+          "verificados": 495,
+          "ocorrencias": 0
+        }
+      ],
+      "saida": {
+        "arquivo": "data/processed/ibge_territorios_quilombolas.parquet",
+        "registros_produzidos": 495,
+        "registros_descartados": 0,
+        "registros_com_alerta": 0,
+        "por_situacao": {
+          "TITULADO": 147,
+          "RTID": 138,
+          "DECRETO": 82,
+          "PORTARIA": 72,
+          "ESTUDO TÉCNICO": 40,
+          "DELIMITADO": 16
+        },
+        "colunas": [
+          "cod_tq",
+          "nome",
+          "situacao",
+          "uf",
+          "data_referencia",
+          "geometria_wkt",
+          "alertas"
+        ]
+      },
+      "status": "ok",
+      "mensagem": ""
+    }
+  ]
+}

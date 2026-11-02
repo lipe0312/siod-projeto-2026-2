@@ -1,0 +1,37 @@
+{
+ "PA Paragominas (Amazônia)": {
+  "s": 102.7,
+  "car": "PA-1505502-D0CAA14AD3D349D7BCA887F8A15D861E",
+  "erro": "HTTPError: WFS respondeu HTTP 502 para BBOX(geom,-3.1641828,-47.60576639,-3.08604917,-47.56974083) AND year=2020"
+ },
+ "MT Sorriso (Amazônia/Cerrado)": {
+  "s": 41.2,
+  "car": "MT-5107925-7B98698040DE4C439D7B67CDA0EDDC60",
+  "erro": "HTTPError: WFS respondeu HTTP 502 para BBOX(geom,-12.5411675,-55.69459444,-12.47281194,-55.56480611) AND year=2019"
+ },
+ "BA Juazeiro (Caatinga)": {
+  "s": 69.5,
+  "car": "BA-2918407-1689993146174173AC37FC0818E09A85",
+  "erro": "HTTPError: WFS respondeu HTTP 502 para BBOX(geom,-9.4021168,-40.3537471,-9.37533442,-40.34935552) AND year=2020"
+ },
+ "RS Rosário do Sul (Pampa)": {
+  "s": 65.8,
+  "car": "RS-4317103-9D7ED9AE1A034779AF519FCDEE36FFB6",
+  "erro": "HTTPError: WFS respondeu HTTP 502 para BBOX(geom,-30.92666809,-55.50353052,-30.91889462,-55.48664611) AND year=2023"
+ },
+ "MS Corumbá (Pantanal)": {
+  "s": 81.8,
+  "car": "MS-5003207-620BD0D082F34232BBBFCF2F71811690",
+  "erro": "HTTPError: 502 Server Error: Bad Gateway for url: https://terrabrasilis.dpi.inpe.br/geoserver/prodes-cerrado-nb/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=prodes-cerrado-nb%3Ayearly_deforestation&resultType=hits&CQL_FILTER=year%3D2026"
+ },
+ "SP Ribeirão Preto (Mata Atlântica/Cerrado)": {
+  "s": 86.4,
+  "car": "SP-3543402-0381059FD0A5487594C09A887A5D2BC8",
+  "erro": "HTTPError: 502 Server Error: Bad Gateway for url: https://terrabrasilis.dpi.inpe.br/geoserver/prodes-cerrado-nb/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=prodes-cerrado-nb%3Ayearly_deforestation&resultType=hits&CQL_FILTER=year%3D2026"
+ },
+ "PR Cascavel (Mata Atlântica)": {
+  "s": 49.9,
+  "car": "PR-4104808-358E3C8A7E234C429B2AA0F3F683B005",
+  "erro": "HTTPError: WFS respondeu HTTP 502 para BBOX(geom,-24.90692946,-53.41394802,-24.88705212,-53.39673034) AND year=2019"
+ }
+}

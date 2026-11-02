@@ -1,0 +1,223 @@
+{
+  "consulta": {
+    "cod_imovel": "PA-1506807-C4579B9B17F64708B80882FC553E51FE",
+    "lat": null,
+    "lon": null,
+    "documento_informado": true,
+    "gerado_em": "2026-11-02 12:37:26",
+    "prodes": {
+      "origem": "lote",
+      "uf": "PA",
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      },
+      "ultima_imagem": {
+        "amazonia": "2025-08-27",
+        "cerrado": "2026-08-12"
+      },
+      "verificado_em": "2026-10-31",
+      "proxima_verificacao": "2026-11-29",
+      "ultimo_ano_do_imovel": 2025
+    },
+    "biomas": [
+      "amazonia"
+    ]
+  },
+  "imovel": {
+    "cod_imovel": "PA-1506807-C4579B9B17F64708B80882FC553E51FE",
+    "uf": "PA",
+    "cod_municipio": "1506807",
+    "municipio": "Santarém",
+    "tipo_imovel": "IRU",
+    "status_imovel": "PE",
+    "condicao": "Analisado, aguardando atendimento a notificação",
+    "area_geom_ha": 58.1401920801942,
+    "m_fiscal": 0.7725,
+    "fracao_coberta_por_outros": 0.0,
+    "data_atualizacao": "2026-07-21",
+    "status_texto": "Pendente"
+  },
+  "resultado": {
+    "situacao": "com pendência",
+    "resumo": "1 pendência(s) com causa e fonte identificadas",
+    "contagem": {
+      "pendência": 1,
+      "indício": 1,
+      "sem ocorrência": 5,
+      "não verificado": 3,
+      "inconclusivo": 0
+    }
+  },
+  "criterios": [
+    {
+      "chave": "car",
+      "criterio": "CAR",
+      "criterio_ab_s": 3,
+      "situacao": "indício",
+      "evidencia": "Pendente · Analisado, aguardando atendimento a notificação",
+      "encaminhamento": "Acessar a central do proprietário no SICAR e responder às notificações pendentes.",
+      "fonte": "SICAR",
+      "aviso": null
+    },
+    {
+      "chave": "embargo",
+      "criterio": "Embargo IBAMA",
+      "criterio_ab_s": 7,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum embargo dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "IBAMA",
+      "aviso": null
+    },
+    {
+      "chave": "desmatamento",
+      "criterio": "Desmatamento após 31/12/2020 (EUDR)",
+      "criterio_ab_s": null,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "INPE DETER e PRODES",
+      "aviso": null
+    },
+    {
+      "chave": "lista_suja",
+      "criterio": "Lista Suja (trabalho escravo)",
+      "criterio_ab_s": 4,
+      "situacao": "sem ocorrência",
+      "evidencia": "Documento não consta no Cadastro de Empregadores",
+      "encaminhamento": "—",
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "pendência",
+      "evidencia": "1 sobreposição(ões): Território Saracura (portaria; 58.1 ha, 100% do imóvel). Base de 31/07/2022.",
+      "encaminhamento": "Sobreposição com território quilombola delimitado impede a qualificação no AgroBrasil+Sustentável. Conferir o limite com o INCRA (a base aberta é a do IBGE de 31/07/2022).",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_1",
+      "criterio": "Fundiária: dados cadastrais",
+      "criterio_ab_s": 1,
+      "situacao": "não verificado",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_2",
+      "criterio": "Fundiária: dados geoespaciais",
+      "criterio_ab_s": 2,
+      "situacao": "não verificado",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_8",
+      "criterio": "Sobreposição: CAR x SIGEF-GEO",
+      "criterio_ab_s": 8,
+      "situacao": "não verificado",
+      "evidencia": "Depende do critério 2",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
+    }
+  ],
+  "evidencias": {
+    "embargos": [],
+    "alertas": [],
+    "prodes": [],
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [
+      {
+        "cod_tq": "213",
+        "nome": "Saracura",
+        "situacao": "PORTARIA",
+        "uf": "PA",
+        "data_referencia": "2022-07-31T00:00:00.000",
+        "alertas": "",
+        "inter_ha": 58.1401920802,
+        "fracao_car": 1.0,
+        "largura_m": 266.8409251914,
+        "classe": "sobreposição"
+      }
+    ],
+    "unidade_conservacao": []
+  },
+  "geometria_car": "MULTIPOLYGON (((-54.58827896 -2.41695825, -54.58474887 -2.42095432, -54.58420645 -2.42200431, -54.58263298 -2.42740148, -54.58144795 -2.43205632, -54.58180038 -2.43237585, -54.58578133 -2.42996036, -54.585798 -2.42747302, -54.58585673 -2.4254453, -54.58643798 -2.42307513, -54.59137037 -2.41897887, -54.58827896 -2.41695825)))",
+  "procedencia": [
+    {
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição PA)",
+      "como": "lote, verificação mensal",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
+      "data": "verificado em 2026-10-31",
+      "sha256": "de77f334a02a281b2f597eef084857c9a292344087654fa72954c2c4007afd4b",
+      "arquivo": "data/processed/inpe_prodes/uf=PA/part.parquet"
+    },
+    {
+      "fonte": "SICAR (WFS)",
+      "como": "sob demanda",
+      "url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+      "data": "2026-10-31",
+      "sha256": "a8e250e03c0c0317bb22839258fc38db3dbf7c6e2c8f4f70a9b218d8d600c4ae",
+      "arquivo": "data/raw/sicar/pa/codigo_15247a206dfd4ac6.geojson.gz"
+    }
+  ]
+}

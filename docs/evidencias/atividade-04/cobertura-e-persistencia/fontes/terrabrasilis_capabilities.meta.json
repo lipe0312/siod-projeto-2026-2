@@ -1,0 +1,15 @@
+{
+  "url": "https://terrabrasilis.dpi.inpe.br/geoserver/ows",
+  "parametros": {
+    "service": "WFS",
+    "version": "2.0.0",
+    "request": "GetCapabilities"
+  },
+  "url_completa": "https://terrabrasilis.dpi.inpe.br/geoserver/ows?service=WFS&version=2.0.0&request=GetCapabilities",
+  "consultado_em_utc": "2026-10-30T23:49:01+00:00",
+  "status_http": 200,
+  "segundos": 0.228,
+  "content_type": "application/xml",
+  "tamanho_bytes": 171394,
+  "sha256": "3f52f55f806e7ecd79feeb10e159e0ca8d4841711b5e63f83f814018235d340e"
+}

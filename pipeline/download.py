@@ -4,11 +4,14 @@ import gzip
 import hashlib
 import json
 import logging
+import ssl
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import certifi
 import requests
+from requests.adapters import HTTPAdapter
 
 from pipeline import config
 
@@ -20,6 +23,30 @@ TIMEOUT = (30, 120)  # conexão, e espera máxima entre blocos recebidos
 
 class DownloadIncompleto(Exception):
     """Arquivo recebido com tamanho diferente do informado pelo servidor."""
+
+
+class AdaptadorComIntermediario(HTTPAdapter):
+    """Raízes do certifi mais um certificado intermediário que o servidor deixou de enviar. A verificação continua
+    ligada: o intermediário só completa a cadeia até uma raiz do certifi."""
+
+    def __init__(self, intermediario_pem: str, **kwargs):
+        self.intermediario_pem = intermediario_pem
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, *args, **kwargs):
+        contexto = ssl.create_default_context(cafile=certifi.where())
+        contexto.load_verify_locations(cadata=self.intermediario_pem)
+        kwargs["ssl_context"] = contexto
+        return super().init_poolmanager(*args, **kwargs)
+
+
+def sessao_com_intermediario(prefixo: str, url_intermediario: str) -> requests.Session:
+    """Sessão para `prefixo` (ex.: https://geoserver.funai.gov.br) com o intermediário baixado de `url_intermediario`
+    (o endereço AIA do certificado do servidor, em DER)."""
+    der = requests.get(url_intermediario, timeout=TIMEOUT, headers={"User-Agent": config.USER_AGENT}).content
+    sessao = requests.Session()
+    sessao.mount(prefixo, AdaptadorComIntermediario(ssl.DER_cert_to_PEM_cert(der)))
+    return sessao
 
 
 def sha256(caminho: Path) -> str:

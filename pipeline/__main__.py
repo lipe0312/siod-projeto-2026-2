@@ -12,13 +12,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline import config, relatorio
+from pipeline import config, relatorio, territorio
 from pipeline.documentos import carregar_chave
-from pipeline.fontes import ibama_embargos, inpe_deter, inpe_prodes, mte_lista_suja
+from pipeline.fontes import (funai_terras_indigenas, ibama_embargos, ibge_territorios_quilombolas, inpe_deter,
+                             inpe_prodes, mma_unidades_conservacao, mte_lista_suja)
 from pipeline.municipios import carregar_referencia
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
 
-FONTES = ("ibama", "deter", "prodes", "lista_suja")
+FONTES = ("ibama", "deter", "prodes", "lista_suja", "terras_indigenas", "unidades_conservacao", "quilombolas")
 ARQ_PROCEDENCIA = config.DADOS_PROCESSADOS / "procedencia_fontes.json"
 log = logging.getLogger("pipeline")
 
@@ -88,10 +89,24 @@ def main(argv=None) -> int:
         else:
             rodar("inpe_deter", "API (WFS/GeoJSON)", lambda: inpe_deter.executar(ref, hoje, args.desde, args.atualizar))
     if "prodes" in args.fontes:
-        rodar("inpe_prodes", "API (WFS/GeoJSON)",
-              lambda: inpe_prodes.executar(hoje, args.atualizar, args.verificar_prodes))
+        # A referência territorial (contorno das UFs e dos biomas) recorta o PRODES por UF.
+        r_territorio = rodar("territorio", "API (GeoJSON), referência", lambda: territorio.carregar(args.atualizar))
+        if r_territorio.status == "ok":
+            rodar("inpe_prodes", "API (WFS/GeoJSON)",
+                  lambda: inpe_prodes.executar(hoje, args.atualizar, args.verificar_prodes))
+        else:
+            resultados.append(ResultadoFonte("inpe_prodes", "API (WFS/GeoJSON)", status="erro",
+                                             mensagem="referência territorial (UFs e biomas) indisponível"))
     if "lista_suja" in args.fontes:
         rodar("mte_lista_suja", "documento (PDF)", lambda: mte_lista_suja.executar(chave, hoje, args.atualizar))
+    if "terras_indigenas" in args.fontes:
+        rodar("funai_terras_indigenas", "API (WFS/GeoJSON)", lambda: funai_terras_indigenas.executar(args.atualizar))
+    if "unidades_conservacao" in args.fontes:
+        rodar("mma_unidades_conservacao", "tabular geoespacial (shapefile)",
+              lambda: mma_unidades_conservacao.executar(args.atualizar))
+    if "quilombolas" in args.fontes:
+        rodar("ibge_territorios_quilombolas", "tabular geoespacial (shapefile)",
+              lambda: ibge_territorios_quilombolas.executar(args.atualizar))
 
     status = "ok" if all(r.status == "ok" for r in resultados) else "erro"
     execucao = {"inicio": inicio.strftime("%Y-%m-%d %H:%M:%S"), "comando": comando.strip(),

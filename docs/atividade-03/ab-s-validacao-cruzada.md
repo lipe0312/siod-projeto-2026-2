@@ -64,7 +64,7 @@ Revisão do que o plano prevê para esta tarefa:
 | O que o QR codifica | Não testado | Não há leitor de QR no ambiente do projeto (`opencv` ou `pyzbar`). A hipótese é a página `validar-qualificacao/{uuid}`, que usa a mesma API |
 | Pseudonimização da resposta | Implementada sem resposta real para testar | `ab_s.pseudonimizar_resposta` troca CPF/CNPJ pelo HMAC de `pipeline/documentos.py` em qualquer campo do JSON antes de gravar; testada com resposta sintética |
 
-**Situação em 30/10/2026:** continua pendente. O pré-diagnóstico da Atividade 04 já usa `ab_s.CRITERIOS` para exibir os 6 critérios sem fonte aberta como "não verificado", mas ainda não recebe o PDF do relatório nem mostra o resultado oficial ao lado. O que falta obter e as opções estão em [`../atividade-04-prediagnostico.md`](../atividade-04-prediagnostico.md), seções 4 e 6.
+**Situação em 30/10/2026:** continua pendente. O AB+S passou a ser o gabarito do pré-diagnóstico ([ADR 0012](../arquitetura/adr/0012-conferir-o-prediagnostico-com-o-relatorio-ab-s-do-imovel.md)), então a primeira resposta 200 é a prioridade desta frente. O pré-diagnóstico da Atividade 04 já usa `ab_s.CRITERIOS` para exibir os 6 critérios sem fonte aberta como "não verificado", mas ainda não recebe o PDF do relatório nem mostra o resultado oficial ao lado. O que falta obter e as opções estão em [`../atividade-04-prediagnostico.md`](../atividade-04-prediagnostico.md), seções 4 e 6.
 
 Quando houver um UUID real, o procedimento é `ab_s.consultar(uuid, chave)`: valida o formato, consulta uma vez cada endpoint e grava a resposta pseudonimizada em `data/raw/ab_s/`. Falta documentar a resposta campo a campo.
 
@@ -100,6 +100,8 @@ Sem um PDF real, o caminho por texto (`ab_s.extrair_uuid`) é testado com um PDF
 A tabela está em `ab_s.CRITERIOS`. A correspondência entre número do critério e código interno foi feita pelo nome, a partir da taxonomia levantada no código público do site. Ela só fica confirmada com uma resposta 200 (seção 4). O desmatamento não está entre os 9 critérios da qualificação: no AB+S ele entra na habilitação da área de produção, que é outro endpoint (`area-producao`). Por isso a comparação do PRODES é com esse endpoint.
 
 Os 6 critérios sem verificação são exibidos no relatório do projeto como **"não verificado"**, nunca como "sem pendência". Esse é o principal controle contra falso negativo.
+
+**Atualização de 30/10/2026** ([`../atividade-04-prediagnostico.md`](../atividade-04-prediagnostico.md), seção 5, e [ADR 0014](../arquitetura/adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)): os critérios 5 (FUNAI), 9 (CNUC/MMA) e 6 (IBGE, Censo 2022, em parte) passaram a ser verificados por sobreposição com o CAR. Ficam sem fonte aberta o 1 (SNCR, com hCaptcha) e o 2 e o 8 (acervo do INCRA sem endereço público e com login gov.br). A tabela acima é a da Atividade 03; a atual está em `ab_s.CRITERIOS`.
 
 ## 7. Validação cruzada
 

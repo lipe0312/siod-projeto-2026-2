@@ -1,119 +1,2683 @@
 {
-  "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+  "verificado_em_utc": "2026-10-31T00:59:55+00:00",
   "proxima_verificacao": "2026-11-29",
   "ufs": [
-    "MG"
+    "BA",
+    "MG",
+    "MS",
+    "MT",
+    "PA",
+    "PR",
+    "RS",
+    "SP"
   ],
+  "ufs_biomas": {
+    "MG": [
+      "caatinga",
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "RS": [
+      "mata_atlantica",
+      "pampa"
+    ],
+    "PR": [
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "SP": [
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "MS": [
+      "cerrado",
+      "mata_atlantica",
+      "pantanal"
+    ],
+    "BA": [
+      "caatinga",
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "PA": [
+      "amazonia",
+      "cerrado"
+    ],
+    "MT": [
+      "amazonia",
+      "cerrado",
+      "pantanal"
+    ]
+  },
   "desde": 2019,
   "ultimo_ano_publicado": {
+    "amazonia": 2025,
+    "caatinga": 2025,
     "cerrado": 2026,
-    "mata_atlantica": 2025
+    "mata_atlantica": 2025,
+    "pampa": 2025,
+    "pantanal": 2025
+  },
+  "ultima_imagem": {
+    "amazonia": "2025-08-28",
+    "caatinga": "2025-12-19",
+    "cerrado": "2026-08-12",
+    "mata_atlantica": "2025-11-17",
+    "pampa": "2025-12-19",
+    "pantanal": "2025-08-28"
+  },
+  "ultima_imagem_uf": {
+    "BA": {
+      "caatinga": "2025-12-19",
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-11-17"
+    },
+    "MG": {
+      "caatinga": "2025-10-16",
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-10-16"
+    },
+    "MS": {
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-07-28",
+      "pantanal": "2025-08-12"
+    },
+    "MT": {
+      "amazonia": "2025-08-28",
+      "cerrado": "2026-08-12",
+      "pantanal": "2025-08-28"
+    },
+    "PA": {
+      "amazonia": "2025-08-27",
+      "cerrado": "2026-08-12"
+    },
+    "PR": {
+      "cerrado": null,
+      "mata_atlantica": "2025-08-29"
+    },
+    "RS": {
+      "mata_atlantica": "2025-09-30",
+      "pampa": "2025-12-19"
+    },
+    "SP": {
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-09-14"
+    }
+  },
+  "data_publicacao": {
+    "amazonia": null,
+    "caatinga": null,
+    "cerrado": "2026-10-16",
+    "mata_atlantica": null,
+    "pampa": "2026-08-07",
+    "pantanal": null
   },
   "anos": {
-    "cerrado": {
-      "2019/MG": {
-        "anunciado": 5551,
-        "data_imagem_min": "2019-07-02",
-        "data_imagem_max": "2019-09-11",
-        "baixado_em_utc": "2026-10-30T04:06:36+00:00"
+    "amazonia": {
+      "2019/PA/0-0": {
+        "anunciado": 5688,
+        "data_imagem_min": "2019-01-01",
+        "data_imagem_max": "2019-11-06",
+        "baixado_em_utc": "2026-10-31T17:33:24+00:00"
       },
-      "2020/MG": {
-        "anunciado": 8646,
+      "2019/PA/0-1-0": {
+        "anunciado": 964,
+        "data_imagem_min": "2019-01-01",
+        "data_imagem_max": "2019-08-13",
+        "baixado_em_utc": "2026-10-31T17:33:28+00:00"
+      },
+      "2019/PA/0-1-1": {
+        "anunciado": 42,
+        "data_imagem_min": "2019-08-06",
+        "data_imagem_max": "2019-08-13",
+        "baixado_em_utc": "2026-10-31T17:33:29+00:00"
+      },
+      "2019/PA/0-1-2": {
+        "anunciado": 7641,
+        "data_imagem_min": "2019-07-01",
+        "data_imagem_max": "2019-08-20",
+        "baixado_em_utc": "2026-10-31T17:33:30+00:00"
+      },
+      "2019/PA/0-1-3": {
+        "anunciado": 2605,
+        "data_imagem_min": "2019-01-01",
+        "data_imagem_max": "2019-09-10",
+        "baixado_em_utc": "2026-10-31T17:33:34+00:00"
+      },
+      "2019/PA/0-2": {
+        "anunciado": 4318,
+        "data_imagem_min": "2019-01-01",
+        "data_imagem_max": "2019-11-20",
+        "baixado_em_utc": "2026-10-31T17:33:36+00:00"
+      },
+      "2019/PA/0-3-0-0": {
+        "anunciado": 5105,
+        "data_imagem_min": "2019-07-01",
+        "data_imagem_max": "2019-10-05",
+        "baixado_em_utc": "2026-10-31T17:33:40+00:00"
+      },
+      "2019/PA/0-3-0-1": {
+        "anunciado": 2359,
+        "data_imagem_min": "2019-08-11",
+        "data_imagem_max": "2019-09-16",
+        "baixado_em_utc": "2026-10-31T17:33:43+00:00"
+      },
+      "2019/PA/0-3-0-2": {
+        "anunciado": 425,
+        "data_imagem_min": "2019-08-24",
+        "data_imagem_max": "2019-10-05",
+        "baixado_em_utc": "2026-10-31T17:33:45+00:00"
+      },
+      "2019/PA/0-3-0-3": {
+        "anunciado": 188,
+        "data_imagem_min": "2019-09-05",
+        "data_imagem_max": "2019-09-16",
+        "baixado_em_utc": "2026-10-31T17:33:47+00:00"
+      },
+      "2019/PA/0-3-1": {
+        "anunciado": 2151,
+        "data_imagem_min": "2019-07-20",
+        "data_imagem_max": "2019-10-05",
+        "baixado_em_utc": "2026-10-31T17:33:48+00:00"
+      },
+      "2019/PA/0-3-2": {
+        "anunciado": 628,
+        "data_imagem_min": "2019-09-12",
+        "data_imagem_max": "2019-10-21",
+        "baixado_em_utc": "2026-10-31T17:33:50+00:00"
+      },
+      "2020/PA/0-0": {
+        "anunciado": 6143,
+        "data_imagem_min": "2020-01-01",
+        "data_imagem_max": "2020-10-01",
+        "baixado_em_utc": "2026-10-31T18:18:54+00:00"
+      },
+      "2020/PA/0-1": {
+        "anunciado": 7712,
+        "data_imagem_min": "2020-01-01",
+        "data_imagem_max": "2020-09-16",
+        "baixado_em_utc": "2026-10-31T18:18:58+00:00"
+      },
+      "2020/PA/0-2": {
+        "anunciado": 3426,
+        "data_imagem_min": "2020-01-01",
+        "data_imagem_max": "2020-10-18",
+        "baixado_em_utc": "2026-10-31T18:19:16+00:00"
+      },
+      "2020/PA/0-3": {
+        "anunciado": 5193,
+        "data_imagem_min": "2020-01-01",
+        "data_imagem_max": "2020-10-23",
+        "baixado_em_utc": "2026-10-31T18:19:21+00:00"
+      },
+      "2021/PA/0-0": {
+        "anunciado": 6799,
+        "data_imagem_min": "2021-01-01",
+        "data_imagem_max": "2021-11-05",
+        "baixado_em_utc": "2026-10-31T19:06:54+00:00"
+      },
+      "2021/PA/0-1": {
+        "anunciado": 7022,
+        "data_imagem_min": "2021-01-01",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T19:06:58+00:00"
+      },
+      "2021/PA/0-2": {
+        "anunciado": 3716,
+        "data_imagem_min": "2021-01-01",
+        "data_imagem_max": "2021-11-05",
+        "baixado_em_utc": "2026-10-31T19:07:04+00:00"
+      },
+      "2021/PA/0-3": {
+        "anunciado": 4394,
+        "data_imagem_min": "2021-01-01",
+        "data_imagem_max": "2021-10-30",
+        "baixado_em_utc": "2026-10-31T19:07:06+00:00"
+      },
+      "2022/PA/0-0-0": {
+        "anunciado": 1246,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-08-24",
+        "baixado_em_utc": "2026-10-31T20:05:59+00:00"
+      },
+      "2022/PA/0-0-1": {
+        "anunciado": 1341,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-08-11",
+        "baixado_em_utc": "2026-10-31T20:06:00+00:00"
+      },
+      "2022/PA/0-0-2": {
+        "anunciado": 2453,
+        "data_imagem_min": "2022-07-24",
+        "data_imagem_max": "2022-09-14",
+        "baixado_em_utc": "2026-10-31T20:21:12+00:00"
+      },
+      "2022/PA/0-0-3": {
+        "anunciado": 3636,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-10-05",
+        "baixado_em_utc": "2026-10-31T20:21:15+00:00"
+      },
+      "2022/PA/0-1-0": {
+        "anunciado": 926,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-08-29",
+        "baixado_em_utc": "2026-10-31T20:21:17+00:00"
+      },
+      "2022/PA/0-1-1": {
+        "anunciado": 129,
+        "data_imagem_min": "2022-07-28",
+        "data_imagem_max": "2022-08-29",
+        "baixado_em_utc": "2026-10-31T20:21:20+00:00"
+      },
+      "2022/PA/0-1-2": {
+        "anunciado": 5181,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-10-05",
+        "baixado_em_utc": "2026-10-31T20:21:21+00:00"
+      },
+      "2022/PA/0-1-3": {
+        "anunciado": 2080,
+        "data_imagem_min": "2022-07-24",
+        "data_imagem_max": "2022-08-29",
+        "baixado_em_utc": "2026-10-31T20:21:26+00:00"
+      },
+      "2022/PA/0-2": {
+        "anunciado": 6124,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-10-09",
+        "baixado_em_utc": "2026-10-31T20:21:27+00:00"
+      },
+      "2022/PA/0-3": {
+        "anunciado": 7180,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-10-05",
+        "baixado_em_utc": "2026-10-31T20:21:32+00:00"
+      },
+      "2023/PA/0-0": {
+        "anunciado": 5981,
+        "data_imagem_min": "2023-01-01",
+        "data_imagem_max": "2023-09-04",
+        "baixado_em_utc": "2026-10-31T20:21:45+00:00"
+      },
+      "2023/PA/0-1": {
+        "anunciado": 7060,
+        "data_imagem_min": "2023-01-01",
+        "data_imagem_max": "2023-08-26",
+        "baixado_em_utc": "2026-10-31T20:37:14+00:00"
+      },
+      "2023/PA/0-2": {
+        "anunciado": 5779,
+        "data_imagem_min": "2023-01-01",
+        "data_imagem_max": "2023-10-11",
+        "baixado_em_utc": "2026-10-31T20:37:21+00:00"
+      },
+      "2023/PA/0-3": {
+        "anunciado": 7886,
+        "data_imagem_min": "2023-01-01",
+        "data_imagem_max": "2023-09-30",
+        "baixado_em_utc": "2026-10-31T20:37:25+00:00"
+      },
+      "2024/PA/0-0": {
+        "anunciado": 5524,
+        "data_imagem_min": "2024-01-01",
+        "data_imagem_max": "2024-08-21",
+        "baixado_em_utc": "2026-10-31T20:37:34+00:00"
+      },
+      "2024/PA/0-1": {
+        "anunciado": 6728,
+        "data_imagem_min": "2024-01-01",
+        "data_imagem_max": "2024-08-24",
+        "baixado_em_utc": "2026-10-31T20:52:40+00:00"
+      },
+      "2024/PA/0-2": {
+        "anunciado": 6873,
+        "data_imagem_min": "2024-01-01",
+        "data_imagem_max": "2024-08-26",
+        "baixado_em_utc": "2026-10-31T20:52:47+00:00"
+      },
+      "2024/PA/0-3": {
+        "anunciado": 7110,
+        "data_imagem_min": "2024-01-01",
+        "data_imagem_max": "2024-08-27",
+        "baixado_em_utc": "2026-10-31T20:52:52+00:00"
+      },
+      "2025/PA/0-0": {
+        "anunciado": 6158,
+        "data_imagem_min": "2025-01-01",
+        "data_imagem_max": "2025-08-11",
+        "baixado_em_utc": "2026-10-31T20:53:05+00:00"
+      },
+      "2025/PA/0-1": {
+        "anunciado": 5314,
+        "data_imagem_min": "2025-01-01",
+        "data_imagem_max": "2025-08-22",
+        "baixado_em_utc": "2026-10-31T20:53:10+00:00"
+      },
+      "2025/PA/0-2": {
+        "anunciado": 4810,
+        "data_imagem_min": "2025-07-12",
+        "data_imagem_max": "2025-08-23",
+        "baixado_em_utc": "2026-10-31T20:53:15+00:00"
+      },
+      "2025/PA/0-3": {
+        "anunciado": 7479,
+        "data_imagem_min": "2025-01-01",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-31T20:53:18+00:00"
+      },
+      "2019/MT/0": {
+        "anunciado": 6485,
+        "data_imagem_min": "2019-01-01",
+        "data_imagem_max": "2019-08-23",
+        "baixado_em_utc": "2026-11-01T01:28:32+00:00"
+      },
+      "2020/MT/0": {
+        "anunciado": 6931,
+        "data_imagem_min": "2020-01-01",
+        "data_imagem_max": "2020-08-27",
+        "baixado_em_utc": "2026-11-01T01:29:41+00:00"
+      },
+      "2021/MT/0": {
+        "anunciado": 7292,
+        "data_imagem_min": "2021-01-01",
+        "data_imagem_max": "2021-08-23",
+        "baixado_em_utc": "2026-11-01T01:29:50+00:00"
+      },
+      "2022/MT/0-0": {
+        "anunciado": 393,
+        "data_imagem_min": "2022-07-30",
+        "data_imagem_max": "2022-08-14",
+        "baixado_em_utc": "2026-11-01T01:30:01+00:00"
+      },
+      "2022/MT/0-1": {
+        "anunciado": 155,
+        "data_imagem_min": "2022-07-26",
+        "data_imagem_max": "2022-08-02",
+        "baixado_em_utc": "2026-11-01T01:30:03+00:00"
+      },
+      "2022/MT/0-2": {
+        "anunciado": 4917,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-08-30",
+        "baixado_em_utc": "2026-11-01T01:34:49+00:00"
+      },
+      "2022/MT/0-3": {
+        "anunciado": 3085,
+        "data_imagem_min": "2022-01-01",
+        "data_imagem_max": "2022-08-20",
+        "baixado_em_utc": "2026-11-01T01:34:52+00:00"
+      },
+      "2023/MT/0": {
+        "anunciado": 7134,
+        "data_imagem_min": "2023-01-01",
+        "data_imagem_max": "2023-08-19",
+        "baixado_em_utc": "2026-11-01T02:07:07+00:00"
+      },
+      "2024/MT/0": {
+        "anunciado": 5846,
+        "data_imagem_min": "2024-01-01",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-11-01T02:07:16+00:00"
+      },
+      "2025/MT/0": {
+        "anunciado": 6018,
+        "data_imagem_min": "2025-01-01",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-11-01T02:08:01+00:00"
+      }
+    },
+    "caatinga": {
+      "2019/MG/0": {
+        "anunciado": 3031,
+        "data_imagem_min": "2019-07-16",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T00:57:36+00:00"
+      },
+      "2020/MG/0-3-0": {
+        "anunciado": 45,
+        "data_imagem_min": "2020-09-29",
+        "data_imagem_max": "2020-09-29",
+        "baixado_em_utc": "2026-10-31T01:01:59+00:00"
+      },
+      "2020/MG/0-3-2": {
+        "anunciado": 2188,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-06",
+        "baixado_em_utc": "2026-10-31T01:02:10+00:00"
+      },
+      "2020/MG/0-3-3": {
+        "anunciado": 1693,
+        "data_imagem_min": "2020-07-29",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T01:02:13+00:00"
+      },
+      "2021/MG/0": {
+        "anunciado": 2730,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T01:02:23+00:00"
+      },
+      "2022/MG/0": {
+        "anunciado": 3538,
+        "data_imagem_min": "2022-08-04",
+        "data_imagem_max": "2022-08-17",
+        "baixado_em_utc": "2026-10-31T01:02:42+00:00"
+      },
+      "2023/MG/0": {
+        "anunciado": 3896,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-11-14",
+        "baixado_em_utc": "2026-10-31T01:02:59+00:00"
+      },
+      "2024/MG/0": {
+        "anunciado": 4861,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T01:03:02+00:00"
+      },
+      "2025/MG/0-3": {
+        "anunciado": 3516,
+        "data_imagem_min": "2025-09-14",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T01:03:41+00:00"
+      },
+      "2019/BA/0-0": {
+        "anunciado": 3624,
+        "data_imagem_min": "2019-07-16",
+        "data_imagem_max": "2019-11-14",
+        "baixado_em_utc": "2026-10-31T12:14:21+00:00"
+      },
+      "2019/BA/0-1": {
+        "anunciado": 1901,
+        "data_imagem_min": "2019-08-03",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T12:14:24+00:00"
+      },
+      "2019/BA/0-2": {
+        "anunciado": 4507,
+        "data_imagem_min": "2019-07-16",
+        "data_imagem_max": "2019-11-14",
+        "baixado_em_utc": "2026-10-31T12:14:26+00:00"
+      },
+      "2019/BA/0-3-0": {
+        "anunciado": 3358,
+        "data_imagem_min": "2019-04-29",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T12:14:29+00:00"
+      },
+      "2019/BA/0-3-1": {
+        "anunciado": 789,
+        "data_imagem_min": "2019-07-04",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T12:14:31+00:00"
+      },
+      "2019/BA/0-3-2": {
+        "anunciado": 2058,
+        "data_imagem_min": "2019-04-29",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T12:14:33+00:00"
+      },
+      "2019/BA/0-3-3": {
+        "anunciado": 2801,
+        "data_imagem_min": "2019-07-04",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T12:14:35+00:00"
+      },
+      "2020/BA/0-0": {
+        "anunciado": 4445,
         "data_imagem_min": "2020-07-02",
         "data_imagem_max": "2020-10-08",
-        "baixado_em_utc": "2026-10-30T04:06:42+00:00"
+        "baixado_em_utc": "2026-10-31T12:14:43+00:00"
       },
-      "2021/MG": {
-        "anunciado": 10365,
+      "2020/BA/0-1": {
+        "anunciado": 2513,
+        "data_imagem_min": "2020-07-29",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T12:14:45+00:00"
+      },
+      "2020/BA/0-2": {
+        "anunciado": 5304,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T12:14:47+00:00"
+      },
+      "2020/BA/0-3-0": {
+        "anunciado": 2540,
+        "data_imagem_min": "2020-09-29",
+        "data_imagem_max": "2020-10-17",
+        "baixado_em_utc": "2026-10-31T12:14:50+00:00"
+      },
+      "2020/BA/0-3-1": {
+        "anunciado": 749,
+        "data_imagem_min": "2020-10-10",
+        "data_imagem_max": "2020-10-17",
+        "baixado_em_utc": "2026-10-31T12:14:52+00:00"
+      },
+      "2020/BA/0-3-2": {
+        "anunciado": 2828,
+        "data_imagem_min": "2020-09-29",
+        "data_imagem_max": "2020-10-17",
+        "baixado_em_utc": "2026-10-31T12:29:54+00:00"
+      },
+      "2020/BA/0-3-3": {
+        "anunciado": 2365,
+        "data_imagem_min": "2020-10-08",
+        "data_imagem_max": "2020-10-17",
+        "baixado_em_utc": "2026-10-31T12:29:56+00:00"
+      },
+      "2021/BA/0-0": {
+        "anunciado": 4034,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:30:05+00:00"
+      },
+      "2021/BA/0-1": {
+        "anunciado": 1526,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-09-18",
+        "baixado_em_utc": "2026-10-31T12:30:08+00:00"
+      },
+      "2021/BA/0-2": {
+        "anunciado": 4853,
+        "data_imagem_min": "2021-06-12",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:30:13+00:00"
+      },
+      "2021/BA/0-3-0": {
+        "anunciado": 1725,
+        "data_imagem_min": "2021-02-06",
+        "data_imagem_max": "2021-09-18",
+        "baixado_em_utc": "2026-10-31T12:30:27+00:00"
+      },
+      "2021/BA/0-3-1": {
+        "anunciado": 742,
+        "data_imagem_min": "2021-02-06",
+        "data_imagem_max": "2021-11-14",
+        "baixado_em_utc": "2026-10-31T12:30:30+00:00"
+      },
+      "2021/BA/0-3-2": {
+        "anunciado": 2216,
+        "data_imagem_min": "2021-02-06",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:30:32+00:00"
+      },
+      "2021/BA/0-3-3": {
+        "anunciado": 3430,
+        "data_imagem_min": "2021-02-06",
+        "data_imagem_max": "2021-11-14",
+        "baixado_em_utc": "2026-10-31T12:30:35+00:00"
+      },
+      "2022/BA/0-0": {
+        "anunciado": 4774,
+        "data_imagem_min": "2022-08-10",
+        "data_imagem_max": "2022-08-17",
+        "baixado_em_utc": "2026-10-31T12:30:47+00:00"
+      },
+      "2022/BA/0-1": {
+        "anunciado": 1820,
+        "data_imagem_min": "2022-08-04",
+        "data_imagem_max": "2022-08-11",
+        "baixado_em_utc": "2026-10-31T12:30:50+00:00"
+      },
+      "2022/BA/0-2": {
+        "anunciado": 4757,
+        "data_imagem_min": "2022-08-02",
+        "data_imagem_max": "2022-09-27",
+        "baixado_em_utc": "2026-10-31T12:30:52+00:00"
+      },
+      "2022/BA/0-3-0": {
+        "anunciado": 3169,
+        "data_imagem_min": "2022-06-17",
+        "data_imagem_max": "2022-09-27",
+        "baixado_em_utc": "2026-10-31T12:30:55+00:00"
+      },
+      "2022/BA/0-3-1": {
+        "anunciado": 1501,
+        "data_imagem_min": "2022-06-17",
+        "data_imagem_max": "2022-09-21",
+        "baixado_em_utc": "2026-10-31T12:30:58+00:00"
+      },
+      "2022/BA/0-3-2": {
+        "anunciado": 2493,
+        "data_imagem_min": "2022-08-02",
+        "data_imagem_max": "2022-10-31",
+        "baixado_em_utc": "2026-10-31T12:30:59+00:00"
+      },
+      "2022/BA/0-3-3": {
+        "anunciado": 3281,
+        "data_imagem_min": "2022-08-11",
+        "data_imagem_max": "2022-11-01",
+        "baixado_em_utc": "2026-10-31T12:31:01+00:00"
+      },
+      "2023/BA/0-0": {
+        "anunciado": 4768,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-08-14",
+        "baixado_em_utc": "2026-10-31T12:31:15+00:00"
+      },
+      "2023/BA/0-1": {
+        "anunciado": 2461,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-11-14",
+        "baixado_em_utc": "2026-10-31T12:31:18+00:00"
+      },
+      "2023/BA/0-2": {
+        "anunciado": 6037,
+        "data_imagem_min": "2023-07-15",
+        "data_imagem_max": "2023-08-14",
+        "baixado_em_utc": "2026-10-31T12:31:20+00:00"
+      },
+      "2023/BA/0-3-0": {
+        "anunciado": 3283,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-11-01",
+        "baixado_em_utc": "2026-10-31T12:31:23+00:00"
+      },
+      "2023/BA/0-3-1": {
+        "anunciado": 1883,
+        "data_imagem_min": "2023-09-27",
+        "data_imagem_max": "2023-11-01",
+        "baixado_em_utc": "2026-10-31T12:31:49+00:00"
+      },
+      "2023/BA/0-3-2": {
+        "anunciado": 3161,
+        "data_imagem_min": "2023-07-12",
+        "data_imagem_max": "2023-10-05",
+        "baixado_em_utc": "2026-10-31T12:31:51+00:00"
+      },
+      "2023/BA/0-3-3": {
+        "anunciado": 3940,
+        "data_imagem_min": "2023-09-15",
+        "data_imagem_max": "2023-10-05",
+        "baixado_em_utc": "2026-10-31T12:31:53+00:00"
+      },
+      "2024/BA/0-0": {
+        "anunciado": 6050,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:02+00:00"
+      },
+      "2024/BA/0-1": {
+        "anunciado": 3302,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:06+00:00"
+      },
+      "2024/BA/0-2-0": {
+        "anunciado": 653,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:09+00:00"
+      },
+      "2024/BA/0-2-1": {
+        "anunciado": 4182,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:10+00:00"
+      },
+      "2024/BA/0-2-2": {
+        "anunciado": 849,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:13+00:00"
+      },
+      "2024/BA/0-2-3": {
+        "anunciado": 2787,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:15+00:00"
+      },
+      "2024/BA/0-3-0": {
+        "anunciado": 3001,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:17+00:00"
+      },
+      "2024/BA/0-3-1": {
+        "anunciado": 1371,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:21+00:00"
+      },
+      "2024/BA/0-3-2": {
+        "anunciado": 4689,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:23+00:00"
+      },
+      "2024/BA/0-3-3": {
+        "anunciado": 4633,
+        "data_imagem_min": "2024-12-31",
+        "data_imagem_max": "2024-12-31",
+        "baixado_em_utc": "2026-10-31T12:32:27+00:00"
+      },
+      "2025/BA/0-0": {
+        "anunciado": 5000,
+        "data_imagem_min": "2025-09-14",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T12:32:45+00:00"
+      },
+      "2025/BA/0-1": {
+        "anunciado": 1298,
+        "data_imagem_min": "2025-09-14",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T12:32:49+00:00"
+      },
+      "2025/BA/0-2": {
+        "anunciado": 4672,
+        "data_imagem_min": "2025-08-29",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T12:32:51+00:00"
+      },
+      "2025/BA/0-3-0": {
+        "anunciado": 2749,
+        "data_imagem_min": "2025-08-29",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T12:32:55+00:00"
+      },
+      "2025/BA/0-3-1": {
+        "anunciado": 921,
+        "data_imagem_min": "2025-10-16",
+        "data_imagem_max": "2025-12-03",
+        "baixado_em_utc": "2026-10-31T12:32:58+00:00"
+      },
+      "2025/BA/0-3-2": {
+        "anunciado": 2154,
+        "data_imagem_min": "2025-09-14",
+        "data_imagem_max": "2025-10-16",
+        "baixado_em_utc": "2026-10-31T12:32:59+00:00"
+      },
+      "2025/BA/0-3-3": {
+        "anunciado": 2227,
+        "data_imagem_min": "2025-08-13",
+        "data_imagem_max": "2025-12-19",
+        "baixado_em_utc": "2026-10-31T12:33:02+00:00"
+      }
+    },
+    "cerrado": {
+      "2019/MG/0-0": {
+        "anunciado": 817,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-08-22",
+        "baixado_em_utc": "2026-10-31T01:07:40+00:00"
+      },
+      "2019/MG/0-1": {
+        "anunciado": 590,
+        "data_imagem_min": "2019-07-25",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:07:54+00:00"
+      },
+      "2019/MG/0-2": {
+        "anunciado": 6255,
+        "data_imagem_min": "2019-07-05",
+        "data_imagem_max": "2019-09-09",
+        "baixado_em_utc": "2026-10-31T01:07:58+00:00"
+      },
+      "2019/MG/0-3-0-0": {
+        "anunciado": 291,
+        "data_imagem_min": "2019-08-01",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:09:00+00:00"
+      },
+      "2019/MG/0-3-0-1": {
+        "anunciado": 269,
+        "data_imagem_min": "2019-08-03",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:09:04+00:00"
+      },
+      "2019/MG/0-3-0-2": {
+        "anunciado": 463,
+        "data_imagem_min": "2019-07-16",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:09:07+00:00"
+      },
+      "2019/MG/0-3-0-3": {
+        "anunciado": 383,
+        "data_imagem_min": "2019-08-03",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:09:25+00:00"
+      },
+      "2019/MG/0-3-1": {
+        "anunciado": 121,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-08-03",
+        "baixado_em_utc": "2026-10-31T01:09:28+00:00"
+      },
+      "2019/MG/0-3-2": {
+        "anunciado": 593,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:09:34+00:00"
+      },
+      "2019/MG/0-3-3-0": {
+        "anunciado": 158,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:10:25+00:00"
+      },
+      "2019/MG/0-3-3-2": {
+        "anunciado": 9,
+        "data_imagem_min": "2019-09-11",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T01:10:30+00:00"
+      },
+      "2020/MG/0-0": {
+        "anunciado": 1266,
+        "data_imagem_min": "2020-07-09",
+        "data_imagem_max": "2020-09-09",
+        "baixado_em_utc": "2026-10-31T01:11:33+00:00"
+      },
+      "2020/MG/0-1": {
+        "anunciado": 684,
+        "data_imagem_min": "2020-08-19",
+        "data_imagem_max": "2020-09-13",
+        "baixado_em_utc": "2026-10-31T01:11:36+00:00"
+      },
+      "2020/MG/0-2": {
+        "anunciado": 7159,
+        "data_imagem_min": "2020-07-09",
+        "data_imagem_max": "2020-09-02",
+        "baixado_em_utc": "2026-10-31T01:11:40+00:00"
+      },
+      "2020/MG/0-3-0": {
+        "anunciado": 2140,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-09-29",
+        "baixado_em_utc": "2026-10-31T01:12:56+00:00"
+      },
+      "2020/MG/0-3-1": {
+        "anunciado": 381,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-07-02",
+        "baixado_em_utc": "2026-10-31T01:13:00+00:00"
+      },
+      "2020/MG/0-3-2": {
+        "anunciado": 1205,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-09-29",
+        "baixado_em_utc": "2026-10-31T01:13:15+00:00"
+      },
+      "2020/MG/0-3-3": {
+        "anunciado": 526,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T01:13:19+00:00"
+      },
+      "2021/MG/0-0": {
+        "anunciado": 1190,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T01:15:55+00:00"
+      },
+      "2021/MG/0-1": {
+        "anunciado": 644,
+        "data_imagem_min": "2021-08-15",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T01:15:59+00:00"
+      },
+      "2021/MG/0-2-0": {
+        "anunciado": 801,
+        "data_imagem_min": "2021-07-19",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T01:16:02+00:00"
+      },
+      "2021/MG/0-2-1-0": {
+        "anunciado": 644,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:16:47+00:00"
+      },
+      "2021/MG/0-2-1-1": {
+        "anunciado": 639,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:16:51+00:00"
+      },
+      "2021/MG/0-2-1-2": {
+        "anunciado": 732,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:16:55+00:00"
+      },
+      "2021/MG/0-2-1-3-0": {
+        "anunciado": 92,
+        "data_imagem_min": "2021-08-29",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:17:52+00:00"
+      },
+      "2021/MG/0-2-1-3-1-0-0": {
+        "anunciado": 5,
+        "data_imagem_min": "2021-08-29",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:20:08+00:00"
+      },
+      "2021/MG/0-2-1-3-1-0-1": {
+        "anunciado": 7,
+        "data_imagem_min": "2021-08-22",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T01:20:22+00:00"
+      },
+      "2021/MG/0-2-1-3-1-0-2": {
+        "anunciado": 9,
+        "data_imagem_min": "2021-08-29",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:20:25+00:00"
+      },
+      "2021/MG/0-2-1-3-1-0-3": {
+        "anunciado": 2,
+        "data_imagem_min": "2021-08-22",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:20:39+00:00"
+      },
+      "2021/MG/0-2-1-3-1-1": {
+        "anunciado": 60,
+        "data_imagem_min": "2021-08-22",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T01:20:59+00:00"
+      },
+      "2021/MG/0-2-1-3-1-2": {
+        "anunciado": 67,
+        "data_imagem_min": "2021-08-22",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:21:19+00:00"
+      },
+      "2021/MG/0-2-1-3-1-3": {
+        "anunciado": 26,
+        "data_imagem_min": "2021-08-22",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T01:21:39+00:00"
+      },
+      "2021/MG/0-2-1-3-2": {
+        "anunciado": 201,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:21:43+00:00"
+      },
+      "2021/MG/0-2-1-3-3": {
+        "anunciado": 311,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-08-29",
+        "baixado_em_utc": "2026-10-31T01:21:46+00:00"
+      },
+      "2021/MG/0-2-2": {
+        "anunciado": 2462,
+        "data_imagem_min": "2021-07-19",
+        "data_imagem_max": "2021-08-18",
+        "baixado_em_utc": "2026-10-31T01:21:51+00:00"
+      },
+      "2021/MG/0-2-3-0": {
+        "anunciado": 589,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-07-19",
+        "baixado_em_utc": "2026-10-31T01:22:49+00:00"
+      },
+      "2021/MG/0-2-3-1": {
+        "anunciado": 975,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-07-12",
+        "baixado_em_utc": "2026-10-31T01:22:52+00:00"
+      },
+      "2021/MG/0-2-3-2": {
+        "anunciado": 1485,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-07-28",
+        "baixado_em_utc": "2026-10-31T01:23:07+00:00"
+      },
+      "2021/MG/0-2-3-3": {
+        "anunciado": 817,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-07-28",
+        "baixado_em_utc": "2026-10-31T01:23:11+00:00"
+      },
+      "2021/MG/0-3": {
+        "anunciado": 5338,
         "data_imagem_min": "2021-07-05",
         "data_imagem_max": "2021-09-16",
-        "baixado_em_utc": "2026-10-30T04:06:49+00:00"
+        "baixado_em_utc": "2026-10-31T01:23:15+00:00"
       },
-      "2022/MG": {
-        "anunciado": 10245,
-        "data_imagem_min": "2022-07-06",
+      "2022/MG/0-0": {
+        "anunciado": 1270,
+        "data_imagem_min": "2022-07-04",
+        "data_imagem_max": "2022-07-24",
+        "baixado_em_utc": "2026-10-31T01:24:50+00:00"
+      },
+      "2022/MG/0-1-0": {
+        "anunciado": 1,
+        "data_imagem_min": "2022-07-24",
+        "data_imagem_max": "2022-07-24",
+        "baixado_em_utc": "2026-10-31T01:26:13+00:00"
+      },
+      "2022/MG/0-1-2": {
+        "anunciado": 763,
+        "data_imagem_min": "2022-07-18",
+        "data_imagem_max": "2022-09-03",
+        "baixado_em_utc": "2026-10-31T01:26:27+00:00"
+      },
+      "2022/MG/0-2-0": {
+        "anunciado": 837,
+        "data_imagem_min": "2022-07-04",
+        "data_imagem_max": "2022-07-30",
+        "baixado_em_utc": "2026-10-31T01:26:44+00:00"
+      },
+      "2022/MG/0-2-1": {
+        "anunciado": 2334,
+        "data_imagem_min": "2022-07-07",
+        "data_imagem_max": "2022-07-31",
+        "baixado_em_utc": "2026-10-31T01:27:05+00:00"
+      },
+      "2022/MG/0-2-2": {
+        "anunciado": 2723,
+        "data_imagem_min": "2022-07-12",
+        "data_imagem_max": "2022-08-14",
+        "baixado_em_utc": "2026-10-31T01:27:09+00:00"
+      },
+      "2022/MG/0-2-3": {
+        "anunciado": 3467,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-07-31",
+        "baixado_em_utc": "2026-10-31T01:27:24+00:00"
+      },
+      "2022/MG/0-3": {
+        "anunciado": 5377,
+        "data_imagem_min": "2022-07-08",
         "data_imagem_max": "2022-09-11",
-        "baixado_em_utc": "2026-10-30T04:06:56+00:00"
+        "baixado_em_utc": "2026-10-31T01:27:29+00:00"
       },
-      "2023/MG": {
-        "anunciado": 8355,
+      "2023/MG/0-0": {
+        "anunciado": 958,
         "data_imagem_min": "2023-06-30",
+        "data_imagem_max": "2023-08-22",
+        "baixado_em_utc": "2026-10-31T01:28:20+00:00"
+      },
+      "2023/MG/0-1": {
+        "anunciado": 529,
+        "data_imagem_min": "2023-07-08",
+        "data_imagem_max": "2023-08-04",
+        "baixado_em_utc": "2026-10-31T01:28:38+00:00"
+      },
+      "2023/MG/0-2": {
+        "anunciado": 7756,
+        "data_imagem_min": "2023-07-06",
+        "data_imagem_max": "2023-08-12",
+        "baixado_em_utc": "2026-10-31T01:28:42+00:00"
+      },
+      "2023/MG/0-3": {
+        "anunciado": 4531,
+        "data_imagem_min": "2023-07-03",
         "data_imagem_max": "2023-09-25",
-        "baixado_em_utc": "2026-10-30T04:07:02+00:00"
+        "baixado_em_utc": "2026-10-31T01:28:47+00:00"
       },
-      "2024/MG": {
-        "anunciado": 6374,
+      "2024/MG/0-0": {
+        "anunciado": 801,
+        "data_imagem_min": "2024-07-22",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T01:29:49+00:00"
+      },
+      "2024/MG/0-1": {
+        "anunciado": 490,
+        "data_imagem_min": "2024-07-19",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T01:30:09+00:00"
+      },
+      "2024/MG/0-2": {
+        "anunciado": 4989,
         "data_imagem_min": "2024-07-12",
-        "data_imagem_max": "2024-08-25",
-        "baixado_em_utc": "2026-10-30T04:07:09+00:00"
+        "data_imagem_max": "2024-08-12",
+        "baixado_em_utc": "2026-10-31T01:30:27+00:00"
       },
-      "2025/MG": {
-        "anunciado": 7141,
+      "2024/MG/0-3": {
+        "anunciado": 3451,
+        "data_imagem_min": "2024-07-19",
+        "data_imagem_max": "2024-08-25",
+        "baixado_em_utc": "2026-10-31T01:30:32+00:00"
+      },
+      "2025/MG/0-0": {
+        "anunciado": 753,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-12",
+        "baixado_em_utc": "2026-10-31T01:32:45+00:00"
+      },
+      "2025/MG/0-1-0": {
+        "anunciado": 2,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-07-27",
+        "baixado_em_utc": "2026-10-31T01:50:54+00:00"
+      },
+      "2025/MG/0-1-2": {
+        "anunciado": 527,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-12",
+        "baixado_em_utc": "2026-10-31T01:50:57+00:00"
+      },
+      "2025/MG/0-2": {
+        "anunciado": 4209,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-31T01:51:01+00:00"
+      },
+      "2025/MG/0-3": {
+        "anunciado": 4210,
         "data_imagem_min": "2025-07-11",
         "data_imagem_max": "2025-08-28",
-        "baixado_em_utc": "2026-10-30T04:07:15+00:00"
+        "baixado_em_utc": "2026-10-31T01:51:24+00:00"
       },
-      "2026/MG": {
-        "anunciado": 6220,
+      "2026/MG/0-0": {
+        "anunciado": 657,
         "data_imagem_min": "2026-07-27",
         "data_imagem_max": "2026-08-12",
-        "baixado_em_utc": "2026-10-30T04:07:21+00:00"
+        "baixado_em_utc": "2026-10-31T01:52:04+00:00"
+      },
+      "2026/MG/0-1": {
+        "anunciado": 436,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:52:19+00:00"
+      },
+      "2026/MG/0-2": {
+        "anunciado": 3471,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:52:22+00:00"
+      },
+      "2026/MG/0-3-0": {
+        "anunciado": 1969,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:53:42+00:00"
+      },
+      "2026/MG/0-3-1": {
+        "anunciado": 381,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:53:57+00:00"
+      },
+      "2026/MG/0-3-2": {
+        "anunciado": 1011,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:54:01+00:00"
+      },
+      "2026/MG/0-3-3-0": {
+        "anunciado": 408,
+        "data_imagem_min": "2026-08-12",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:54:54+00:00"
+      },
+      "2026/MG/0-3-3-2": {
+        "anunciado": 102,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T01:55:08+00:00"
+      },
+      "2019/PR/0": {
+        "anunciado": 27,
+        "data_imagem_min": "2019-07-14",
+        "data_imagem_max": "2019-08-15",
+        "baixado_em_utc": "2026-10-31T02:19:34+00:00"
+      },
+      "2020/PR/0": {
+        "anunciado": 78,
+        "data_imagem_min": "2020-07-13",
+        "data_imagem_max": "2020-09-02",
+        "baixado_em_utc": "2026-10-31T02:27:07+00:00"
+      },
+      "2021/PR/0": {
+        "anunciado": 14,
+        "data_imagem_min": "2021-07-12",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T07:54:23+00:00"
+      },
+      "2022/PR/0": {
+        "anunciado": 30,
+        "data_imagem_min": "2022-07-14",
+        "data_imagem_max": "2022-07-31",
+        "baixado_em_utc": "2026-10-31T02:28:19+00:00"
+      },
+      "2023/PR/0": {
+        "anunciado": 25,
+        "data_imagem_min": "2023-07-21",
+        "data_imagem_max": "2023-08-22",
+        "baixado_em_utc": "2026-10-31T02:28:25+00:00"
+      },
+      "2024/PR/0": {
+        "anunciado": 22,
+        "data_imagem_min": "2024-07-22",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T02:28:36+00:00"
+      },
+      "2025/PR/0": {
+        "anunciado": 60,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-12",
+        "baixado_em_utc": "2026-10-31T02:28:51+00:00"
+      },
+      "2026/PR/0": {
+        "anunciado": 65,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-07-27",
+        "baixado_em_utc": "2026-10-31T02:29:05+00:00"
+      },
+      "2019/SP/0": {
+        "anunciado": 357,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-08-22",
+        "baixado_em_utc": "2026-10-31T02:56:10+00:00"
+      },
+      "2020/SP/0": {
+        "anunciado": 758,
+        "data_imagem_min": "2020-07-13",
+        "data_imagem_max": "2020-09-09",
+        "baixado_em_utc": "2026-10-31T02:56:15+00:00"
+      },
+      "2021/SP/0": {
+        "anunciado": 419,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T02:56:55+00:00"
+      },
+      "2022/SP/0": {
+        "anunciado": 601,
+        "data_imagem_min": "2022-07-03",
+        "data_imagem_max": "2022-08-02",
+        "baixado_em_utc": "2026-10-31T02:57:05+00:00"
+      },
+      "2023/SP/0": {
+        "anunciado": 470,
+        "data_imagem_min": "2023-06-30",
+        "data_imagem_max": "2023-08-22",
+        "baixado_em_utc": "2026-10-31T02:57:15+00:00"
+      },
+      "2024/SP/0": {
+        "anunciado": 434,
+        "data_imagem_min": "2024-07-19",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T02:58:04+00:00"
+      },
+      "2025/SP/0": {
+        "anunciado": 543,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-12",
+        "baixado_em_utc": "2026-10-31T09:35:12+00:00"
+      },
+      "2026/SP/0": {
+        "anunciado": 402,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T02:59:38+00:00"
+      },
+      "2019/MS/0": {
+        "anunciado": 1866,
+        "data_imagem_min": "2019-07-06",
+        "data_imagem_max": "2019-08-22",
+        "baixado_em_utc": "2026-10-31T09:35:47+00:00"
+      },
+      "2020/MS/0": {
+        "anunciado": 2255,
+        "data_imagem_min": "2020-07-12",
+        "data_imagem_max": "2020-09-30",
+        "baixado_em_utc": "2026-10-31T11:00:52+00:00"
+      },
+      "2021/MS/0": {
+        "anunciado": 2271,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-09-01",
+        "baixado_em_utc": "2026-10-31T11:01:04+00:00"
+      },
+      "2022/MS/0": {
+        "anunciado": 2288,
+        "data_imagem_min": "2022-07-02",
+        "data_imagem_max": "2022-08-02",
+        "baixado_em_utc": "2026-10-31T11:49:44+00:00"
+      },
+      "2023/MS/0": {
+        "anunciado": 2133,
+        "data_imagem_min": "2023-06-29",
+        "data_imagem_max": "2023-08-06",
+        "baixado_em_utc": "2026-10-31T11:49:53+00:00"
+      },
+      "2024/MS/0": {
+        "anunciado": 1679,
+        "data_imagem_min": "2024-07-19",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T11:58:21+00:00"
+      },
+      "2025/MS/0": {
+        "anunciado": 1727,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-30",
+        "baixado_em_utc": "2026-10-31T11:58:27+00:00"
+      },
+      "2026/MS/0": {
+        "anunciado": 1299,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T11:58:32+00:00"
+      },
+      "2019/BA/0": {
+        "anunciado": 6249,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T12:33:09+00:00"
+      },
+      "2020/BA/0-0": {
+        "anunciado": 6779,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T12:33:19+00:00"
+      },
+      "2020/BA/0-1": {
+        "anunciado": 16,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T12:33:25+00:00"
+      },
+      "2020/BA/0-2": {
+        "anunciado": 3877,
+        "data_imagem_min": "2020-07-02",
+        "data_imagem_max": "2020-08-28",
+        "baixado_em_utc": "2026-10-31T12:33:28+00:00"
+      },
+      "2021/BA/0-0-0": {
+        "anunciado": 3245,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:48:42+00:00"
+      },
+      "2021/BA/0-0-1": {
+        "anunciado": 2114,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:48:47+00:00"
+      },
+      "2021/BA/0-0-2": {
+        "anunciado": 1860,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T12:48:51+00:00"
+      },
+      "2021/BA/0-0-3": {
+        "anunciado": 1002,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-09-16",
+        "baixado_em_utc": "2026-10-31T12:48:55+00:00"
+      },
+      "2021/BA/0-1": {
+        "anunciado": 47,
+        "data_imagem_min": "2021-09-09",
+        "data_imagem_max": "2021-09-09",
+        "baixado_em_utc": "2026-10-31T12:49:00+00:00"
+      },
+      "2021/BA/0-2": {
+        "anunciado": 4054,
+        "data_imagem_min": "2021-07-05",
+        "data_imagem_max": "2021-08-22",
+        "baixado_em_utc": "2026-10-31T12:49:05+00:00"
+      },
+      "2022/BA/0-0-0": {
+        "anunciado": 3338,
+        "data_imagem_min": "2022-07-07",
+        "data_imagem_max": "2022-09-03",
+        "baixado_em_utc": "2026-10-31T12:49:25+00:00"
+      },
+      "2022/BA/0-0-1": {
+        "anunciado": 1884,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-09-11",
+        "baixado_em_utc": "2026-10-31T12:49:30+00:00"
+      },
+      "2022/BA/0-0-2": {
+        "anunciado": 2163,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-08-08",
+        "baixado_em_utc": "2026-10-31T12:49:34+00:00"
+      },
+      "2022/BA/0-0-3": {
+        "anunciado": 874,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-08-19",
+        "baixado_em_utc": "2026-10-31T12:49:39+00:00"
+      },
+      "2022/BA/0-1": {
+        "anunciado": 31,
+        "data_imagem_min": "2022-08-19",
+        "data_imagem_max": "2022-08-19",
+        "baixado_em_utc": "2026-10-31T12:49:44+00:00"
+      },
+      "2022/BA/0-2": {
+        "anunciado": 4663,
+        "data_imagem_min": "2022-07-06",
+        "data_imagem_max": "2022-09-17",
+        "baixado_em_utc": "2026-10-31T12:49:47+00:00"
+      },
+      "2023/BA/0-0": {
+        "anunciado": 6806,
+        "data_imagem_min": "2023-07-03",
+        "data_imagem_max": "2023-09-25",
+        "baixado_em_utc": "2026-10-31T12:49:57+00:00"
+      },
+      "2023/BA/0-1": {
+        "anunciado": 33,
+        "data_imagem_min": "2023-08-21",
+        "data_imagem_max": "2023-09-25",
+        "baixado_em_utc": "2026-10-31T12:51:35+00:00"
+      },
+      "2023/BA/0-2": {
+        "anunciado": 4844,
+        "data_imagem_min": "2023-07-11",
+        "data_imagem_max": "2023-12-09",
+        "baixado_em_utc": "2026-10-31T12:51:39+00:00"
+      },
+      "2024/BA/0-0": {
+        "anunciado": 5159,
+        "data_imagem_min": "2024-07-12",
+        "data_imagem_max": "2024-08-25",
+        "baixado_em_utc": "2026-10-31T12:51:51+00:00"
+      },
+      "2024/BA/0-1": {
+        "anunciado": 13,
+        "data_imagem_min": "2024-08-11",
+        "data_imagem_max": "2024-08-25",
+        "baixado_em_utc": "2026-10-31T12:51:56+00:00"
+      },
+      "2024/BA/0-2": {
+        "anunciado": 3886,
+        "data_imagem_min": "2024-07-19",
+        "data_imagem_max": "2024-08-25",
+        "baixado_em_utc": "2026-10-31T12:52:00+00:00"
+      },
+      "2025/BA/0-0": {
+        "anunciado": 5925,
+        "data_imagem_min": "2025-07-11",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-31T12:52:11+00:00"
+      },
+      "2025/BA/0-1": {
+        "anunciado": 19,
+        "data_imagem_min": "2025-08-28",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-31T12:52:17+00:00"
+      },
+      "2025/BA/0-2": {
+        "anunciado": 3543,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-10-31T13:01:16+00:00"
+      },
+      "2026/BA/0-0": {
+        "anunciado": 5253,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T13:01:28+00:00"
+      },
+      "2026/BA/0-1": {
+        "anunciado": 23,
+        "data_imagem_min": "2026-08-12",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T13:01:37+00:00"
+      },
+      "2026/BA/0-2": {
+        "anunciado": 3698,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-10-31T13:01:40+00:00"
+      },
+      "2019/PA/0-1-0": {
+        "anunciado": 364,
+        "data_imagem_min": "2019-07-12",
+        "data_imagem_max": "2019-08-13",
+        "baixado_em_utc": "2026-10-31T21:07:01+00:00"
+      },
+      "2019/PA/0-1-1": {
+        "anunciado": 4519,
+        "data_imagem_min": "2019-07-14",
+        "data_imagem_max": "2019-09-16",
+        "baixado_em_utc": "2026-10-31T21:29:14+00:00"
+      },
+      "2019/PA/0-1-3": {
+        "anunciado": 3190,
+        "data_imagem_min": "2019-07-14",
+        "data_imagem_max": "2019-09-10",
+        "baixado_em_utc": "2026-10-31T21:29:21+00:00"
+      },
+      "2020/PA/0-1-0": {
+        "anunciado": 1981,
+        "data_imagem_min": "2020-07-30",
+        "data_imagem_max": "2020-08-15",
+        "baixado_em_utc": "2026-10-31T21:29:34+00:00"
+      },
+      "2020/PA/0-1-1": {
+        "anunciado": 6527,
+        "data_imagem_min": "2020-07-16",
+        "data_imagem_max": "2020-08-17",
+        "baixado_em_utc": "2026-10-31T21:29:38+00:00"
+      },
+      "2020/PA/0-1-3": {
+        "anunciado": 2620,
+        "data_imagem_min": "2020-08-01",
+        "data_imagem_max": "2020-09-02",
+        "baixado_em_utc": "2026-10-31T21:29:48+00:00"
+      },
+      "2021/PA/0-1-0": {
+        "anunciado": 1434,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-08-18",
+        "baixado_em_utc": "2026-10-31T22:54:44+00:00"
+      },
+      "2021/PA/0-1-1": {
+        "anunciado": 6908,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T22:54:48+00:00"
+      },
+      "2021/PA/0-1-3": {
+        "anunciado": 3906,
+        "data_imagem_min": "2021-07-26",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T22:54:55+00:00"
+      },
+      "2022/PA/0-1-0": {
+        "anunciado": 1343,
+        "data_imagem_min": "2022-07-28",
+        "data_imagem_max": "2022-08-29",
+        "baixado_em_utc": "2026-10-31T23:24:48+00:00"
+      },
+      "2022/PA/0-1-1": {
+        "anunciado": 7165,
+        "data_imagem_min": "2022-07-06",
+        "data_imagem_max": "2022-08-31",
+        "baixado_em_utc": "2026-10-31T23:26:25+00:00"
+      },
+      "2022/PA/0-1-3": {
+        "anunciado": 3873,
+        "data_imagem_min": "2022-07-22",
+        "data_imagem_max": "2022-08-29",
+        "baixado_em_utc": "2026-10-31T23:26:32+00:00"
+      },
+      "2023/PA/0-1-0": {
+        "anunciado": 1344,
+        "data_imagem_min": "2023-07-23",
+        "data_imagem_max": "2023-08-18",
+        "baixado_em_utc": "2026-10-31T23:26:48+00:00"
+      },
+      "2023/PA/0-1-1": {
+        "anunciado": 6540,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-08-18",
+        "baixado_em_utc": "2026-10-31T23:26:52+00:00"
+      },
+      "2023/PA/0-1-3": {
+        "anunciado": 3157,
+        "data_imagem_min": "2023-07-17",
+        "data_imagem_max": "2023-08-18",
+        "baixado_em_utc": "2026-10-31T23:26:58+00:00"
+      },
+      "2024/PA/0-1-0": {
+        "anunciado": 1074,
+        "data_imagem_min": "2024-08-10",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T23:42:15+00:00"
+      },
+      "2024/PA/0-1-1": {
+        "anunciado": 5923,
+        "data_imagem_min": "2024-07-05",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T23:42:19+00:00"
+      },
+      "2024/PA/0-1-3": {
+        "anunciado": 2783,
+        "data_imagem_min": "2024-08-11",
+        "data_imagem_max": "2024-08-11",
+        "baixado_em_utc": "2026-10-31T23:42:26+00:00"
+      },
+      "2025/PA/0-1-0": {
+        "anunciado": 847,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-21",
+        "baixado_em_utc": "2026-10-31T23:42:47+00:00"
+      },
+      "2025/PA/0-1-1": {
+        "anunciado": 5470,
+        "data_imagem_min": "2025-08-12",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-11-01T00:09:39+00:00"
+      },
+      "2025/PA/0-1-3": {
+        "anunciado": 2682,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-11-01T00:49:49+00:00"
+      },
+      "2026/PA/0": {
+        "anunciado": 7736,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-11-01T01:12:38+00:00"
+      },
+      "2019/MT/0": {
+        "anunciado": 7117,
+        "data_imagem_min": "2019-07-05",
+        "data_imagem_max": "2019-09-03",
+        "baixado_em_utc": "2026-11-01T02:08:12+00:00"
+      },
+      "2020/MT/0": {
+        "anunciado": 7873,
+        "data_imagem_min": "2020-07-21",
+        "data_imagem_max": "2020-08-31",
+        "baixado_em_utc": "2026-11-01T02:08:19+00:00"
+      },
+      "2021/MT/0-0": {
+        "anunciado": 2159,
+        "data_imagem_min": "2021-07-20",
+        "data_imagem_max": "2021-08-21",
+        "baixado_em_utc": "2026-11-01T03:30:51+00:00"
+      },
+      "2021/MT/0-1": {
+        "anunciado": 5611,
+        "data_imagem_min": "2021-06-29",
+        "data_imagem_max": "2021-09-01",
+        "baixado_em_utc": "2026-11-01T03:30:55+00:00"
+      },
+      "2021/MT/0-2": {
+        "anunciado": 155,
+        "data_imagem_min": "2021-07-20",
+        "data_imagem_max": "2021-08-19",
+        "baixado_em_utc": "2026-11-01T03:31:01+00:00"
+      },
+      "2021/MT/0-3": {
+        "anunciado": 636,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-08-23",
+        "baixado_em_utc": "2026-11-01T03:31:05+00:00"
+      },
+      "2022/MT/0": {
+        "anunciado": 6415,
+        "data_imagem_min": "2022-07-01",
+        "data_imagem_max": "2022-08-14",
+        "baixado_em_utc": "2026-11-01T03:31:10+00:00"
+      },
+      "2023/MT/0": {
+        "anunciado": 5391,
+        "data_imagem_min": "2023-07-03",
+        "data_imagem_max": "2023-08-10",
+        "baixado_em_utc": "2026-11-01T05:14:26+00:00"
+      },
+      "2024/MT/0": {
+        "anunciado": 4140,
+        "data_imagem_min": "2024-07-27",
+        "data_imagem_max": "2024-08-15",
+        "baixado_em_utc": "2026-11-01T05:14:35+00:00"
+      },
+      "2025/MT/0": {
+        "anunciado": 3213,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-11-01T05:14:54+00:00"
+      },
+      "2026/MT/0": {
+        "anunciado": 2690,
+        "data_imagem_min": "2026-07-27",
+        "data_imagem_max": "2026-08-12",
+        "baixado_em_utc": "2026-11-01T06:19:28+00:00"
       }
     },
     "mata_atlantica": {
-      "2019/MG": {
-        "anunciado": 8843,
+      "2019/MG/0-0-0": {
+        "anunciado": 143,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-10-25",
+        "baixado_em_utc": "2026-10-31T01:56:41+00:00"
+      },
+      "2019/MG/0-0-1": {
+        "anunciado": 381,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-08-24",
+        "baixado_em_utc": "2026-10-31T01:56:42+00:00"
+      },
+      "2019/MG/0-0-2": {
+        "anunciado": 152,
         "data_imagem_min": "2019-06-19",
+        "data_imagem_max": "2019-08-22",
+        "baixado_em_utc": "2026-10-31T01:56:54+00:00"
+      },
+      "2019/MG/0-0-3": {
+        "anunciado": 25,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-08-24",
+        "baixado_em_utc": "2026-10-31T01:56:55+00:00"
+      },
+      "2019/MG/0-1": {
+        "anunciado": 5027,
+        "data_imagem_min": "2019-02-24",
         "data_imagem_max": "2019-09-13",
-        "baixado_em_utc": "2026-10-30T04:07:34+00:00"
+        "baixado_em_utc": "2026-10-31T01:57:06+00:00"
       },
-      "2020/MG": {
-        "anunciado": 6704,
+      "2019/MG/0-2": {
+        "anunciado": 22,
+        "data_imagem_min": "2019-06-19",
+        "data_imagem_max": "2019-08-31",
+        "baixado_em_utc": "2026-10-31T01:57:22+00:00"
+      },
+      "2019/MG/0-3": {
+        "anunciado": 7377,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T01:57:33+00:00"
+      },
+      "2020/MG/0-0": {
+        "anunciado": 1117,
+        "data_imagem_min": "2020-05-29",
+        "data_imagem_max": "2020-09-13",
+        "baixado_em_utc": "2026-10-31T01:57:49+00:00"
+      },
+      "2020/MG/0-1": {
+        "anunciado": 4019,
         "data_imagem_min": "2020-01-11",
-        "data_imagem_max": "2020-10-08",
-        "baixado_em_utc": "2026-10-30T04:07:39+00:00"
+        "data_imagem_max": "2020-09-29",
+        "baixado_em_utc": "2026-10-31T01:58:01+00:00"
       },
-      "2021/MG": {
-        "anunciado": 7255,
+      "2020/MG/0-2": {
+        "anunciado": 58,
+        "data_imagem_min": "2020-07-16",
+        "data_imagem_max": "2020-09-02",
+        "baixado_em_utc": "2026-10-31T01:58:05+00:00"
+      },
+      "2020/MG/0-3": {
+        "anunciado": 4248,
+        "data_imagem_min": "2020-01-12",
+        "data_imagem_max": "2020-10-08",
+        "baixado_em_utc": "2026-10-31T01:58:06+00:00"
+      },
+      "2021/MG/0-0": {
+        "anunciado": 616,
+        "data_imagem_min": "2021-06-28",
+        "data_imagem_max": "2021-09-28",
+        "baixado_em_utc": "2026-10-31T01:58:23+00:00"
+      },
+      "2021/MG/0-1-0": {
+        "anunciado": 467,
+        "data_imagem_min": "2021-06-28",
+        "data_imagem_max": "2021-08-24",
+        "baixado_em_utc": "2026-10-31T01:59:46+00:00"
+      },
+      "2021/MG/0-1-1": {
+        "anunciado": 254,
+        "data_imagem_min": "2021-05-29",
+        "data_imagem_max": "2021-08-24",
+        "baixado_em_utc": "2026-10-31T01:59:58+00:00"
+      },
+      "2021/MG/0-1-2": {
+        "anunciado": 836,
+        "data_imagem_min": "2021-06-21",
+        "data_imagem_max": "2021-08-24",
+        "baixado_em_utc": "2026-10-31T02:00:10+00:00"
+      },
+      "2021/MG/0-1-3": {
+        "anunciado": 1968,
+        "data_imagem_min": "2021-05-22",
+        "data_imagem_max": "2021-09-18",
+        "baixado_em_utc": "2026-10-31T02:00:11+00:00"
+      },
+      "2021/MG/0-2-0": {
+        "anunciado": 25,
+        "data_imagem_min": "2021-07-26",
+        "data_imagem_max": "2021-08-20",
+        "baixado_em_utc": "2026-10-31T02:00:42+00:00"
+      },
+      "2021/MG/0-3": {
+        "anunciado": 5975,
         "data_imagem_min": "2021-05-20",
         "data_imagem_max": "2021-09-18",
-        "baixado_em_utc": "2026-10-30T04:07:44+00:00"
+        "baixado_em_utc": "2026-10-31T02:00:54+00:00"
       },
-      "2022/MG": {
-        "anunciado": 7430,
+      "2022/MG/0-0": {
+        "anunciado": 214,
+        "data_imagem_min": "2022-06-22",
+        "data_imagem_max": "2022-09-02",
+        "baixado_em_utc": "2026-10-31T02:01:44+00:00"
+      },
+      "2022/MG/0-1-0-0": {
+        "anunciado": 48,
+        "data_imagem_min": "2022-06-23",
+        "data_imagem_max": "2022-08-02",
+        "baixado_em_utc": "2026-10-31T02:03:19+00:00"
+      },
+      "2022/MG/0-1-0-1": {
+        "anunciado": 42,
+        "data_imagem_min": "2022-06-24",
+        "data_imagem_max": "2022-08-02",
+        "baixado_em_utc": "2026-10-31T02:03:37+00:00"
+      },
+      "2022/MG/0-1-0-2": {
+        "anunciado": 168,
+        "data_imagem_min": "2022-06-22",
+        "data_imagem_max": "2022-09-03",
+        "baixado_em_utc": "2026-10-31T02:03:37+00:00"
+      },
+      "2022/MG/0-1-0-3": {
+        "anunciado": 133,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-03",
+        "baixado_em_utc": "2026-10-31T02:03:52+00:00"
+      },
+      "2022/MG/0-1-1": {
+        "anunciado": 196,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-07-03",
+        "baixado_em_utc": "2026-10-31T02:03:53+00:00"
+      },
+      "2022/MG/0-1-2": {
+        "anunciado": 1648,
         "data_imagem_min": "2022-06-08",
         "data_imagem_max": "2022-09-11",
-        "baixado_em_utc": "2026-10-30T04:07:49+00:00"
+        "baixado_em_utc": "2026-10-31T02:03:54+00:00"
       },
-      "2023/MG": {
-        "anunciado": 7439,
-        "data_imagem_min": "2023-06-10",
+      "2022/MG/0-1-3": {
+        "anunciado": 1483,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-10",
+        "baixado_em_utc": "2026-10-31T02:03:57+00:00"
+      },
+      "2022/MG/0-2": {
+        "anunciado": 22,
+        "data_imagem_min": "2022-07-06",
+        "data_imagem_max": "2022-07-06",
+        "baixado_em_utc": "2026-10-31T02:03:59+00:00"
+      },
+      "2022/MG/0-3": {
+        "anunciado": 5930,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-11",
+        "baixado_em_utc": "2026-10-31T02:04:11+00:00"
+      },
+      "2023/MG/0-0": {
+        "anunciado": 214,
+        "data_imagem_min": "2023-06-06",
+        "data_imagem_max": "2023-08-22",
+        "baixado_em_utc": "2026-10-31T02:05:59+00:00"
+      },
+      "2023/MG/0-1": {
+        "anunciado": 3319,
+        "data_imagem_min": "2023-06-07",
+        "data_imagem_max": "2023-08-04",
+        "baixado_em_utc": "2026-10-31T02:06:17+00:00"
+      },
+      "2023/MG/0-2": {
+        "anunciado": 18,
+        "data_imagem_min": "2023-07-06",
+        "data_imagem_max": "2023-07-16",
+        "baixado_em_utc": "2026-10-31T02:06:34+00:00"
+      },
+      "2023/MG/0-3-0": {
+        "anunciado": 442,
+        "data_imagem_min": "2023-07-12",
+        "data_imagem_max": "2023-08-04",
+        "baixado_em_utc": "2026-10-31T02:09:22+00:00"
+      },
+      "2023/MG/0-3-1": {
+        "anunciado": 2871,
+        "data_imagem_min": "2023-07-09",
         "data_imagem_max": "2023-10-25",
-        "baixado_em_utc": "2026-10-30T04:07:54+00:00"
+        "baixado_em_utc": "2026-10-31T02:09:43+00:00"
       },
-      "2024/MG": {
-        "anunciado": 7172,
+      "2023/MG/0-3-3": {
+        "anunciado": 2954,
+        "data_imagem_min": "2023-07-14",
+        "data_imagem_max": "2023-11-14",
+        "baixado_em_utc": "2026-10-31T02:09:46+00:00"
+      },
+      "2024/MG/0-0": {
+        "anunciado": 209,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-08-12",
+        "baixado_em_utc": "2026-10-31T02:11:06+00:00"
+      },
+      "2024/MG/0-1-0-0": {
+        "anunciado": 129,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-08-28",
+        "baixado_em_utc": "2026-10-31T02:12:21+00:00"
+      },
+      "2024/MG/0-1-0-1": {
+        "anunciado": 250,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-08-12",
+        "baixado_em_utc": "2026-10-31T02:12:22+00:00"
+      },
+      "2024/MG/0-1-0-2": {
+        "anunciado": 146,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-07-27",
+        "baixado_em_utc": "2026-10-31T02:12:23+00:00"
+      },
+      "2024/MG/0-1-0-3": {
+        "anunciado": 218,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-07-11",
+        "baixado_em_utc": "2026-10-31T02:12:34+00:00"
+      },
+      "2024/MG/0-1-1": {
+        "anunciado": 159,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-08-12",
+        "baixado_em_utc": "2026-10-31T02:12:35+00:00"
+      },
+      "2024/MG/0-1-2": {
+        "anunciado": 853,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-07-27",
+        "baixado_em_utc": "2026-10-31T02:12:36+00:00"
+      },
+      "2024/MG/0-1-3": {
+        "anunciado": 1463,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-11-16",
+        "baixado_em_utc": "2026-10-31T02:12:49+00:00"
+      },
+      "2024/MG/0-2-0-1": {
+        "anunciado": 24,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-07-27",
+        "baixado_em_utc": "2026-10-31T02:15:17+00:00"
+      },
+      "2024/MG/0-3": {
+        "anunciado": 5490,
         "data_imagem_min": "2024-07-11",
         "data_imagem_max": "2024-09-29",
-        "baixado_em_utc": "2026-10-30T04:07:59+00:00"
+        "baixado_em_utc": "2026-10-31T02:15:18+00:00"
       },
-      "2025/MG": {
-        "anunciado": 5077,
+      "2025/MG/0-0": {
+        "anunciado": 174,
+        "data_imagem_min": "2025-07-28",
+        "data_imagem_max": "2025-08-29",
+        "baixado_em_utc": "2026-10-31T02:16:59+00:00"
+      },
+      "2025/MG/0-1": {
+        "anunciado": 2270,
+        "data_imagem_min": "2025-07-12",
+        "data_imagem_max": "2025-09-30",
+        "baixado_em_utc": "2026-10-31T02:17:00+00:00"
+      },
+      "2025/MG/0-2": {
+        "anunciado": 17,
+        "data_imagem_min": "2025-07-28",
+        "data_imagem_max": "2025-07-28",
+        "baixado_em_utc": "2026-10-31T02:17:14+00:00"
+      },
+      "2025/MG/0-3": {
+        "anunciado": 4026,
         "data_imagem_min": "2025-06-26",
         "data_imagem_max": "2025-10-16",
-        "baixado_em_utc": "2026-10-30T04:08:05+00:00"
+        "baixado_em_utc": "2026-10-31T02:17:25+00:00"
+      },
+      "2019/RS/0": {
+        "anunciado": 4792,
+        "data_imagem_min": "2019-07-07",
+        "data_imagem_max": "2019-12-30",
+        "baixado_em_utc": "2026-10-31T05:18:53+00:00"
+      },
+      "2020/RS/0": {
+        "anunciado": 4546,
+        "data_imagem_min": "2020-03-10",
+        "data_imagem_max": "2020-08-26",
+        "baixado_em_utc": "2026-10-31T05:34:25+00:00"
+      },
+      "2021/RS/0": {
+        "anunciado": 5424,
+        "data_imagem_min": "2021-02-18",
+        "data_imagem_max": "2021-11-24",
+        "baixado_em_utc": "2026-10-31T05:34:42+00:00"
+      },
+      "2022/RS/0": {
+        "anunciado": 3793,
+        "data_imagem_min": "2022-06-11",
+        "data_imagem_max": "2022-09-01",
+        "baixado_em_utc": "2026-10-31T05:50:05+00:00"
+      },
+      "2023/RS/0-2": {
+        "anunciado": 167,
+        "data_imagem_min": "2023-07-19",
+        "data_imagem_max": "2023-07-22",
+        "baixado_em_utc": "2026-10-31T06:03:40+00:00"
+      },
+      "2023/RS/0-3": {
+        "anunciado": 2115,
+        "data_imagem_min": "2023-06-03",
+        "data_imagem_max": "2023-08-30",
+        "baixado_em_utc": "2026-10-31T06:03:41+00:00"
+      },
+      "2024/RS/0": {
+        "anunciado": 695,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-08-28",
+        "baixado_em_utc": "2026-10-31T06:03:45+00:00"
+      },
+      "2025/RS/0": {
+        "anunciado": 701,
+        "data_imagem_min": "2025-07-28",
+        "data_imagem_max": "2025-09-30",
+        "baixado_em_utc": "2026-10-31T06:03:51+00:00"
+      },
+      "2019/PR/0": {
+        "anunciado": 5879,
+        "data_imagem_min": "2019-06-10",
+        "data_imagem_max": "2019-11-19",
+        "baixado_em_utc": "2026-10-31T09:19:28+00:00"
+      },
+      "2020/PR/0": {
+        "anunciado": 3675,
+        "data_imagem_min": "2020-03-10",
+        "data_imagem_max": "2020-08-31",
+        "baixado_em_utc": "2026-10-31T09:19:35+00:00"
+      },
+      "2021/PR/0": {
+        "anunciado": 5844,
+        "data_imagem_min": "2021-02-18",
+        "data_imagem_max": "2021-09-28",
+        "baixado_em_utc": "2026-10-31T09:19:39+00:00"
+      },
+      "2022/PR/0": {
+        "anunciado": 4292,
+        "data_imagem_min": "2022-06-12",
+        "data_imagem_max": "2022-09-23",
+        "baixado_em_utc": "2026-10-31T09:19:45+00:00"
+      },
+      "2023/PR/0": {
+        "anunciado": 2719,
+        "data_imagem_min": "2023-06-09",
+        "data_imagem_max": "2023-09-24",
+        "baixado_em_utc": "2026-10-31T09:19:50+00:00"
+      },
+      "2024/PR/0": {
+        "anunciado": 837,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-12-18",
+        "baixado_em_utc": "2026-10-31T09:19:54+00:00"
+      },
+      "2025/PR/0": {
+        "anunciado": 794,
+        "data_imagem_min": "2025-07-28",
+        "data_imagem_max": "2025-09-14",
+        "baixado_em_utc": "2026-10-31T09:19:57+00:00"
+      },
+      "2019/SP/0": {
+        "anunciado": 3977,
+        "data_imagem_min": "2019-06-10",
+        "data_imagem_max": "2019-10-25",
+        "baixado_em_utc": "2026-10-31T09:35:18+00:00"
+      },
+      "2020/SP/0": {
+        "anunciado": 3582,
+        "data_imagem_min": "2020-03-10",
+        "data_imagem_max": "2020-09-29",
+        "baixado_em_utc": "2026-10-31T09:35:22+00:00"
+      },
+      "2021/SP/0": {
+        "anunciado": 3112,
+        "data_imagem_min": "2021-05-23",
+        "data_imagem_max": "2021-09-28",
+        "baixado_em_utc": "2026-10-31T09:35:27+00:00"
+      },
+      "2022/SP/0": {
+        "anunciado": 2255,
+        "data_imagem_min": "2022-06-12",
+        "data_imagem_max": "2022-09-23",
+        "baixado_em_utc": "2026-10-31T09:35:31+00:00"
+      },
+      "2023/SP/0": {
+        "anunciado": 1500,
+        "data_imagem_min": "2023-06-06",
+        "data_imagem_max": "2023-09-24",
+        "baixado_em_utc": "2026-10-31T09:35:36+00:00"
+      },
+      "2024/SP/0": {
+        "anunciado": 942,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-12-18",
+        "baixado_em_utc": "2026-10-31T09:35:39+00:00"
+      },
+      "2025/SP/0": {
+        "anunciado": 848,
+        "data_imagem_min": "2025-07-12",
+        "data_imagem_max": "2025-09-14",
+        "baixado_em_utc": "2026-10-31T09:35:42+00:00"
+      },
+      "2019/MS/0": {
+        "anunciado": 290,
+        "data_imagem_min": "2019-06-10",
+        "data_imagem_max": "2019-10-25",
+        "baixado_em_utc": "2026-10-31T11:58:39+00:00"
+      },
+      "2020/MS/0": {
+        "anunciado": 258,
+        "data_imagem_min": "2020-07-23",
+        "data_imagem_max": "2020-09-09",
+        "baixado_em_utc": "2026-10-31T11:58:41+00:00"
+      },
+      "2021/MS/0": {
+        "anunciado": 320,
+        "data_imagem_min": "2021-07-01",
+        "data_imagem_max": "2021-09-28",
+        "baixado_em_utc": "2026-10-31T11:58:42+00:00"
+      },
+      "2022/MS/0": {
+        "anunciado": 113,
+        "data_imagem_min": "2022-07-02",
+        "data_imagem_max": "2022-09-23",
+        "baixado_em_utc": "2026-10-31T11:58:45+00:00"
+      },
+      "2023/MS/0": {
+        "anunciado": 109,
+        "data_imagem_min": "2023-06-06",
+        "data_imagem_max": "2023-08-30",
+        "baixado_em_utc": "2026-10-31T11:58:47+00:00"
+      },
+      "2024/MS/0": {
+        "anunciado": 51,
+        "data_imagem_min": "2024-07-11",
+        "data_imagem_max": "2024-07-27",
+        "baixado_em_utc": "2026-10-31T11:58:48+00:00"
+      },
+      "2025/MS/0": {
+        "anunciado": 19,
+        "data_imagem_min": "2025-07-12",
+        "data_imagem_max": "2025-07-28",
+        "baixado_em_utc": "2026-10-31T11:58:50+00:00"
+      },
+      "2019/BA/0-0": {
+        "anunciado": 1646,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-09-11",
+        "baixado_em_utc": "2026-10-31T14:18:35+00:00"
+      },
+      "2019/BA/0-1-0": {
+        "anunciado": 3150,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-09-13",
+        "baixado_em_utc": "2026-10-31T14:18:38+00:00"
+      },
+      "2019/BA/0-1-1": {
+        "anunciado": 345,
+        "data_imagem_min": "2019-06-02",
+        "data_imagem_max": "2019-08-28",
+        "baixado_em_utc": "2026-10-31T14:18:42+00:00"
+      },
+      "2019/BA/0-1-2": {
+        "anunciado": 3154,
+        "data_imagem_min": "2019-07-02",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T14:18:43+00:00"
+      },
+      "2019/BA/0-1-3": {
+        "anunciado": 2172,
+        "data_imagem_min": "2019-06-02",
+        "data_imagem_max": "2019-12-02",
+        "baixado_em_utc": "2026-10-31T14:18:46+00:00"
+      },
+      "2019/BA/0-3": {
+        "anunciado": 1893,
+        "data_imagem_min": "2019-08-03",
+        "data_imagem_max": "2019-12-11",
+        "baixado_em_utc": "2026-10-31T14:18:48+00:00"
+      },
+      "2020/BA/0": {
+        "anunciado": 6558,
+        "data_imagem_min": "2020-01-12",
+        "data_imagem_max": "2020-10-10",
+        "baixado_em_utc": "2026-10-31T14:18:51+00:00"
+      },
+      "2021/BA/0-0": {
+        "anunciado": 1344,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-08-15",
+        "baixado_em_utc": "2026-10-31T15:53:49+00:00"
+      },
+      "2021/BA/0-1": {
+        "anunciado": 5887,
+        "data_imagem_min": "2021-05-20",
+        "data_imagem_max": "2021-10-29",
+        "baixado_em_utc": "2026-10-31T15:53:51+00:00"
+      },
+      "2021/BA/0-3": {
+        "anunciado": 1078,
+        "data_imagem_min": "2021-03-10",
+        "data_imagem_max": "2021-10-29",
+        "baixado_em_utc": "2026-10-31T15:53:56+00:00"
+      },
+      "2022/BA/0-0": {
+        "anunciado": 1598,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-11",
+        "baixado_em_utc": "2026-10-31T16:02:49+00:00"
+      },
+      "2022/BA/0-1": {
+        "anunciado": 7620,
+        "data_imagem_min": "2022-06-08",
+        "data_imagem_max": "2022-09-14",
+        "baixado_em_utc": "2026-10-31T16:02:51+00:00"
+      },
+      "2022/BA/0-3": {
+        "anunciado": 1464,
+        "data_imagem_min": "2022-06-17",
+        "data_imagem_max": "2022-09-21",
+        "baixado_em_utc": "2026-10-31T16:03:01+00:00"
+      },
+      "2023/BA/0-0": {
+        "anunciado": 1694,
+        "data_imagem_min": "2023-07-12",
+        "data_imagem_max": "2023-09-25",
+        "baixado_em_utc": "2026-10-31T17:16:54+00:00"
+      },
+      "2023/BA/0-1": {
+        "anunciado": 5722,
+        "data_imagem_min": "2023-07-09",
+        "data_imagem_max": "2023-12-11",
+        "baixado_em_utc": "2026-10-31T17:16:56+00:00"
+      },
+      "2023/BA/0-3": {
+        "anunciado": 1574,
+        "data_imagem_min": "2023-09-15",
+        "data_imagem_max": "2023-12-31",
+        "baixado_em_utc": "2026-10-31T17:17:01+00:00"
+      },
+      "2024/BA/0": {
+        "anunciado": 7292,
+        "data_imagem_min": "2024-05-14",
+        "data_imagem_max": "2024-09-29",
+        "baixado_em_utc": "2026-10-31T17:17:06+00:00"
+      },
+      "2025/BA/0": {
+        "anunciado": 6153,
+        "data_imagem_min": "2025-06-26",
+        "data_imagem_max": "2025-11-17",
+        "baixado_em_utc": "2026-10-31T17:17:12+00:00"
+      }
+    },
+    "pampa": {
+      "2019/RS/0": {
+        "anunciado": 7494,
+        "data_imagem_min": "2018-11-02",
+        "data_imagem_max": "2020-08-23",
+        "baixado_em_utc": "2026-10-31T06:04:01+00:00"
+      },
+      "2020/RS/0": {
+        "anunciado": 6806,
+        "data_imagem_min": "2020-03-24",
+        "data_imagem_max": "2020-12-30",
+        "baixado_em_utc": "2026-10-31T06:04:08+00:00"
+      },
+      "2021/RS/0-0": {
+        "anunciado": 1917,
+        "data_imagem_min": "2021-05-07",
+        "data_imagem_max": "2021-11-22",
+        "baixado_em_utc": "2026-10-31T06:35:28+00:00"
+      },
+      "2021/RS/0-1": {
+        "anunciado": 3273,
+        "data_imagem_min": "2021-05-07",
+        "data_imagem_max": "2021-12-20",
+        "baixado_em_utc": "2026-10-31T06:35:31+00:00"
+      },
+      "2021/RS/0-2": {
+        "anunciado": 5113,
+        "data_imagem_min": "2021-04-23",
+        "data_imagem_max": "2021-12-07",
+        "baixado_em_utc": "2026-10-31T06:35:36+00:00"
+      },
+      "2021/RS/0-3": {
+        "anunciado": 2041,
+        "data_imagem_min": "2021-04-28",
+        "data_imagem_max": "2021-11-24",
+        "baixado_em_utc": "2026-10-31T06:35:41+00:00"
+      },
+      "2022/RS/0": {
+        "anunciado": 5865,
+        "data_imagem_min": "2022-08-20",
+        "data_imagem_max": "2022-11-25",
+        "baixado_em_utc": "2026-10-31T06:35:45+00:00"
+      },
+      "2023/RS/0": {
+        "anunciado": 5449,
+        "data_imagem_min": "2023-04-30",
+        "data_imagem_max": "2023-12-28",
+        "baixado_em_utc": "2026-10-31T07:37:59+00:00"
+      },
+      "2024/RS/0": {
+        "anunciado": 5110,
+        "data_imagem_min": "2024-01-17",
+        "data_imagem_max": "2024-12-18",
+        "baixado_em_utc": "2026-10-31T07:38:07+00:00"
+      },
+      "2025/RS/0": {
+        "anunciado": 3238,
+        "data_imagem_min": "2025-11-01",
+        "data_imagem_max": "2025-12-19",
+        "baixado_em_utc": "2026-10-31T07:38:18+00:00"
+      }
+    },
+    "pantanal": {
+      "2019/MS/0": {
+        "anunciado": 770,
+        "data_imagem_min": "2019-05-30",
+        "data_imagem_max": "2019-09-19",
+        "baixado_em_utc": "2026-10-31T11:58:56+00:00"
+      },
+      "2020/MS/0": {
+        "anunciado": 1002,
+        "data_imagem_min": "2020-05-23",
+        "data_imagem_max": "2020-09-23",
+        "baixado_em_utc": "2026-10-31T11:58:57+00:00"
+      },
+      "2021/MS/0": {
+        "anunciado": 1138,
+        "data_imagem_min": "2021-07-13",
+        "data_imagem_max": "2021-08-16",
+        "baixado_em_utc": "2026-10-31T11:58:59+00:00"
+      },
+      "2022/MS/0": {
+        "anunciado": 644,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-09-18",
+        "baixado_em_utc": "2026-10-31T11:59:01+00:00"
+      },
+      "2023/MS/0": {
+        "anunciado": 603,
+        "data_imagem_min": "2023-08-01",
+        "data_imagem_max": "2023-08-06",
+        "baixado_em_utc": "2026-10-31T11:59:03+00:00"
+      },
+      "2024/MS/0": {
+        "anunciado": 863,
+        "data_imagem_min": "2024-07-26",
+        "data_imagem_max": "2024-08-27",
+        "baixado_em_utc": "2026-10-31T11:59:04+00:00"
+      },
+      "2025/MS/0": {
+        "anunciado": 880,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-12",
+        "baixado_em_utc": "2026-10-31T12:14:08+00:00"
+      },
+      "2019/MT/0": {
+        "anunciado": 701,
+        "data_imagem_min": "2019-05-30",
+        "data_imagem_max": "2019-09-03",
+        "baixado_em_utc": "2026-11-01T06:19:35+00:00"
+      },
+      "2020/MT/0": {
+        "anunciado": 1060,
+        "data_imagem_min": "2020-07-10",
+        "data_imagem_max": "2020-08-29",
+        "baixado_em_utc": "2026-11-01T06:19:37+00:00"
+      },
+      "2021/MT/0": {
+        "anunciado": 850,
+        "data_imagem_min": "2021-07-20",
+        "data_imagem_max": "2021-09-06",
+        "baixado_em_utc": "2026-11-01T06:19:40+00:00"
+      },
+      "2022/MT/0": {
+        "anunciado": 447,
+        "data_imagem_min": "2022-07-08",
+        "data_imagem_max": "2022-08-17",
+        "baixado_em_utc": "2026-11-01T06:19:44+00:00"
+      },
+      "2023/MT/0": {
+        "anunciado": 394,
+        "data_imagem_min": "2023-08-01",
+        "data_imagem_max": "2023-08-17",
+        "baixado_em_utc": "2026-11-01T06:19:47+00:00"
+      },
+      "2024/MT/0": {
+        "anunciado": 678,
+        "data_imagem_min": "2024-07-26",
+        "data_imagem_max": "2024-08-27",
+        "baixado_em_utc": "2026-11-01T06:19:50+00:00"
+      },
+      "2025/MT/0": {
+        "anunciado": 464,
+        "data_imagem_min": "2025-07-27",
+        "data_imagem_max": "2025-08-28",
+        "baixado_em_utc": "2026-11-01T06:19:51+00:00"
       }
     }
   },
-  "arquivo": "data/processed/inpe_prodes.parquet",
-  "sha256": "96999de3cff95c97c42200a0c6480297ba452c00d69b02909b5a72141404938b",
+  "particoes": {
+    "BA": {
+      "arquivo": "data/processed/inpe_prodes/uf=BA/part.parquet",
+      "sha256": "42bf8c0b2f3f083b72ecb80f720a859c86aab97d7d1a9c801ced61f83f3b830d"
+    },
+    "MG": {
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet",
+      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6"
+    },
+    "MS": {
+      "arquivo": "data/processed/inpe_prodes/uf=MS/part.parquet",
+      "sha256": "41217f879d55f4f80a2f71d5e7c1ad29c7e1f36df9bf90271cb89fe1a3d92603"
+    },
+    "MT": {
+      "arquivo": "data/processed/inpe_prodes/uf=MT/part.parquet",
+      "sha256": "23b92495f68c89684c41ee3d09e95e397658e2cf2d7903685f9ac06276c0bf02"
+    },
+    "PA": {
+      "arquivo": "data/processed/inpe_prodes/uf=PA/part.parquet",
+      "sha256": "de77f334a02a281b2f597eef084857c9a292344087654fa72954c2c4007afd4b"
+    },
+    "PR": {
+      "arquivo": "data/processed/inpe_prodes/uf=PR/part.parquet",
+      "sha256": "f11021fcbf1e299dace5ee3848dae40d30495ccb3dfd77abce9c6d089f4fd169"
+    },
+    "RS": {
+      "arquivo": "data/processed/inpe_prodes/uf=RS/part.parquet",
+      "sha256": "6e4de5750fb1e447e6f60125b6ea2dabd82b49112c8569ef39504aae45f765af"
+    },
+    "SP": {
+      "arquivo": "data/processed/inpe_prodes/uf=SP/part.parquet",
+      "sha256": "e2b146a3451166162eea28911fc88c2bdd7040e6617e72161bc3d49488df784b"
+    }
+  },
   "historico": [
     {
-      "verificado_em_utc": "2026-10-30T04:06:27+00:00",
+      "verificado_em_utc": "2026-10-31T00:59:55+00:00",
       "mudancas": [],
+      "ufs": [
+        "MG"
+      ],
       "ultimo_ano_publicado": {
+        "caatinga": 2025,
         "cerrado": 2026,
         "mata_atlantica": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T05:18:49+00:00",
+      "mudancas": [
+        {
+          "uf": "RS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "mata_atlantica",
+            "pampa"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T07:53:45+00:00",
+      "mudancas": [
+        {
+          "uf": "PR",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:20:02+00:00",
+      "mudancas": [
+        {
+          "uf": "SP",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:35:47+00:00",
+      "mudancas": [
+        {
+          "uf": "MS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T12:14:14+00:00",
+      "mudancas": [
+        {
+          "uf": "BA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "caatinga",
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T17:32:57+00:00",
+      "mudancas": [
+        {
+          "uf": "PA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-01T01:28:30+00:00",
+      "mudancas": [
+        {
+          "uf": "MT",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
       }
     }
   ]

@@ -1,0 +1,19 @@
+{
+  "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+  "parametros": {
+    "service": "WFS",
+    "version": "2.0.0",
+    "request": "GetFeature",
+    "typeName": "Funai:tis_poligonais",
+    "outputFormat": "application/json",
+    "propertyName": "terrai_codigo,uf_sigla,fase_ti,data_atualizacao",
+    "count": "5000"
+  },
+  "url_completa": "https://geoserver.funai.gov.br/geoserver/Funai/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=Funai%3Atis_poligonais&outputFormat=application%2Fjson&propertyName=terrai_codigo%2Cuf_sigla%2Cfase_ti%2Cdata_atualizacao&count=5000",
+  "consultado_em_utc": "2026-10-30T23:51:30+00:00",
+  "status_http": 200,
+  "segundos": 0.575,
+  "content_type": "application/json;charset=UTF-8",
+  "tamanho_bytes": 169651,
+  "sha256": "e57c92b2d87fd74419f3068f55c1a0927174245acd390ea3721505cab0f32e03"
+}

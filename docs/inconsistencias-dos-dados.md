@@ -95,7 +95,7 @@ Consultado sob demanda ([`pipeline/fontes/inpe_prodes.py`](../pipeline/fontes/in
 | `main_class` diferente de `DESMATAMENTO`, `uuid` nulo ou repetido | 0 | Descarte |
 | Polígono do PRODES 2021 sobre alerta DETER com imagem entre 01/08 e 31/12/2020 (supressão possivelmente anterior ao corte, datada de 2021) | 166 alertas | A escada de fontes combina DETER e PRODES ([ADR 0009](arquitetura/adr/0009-combinar-deter-e-prodes-por-data-de-imagem-e-cobertura.md)) |
 
-### PRODES em lote (Atividade 04): MG, Cerrado e Mata Atlântica, 112.817 polígonos de 2019 a 2026
+### PRODES em lote, primeira versão (Atividade 04): MG, Cerrado e Mata Atlântica, 112.817 polígonos de 2019 a 2026
 
 Execução de 30/10/2026 em [`evidencias/atividade-04/prodes-lote/`](evidencias/atividade-04/prodes-lote/).
 
@@ -108,6 +108,25 @@ Execução de 30/10/2026 em [`evidencias/atividade-04/prodes-lote/`](evidencias/
 | `area_km` difere mais de 10% da área calculada | 1.654 | Alerta; usar a área calculada |
 | Último ano publicado diferente do que o código supunha: Cerrado 2026 já publicado, constante em 2025 | 1 bioma | O último ano passou a vir da contagem do serviço ([ADR 0010](arquitetura/adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)) |
 
+Na versão por UF ([ADR 0013](arquitetura/adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)), o recorte passou a ser o contorno da UF: o campo `state` diferente do contorno vira o alerta `PRODES_UF_DIFERE_DO_CONTORNO`, e o polígono do retângulo que não toca a UF é descartado da partição (`PRODES_FORA_DO_CONTORNO_DA_UF`). MG também tem Caatinga, que a primeira versão deixava de fora.
+
+### PRODES em lote por UF (Atividade 04): 8 UFs, seis biomas, 637.429 polígonos de 2019 a 2026
+
+Partições de MG, BA, PA, RS, MT, MS, PR e SP, carregadas de 30/10 a 02/11/2026 ([`evidencias/atividade-04/prodes-lote/`](evidencias/atividade-04/prodes-lote/)). Contagens lidas das partições e de `inpe_prodes_descartados.parquet`.
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| `main_class` em minúsculas (`desmatamento`) na camada da Amazônia: quase todo 2019 e 2020 e 254 polígonos de 2021 a 2025, em PA e MT | 68.132 | Correção para maiúsculas (`PRODES_CLASSE_CAIXA_DIFERENTE`). Até 02/11/2026 esses polígonos eram descartados como classe fora do domínio |
+| `main_class` fora do domínio (`RESERVATORIO`, `QUEIMADA`) | 1.838 | Descarte |
+| `uuid` repetido entre partes do retângulo dividido | 1.024 | Descarte da cópia |
+| `image_date` fora do ano PRODES | 434.897 | Alerta; vale `image_date` |
+| `area_km` difere mais de 10% da área calculada | 24.175 | Alerta; usar a área calculada |
+| Campo `state` diferente da UF do contorno | 771 | Alerta `UF_DIFERE_DO_CONTORNO`; vale o contorno, e o `state` fica em `uf_fonte` |
+| Polígono de divisa, presente na partição de duas UFs | 176 | Mantido nas duas, com a mesma `uf` (a do ponto representativo) |
+| `state` vazio | 1 (PR) | UF anulada; vale o contorno |
+| Anel degenerado que interrompe o `make_valid` do GEOS ("mixed-dimension"): Mata Atlântica 2024 em MG, e depois um alerta DETER em PA | 2 geometrias | `vetor.tornar_valida` tenta o método `structure`; vale para todas as fontes |
+| Combinação de ano, bioma e UF com mais de 8 mil polígonos ou resposta 5xx | 292 de 386 | Retângulo dividido em quatro até caber (`PRODES_RETANGULO_DIVIDIDO`) |
+
 ## AB+S — API pública de validação
 
 Consultada sob demanda, um relatório por vez ([`pipeline/fontes/ab_s.py`](../pipeline/fontes/ab_s.py)); detalhe em [`atividade-03/ab-s-validacao-cruzada.md`](atividade-03/ab-s-validacao-cruzada.md).
@@ -117,6 +136,39 @@ Consultada sob demanda, um relatório por vez ([`pipeline/fontes/ab_s.py`](../pi
 | A API não valida o formato do código: texto qualquer recebe 404 em `qualificacao` e `area-producao` e 500 em `habilitacao` | Formato validado antes da consulta; código malformado não é enviado |
 | 404 não distingue código errado, relatório de ambiente de teste e relatório inexistente | Registrado como "não localizado na consulta pública em [data]" |
 | O mesmo rótulo "Não conforme" serve para falta de dado no INCRA e para irregularidade | Classificado à parte na comparação |
+
+## FUNAI — Terras indígenas (665)
+
+Em lote, pelo WFS `Funai:tis_poligonais` ([`pipeline/fontes/funai_terras_indigenas.py`](../pipeline/fontes/funai_terras_indigenas.py)). Execução de 30/10/2026 em [`evidencias/atividade-04/fontes-ab-s/`](evidencias/atividade-04/fontes-ab-s/).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| `data_atualizacao` vazia | 143 | Alerta; a ficha cita a data da coleta |
+| Geometria inválida | 2 | Correção com `make_valid` |
+| Código repetido, geometria ausente, fase ou UF fora do domínio | 0 | Descarte ou alerta |
+
+## MMA — Unidades de conservação do CNUC (3.302 recebidas)
+
+Em lote, pelo shapefile mais recente com endereço em `dados.mma.gov.br` (2025_08) ([`pipeline/fontes/mma_unidades_conservacao.py`](../pipeline/fontes/mma_unidades_conservacao.py)).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| UC sem limite no CNUC, só um ponto de localização (camada `_pontos`) | 180 | Alerta; ponto dentro do imóvel é indício |
+| Polígono é "representação esquemática da localização da UC" | 99 | Alerta; sobreposição vira indício |
+| Texto do DBF cortado no meio de um caractere UTF-8 | 1 | Lido com o caractere de substituição |
+| Feição sem geometria | 1 | Descarte |
+| Grupo nos pontos abreviado (`PI`, `US`) e esfera em minúsculas | 180 | Correção para o texto por extenso |
+| Shapefile mais novo (2026_07) só num link do SharePoint | — | Usado o último com endereço estável (2025_08) |
+
+## IBGE — Territórios quilombolas delimitados, Censo 2022 (495)
+
+Em lote, pelo shapefile do IBGE ([`pipeline/fontes/ibge_territorios_quilombolas.py`](../pipeline/fontes/ibge_territorios_quilombolas.py)), no lugar das áreas quilombolas do INCRA, que não têm endereço público ([ADR 0014](arquitetura/adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| Polígonos com coordenada Z | 495 | Z descartado |
+| Base parada em 31/07/2022 | todos | Data citada na ficha; critério marcado como parcial |
+| Código repetido, geometria inválida, situação ou UF fora do domínio | 0 | — |
 
 ## IBGE — Municípios (5.571)
 
@@ -132,3 +184,9 @@ Nenhuma inconsistência encontrada. As verificações de estrutura, quantidade, 
 | No WFS 2.0 em EPSG:4674 (SICAR e TerraBrasilis), o filtro espacial sem SRS lê (latitude, longitude); na ordem trocada devolve zero, sem erro | Ordem fixada em `config.ORDEM_EIXOS_FILTRO`, com teste; a contagem anunciada é conferida |
 | CEPEA devolve só cerca de 15 dias de preços por consulta | Usado só no notebook; série histórica pendente |
 | Bases atualizadas continuamente (o IBAMA mudou de 91.197 para 91.199 registros no mesmo dia) | Procedência registrada a cada execução (data e SHA-256) |
+| TerraBrasilis respondeu HTTP 502 de forma intermitente em 30/10/2026: as 7 consultas do PRODES sob demanda fora de MG falharam, e a contagem de Cerrado 2019 e Pampa 2021 não saiu depois de 4 tentativas | PRODES nacional em lote, guardado no banco, com retomada; falha de fonte vira critério inconclusivo ([ADR 0013](arquitetura/adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)) |
+| FUNAI (WFS de terras indígenas) não envia o certificado intermediário; o `requests` falha na verificação | Intermediário buscado no endereço AIA do próprio certificado e somado à cadeia do certifi, com a verificação ligada |
+| FUNAI responde 403 a GetFeature sem `count` e a `resultType=hits` | Pedido sempre com `count`; contagem feita pelas feições recebidas |
+| `certificacao.incra.gov.br` e `acervofundiario.incra.gov.br` (SIGEF e áreas quilombolas) não resolveram no DNS em 30/10/2026; o agrobr registrou que não respondem de fora do Brasil | Coleta a partir de uma máquina no Brasil ([ADR 0011](arquitetura/adr/0011-persistir-em-parquet-por-uf-e-adiar-o-postgis.md)) |
+| A consulta pública do SNCR tem hCaptcha | Não automatizada: o projeto não contorna captcha |
+| O shapefile mais recente do CNUC (2026_07) só está num link do SharePoint, e a resposta do portal traz links pessoais de servidores | Coleta automática do último shapefile com endereço estável (2025_08); resposta bruta do portal guardada só em `data/raw/` |

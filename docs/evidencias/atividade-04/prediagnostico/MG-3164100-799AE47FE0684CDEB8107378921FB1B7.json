@@ -1,0 +1,241 @@
+{
+  "consulta": {
+    "cod_imovel": "MG-3164100-799AE47FE0684CDEB8107378921FB1B7",
+    "lat": null,
+    "lon": null,
+    "documento_informado": true,
+    "gerado_em": "2026-11-02 12:37:28",
+    "prodes": {
+      "origem": "lote",
+      "uf": "MG",
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      },
+      "ultima_imagem": {
+        "caatinga": "2025-10-16",
+        "cerrado": "2026-08-12",
+        "mata_atlantica": "2025-10-16"
+      },
+      "verificado_em": "2026-10-31",
+      "proxima_verificacao": "2026-11-29",
+      "ultimo_ano_do_imovel": 2025
+    },
+    "biomas": [
+      "mata_atlantica"
+    ]
+  },
+  "imovel": {
+    "cod_imovel": "MG-3164100-799AE47FE0684CDEB8107378921FB1B7",
+    "uf": "MG",
+    "cod_municipio": "3164100",
+    "municipio": "São Pedro do Suaçuí",
+    "tipo_imovel": "IRU",
+    "status_imovel": "AT",
+    "condicao": "Aguardando análise",
+    "area_geom_ha": 209.1643411388778,
+    "m_fiscal": 8.6951,
+    "fracao_coberta_por_outros": 0.0,
+    "data_atualizacao": "2025-03-07",
+    "status_texto": "Ativo"
+  },
+  "resultado": {
+    "situacao": "com pendência",
+    "resumo": "1 pendência(s) com causa e fonte identificadas",
+    "contagem": {
+      "pendência": 1,
+      "indício": 1,
+      "sem ocorrência": 5,
+      "não verificado": 3,
+      "inconclusivo": 0
+    }
+  },
+  "criterios": [
+    {
+      "chave": "car",
+      "criterio": "CAR",
+      "criterio_ab_s": 3,
+      "situacao": "sem ocorrência",
+      "evidencia": "Ativo · Aguardando análise",
+      "encaminhamento": "—",
+      "fonte": "SICAR",
+      "aviso": null
+    },
+    {
+      "chave": "embargo",
+      "criterio": "Embargo IBAMA",
+      "criterio_ab_s": 7,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhum embargo dentro do imóvel",
+      "encaminhamento": "—",
+      "fonte": "IBAMA",
+      "aviso": null
+    },
+    {
+      "chave": "desmatamento",
+      "criterio": "Desmatamento após 31/12/2020 (EUDR)",
+      "criterio_ab_s": null,
+      "situacao": "pendência",
+      "evidencia": "1 polígono(s) PRODES após 2020 (1.3 ha no imóvel)",
+      "encaminhamento": "Verificar se a supressão teve autorização (ASV). Mesmo autorizada, área desmatada após 31/12/2020 não atende à EUDR para a produção que sai dela.",
+      "fonte": "INPE DETER e PRODES",
+      "aviso": "Mata Atlântica sem DETER: sem cobertura de 16/10/2025 até hoje (o próximo PRODES cobre esse período)"
+    },
+    {
+      "chave": "lista_suja",
+      "criterio": "Lista Suja (trabalho escravo)",
+      "criterio_ab_s": 4,
+      "situacao": "sem ocorrência",
+      "evidencia": "Documento não consta no Cadastro de Empregadores",
+      "encaminhamento": "—",
+      "fonte": "MTE",
+      "aviso": null
+    },
+    {
+      "chave": "terra_indigena",
+      "criterio": "Sobreposição: terras indígenas",
+      "criterio_ab_s": 5,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição.",
+      "encaminhamento": "—",
+      "fonte": "FUNAI",
+      "aviso": null
+    },
+    {
+      "chave": "quilombola",
+      "criterio": "Sobreposição: território quilombola",
+      "criterio_ab_s": 6,
+      "situacao": "sem ocorrência",
+      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "encaminhamento": "—",
+      "fonte": "IBGE (Censo 2022)",
+      "aviso": null
+    },
+    {
+      "chave": "unidade_conservacao",
+      "criterio": "Sobreposição: unidade de conservação",
+      "criterio_ab_s": 9,
+      "situacao": "indício",
+      "evidencia": "1 sobreposição(ões): ÁREA DE PROTEÇÃO AMBIENTAL DO SALTO DO SUAÇUÍ (Área de Proteção Ambiental, uso sustentável; 209.2 ha, 100% do imóvel).",
+      "encaminhamento": "A categoria admite propriedade privada (APA, ARIE, RPPN) ou o limite é esquemático: conferir o plano de manejo e o limite com o órgão gestor.",
+      "fonte": "MMA (CNUC)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_1",
+      "criterio": "Fundiária: dados cadastrais",
+      "criterio_ab_s": 1,
+      "situacao": "não verificado",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "INCRA (SNCR)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_2",
+      "criterio": "Fundiária: dados geoespaciais",
+      "criterio_ab_s": 2,
+      "situacao": "não verificado",
+      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "SIGEF-GEO (INCRA)",
+      "aviso": null
+    },
+    {
+      "chave": "ab_s_8",
+      "criterio": "Sobreposição: CAR x SIGEF-GEO",
+      "criterio_ab_s": 8,
+      "situacao": "não verificado",
+      "evidencia": "Depende do critério 2",
+      "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
+      "fonte": "CAR e SIGEF-GEO",
+      "aviso": null
+    }
+  ],
+  "evidencias": {
+    "embargos": [],
+    "alertas": [],
+    "prodes": [
+      {
+        "uuid": "2e3a42b4-8fcf-46c2-a34e-d8c68d0d7320",
+        "bioma": "mata_atlantica",
+        "ano_prodes": 2023,
+        "data_imagem": "2023-07-12T00:00:00.000",
+        "area_km2": 0.0132066092,
+        "inter_ha": 1.3265876481,
+        "fracao_objeto": 1.0,
+        "largura_m": 38.6085718129,
+        "classe": "principal"
+      }
+    ],
+    "lista_suja": [],
+    "terra_indigena": [],
+    "quilombola": [],
+    "unidade_conservacao": [
+      {
+        "cd_cnuc": "4100.31.4557",
+        "nome": "ÁREA DE PROTEÇÃO AMBIENTAL DO SALTO DO SUAÇUÍ",
+        "categoria": "Área de Proteção Ambiental",
+        "grupo": "Uso Sustentável",
+        "esfera": "Municipal",
+        "uf": "MINAS GERAIS",
+        "orgao_gestor": "PREFEITURA MUNICIPAL DE SÃO PEDRO DO SUAÇUÍ - MG",
+        "ano_criacao": 2001,
+        "qualidade_poligono": "Polígono corresponde ao memorial descritivo",
+        "so_ponto": false,
+        "alertas": "",
+        "inter_ha": 209.1643411389,
+        "fracao_car": 1.0,
+        "largura_m": 575.1261112312,
+        "classe": "sobreposição"
+      }
+    ]
+  },
+  "geometria_car": "MULTIPOLYGON (((-42.54859812 -18.28535861, -42.54849183 -18.28606395, -42.5492306 -18.2872984, -42.55030478 -18.28787251, -42.55180061 -18.28866068, -42.55355844 -18.2898169, -42.55486254 -18.29072167, -42.55613245 -18.29211738, -42.55652905 -18.29272392, -42.55704403 -18.29362034, -42.55717278 -18.29490385, -42.55725861 -18.29577989, -42.5569582 -18.29675779, -42.55665779 -18.29781718, -42.5564003 -18.29912102, -42.55603697 -18.29978327, -42.5558013 -18.30049228, -42.55567074 -18.30152497, -42.55494118 -18.30229912, -42.55455003 -18.3031308, -42.55403996 -18.30433632, -42.55356789 -18.30502897, -42.55331039 -18.30588458, -42.55228043 -18.30629202, -42.55129337 -18.30665871, -42.55177083 -18.30467209, -42.55121257 -18.302632, -42.55116927 -18.30223852, -42.55064964 -18.30140274, -42.55019938 -18.30039895, -42.54946036 -18.29966962, -42.54905445 -18.29880983, -42.54863132 -18.29849416, -42.54844191 -18.29747512, -42.54849266 -18.29711117, -42.5478682 -18.296594, -42.54720088 -18.29621165, -42.54648685 -18.29565765, -42.54585028 -18.29491484, -42.54542836 -18.29404228, -42.5453344 -18.29325685, -42.54496581 -18.29276991, -42.545017 -18.29259149, -42.54503846 -18.29241832, -42.54498482 -18.2922044, -42.54486901 -18.29201967, -42.54362379 -18.29159791, -42.54301512 -18.29147654, -42.54219355 -18.29172389, -42.54115948 -18.2913355, -42.54063519 -18.2915049, -42.54013867 -18.29165023, -42.5398513 -18.29090862, -42.53953596 -18.29035325, -42.53893624 -18.28978986, -42.53906992 -18.289365, -42.53874579 -18.28864702, -42.53907579 -18.28715698, -42.54081839 -18.28621235, -42.54199513 -18.28562893, -42.5442633 -18.28602428, -42.54493385 -18.28588626, -42.54578853 -18.28562538, -42.54708738 -18.28458238, -42.5485854 -18.28425892, -42.54911567 -18.28467351, -42.54859812 -18.28535861)))",
+  "procedencia": [
+    {
+      "fonte": "FUNAI, terras indígenas (WFS, em lote)",
+      "como": "lote",
+      "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
+      "data": "2026-10-31",
+      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "arquivo": "data/processed/funai_terras_indigenas.parquet"
+    },
+    {
+      "fonte": "MMA, CNUC (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
+      "data": "2026-10-31",
+      "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
+      "arquivo": "data/processed/mma_unidades_conservacao.parquet"
+    },
+    {
+      "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+      "como": "lote",
+      "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
+      "data": "2026-10-31",
+      "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
+      "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INPE PRODES (lote, partição MG)",
+      "como": "lote, verificação mensal",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
+      "data": "verificado em 2026-10-31",
+      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6",
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet"
+    },
+    {
+      "fonte": "SICAR (WFS)",
+      "como": "sob demanda",
+      "url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+      "data": "2026-10-31",
+      "sha256": "a6f87dc22ee5633cc9d0fc79a2db2d3d8db7b232874633da9a920ea8d173ad23",
+      "arquivo": "data/raw/sicar/mg/codigo_19d4756ae68406f2.geojson.gz"
+    }
+  ]
+}

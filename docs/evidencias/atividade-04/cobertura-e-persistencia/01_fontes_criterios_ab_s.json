@@ -1,0 +1,120 @@
+{
+  "funai": {
+    "status_http": 200,
+    "anunciado": 665,
+    "recebido": 665,
+    "crs": null,
+    "fases": {
+      "Regularizada": 494,
+      "Encaminhada RI": 28,
+      "Declarada": 73,
+      "Delimitada": 45,
+      "Homologada": 17,
+      "Em Estudo": 8
+    },
+    "ufs": 39,
+    "ano_da_atualizacao_mais_recente": "2026",
+    "por_ano_de_atualizacao": {
+      "": 143,
+      "2015": 8,
+      "2016": 18,
+      "2017": 9,
+      "2018": 25,
+      "2019": 19,
+      "2020": 59,
+      "2021": 33,
+      "2022": 33,
+      "2023": 30,
+      "2024": 30,
+      "2025": 101,
+      "2026": 157
+    },
+    "geometria_status_http": 200
+  },
+  "cnuc": {
+    "status_http": 200,
+    "recursos": 24,
+    "shapefiles": [
+      {
+        "nome": "Polígono CNUC 2024_02",
+        "data": "2022-10-03",
+        "url_estavel": true
+      },
+      {
+        "nome": "Polígono CNUC 2024_10",
+        "data": "2024-11-29",
+        "url_estavel": true
+      },
+      {
+        "nome": "Polígono CNUC 2025_03",
+        "data": "2025-05-15",
+        "url_estavel": true
+      },
+      {
+        "nome": "Polígono CNUC 2025_08",
+        "data": "2025-09-03",
+        "url_estavel": true
+      },
+      {
+        "nome": "CNUC_2026_07",
+        "data": "2026-08-21",
+        "url_estavel": false
+      }
+    ]
+  },
+  "sncr": {
+    "status_http": 200,
+    "tem_hcaptcha": true,
+    "data_ultima_geracao": "01/10/2026",
+    "campos_do_formulario": [
+      "selectMunicipio",
+      "selectUf"
+    ]
+  },
+  "terrabrasilis": {
+    "status_http": 200,
+    "prodes_anual": [
+      "prodes-amazon-nb:yearly_deforestation_biome",
+      "prodes-caatinga-nb:yearly_deforestation",
+      "prodes-cerrado-nb:yearly_deforestation",
+      "prodes-legal-amz:yearly_deforestation",
+      "prodes-mata-atlantica-nb:yearly_deforestation",
+      "prodes-pampa-nb:yearly_deforestation",
+      "prodes-pantanal-nb:yearly_deforestation"
+    ],
+    "terras_indigenas": [
+      "prodes-amazon-nb:indigenous_area_amazon_biome",
+      "prodes-caatinga-nb:indigenous_area_caatinga_biome",
+      "prodes-cerrado-nb:indigenous_area_cerrado_biome",
+      "prodes-legal-amz:indigenous_area_legal_amazon",
+      "prodes-mata-atlantica-nb:indigenous_area_mata_atlantica_biome",
+      "prodes-pampa-nb:indigenous_area_pampa_biome",
+      "prodes-pantanal-nb:indigenous_area_pantanal_biome"
+    ],
+    "unidades_conservacao": [
+      "prodes-amazon-nb:conservation_units_amazon_biome",
+      "prodes-caatinga-nb:conservation_units_caatinga_biome",
+      "prodes-cerrado-nb:conservation_units_cerrado_biome",
+      "prodes-legal-amz:conservation_units_legal_amazon",
+      "prodes-mata-atlantica-nb:conservation_units_mata_atlantica_biome",
+      "prodes-pampa-nb:conservation_units_pampa_biome",
+      "prodes-pantanal-nb:conservation_units_pantanal_biome"
+    ],
+    "limites_uf": [
+      "prodes-amazon-nb:states_amazon_biome",
+      "prodes-caatinga-nb:states_caatinga_biome",
+      "prodes-cerrado-nb:states_cerrado_biome",
+      "prodes-legal-amz:states_legal_amazon",
+      "prodes-mata-atlantica-nb:states_mata_atlantica_biome",
+      "prodes-pampa-nb:states_pampa_biome",
+      "prodes-pantanal-nb:states_pantanal_biome"
+    ]
+  },
+  "incra_dns": {
+    "certificacao.incra.gov.br": "não resolve: [Errno 8] nodename nor servname provided, or not known",
+    "acervofundiario.incra.gov.br": "não resolve: [Errno 8] nodename nor servname provided, or not known",
+    "sigef.incra.gov.br": [
+      "161.148.116.50"
+    ]
+  }
+}
