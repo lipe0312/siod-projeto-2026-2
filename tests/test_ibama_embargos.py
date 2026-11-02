@@ -123,3 +123,53 @@ def test_arquivo_sem_registros_interrompe(ref_municipios):
     bruto = pd.DataFrame(columns=ibama_embargos.COLUNAS_OBRIGATORIAS)
     with pytest.raises(ErroDeValidacao, match="IBAMA_SEM_REGISTROS"):
         ibama_embargos.transformar(bruto, CHAVE, ref_municipios, HOJE, ResultadoFonte("x", "x"))
+
+
+# --- Termo de embargo do Portal de Dados Abertos (fonte desde 02/11/2026) -----------------------------------------
+
+def linha_portal(**campos):
+    base = dict(SEQ_TAD="1", DES_STATUS_FORMULARIO="Lavrado", SIT_CANCELADO="N", NUM_TAD="100", SER_TAD="A",
+                DAT_EMBARGO="2022-05-10 10:00:00", DAT_ULT_ALTERACAO="2022-05-11 10:00:00", CPF_CNPJ_EMBARGADO=CPF_VALIDO,
+                NOME_EMBARGADO="NOME QUALQUER", DES_TAD="Desmatar sem autorização", COD_MUNICIPIO="1505486",
+                MUNICIPIO="Pacaja", UF="PA", NUM_LONGITUDE_TAD="-50.6", NUM_LATITUDE_TAD="-3.8",
+                QTD_AREA_EMBARGADA="10,5000", GEOM_AREA_EMBARGADA=POLIGONO, SIT_DESEMBARGO="", DAT_DESEMBARGO="")
+    base.update(campos)
+    return base
+
+
+def test_portal_cancelado_sai_e_desembargado_fica_marcado(ref_municipios):
+    saida, descartados, r = processar([
+        linha_portal(), linha_portal(SEQ_TAD="2", SIT_CANCELADO="S"),
+        linha_portal(SEQ_TAD="3", DES_STATUS_FORMULARIO="Substituído por outro"),
+        linha_portal(SEQ_TAD="4", SIT_DESEMBARGO="S", DAT_DESEMBARGO="2024-02-01 09:00:00")], ref_municipios)
+    assert sorted(saida.index) == ["1", "4"]
+    assert saida.loc["1", "situacao"] == "ativo" and saida.loc["4", "situacao"] == "desembargado"
+    assert str(saida.loc["4", "data_desembargo"].date()) == "2024-02-01"
+    assert str(saida.loc["1", "data_embargo"].date()) == "2022-05-10"  # data no formato do portal
+    assert saida.loc["1", "uf"] == "PA" and saida.loc["1", "descricao_infracao"] == "Desmatar sem autorização"
+    assert ocorrencias(r, "IBAMA_TERMO_CANCELADO") == 2 and ocorrencias(r, "IBAMA_DESEMBARGADO") == 1
+    assert set(descartados["motivo"]) == {"IBAMA_TERMO_CANCELADO"}
+    assert "NOME_EMBARGADO" not in saida and CPF_VALIDO not in saida.to_string()
+
+
+def test_portal_data_com_ano_impossivel_e_anulada(ref_municipios):
+    saida, _, r = processar([linha_portal(DAT_EMBARGO="2925-09-25 15:10:00")], ref_municipios)
+    assert pd.isna(saida.iloc[0]["data_embargo"]) and ocorrencias(r, "IBAMA_DATA_EMBARGO_FUTURA") == 1
+
+
+def test_csv_antigo_continua_lido_e_todo_embargo_e_ativo(ref_municipios):
+    saida, _, _ = processar([linha()], ref_municipios)
+    assert saida.iloc[0]["situacao"] == "ativo"
+
+
+def test_embargo_desembargado_no_imovel_nao_e_pendencia():
+    from pipeline import prediagnostico
+    from test_prediagnostico import DENTRO, alertas, car, embargos, lista_suja, prodes
+    emb = embargos(("e1", DENTRO, None, None)).assign(situacao="desembargado",
+                                                      data_desembargo=pd.Timestamp("2024-02-01"))
+    ficha = prediagnostico.diagnosticar(car(), emb, alertas(), lista_suja(), prodes(), ultimo_ano_prodes=2025)
+    c = next(c for c in ficha["criterios"] if c["chave"] == "embargo")
+    assert c["situacao"] == "sem ocorrência" and "desembargado em 01/02/2024" in c["evidencia"]
+    ativo = embargos(("e1", DENTRO, None, None))  # sem a coluna situacao (CSV antigo): conta como ativo
+    ficha = prediagnostico.diagnosticar(car(), ativo, alertas(), lista_suja(), prodes(), ultimo_ano_prodes=2025)
+    assert next(c for c in ficha["criterios"] if c["chave"] == "embargo")["situacao"] == "pendência"

@@ -4,7 +4,7 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-11-02 12:37:26",
+    "gerado_em": "2026-11-02 15:23:23",
     "prodes": {
       "origem": "lote",
       "uf": "PA",
@@ -20,8 +20,8 @@
         "amazonia": "2025-08-27",
         "cerrado": "2026-08-12"
       },
-      "verificado_em": "2026-10-31",
-      "proxima_verificacao": "2026-11-29",
+      "verificado_em": "2026-11-02",
+      "proxima_verificacao": "2026-12-02",
       "ultimo_ano_do_imovel": 2025
     },
     "biomas": [
@@ -109,9 +109,9 @@
       "criterio": "Sobreposição: território quilombola",
       "criterio_ab_s": 6,
       "situacao": "pendência",
-      "evidencia": "1 sobreposição(ões): Território Saracura (portaria; 58.1 ha, 100% do imóvel). Base de 31/07/2022.",
+      "evidencia": "1 sobreposição(ões): Território SARACURA (portaria, base INCRA; 58.1 ha, 100% do imóvel). Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022.",
       "encaminhamento": "Sobreposição com território quilombola delimitado impede a qualificação no AgroBrasil+Sustentável. Conferir o limite com o INCRA (a base aberta é a do IBGE de 31/07/2022).",
-      "fonte": "IBGE (Censo 2022)",
+      "fonte": "INCRA (via CMR/FUNAI) e IBGE 2022",
       "aviso": null
     },
     {
@@ -129,7 +129,7 @@
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido pelo produtor no atendimento supre o dado",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "INCRA (SNCR)",
       "aviso": null
@@ -139,7 +139,7 @@
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "evidencia": "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "SIGEF-GEO (INCRA)",
       "aviso": null
@@ -163,11 +163,12 @@
     "terra_indigena": [],
     "quilombola": [
       {
-        "cod_tq": "213",
-        "nome": "Saracura",
+        "codigo": "INCRA:lim_quilombolas_a.176",
+        "nome": "SARACURA",
         "situacao": "PORTARIA",
         "uf": "PA",
-        "data_referencia": "2022-07-31T00:00:00.000",
+        "base": "INCRA",
+        "data_referencia": "2026-10-28T00:00:00.000",
         "alertas": "",
         "inter_ha": 58.1401920802,
         "fracao_car": 1.0,
@@ -180,18 +181,42 @@
   "geometria_car": "MULTIPOLYGON (((-54.58827896 -2.41695825, -54.58474887 -2.42095432, -54.58420645 -2.42200431, -54.58263298 -2.42740148, -54.58144795 -2.43205632, -54.58180038 -2.43237585, -54.58578133 -2.42996036, -54.585798 -2.42747302, -54.58585673 -2.4254453, -54.58643798 -2.42307513, -54.59137037 -2.41897887, -54.58827896 -2.41695825)))",
   "procedencia": [
     {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
+      "data": "2026-11-02",
+      "sha256": "fe68443566461a7869f284e062e00a99eec747025a889e3cc87166bcbdca1309",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-11-02",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-11-02",
+      "sha256": "0d460255edaa128abfbf38d6ca45e1b7810013dc06937e25ffcfc167940ebd5e",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
       "fonte": "FUNAI, terras indígenas (WFS, em lote)",
       "como": "lote",
       "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
-      "data": "2026-10-31",
-      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "data": "2026-11-02",
+      "sha256": "9b81d200c16288bda33aea715f4c828c578a1330dd662e077372f35009a6745f",
       "arquivo": "data/processed/funai_terras_indigenas.parquet"
     },
     {
       "fonte": "MMA, CNUC (shapefile, em lote)",
       "como": "lote",
       "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
       "arquivo": "data/processed/mma_unidades_conservacao.parquet"
     },
@@ -199,16 +224,24 @@
       "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
       "como": "lote",
       "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
       "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)",
+      "como": "lote",
+      "url": "https://cmr.funai.gov.br/geoserver/ows",
+      "data": "2026-11-02",
+      "sha256": "4fbb4b8fa7eb093cdb9859f53d29b7192c23416527c28a18b6cda78ee9cf1be7",
+      "arquivo": "data/processed/incra_quilombolas.parquet"
     },
     {
       "fonte": "INPE PRODES (lote, partição PA)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-31",
-      "sha256": "de77f334a02a281b2f597eef084857c9a292344087654fa72954c2c4007afd4b",
+      "data": "verificado em 2026-11-02",
+      "sha256": "95db75b78c296c7a6b9768b0d4611cd7e7ad258a0ed4c79cd450f62ade10903a",
       "arquivo": "data/processed/inpe_prodes/uf=PA/part.parquet"
     },
     {

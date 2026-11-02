@@ -170,6 +170,47 @@ Em lote, pelo shapefile do IBGE ([`pipeline/fontes/ibge_territorios_quilombolas.
 | Base parada em 31/07/2022 | todos | Data citada na ficha; critério marcado como parcial |
 | Código repetido, geometria inválida, situação ou UF fora do domínio | 0 | — |
 
+## Atualização de 02/11/2026: fontes novas e trocadas
+
+**IBAMA, termo de embargo do Portal de Dados Abertos** (116.999 termos). O CSV de áreas embargadas do CTF passou a responder 403. O portal tem esquema diferente; `ibama_embargos.do_portal` leva as colunas aos nomes antigos.
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| Termo cancelado, excluído ou substituído por outro (o CSV antigo já os tirava) | 6.346 | Descarte (`IBAMA_TERMO_CANCELADO`) |
+| Termo desembargado (administrativo ou judicial) | 18.745 | Mantido com `situacao = desembargado`; a ficha mostra como histórico, não como pendência |
+| Data no formato AAAA-MM-DD, não DD/MM/AAAA | todos | Conversão |
+| Data do embargo com ano impossível (ex.: 2925) | 1 depois do descarte | Alerta; data anulada |
+| Sem bioma (o portal não traz `DES_TIPO_BIOMA`) | todos | Bioma vazio; o do imóvel vem do contorno do INPE |
+| Sem documento válido, sem polígono e sem coordenada | 276 | Descarte |
+
+**PRODES, arquivo de cada bioma** (1.494.010 polígonos de 2019 a 2026; [ADR 0015](arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md)).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| DBF em latin1 na Amazônia e no Cerrado, sem `.cpg`; lido em UTF-8, "MARANHÃO" vira UF inválida | 300.454 polígonos do Cerrado | Codificação detectada (`PRODES_DBF_LATIN1`) |
+| Coordenadas do WFS com 4 casas decimais (~11 m): polígono degenerado em `GEOMETRYCOLLECTION` depois do `make_valid` | 64.328 nas 8 UFs comparadas | Lote pelo arquivo, com precisão completa (6 casas) |
+| Área com diferença acima de 10% entre o WFS e o arquivo, pelo arredondamento | 24.227 | Vale a do arquivo |
+| Polígono que não toca nenhuma UF do IBGE (mar, fronteira) | 83 | Descarte |
+
+**DETER do Pantanal, arquivo diário** (24.321 avisos desde 03/08/2023).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| Classe em português ("supressão com solo exposto", "supressão com vegetação") e não a do WFS | 7.828 | Traduzida para `DESMATAMENTO_CR` e `DESMATAMENTO_VEG` |
+| Cicatriz de queimada e mineração | 16.493 | Fora do recorte, como na Amazônia e no Cerrado |
+| Sem município | todos | UF pelo contorno do IBGE; município sem código |
+| `.prj` gravado pelo GDAL ("SIRGAS 2000", EPSG 4674), não pelo ESRI (`GCS_SIRGAS_2000`) | 1 arquivo | As duas grafias aceitas; projetado (UTM) interrompe |
+
+**INCRA, áreas quilombolas pelo CMR/FUNAI** (446; [ADR 0016](arquitetura/adr/0016-usar-a-base-quilombola-do-incra-republicada-pelo-cmr-funai.md)).
+
+| Inconsistência | Quantidade | Tratamento |
+|---|---:|---|
+| Fase em branco | 16 | "FASE NÃO INFORMADA"; vira indício |
+| Fase fora do domínio ("INCRA") | 1 | Mantida; tratada como área delimitada |
+| Sem número de processo | 13 | Alerta |
+| Geometria inválida | 1 | `make_valid` |
+| Mesmo território também na base do IBGE 2022 | 401 de 495 | Fica a versão do INCRA |
+
 ## IBGE — Municípios (5.571)
 
 Nenhuma inconsistência encontrada. As verificações de estrutura, quantidade, UF, código repetido e nome + UF repetido ficaram todas em zero.

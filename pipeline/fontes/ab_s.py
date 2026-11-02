@@ -31,9 +31,11 @@ CAMPOS_DOCUMENTO = re.compile(r"cpf|cnpj|documento", re.IGNORECASE)
 # fonte aberta que o projeto usa para cada um. O código interno é o da taxonomia do AB+S no código público do site.
 CRITERIOS = pd.DataFrame([
     (1, "Fundiária: dados cadastrais", "sim", "VERIFICACAO_DADOS_CADASTRAIS", "INCRA (SNCR)", "Conforme",
-     "nenhuma", "não verifica", "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral"),
+     "nenhuma", "não verifica", "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido "
+     "pelo produtor no atendimento supre o dado"),
     (2, "Fundiária: dados geoespaciais", "não", "VERIFICACAO_DADOS_GEO", "SIGEF-GEO (INCRA)", "Não conforme",
-     "nenhuma", "não verifica", "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br"),
+     "nenhuma", "não verifica", "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login "
+     "gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)"),
     (3, "Ambiental: CAR", "sim", "VERIFICACAO_CAR", "SICAR", "Conforme",
      "SICAR, WFS público (pipeline/fontes/sicar.py)", "parcial",
      "Existência e status do CAR; o vínculo CAR-SNCR não é verificável"),
@@ -43,8 +45,8 @@ CRITERIOS = pd.DataFrame([
     (5, "Sobreposição: terras indígenas", "sim", "VERIFICACAO_SOBREPOSICAO_INDIGENA", "FUNAI", "Conforme",
      "FUNAI, WFS (pipeline/fontes/funai_terras_indigenas.py)", "verifica", "Sobreposição com o polígono do CAR"),
     (6, "Sobreposição: área quilombola", "sim", "VERIFICACAO_SOBREPOSICAO_QUILOMBOLA", "INCRA", "Conforme",
-     "IBGE, territórios quilombolas do Censo 2022 (pipeline/fontes/ibge_territorios_quilombolas.py)", "parcial",
-     "Base do IBGE de 31/07/2022, não a do INCRA, que o AB+S consulta"),
+     "INCRA pelo CMR/FUNAI e IBGE 2022, combinados (pipeline/fontes/incra_quilombolas.py)", "verifica",
+     "Base do INCRA (cadastro de 28/10/2026) e os territórios do IBGE de 31/07/2022 que o INCRA não tem (ADR 0016)"),
     (7, "Ambiental: embargos do IBAMA", "não", "VERIFICACAO_EMBARGOS_IBAMA", "IBAMA", "Conforme",
      "IBAMA, CSV público (pipeline/fontes/ibama_embargos.py)", "verifica",
      "Por documento e, com o polígono do CAR, por sobreposição (pipeline/cruzamento.py)"),

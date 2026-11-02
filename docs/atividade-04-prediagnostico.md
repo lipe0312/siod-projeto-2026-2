@@ -1,6 +1,28 @@
 # Atividade 04 — Pré-diagnóstico por imóvel e PRODES em lote
 
-Situação em 01/11/2026. Commits `1b1e599` (pré-diagnóstico) e `7191cae` (PRODES em lote e avaliação na página da demonstração); decisões e medições de 30/10 a 01/11/2026 nas seções 3 a 9.
+Situação em 02/11/2026. Commits `1b1e599` (pré-diagnóstico) e `7191cae` (PRODES em lote e avaliação na página da demonstração); decisões e medições de 30/10 a 01/11/2026 nas seções 3 a 9. As mudanças de 02/11/2026 estão na seção 0.
+
+## 0. Atualização de 02/11/2026
+
+| O que mudou | Antes | Agora | Onde |
+|---|---|---|---|
+| PRODES em lote | WFS, UF por UF: 8 UFs; PA levou 7,9 h | Arquivo de cada bioma: 27 UFs em 245 s, com o mesmo conteúdo do WFS e geometria sem o arredondamento de ~11 m | [ADR 0015](arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md), [`evidencias/atividade-04/prodes-arquivo/`](evidencias/atividade-04/prodes-arquivo/LEIA-ME.md) |
+| DETER do Pantanal | Bioma sem DETER, com aviso de "sem cobertura desde 12/08/2025" | 7.828 alertas de supressão desde 08/2023, pelo arquivo diário; Corumbá (MS) passa a mostrar 12 alertas | ADR 0015 |
+| Critério 6 (quilombola) | IBGE de 31/07/2022, "parcial" | INCRA (446 áreas, cadastro de 28/10/2026, republicadas pelo CMR/FUNAI) e os 94 territórios do IBGE que o INCRA não tem | [ADR 0016](arquitetura/adr/0016-usar-a-base-quilombola-do-incra-republicada-pelo-cmr-funai.md) |
+| Embargos do IBAMA | CSV do CTF, só embargos ativos | O CSV respondeu 403 em 02/11/2026. A fonte passou a ser o termo de embargo do Portal de Dados Abertos: 91.655 ativos, 18.722 desembargados (histórico na ficha) e 6.346 cancelados (descartados) | `pipeline/fontes/ibama_embargos.py` |
+| Carteira | Uma ficha por vez | Planilha da cooperativa → lista de atendimento em ordem de prioridade, com ficha por imóvel | [`visao-do-produto.md`](visao-do-produto.md), `pipeline/carteira.py` |
+| Agendamento | `crontab` sugerido, nunca instalado | Rotina mensal com launchd, testada de ponta a ponta (5 min 12 s) | [`agendamento/`](../agendamento/LEIA-ME.md) |
+| Testes | 157 passed, 2 skipped | 192 passed, 3 skipped | `tests/` |
+
+**Por que o PRODES demorava.** A lentidão não vinha da conexão local. O log da carga das 8 UFs tem 287 avisos do serviço, entre HTTP 502, timeouts e conexões cortadas, e repetir a carga daria o mesmo resultado. A solução foi trocar de fonte. O Parquet de 30/10/2026 já estava completo para as 8 UFs: o lote pelo arquivo bate com ele em 637.415 polígonos, com 14 e 5 de diferença na borda das UFs. Faltavam as outras 19 UFs.
+
+**Critérios 1, 2 e 8: o que foi tentado em 02/11/2026.**
+* **INCRA:** `certificacao`, `acervofundiario` e `geoserver.incra.gov.br` seguem sem DNS também de uma máquina no Brasil. A hipótese do acesso de fora do país está descartada.
+* **SIGEF:** `sigef.incra.gov.br` responde, mas exige login gov.br.
+* **Espelho do CMR/FUNAI:** tem parcelas SIGEF, mas só em volta de terras indígenas (2.329 de 2.334 tocam uma TI). Usá-lo daria "sem sobreposição" falso.
+* **SNCR:** segue com captcha.
+
+O caminho para os três critérios passa a ser o produtor trazer o CCIR e o número da certificação SIGEF no atendimento. A planilha da carteira já tem as colunas `ccir` e `codigo_sigef`.
 
 ## 1. O que foi entregue
 
@@ -81,7 +103,7 @@ Cada fonte candidata foi testada em 30/10/2026 ([`evidencias/atividade-04/cobert
 | 7 | Embargos do IBAMA | IBAMA, CSV | Já verificado (Atividade 02) | — |
 | 5 | Sobreposição: terras indígenas | FUNAI, WFS `Funai:tis_poligonais` ([FUNAI](https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas)) | **Integrado** (`pipeline/fontes/funai_terras_indigenas.py`) | 665 |
 | 9 | Sobreposição: unidade de conservação | CNUC/MMA, shapefile 2025_08 ([dados.mma.gov.br](https://dados.mma.gov.br/dataset/unidadesdeconservacao)) | **Integrado** (`pipeline/fontes/mma_unidades_conservacao.py`) | 3.301 |
-| 6 | Sobreposição: área quilombola | IBGE, territórios quilombolas oficialmente delimitados, Censo 2022 ([metadados](https://metadadosgeo.ibge.gov.br/geonetwork_ibge/geonetwork_ibge/api/records/2dfb5757-255c-4b13-8d65-cbca4d23e5a1)) | **Integrado, parcial**: base de 31/07/2022, não a do INCRA (`pipeline/fontes/ibge_territorios_quilombolas.py`) | 495 |
+| 6 | Sobreposição: área quilombola | INCRA, `CMR-PUBLICO:lim_quilombolas_a` no GeoServer do CMR/FUNAI, mais o IBGE do Censo 2022 ([metadados](https://metadadosgeo.ibge.gov.br/geonetwork_ibge/geonetwork_ibge/api/records/2dfb5757-255c-4b13-8d65-cbca4d23e5a1)) | **Integrado** desde 02/11/2026 (`pipeline/fontes/incra_quilombolas.py`, ADR 0016); até então, só o IBGE de 31/07/2022 | 446 + 94 |
 | 2 | Fundiária: dados geoespaciais | SIGEF, acervo fundiário do INCRA | Não verificado: `certificacao.incra.gov.br` e `acervofundiario.incra.gov.br` sem resolução de DNS, inclusive no 8.8.8.8 e no 1.1.1.1; o acervo passou a exigir login gov.br | — |
 | 8 | Sobreposição: CAR x SIGEF | SIGEF | Não verificado: depende do 2 | — |
 | 1 | Fundiária: dados cadastrais | Consulta pública do SNCR ([Serpro](https://sncr.serpro.gov.br/sncr-web/consultaPublica.jsf)) | Não verificado: hCaptcha, e o CSV não traz a situação cadastral | — |
@@ -173,13 +195,22 @@ Opções sem custo para esse passo:
 | Bioma sem DETER | **Decidido e implementado**: "sem ocorrência" com aviso de período sem cobertura | ADR 0013 |
 | Recorte | **Decidido e implementado**: Brasil inteiro, por UF, à medida que os imóveis entram | ADR 0013 |
 | Critérios 5, 6 e 9 | **Decidido e implementado**: FUNAI, IBGE 2022 e CNUC, por sobreposição; UC por categoria | ADR 0014 |
-| Critérios 1, 2 e 8 | **Aberto**: sem fonte aberta acessível (SNCR com captcha; acervo do INCRA fora do ar e com login) | Seção 5 |
+| Critérios 1, 2 e 8 | **Aberto**: sem fonte aberta acessível (SNCR com captcha; acervo do INCRA sem DNS também no Brasil; SIGEF com login; espelho do CMR só perto de TI). Entrada prevista: CCIR e código SIGEF trazidos pelo produtor | Seção 0 |
+| PRODES pelo arquivo do bioma e DETER do Pantanal | **Decidido e implementado** em 02/11/2026 | ADR 0015 |
+| Quilombola pelo INCRA (CMR/FUNAI) e IBGE | **Decidido e implementado** em 02/11/2026 | ADR 0016 |
 | Primeiro relatório AB+S real | **Aberto**: produtor voluntário com consentimento ou relatório emitido num atendimento | Seção 4 |
 
 ## 9. Próximos passos
 
+Ordem de valor em [`visao-do-produto.md`](visao-do-produto.md), seção 5.
+
 1. **Conseguir o primeiro relatório AB+S real**, registrar a resposta 200 e começar a matriz de concordância (seção 4).
-2. **Aceitar o PDF do AB+S no pré-diagnóstico** e mostrar o resultado oficial ao lado de cada critério (ADR 0012).
-3. **Acompanhar o acervo do INCRA** (SIGEF e áreas quilombolas): quando voltar a ter endereço público, integrar os critérios 2 e 8 e trocar a base quilombola do IBGE 2022 pela do INCRA.
-4. **Agendar a verificação mensal** no `crontab` e validar a dor com técnicos usando as fichas.
-5. **Futuro, sem prioridade:** PostgreSQL com PostGIS quando houver API e mais de um usuário (ADR 0011).
+2. **Carteira com "o que mudou"**: comparar a carteira com a do mês anterior.
+3. **Piloto com uma cooperativa**: uma carteira real, medindo o tempo de triagem.
+4. **Polígono da área de produção** (KML ou GeoJSON) e dossiê EUDR.
+5. **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal (ADR 0015).
+6. **Atualizar o CNUC**: o shapefile 2026_07 só está no SharePoint; pedir ao MMA um link estável.
+7. **Caderno 02**: trocar o PRODES consultado na hora pelo lote.
+8. **Futuro, sem prioridade:** PostgreSQL com PostGIS quando houver API e mais de um usuário (ADR 0011).
+
+Feito em 02/11/2026: o PRODES das 27 UFs, o agendamento (launchd), o INCRA quilombola, o DETER do Pantanal, a carteira e o aviso de bioma sem DETER, que agora sugere conferir uma imagem de satélite recente.

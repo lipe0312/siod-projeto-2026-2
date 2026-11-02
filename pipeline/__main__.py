@@ -14,8 +14,8 @@ import pandas as pd
 
 from pipeline import config, relatorio, territorio
 from pipeline.documentos import carregar_chave
-from pipeline.fontes import (funai_terras_indigenas, ibama_embargos, ibge_territorios_quilombolas, inpe_deter,
-                             inpe_prodes, mma_unidades_conservacao, mte_lista_suja)
+from pipeline.fontes import (funai_terras_indigenas, ibama_embargos, ibge_territorios_quilombolas, incra_quilombolas,
+                             inpe_deter, inpe_prodes, mma_unidades_conservacao, mte_lista_suja)
 from pipeline.municipios import carregar_referencia
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
 
@@ -45,6 +45,9 @@ def main(argv=None) -> int:
     parser.add_argument("--atualizar", action="store_true", help="baixa novamente os arquivos brutos")
     parser.add_argument("--verificar-prodes", action="store_true",
                         help="verifica a publicação do PRODES mesmo dentro do intervalo de verificação")
+    parser.add_argument("--prodes-pelo-wfs", action="store_true",
+                        help="monta o lote do PRODES pelo WFS, UF por UF (forma anterior, de horas por UF), em vez do "
+                             "arquivo de cada bioma")
     parser.add_argument("--evidencia", type=Path, help="pasta onde copiar relatório e log desta execução")
     args = parser.parse_args(argv)
 
@@ -92,8 +95,12 @@ def main(argv=None) -> int:
         # A referência territorial (contorno das UFs e dos biomas) recorta o PRODES por UF.
         r_territorio = rodar("territorio", "API (GeoJSON), referência", lambda: territorio.carregar(args.atualizar))
         if r_territorio.status == "ok":
-            rodar("inpe_prodes", "API (WFS/GeoJSON)",
-                  lambda: inpe_prodes.executar(hoje, args.atualizar, args.verificar_prodes))
+            if args.prodes_pelo_wfs:
+                rodar("inpe_prodes", "API (WFS/GeoJSON)",
+                      lambda: inpe_prodes.executar(hoje, args.atualizar, args.verificar_prodes))
+            else:
+                rodar("inpe_prodes", "arquivo (shapefile por bioma)",
+                      lambda: inpe_prodes.executar_arquivos(hoje, args.atualizar, args.verificar_prodes))
         else:
             resultados.append(ResultadoFonte("inpe_prodes", "API (WFS/GeoJSON)", status="erro",
                                              mensagem="referência territorial (UFs e biomas) indisponível"))
@@ -107,12 +114,15 @@ def main(argv=None) -> int:
     if "quilombolas" in args.fontes:
         rodar("ibge_territorios_quilombolas", "tabular geoespacial (shapefile)",
               lambda: ibge_territorios_quilombolas.executar(args.atualizar))
+        # INCRA (pelo CMR/FUNAI) e a camada combinada com o IBGE, que o critério 6 usa.
+        rodar("incra_quilombolas", "API (WFS/GeoJSON)", lambda: incra_quilombolas.executar(args.atualizar))
 
     status = "ok" if all(r.status == "ok" for r in resultados) else "erro"
     execucao = {"inicio": inicio.strftime("%Y-%m-%d %H:%M:%S"), "comando": comando.strip(),
                 "duracao_segundos": round(time.time() - t0, 1), "status": status,
                 "parametros": {"fontes": args.fontes, "desde": args.desde, "atualizar": args.atualizar,
-                               "verificar_prodes": args.verificar_prodes}}
+                               "verificar_prodes": args.verificar_prodes,
+                               "prodes_pelo_wfs": args.prodes_pelo_wfs}}
     arq_json, arq_md = relatorio.escrever(execucao, resultados, config.DADOS_PROCESSADOS, "relatorio_execucao")
     atualizar_procedencia(resultados, execucao["inicio"])
     log.info("Fim: status %s em %.1f s. Relatório: %s", status, execucao["duracao_segundos"], _legivel(arq_md))

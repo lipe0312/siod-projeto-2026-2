@@ -146,7 +146,7 @@ As fontes são atualizadas continuamente, então as contagens podem variar um po
 python -m pytest
 ```
 
-O resultado esperado é `157 passed, 2 skipped`: 51 testes da Atividade 02, 42 da Atividade 03 e 64 da Atividade 04. Os testes ignorados são marcados `rede` e consultam o SICAR e o PRODES de verdade; só rodam com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
+O resultado esperado é `192 passed, 3 skipped`: 51 testes da Atividade 02, 42 da Atividade 03 e 99 da Atividade 04 (35 deles de 02/11/2026: PRODES pelo arquivo, DETER do Pantanal, INCRA quilombola, IBAMA pelo portal e carteira). Os testes ignorados são marcados `rede` e consultam o SICAR, o PRODES e o catálogo do TerraBrasilis de verdade; só rodam com `python -m pytest --rede`. A tabela da seção 4 de [`docs/atividade-02-pipeline.md`](docs/atividade-02-pipeline.md) liga cada validação da Atividade 02 ao teste que a comprova.
 
 **b) Execução completa.** Baixa as quatro fontes e gera as saídas:
 
@@ -250,13 +250,13 @@ A cada `python -m pipeline --fontes prodes`:
 - baixa de novo só o que mudou, mais o último ano publicado;
 - registra ano novo, ano consolidado alterado, último ano revisado e UF incluída no histórico (`data/processed/inpe_prodes_publicacao.json`), com a última imagem de cada bioma.
 
-Para rodar todo mês sozinho, agende no `crontab -e` (exemplo, todo dia 1 às 6h). Não tem custo:
+Desde 02/11/2026, o lote vem do arquivo de cada bioma na área de download do TerraBrasilis: as 27 UFs em cerca de 4 minutos, e a verificação mensal compara a versão do arquivo ([ADR 0015](docs/arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md)). A forma anterior, pelo WFS UF por UF, continua em `--prodes-pelo-wfs`.
 
-```
-0 6 1 * * cd /caminho/siod-projeto-2026-2 && .venv/bin/python -m pipeline --fontes prodes
-```
+Para rodar todo mês sozinho, use a rotina mensal em [`agendamento/`](agendamento/LEIA-ME.md) (launchd no macOS ou `cron` no Linux). Ela atualiza todas as fontes em lote e roda a demonstração como teste de regressão. Não tem custo.
 
-Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa, Pantanal), a ficha avisa o período sem cobertura entre a última imagem PRODES e a data da consulta. Evidências em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
+**Carteira.** `python -m pipeline.carteira planilha.xlsx` recebe a planilha de uma cooperativa (uma linha por imóvel: `id_produtor` e `cod_car` ou `lat`/`lon`; modelo em [`docs/modelos/carteira_modelo.csv`](docs/modelos/carteira_modelo.csv)) e devolve a lista de atendimento em ordem de prioridade, com uma ficha por imóvel. O que o cliente vê e o que cada stakeholder entrega estão em [`docs/visao-do-produto.md`](docs/visao-do-produto.md).
+
+Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa), a ficha avisa o período sem cobertura entre a última imagem PRODES e a data da consulta. O Pantanal tem DETER desde 08/2023, pelo arquivo do TerraBrasilis. Evidências em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
 
 ### Problemas comuns
 
@@ -307,6 +307,8 @@ Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa, Pantanal), a ficha avisa
 | [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote por UF com serviço falso: partição pelo contorno, polígono de divisa nas duas UFs, UF que entra com o imóvel, retomada, divisão do retângulo, verificação mensal | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |
 | [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md) | Pré-diagnóstico, PRODES em lote, o que a avaliação mede, AB+S pendente, próximos passos e decisões em aberto | 04 |
+| [`docs/visao-do-produto.md`](docs/visao-do-produto.md) | O que o cliente vê no final, o que cada stakeholder entrega (planilha da carteira), o fluxo de ponta a ponta e a ordem de valor dos próximos passos | 04 |
+| [`agendamento/`](agendamento/LEIA-ME.md) | Rotina mensal (launchd/cron) que atualiza as fontes em lote | 04 |
 | [`docs/evidencias/atividade-04/`](docs/evidencias/atividade-04/) | Fichas da demonstração (HTML, MD, JSON, print), execuções do PRODES em lote, e fontes dos critérios do AB+S, teste nacional e medição de persistência (`cobertura-e-persistencia/`) | 04 |
 | [`notebooks/02_fontes_antes_e_depois.ipynb`](notebooks/02_fontes_antes_e_depois.ipynb) | Cada fonte antes e depois do tratamento, com as validações e os casos de erro | 03 |
 | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) | Relatório e log da execução de referência | 02 |

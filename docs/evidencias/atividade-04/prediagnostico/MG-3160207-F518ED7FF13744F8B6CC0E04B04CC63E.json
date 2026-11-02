@@ -4,7 +4,7 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-11-02 12:37:29",
+    "gerado_em": "2026-11-02 15:23:27",
     "prodes": {
       "origem": "lote",
       "uf": "MG",
@@ -21,8 +21,8 @@
         "cerrado": "2026-08-12",
         "mata_atlantica": "2025-10-16"
       },
-      "verificado_em": "2026-10-31",
-      "proxima_verificacao": "2026-11-29",
+      "verificado_em": "2026-11-02",
+      "proxima_verificacao": "2026-12-02",
       "ultimo_ano_do_imovel": 2025
     },
     "biomas": [
@@ -84,7 +84,7 @@
       "evidencia": "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel",
       "encaminhamento": "—",
       "fonte": "INPE DETER e PRODES",
-      "aviso": "Mata Atlântica sem DETER: sem cobertura de 16/10/2025 até hoje (o próximo PRODES cobre esse período)"
+      "aviso": "Mata Atlântica sem DETER: sem cobertura de 16/10/2025 até hoje (o próximo PRODES cobre esse período). Para esse intervalo, conferir uma imagem de satélite recente do imóvel (ex.: Sentinel-2 no Copernicus Browser ou Planet/NICFI no MapBiomas Alerta)"
     },
     {
       "chave": "lista_suja",
@@ -111,9 +111,9 @@
       "criterio": "Sobreposição: território quilombola",
       "criterio_ab_s": 6,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "evidencia": "Nenhuma sobreposição. Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022.",
       "encaminhamento": "—",
-      "fonte": "IBGE (Censo 2022)",
+      "fonte": "INCRA (via CMR/FUNAI) e IBGE 2022",
       "aviso": null
     },
     {
@@ -131,7 +131,7 @@
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido pelo produtor no atendimento supre o dado",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "INCRA (SNCR)",
       "aviso": null
@@ -141,7 +141,7 @@
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "evidencia": "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "SIGEF-GEO (INCRA)",
       "aviso": null
@@ -204,18 +204,42 @@
   "geometria_car": "MULTIPOLYGON (((-43.347692 -18.414236, -43.345454 -18.414641, -43.342362 -18.414397, -43.338775 -18.415351, -43.33558 -18.415802, -43.332232 -18.417516, -43.330303 -18.417283, -43.328923 -18.418102, -43.327539 -18.420264, -43.327726 -18.42141, -43.328327 -18.42286, -43.328479 -18.423953, -43.328419 -18.42523, -43.326846 -18.42527, -43.325758 -18.426724, -43.325599 -18.429272, -43.325843 -18.430343, -43.325422 -18.430798, -43.326103 -18.432999, -43.326622 -18.434845, -43.326775 -18.434933, -43.3287 -18.434794, -43.33028 -18.435287, -43.330978 -18.435572, -43.335909 -18.435689, -43.336812 -18.435855, -43.337889 -18.436889, -43.338888 -18.437024, -43.339305 -18.435962, -43.341432 -18.435437, -43.342632 -18.435346, -43.344297 -18.434002, -43.345736 -18.432586, -43.346408 -18.431476, -43.346527 -18.430816, -43.347208 -18.429697, -43.34667 -18.429165, -43.348062 -18.427524, -43.349599 -18.425251, -43.350726 -18.424108, -43.351515 -18.423995, -43.353665 -18.422462, -43.354258 -18.41935, -43.354578 -18.417702, -43.353929 -18.417299, -43.351304 -18.41668, -43.351427 -18.414612, -43.347692 -18.414236)))",
   "procedencia": [
     {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
+      "data": "2026-11-02",
+      "sha256": "fe68443566461a7869f284e062e00a99eec747025a889e3cc87166bcbdca1309",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-11-02",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-11-02",
+      "sha256": "0d460255edaa128abfbf38d6ca45e1b7810013dc06937e25ffcfc167940ebd5e",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
       "fonte": "FUNAI, terras indígenas (WFS, em lote)",
       "como": "lote",
       "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
-      "data": "2026-10-31",
-      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "data": "2026-11-02",
+      "sha256": "9b81d200c16288bda33aea715f4c828c578a1330dd662e077372f35009a6745f",
       "arquivo": "data/processed/funai_terras_indigenas.parquet"
     },
     {
       "fonte": "MMA, CNUC (shapefile, em lote)",
       "como": "lote",
       "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
       "arquivo": "data/processed/mma_unidades_conservacao.parquet"
     },
@@ -223,16 +247,24 @@
       "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
       "como": "lote",
       "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
       "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)",
+      "como": "lote",
+      "url": "https://cmr.funai.gov.br/geoserver/ows",
+      "data": "2026-11-02",
+      "sha256": "4fbb4b8fa7eb093cdb9859f53d29b7192c23416527c28a18b6cda78ee9cf1be7",
+      "arquivo": "data/processed/incra_quilombolas.parquet"
     },
     {
       "fonte": "INPE PRODES (lote, partição MG)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-31",
-      "sha256": "4fc625fb09feb1668363e648b3ec5b512c5bfbfa8ab2f3a0b901067e5e06e6a6",
+      "data": "verificado em 2026-11-02",
+      "sha256": "91237232157381e4a033a5c4e5a08dc7b978c207a4e198765bcc4e79f15d3be4",
       "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet"
     },
     {

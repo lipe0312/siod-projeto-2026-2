@@ -1,4 +1,5 @@
-"""Fonte API: alertas de desmatamento DETER do INPE (serviço WFS, resposta GeoJSON)."""
+"""Fonte API: alertas de desmatamento DETER do INPE (serviço WFS, resposta GeoJSON), e o DETER do Pantanal pelo
+shapefile da área de download do TerraBrasilis (o WFS não tem a camada; config.DETER_ARQUIVOS)."""
 
 import gzip
 import hashlib
@@ -10,7 +11,7 @@ import pandas as pd
 import requests
 import shapely
 
-from pipeline import config, wfs
+from pipeline import config, download, vetor, wfs
 from pipeline.municipios import normalizar_nome, resolver_por_nome
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -134,6 +135,45 @@ def resposta_para_tabela(resposta: dict, nome: str) -> pd.DataFrame:
     return tabela
 
 
+def tabela_arquivo(caminho, nome: str, resultado: ResultadoFonte) -> pd.DataFrame:
+    """Shapefile do DETER (área de download) na forma de `resposta_para_tabela`. A classe é traduzida para a do WFS
+    (config.DETER_ARQUIVOS); a UF vem do contorno do IBGE, e o município fica sem código (o arquivo não traz)."""
+    from pipeline import territorio
+
+    info = config.DETER_ARQUIVOS[nome]
+    registros, geoms, prj, _ = vetor.ler_shapefile_zip(caminho, info["base_shapefile"])
+    vetor.validar_crs_sirgas(f"DETER_{nome.upper()}", prj, resultado)
+    df = pd.DataFrame(registros)
+    classe = df["CLASS_NAME"].astype("string").str.strip()
+    traduzida = classe.str.lower().map(info["classes"])
+    resultado.validar(f"DETER_{nome.upper()}_CLASSE_TRADUZIDA", "Classe de supressão do arquivo traduzida para a do "
+                      f"WFS ({'; '.join(f'{k} = {v}' for k, v in info['classes'].items())})", "correcao",
+                      "vale a classe do WFS", traduzida.notna(), len(df))
+    presentes = pd.Series([g is not None and not g.is_empty for g in geoms])
+    ufs = pd.Series([None] * len(df), dtype=object)
+    if presentes.any():
+        ufs[presentes.to_numpy()] = territorio.uf_por_contorno(geoms[presentes.to_numpy()])
+    lim = config.LIMITES_BRASIL
+    b = shapely.bounds(geoms.astype(object))
+    tabela = pd.DataFrame({
+        "camada": nome, "gid": df["UUID"].astype("string"), "classe": traduzida.fillna(classe),
+        "view_date": [v.strftime("%Y-%m-%d") if hasattr(v, "strftime") else None for v in df["VIEW_DATE"]],
+        "publish_month": None, "uf": ufs, "municipio_fonte": None, "mun_geocod": None, "area_fonte": df["AREA_KM"],
+        "satelite": df["SATELLITE"], "sensor": df["SENSOR"],
+        **{f"tem_{k}": k != "municipality" for k in PROPRIEDADES_OBRIGATORIAS},
+        "geom_ausente": ~presentes,
+        "geom_fora_brasil": presentes & ~((b[:, 1] >= lim["lat_min"]) & (b[:, 3] <= lim["lat_max"])
+                                          & (b[:, 0] >= lim["lon_min"]) & (b[:, 2] <= lim["lon_max"])),
+        "geom_invalida": presentes & ~shapely.is_valid(geoms.astype(object)),
+        "geometria_wkt": [shapely.to_wkt(g, rounding_precision=6, trim=True) if ok else None
+                          for g, ok in zip(geoms, presentes)]})
+    resultado.entrada.setdefault("camadas", {})[nome] = {"arquivo": str(caminho.relative_to(config.RAIZ))
+                                                         if caminho.is_relative_to(config.RAIZ) else str(caminho),
+                                                         "recebidos": len(tabela)}
+    resultado.transformar(f"DETER {nome}: shapefile da área de download; UF pelo contorno do IBGE")
+    return tabela
+
+
 def consolidar(fluxo, esperados: dict, resultado: ResultadoFonte) -> pd.DataFrame:
     """Lê as respostas uma a uma (camada, nome da partição, JSON), valida estrutura e completude e junta as tabelas."""
     problemas, incompletas, crs_inesperado, recebidos, lidas, tabelas = [], [], [], {}, {}, []
@@ -183,9 +223,11 @@ def transformar(respostas: dict, esperados: dict, ref_municipios: pd.DataFrame, 
 def transformar_tabela(df: pd.DataFrame, ref_municipios: pd.DataFrame, desde: str, hoje: pd.Timestamp,
                        resultado: ResultadoFonte) -> tuple[pd.DataFrame, pd.DataFrame]:
     n = len(df)
+    # As propriedades obrigatórias são as do WFS; o shapefile do Pantanal não traz município (a UF vem do contorno).
+    wfs_df = df[~df["camada"].isin(config.DETER_ARQUIVOS)] if n else df
     for k in PROPRIEDADES_OBRIGATORIAS:
         resultado.validar(f"DETER_PROPRIEDADE_{k.upper()}_AUSENTE", f"Propriedade '{k}' ausente em todas as features",
-                          "erro", "interrompe a fonte", int(n > 0 and not df[f"tem_{k}"].any()), 1)
+                          "erro", "interrompe a fonte", int(len(wfs_df) > 0 and not wfs_df[f"tem_{k}"].any()), 1)
 
     descartes = []
 
@@ -292,6 +334,11 @@ def executar(ref_municipios: pd.DataFrame, hoje: pd.Timestamp, desde: str = conf
                 yield nome, particao["inicio"][:7], json.loads(gzip.decompress((pasta / particao["arquivo"]).read_bytes()))
 
     tabela = consolidar(fluxo(), esperados, resultado)
+    for nome, info in config.DETER_ARQUIVOS.items():
+        meta = download.baixar(info["url"], config.DADOS_BRUTOS / "inpe_deter" / nome / info["arquivo"], atualizar)
+        resultado.entrada.setdefault("arquivos", {})[nome] = {k: meta.get(k) for k in ("url", "baixado_em_utc",
+                                                                                         "sha256", "tamanho_bytes")}
+        tabela = pd.concat([tabela, tabela_arquivo(config.RAIZ / meta["arquivo"], nome, resultado)], ignore_index=True)
     saida, descartados = transformar_tabela(tabela, ref_municipios, desde, hoje, resultado)
     config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
     arq_saida = config.DADOS_PROCESSADOS / "inpe_deter_alertas.parquet"

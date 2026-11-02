@@ -4,7 +4,7 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-11-02 12:37:23",
+    "gerado_em": "2026-11-02 15:23:20",
     "prodes": {
       "origem": "lote",
       "uf": "MS",
@@ -21,8 +21,8 @@
         "mata_atlantica": "2025-07-28",
         "pantanal": "2025-08-12"
       },
-      "verificado_em": "2026-10-31",
-      "proxima_verificacao": "2026-11-29",
+      "verificado_em": "2026-11-02",
+      "proxima_verificacao": "2026-12-02",
       "ultimo_ano_do_imovel": 2025
     },
     "biomas": [
@@ -80,10 +80,10 @@
       "criterio": "Desmatamento após 31/12/2020 (EUDR)",
       "criterio_ab_s": null,
       "situacao": "pendência",
-      "evidencia": "4 polígono(s) PRODES após 2020 (342.3 ha no imóvel)",
+      "evidencia": "12 alerta(s) DETER (360.1 ha no imóvel): 7 não confirmado, 4 confirmado, 1 aguardando consolidação; 4 polígono(s) PRODES após 2020 (341.1 ha no imóvel)",
       "encaminhamento": "Verificar se a supressão teve autorização (ASV). Mesmo autorizada, área desmatada após 31/12/2020 não atende à EUDR para a produção que sai dela.",
       "fonte": "INPE DETER e PRODES",
-      "aviso": "Pantanal sem DETER: sem cobertura de 12/08/2025 até hoje (o próximo PRODES cobre esse período)"
+      "aviso": null
     },
     {
       "chave": "lista_suja",
@@ -110,9 +110,9 @@
       "criterio": "Sobreposição: território quilombola",
       "criterio_ab_s": 6,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "evidencia": "Nenhuma sobreposição. Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022.",
       "encaminhamento": "—",
-      "fonte": "IBGE (Censo 2022)",
+      "fonte": "INCRA (via CMR/FUNAI) e IBGE 2022",
       "aviso": null
     },
     {
@@ -130,7 +130,7 @@
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido pelo produtor no atendimento supre o dado",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "INCRA (SNCR)",
       "aviso": null
@@ -140,7 +140,7 @@
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "evidencia": "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "SIGEF-GEO (INCRA)",
       "aviso": null
@@ -158,17 +158,200 @@
   ],
   "evidencias": {
     "embargos": [],
-    "alertas": [],
+    "alertas": [
+      {
+        "id_alerta": "pantanal:e261cf87-cd4c-48d0-bae5-7e584a140239:c5c3dace069e",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-12-14T00:00:00.000",
+        "area_km2": 0.7538920926,
+        "satelite": "",
+        "inter_ha": 73.0427243881,
+        "fracao_objeto": 0.9658939407,
+        "largura_m": 402.5296236326,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2024"
+      },
+      {
+        "id_alerta": "pantanal:3a841a6a-a4e7-4d94-b1d8-e381d3cea458:93540eabbe3f",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2026-03-28T00:00:00.000",
+        "area_km2": 0.1151794249,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 2.0200108087,
+        "fracao_objeto": 0.1748453378,
+        "largura_m": 11.5068152652,
+        "classe": "parcial",
+        "situacao_prodes": "aguardando consolidação",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:9953351d-ed6e-4838-ae96-7c1c747642cf:f67f5de79df7",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2026-03-28T00:00:00.000",
+        "area_km2": 0.3895670678,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 0.3278173929,
+        "fracao_objeto": 0.008393344,
+        "largura_m": 7.4730536589,
+        "classe": "tangente",
+        "situacao_prodes": "não avaliado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:41818b34-18fa-44c1-82e7-9f08698bee58:fbca41f69025",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-12-18T00:00:00.000",
+        "area_km2": 0.8967261329,
+        "satelite": "",
+        "inter_ha": 88.2486645045,
+        "fracao_objeto": 0.9811021259,
+        "largura_m": 372.4933540377,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2024"
+      },
+      {
+        "id_alerta": "pantanal:e7d0d5b7-d3dc-4eba-b33d-15b47746ba2a:780881974cf1",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-08-21T00:00:00.000",
+        "area_km2": 0.1213515692,
+        "satelite": "",
+        "inter_ha": 12.1714318064,
+        "fracao_objeto": 1.0,
+        "largura_m": 132.6941515202,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:5aced5ad-0b70-4bd4-a912-08afe7ba034b:a116b66f2bb1",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-05-17T00:00:00.000",
+        "area_km2": 0.8683542275,
+        "satelite": "",
+        "inter_ha": 87.1039488491,
+        "fracao_objeto": 1.0,
+        "largura_m": 318.9452891608,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:719c0a73-bd23-4362-94e4-68ac20037de2:975881ac63f6",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-12-18T00:00:00.000",
+        "area_km2": 0.1932105254,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 0.8594027291,
+        "fracao_objeto": 0.0443453321,
+        "largura_m": 32.0894912373,
+        "classe": "parcial",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:bac5e391-0ed4-4720-9cb8-1e7bc2e1e086:2b91f2aa162a",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2023-08-08T00:00:00.000",
+        "area_km2": 0.1560864983,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 9.2963047782,
+        "fracao_objeto": 0.5939120469,
+        "largura_m": 92.9950873334,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:2baec322-acfc-4aea-9d9b-5ced1fcd4761:9466c48ecd51",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-07-02T00:00:00.000",
+        "area_km2": 0.2331774954,
+        "satelite": "CBERS-4",
+        "inter_ha": 23.3890011508,
+        "fracao_objeto": 1.0,
+        "largura_m": 208.9053292011,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:b9bfdfe6-3e14-42a5-a962-cb2cdd813d75:d31bdf95f002",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-01-08T00:00:00.000",
+        "area_km2": 0.3498058092,
+        "satelite": "",
+        "inter_ha": 35.0847241487,
+        "fracao_objeto": 1.0,
+        "largura_m": 127.9344472223,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2024"
+      },
+      {
+        "id_alerta": "pantanal:0f4f2979-073e-4be3-b4e8-3135e493eddf:b7df056e2add",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-06-06T00:00:00.000",
+        "area_km2": 0.1648055472,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 16.5306253865,
+        "fracao_objeto": 1.0,
+        "largura_m": 156.757411781,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      },
+      {
+        "id_alerta": "pantanal:dc4ef731-fbfe-47e8-bd39-e17fc5136844:1067f04595ae",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-04-03T00:00:00.000",
+        "area_km2": 0.5462947073,
+        "satelite": "",
+        "inter_ha": 0.0253001122,
+        "fracao_objeto": 0.0004617542,
+        "largura_m": 4.8382517844,
+        "classe": "tangente",
+        "situacao_prodes": "não avaliado",
+        "anos_prodes": "2024"
+      },
+      {
+        "id_alerta": "pantanal:dc9951ae-e46f-4561-8958-dc8b4e5b08dc:c6a15ec04602",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-01-08T00:00:00.000",
+        "area_km2": 0.039716459,
+        "satelite": "",
+        "inter_ha": 2.0341952329,
+        "fracao_objeto": 0.5106852699,
+        "largura_m": 29.8181451568,
+        "classe": "principal",
+        "situacao_prodes": "confirmado",
+        "anos_prodes": "2024"
+      },
+      {
+        "id_alerta": "pantanal:f4080469-514e-429e-87e9-a7a73aa0006e:1442899f3bf4",
+        "classe_deter": "DESMATAMENTO_CR",
+        "data_imagem": "2024-08-10T00:00:00.000",
+        "area_km2": 0.1032333429,
+        "satelite": "AMAZONIA-1",
+        "inter_ha": 10.3556941738,
+        "fracao_objeto": 1.0,
+        "largura_m": 134.308694993,
+        "classe": "principal",
+        "situacao_prodes": "não confirmado",
+        "anos_prodes": ""
+      }
+    ],
     "prodes": [
       {
         "uuid": "82b89830-71cb-4849-a2e0-4bf62ebe7c09",
         "bioma": "pantanal",
         "ano_prodes": 2021,
         "data_imagem": "2021-08-07T00:00:00.000",
-        "area_km2": 1.5425331527,
-        "inter_ha": 154.9455916009,
+        "area_km2": 1.5371982589,
+        "inter_ha": 154.4066224857,
         "fracao_objeto": 1.0,
-        "largura_m": 300.9701085102,
+        "largura_m": 301.1211763916,
         "classe": "principal"
       },
       {
@@ -176,10 +359,10 @@
         "bioma": "pantanal",
         "ano_prodes": 2023,
         "data_imagem": "2023-08-06T00:00:00.000",
-        "area_km2": 0.3956636484,
-        "inter_ha": 4.9574865871,
-        "fracao_objeto": 0.1247323369,
-        "largura_m": 26.9949878458,
+        "area_km2": 0.3934517984,
+        "inter_ha": 4.7797809236,
+        "fracao_objeto": 0.1209568638,
+        "largura_m": 25.7192966292,
         "classe": "parcial"
       },
       {
@@ -187,10 +370,10 @@
         "bioma": "pantanal",
         "ano_prodes": 2024,
         "data_imagem": "2024-08-27T00:00:00.000",
-        "area_km2": 1.7268486616,
-        "inter_ha": 170.3993168886,
-        "fracao_objeto": 0.9823567413,
-        "largura_m": 390.8007659898,
+        "area_km2": 1.7226936884,
+        "inter_ha": 169.9825669286,
+        "fracao_objeto": 0.9823157655,
+        "largura_m": 389.6667194163,
         "classe": "principal"
       },
       {
@@ -198,10 +381,10 @@
         "bioma": "pantanal",
         "ano_prodes": 2025,
         "data_imagem": "2025-07-27T00:00:00.000",
-        "area_km2": 0.1193163643,
-        "inter_ha": 11.9851150384,
+        "area_km2": 0.1185929778,
+        "inter_ha": 11.9205439128,
         "fracao_objeto": 1.0,
-        "largura_m": 32.2520101748,
+        "largura_m": 32.0994379115,
         "classe": "principal"
       }
     ],
@@ -213,18 +396,42 @@
   "geometria_car": "MULTIPOLYGON (((-57.01547144 -19.02128116, -56.99457506 -19.03920024, -56.98556964 -19.04669224, -56.99266797 -19.05315673, -57.00044795 -19.06031775, -57.00043902 -19.061617, -57.00720303 -19.07445037, -57.00832845 -19.07591225, -57.00881427 -19.07766227, -57.0104221 -19.07993334, -57.01041214 -19.08480289, -57.01289096 -19.08895452, -57.01294094 -19.08979158, -57.01260064 -19.09262299, -57.01330309 -19.09411721, -57.01649469 -19.09752567, -57.01760109 -19.09852051, -57.01985383 -19.10017741, -57.02016833 -19.10104978, -57.02152437 -19.10227494, -57.02332925 -19.10278715, -57.02702675 -19.1057695, -57.02780547 -19.10629682, -57.02956872 -19.1069806, -57.03110902 -19.10712187, -57.0335542 -19.1094695, -57.03377113 -19.10935757, -57.03417664 -19.1098871, -57.03456651 -19.11155988, -57.03423109 -19.11299394, -57.03429103 -19.11456664, -57.03691725 -19.11498683, -57.041033 -19.11704807, -57.04121311 -19.11720609, -57.04129399 -19.11745623, -57.04327093 -19.11767169, -57.04413567 -19.11800732, -57.04671967 -19.11881636, -57.0467598 -19.11883144, -57.04712294 -19.11960659, -57.05028177 -19.12051312, -57.0525358 -19.12247202, -57.05318679 -19.12264779, -57.05555311 -19.12414932, -57.05618319 -19.12518149, -57.05649109 -19.12690196, -57.05767056 -19.12730567, -57.05843069 -19.12764226, -57.05980859 -19.12824371, -57.06028532 -19.12871179, -57.06288418 -19.12943266, -57.06361137 -19.13036943, -57.06876232 -19.1345892, -57.069281 -19.13542687, -57.07068267 -19.13644351, -57.07065149 -19.1373668, -57.07158677 -19.13973373, -57.07175898 -19.14083164, -57.07229256 -19.14108439, -57.07370815 -19.14248103, -57.07350125 -19.14273923, -57.07329592 -19.14635469, -57.06424513 -19.16429938, -57.1604173 -19.18249194, -57.16211194 -19.18410021, -57.16285547 -19.18400592, -57.16315342 -19.18424398, -57.16471487 -19.18521321, -57.16505959 -19.18493834, -57.16660822 -19.18525687, -57.16663782 -19.18527392, -57.16716575 -19.18539463, -57.16801328 -19.18570674, -57.16971686 -19.18600811, -57.17119606 -19.18704342, -57.17212429 -19.18719131, -57.17327007 -19.18781381, -57.17407453 -19.1877591, -57.17573281 -19.1880995, -57.17731504 -19.18820507, -57.17824403 -19.18870005, -57.17858779 -19.18931851, -57.17952661 -19.1900152, -57.18052913 -19.1901439, -57.18136291 -19.19062369, -57.18187919 -19.19111075, -57.18224981 -19.19183212, -57.18210622 -19.19438326, -57.18229113 -19.19471674, -57.18848702 -19.18859818, -57.09649792 -19.07205253, -57.09061685 -19.08086881, -57.01547144 -19.02128116)))",
   "procedencia": [
     {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
+      "data": "2026-11-02",
+      "sha256": "fe68443566461a7869f284e062e00a99eec747025a889e3cc87166bcbdca1309",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-11-02",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-11-02",
+      "sha256": "0d460255edaa128abfbf38d6ca45e1b7810013dc06937e25ffcfc167940ebd5e",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
       "fonte": "FUNAI, terras indígenas (WFS, em lote)",
       "como": "lote",
       "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
-      "data": "2026-10-31",
-      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "data": "2026-11-02",
+      "sha256": "9b81d200c16288bda33aea715f4c828c578a1330dd662e077372f35009a6745f",
       "arquivo": "data/processed/funai_terras_indigenas.parquet"
     },
     {
       "fonte": "MMA, CNUC (shapefile, em lote)",
       "como": "lote",
       "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
       "arquivo": "data/processed/mma_unidades_conservacao.parquet"
     },
@@ -232,16 +439,24 @@
       "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
       "como": "lote",
       "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
       "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)",
+      "como": "lote",
+      "url": "https://cmr.funai.gov.br/geoserver/ows",
+      "data": "2026-11-02",
+      "sha256": "4fbb4b8fa7eb093cdb9859f53d29b7192c23416527c28a18b6cda78ee9cf1be7",
+      "arquivo": "data/processed/incra_quilombolas.parquet"
     },
     {
       "fonte": "INPE PRODES (lote, partição MS)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-31",
-      "sha256": "41217f879d55f4f80a2f71d5e7c1ad29c7e1f36df9bf90271cb89fe1a3d92603",
+      "data": "verificado em 2026-11-02",
+      "sha256": "684f326d380fb33b5681d61ca1b02ba52c8881edf64fa5d01f352334a2a5f3e7",
       "arquivo": "data/processed/inpe_prodes/uf=MS/part.parquet"
     },
     {

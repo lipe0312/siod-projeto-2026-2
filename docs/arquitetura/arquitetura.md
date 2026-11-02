@@ -162,6 +162,8 @@ A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, boolean
 - [0012 — Conferir o pré-diagnóstico com o relatório AB+S do imóvel](adr/0012-conferir-o-prediagnostico-com-o-relatorio-ab-s-do-imovel.md)
 - [0013 — Cobrir o Brasil inteiro sem aceitar dado incompleto como limpo](adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)
 - [0014 — Verificar terras indígenas, quilombolas e unidades de conservação por sobreposição](adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)
+- [0015 — Montar o PRODES e o DETER do Pantanal pelo arquivo do TerraBrasilis](adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md)
+- [0016 — Usar a base quilombola do INCRA republicada pelo CMR/FUNAI](adr/0016-usar-a-base-quilombola-do-incra-republicada-pelo-cmr-funai.md)
 
 ## Onde entra a inteligência
 
@@ -204,3 +206,4 @@ Nesta versão, a fatia vai da saída do pipeline até a regra de cruzamento: `py
 | 3 | 30/10/2026 | Pré-diagnóstico por imóvel (`pipeline/prediagnostico.py`) com ficha HTML; PRODES do recorte persistido em lote com verificação mensal | Atividade 04: a regra de cruzamento passou a ter saída para o técnico; o último ano do PRODES estava numa constante e já estava defasado (ADR 0010) |
 | 3 | 30/10/2026 | Decididos: PostgreSQL + PostGIS como persistência e serviço agendado (ADR 0011), AB+S como gabarito (ADR 0012), recorte nacional com UF pelo contorno e inconclusivo para dado incompleto (ADR 0013) | Medição de três formas de persistência e teste em um CAR por bioma: o modelo em memória não escala, e o pré-diagnóstico não funcionava fora de MG |
 | 4 | 30/10/2026 | PRODES dos seis biomas em lote por UF, com a UF pelo contorno do IBGE e a UF incluída quando o imóvel chega (ADR 0013); persistência em Parquet particionado e PostGIS adiado (ADR 0011); terras indígenas, quilombolas e unidades de conservação em lote (ADR 0014) | O pré-diagnóstico não funcionava fora de MG; não pagar nada agora; 6 dos 9 critérios do AB+S estavam sem verificação |
+| 5 | 02/11/2026 | PRODES das 27 UFs pelo arquivo de cada bioma e DETER do Pantanal pelo arquivo (ADR 0015); quilombola pelo INCRA via CMR/FUNAI (ADR 0016); IBAMA pelo Portal de Dados Abertos, com desembargo; carteira por planilha; rotina mensal agendada | A carga pelo WFS levava horas por UF; o CSV do IBAMA passou a responder 403; o técnico atende uma carteira, não um imóvel |

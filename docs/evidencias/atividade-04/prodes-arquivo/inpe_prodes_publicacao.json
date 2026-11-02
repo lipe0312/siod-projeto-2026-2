@@ -1,0 +1,852 @@
+{
+  "origem": "arquivo do bioma (TerraBrasilis, área de download)",
+  "verificado_em_utc": "2026-11-02T18:13:19+00:00",
+  "proxima_verificacao": "2026-12-02",
+  "ufs": [
+    "AC",
+    "AL",
+    "AM",
+    "AP",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MG",
+    "MS",
+    "MT",
+    "PA",
+    "PB",
+    "PE",
+    "PI",
+    "PR",
+    "RJ",
+    "RN",
+    "RO",
+    "RR",
+    "RS",
+    "SC",
+    "SE",
+    "SP",
+    "TO"
+  ],
+  "ufs_biomas": {
+    "AC": [
+      "amazonia"
+    ],
+    "AL": [
+      "caatinga",
+      "mata_atlantica"
+    ],
+    "AM": [
+      "amazonia"
+    ],
+    "AP": [
+      "amazonia"
+    ],
+    "BA": [
+      "caatinga",
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "CE": [
+      "caatinga"
+    ],
+    "DF": [
+      "cerrado"
+    ],
+    "ES": [
+      "mata_atlantica"
+    ],
+    "GO": [
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "MA": [
+      "amazonia",
+      "caatinga",
+      "cerrado"
+    ],
+    "MG": [
+      "caatinga",
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "MS": [
+      "cerrado",
+      "mata_atlantica",
+      "pantanal"
+    ],
+    "MT": [
+      "amazonia",
+      "cerrado",
+      "pantanal"
+    ],
+    "PA": [
+      "amazonia",
+      "cerrado"
+    ],
+    "PB": [
+      "caatinga",
+      "mata_atlantica"
+    ],
+    "PE": [
+      "caatinga",
+      "mata_atlantica"
+    ],
+    "PI": [
+      "caatinga",
+      "cerrado"
+    ],
+    "PR": [
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "RJ": [
+      "mata_atlantica"
+    ],
+    "RN": [
+      "caatinga",
+      "mata_atlantica"
+    ],
+    "RO": [
+      "amazonia",
+      "cerrado"
+    ],
+    "RR": [
+      "amazonia"
+    ],
+    "RS": [
+      "mata_atlantica",
+      "pampa"
+    ],
+    "SC": [
+      "mata_atlantica"
+    ],
+    "SE": [
+      "caatinga",
+      "mata_atlantica"
+    ],
+    "SP": [
+      "cerrado",
+      "mata_atlantica"
+    ],
+    "TO": [
+      "amazonia",
+      "cerrado"
+    ]
+  },
+  "desde": 2019,
+  "ultimo_ano_publicado": {
+    "amazonia": 2025,
+    "caatinga": 2025,
+    "cerrado": 2026,
+    "mata_atlantica": 2025,
+    "pampa": 2025,
+    "pantanal": 2025
+  },
+  "ultima_imagem": {
+    "amazonia": "2025-08-28",
+    "caatinga": "2025-12-19",
+    "cerrado": "2026-08-28",
+    "mata_atlantica": "2025-11-17",
+    "pampa": "2025-12-19",
+    "pantanal": "2025-08-28"
+  },
+  "ultima_imagem_uf": {
+    "AC": {
+      "amazonia": "2025-08-16"
+    },
+    "AL": {
+      "caatinga": "2025-12-19",
+      "mata_atlantica": "2025-11-17"
+    },
+    "AM": {
+      "amazonia": "2025-08-28"
+    },
+    "AP": {
+      "amazonia": "2025-08-28"
+    },
+    "BA": {
+      "caatinga": "2025-12-19",
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-11-17"
+    },
+    "CE": {
+      "caatinga": "2025-10-16"
+    },
+    "DF": {
+      "cerrado": "2026-08-12"
+    },
+    "ES": {
+      "mata_atlantica": "2025-09-14"
+    },
+    "GO": {
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-07-28"
+    },
+    "MA": {
+      "amazonia": "2025-08-27",
+      "caatinga": null,
+      "cerrado": "2026-08-28"
+    },
+    "MG": {
+      "caatinga": "2025-10-16",
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-10-16"
+    },
+    "MS": {
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-07-28",
+      "pantanal": "2025-08-12"
+    },
+    "MT": {
+      "amazonia": "2025-08-28",
+      "cerrado": "2026-08-12",
+      "pantanal": "2025-08-28"
+    },
+    "PA": {
+      "amazonia": "2025-08-27",
+      "cerrado": "2026-08-12"
+    },
+    "PB": {
+      "caatinga": "2025-12-19",
+      "mata_atlantica": "2025-11-17"
+    },
+    "PE": {
+      "caatinga": "2025-12-19",
+      "mata_atlantica": "2025-11-17"
+    },
+    "PI": {
+      "caatinga": "2025-10-16",
+      "cerrado": "2026-08-28"
+    },
+    "PR": {
+      "cerrado": null,
+      "mata_atlantica": "2025-08-29"
+    },
+    "RJ": {
+      "mata_atlantica": "2025-08-29"
+    },
+    "RN": {
+      "caatinga": "2025-12-19",
+      "mata_atlantica": "2025-11-17"
+    },
+    "RO": {
+      "amazonia": "2025-08-27",
+      "cerrado": "2026-07-27"
+    },
+    "RR": {
+      "amazonia": "2025-08-27"
+    },
+    "RS": {
+      "mata_atlantica": "2025-09-30",
+      "pampa": "2025-12-19"
+    },
+    "SC": {
+      "mata_atlantica": "2025-09-30"
+    },
+    "SE": {
+      "caatinga": "2025-12-19",
+      "mata_atlantica": "2025-11-17"
+    },
+    "SP": {
+      "cerrado": "2026-08-12",
+      "mata_atlantica": "2025-09-14"
+    },
+    "TO": {
+      "amazonia": "2025-07-30",
+      "cerrado": "2026-08-12"
+    }
+  },
+  "data_publicacao": {
+    "amazonia": "2026-10-16",
+    "caatinga": "2026-08-05",
+    "cerrado": "2026-10-16",
+    "mata_atlantica": "2026-08-06",
+    "pampa": "2026-08-07",
+    "pantanal": "2026-07-17"
+  },
+  "arquivos": {
+    "amazonia": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/amz-prodes/vector/yearly_deforestation_biome_amazonia_v20261016.zip",
+      "versao": "2026-10-16",
+      "arquivo": "yearly_deforestation_biome_amazonia_v20261016.zip",
+      "sha256": "dd505c4c01711362141077118abd0c67a57a5c736421685d1452ecd6fb6e2866",
+      "tamanho_bytes": 434522954,
+      "baixado_em_utc": "2026-11-02T17:47:39+00:00"
+    },
+    "caatinga": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/caatinga-prodes/vector/yearly_deforestation_biome_caatinga_v20260805.zip",
+      "versao": "2026-08-05",
+      "arquivo": "yearly_deforestation_biome_caatinga_v20260805.zip",
+      "sha256": "6355925e536773c7098d1b0564461a80e95be1db0149253a3d8fa9257509beae",
+      "tamanho_bytes": 865706608,
+      "baixado_em_utc": "2026-11-02T17:49:17+00:00"
+    },
+    "cerrado": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/cerrado-prodes/vector/yearly_deforestation_biome_cerrado_v20261016.zip",
+      "versao": "2026-10-16",
+      "arquivo": "yearly_deforestation_biome_cerrado_v20261016.zip",
+      "sha256": "de44e1df3c84630cf2710d71ce79d5ad661e1c1a9319e3993832423c8586c1c7",
+      "tamanho_bytes": 789366218,
+      "baixado_em_utc": "2026-11-02T17:51:07+00:00"
+    },
+    "mata_atlantica": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/mata-atlantica-prodes/vector/yearly_deforestation_biome_mata_atlantica_v20260806.zip",
+      "versao": "2026-08-06",
+      "arquivo": "yearly_deforestation_biome_mata_atlantica_v20260806.zip",
+      "sha256": "01f503ae99f168f2f6273dc3c1ef00f46588955a5d7700cc075fbcf078659a6e",
+      "tamanho_bytes": 472880097,
+      "baixado_em_utc": "2026-11-02T17:52:57+00:00"
+    },
+    "pampa": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pampa-prodes/vector/yearly_deforestation_biome_pampa_v20260807.zip",
+      "versao": "2026-08-07",
+      "arquivo": "yearly_deforestation_biome_pampa_v20260807.zip",
+      "sha256": "e02480428d643c1b6bcf8a18d67c9e70c2f2e2ba2965bce38420f7c0b6a159c0",
+      "tamanho_bytes": 95996209,
+      "baixado_em_utc": "2026-11-02T17:53:27+00:00"
+    },
+    "pantanal": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pantanal-prodes/vector/yearly_deforestation_biome_pantanal_v20260717.zip",
+      "versao": "2026-07-17",
+      "arquivo": "yearly_deforestation_biome_pantanal_v20260717.zip",
+      "sha256": "07fc3ff5bf2510ceecc22e63882e974ac5e1cbe7415051a18fb99ca99c16b2e6",
+      "tamanho_bytes": 18117779,
+      "baixado_em_utc": "2026-11-02T17:53:35+00:00"
+    }
+  },
+  "anos": {
+    "amazonia": {
+      "2019": {
+        "anunciado": 59547
+      },
+      "2020": {
+        "anunciado": 45447
+      },
+      "2021": {
+        "anunciado": 47038
+      },
+      "2022": {
+        "anunciado": 64669
+      },
+      "2023": {
+        "anunciado": 51338
+      },
+      "2024": {
+        "anunciado": 48756
+      },
+      "2025": {
+        "anunciado": 41367
+      }
+    },
+    "caatinga": {
+      "2019": {
+        "anunciado": 49466
+      },
+      "2020": {
+        "anunciado": 56130
+      },
+      "2021": {
+        "anunciado": 51731
+      },
+      "2022": {
+        "anunciado": 55162
+      },
+      "2023": {
+        "anunciado": 68701
+      },
+      "2024": {
+        "anunciado": 84515
+      },
+      "2025": {
+        "anunciado": 48678
+      }
+    },
+    "cerrado": {
+      "2019": {
+        "anunciado": 51073
+      },
+      "2020": {
+        "anunciado": 69299
+      },
+      "2021": {
+        "anunciado": 76321
+      },
+      "2022": {
+        "anunciado": 74598
+      },
+      "2023": {
+        "anunciado": 68612
+      },
+      "2024": {
+        "anunciado": 62372
+      },
+      "2025": {
+        "anunciado": 58780
+      },
+      "2026": {
+        "anunciado": 52934
+      }
+    },
+    "mata_atlantica": {
+      "2019": {
+        "anunciado": 32299
+      },
+      "2020": {
+        "anunciado": 23294
+      },
+      "2021": {
+        "anunciado": 26558
+      },
+      "2022": {
+        "anunciado": 25167
+      },
+      "2023": {
+        "anunciado": 19964
+      },
+      "2024": {
+        "anunciado": 13700
+      },
+      "2025": {
+        "anunciado": 11194
+      }
+    },
+    "pampa": {
+      "2019": {
+        "anunciado": 7440
+      },
+      "2020": {
+        "anunciado": 6770
+      },
+      "2021": {
+        "anunciado": 12141
+      },
+      "2022": {
+        "anunciado": 5822
+      },
+      "2023": {
+        "anunciado": 5387
+      },
+      "2024": {
+        "anunciado": 5093
+      },
+      "2025": {
+        "anunciado": 3234
+      }
+    },
+    "pantanal": {
+      "2019": {
+        "anunciado": 1317
+      },
+      "2020": {
+        "anunciado": 1886
+      },
+      "2021": {
+        "anunciado": 1754
+      },
+      "2022": {
+        "anunciado": 984
+      },
+      "2023": {
+        "anunciado": 896
+      },
+      "2024": {
+        "anunciado": 1336
+      },
+      "2025": {
+        "anunciado": 1240
+      }
+    }
+  },
+  "particoes": {
+    "AC": {
+      "arquivo": "data/processed/inpe_prodes/uf=AC/part.parquet",
+      "sha256": "227c7a673bf03e4d1b35d135733f986d43025c41ac6a4b5391987f5a6666f92d"
+    },
+    "AL": {
+      "arquivo": "data/processed/inpe_prodes/uf=AL/part.parquet",
+      "sha256": "468a7db12c136ba7b81cad2107d4d5dcd609903a91485554c50b34e8a164eb16"
+    },
+    "AM": {
+      "arquivo": "data/processed/inpe_prodes/uf=AM/part.parquet",
+      "sha256": "552d9256aa14f20e921b96b2f3df9b248ff3cd2c6daffa01ed4160ac64631073"
+    },
+    "AP": {
+      "arquivo": "data/processed/inpe_prodes/uf=AP/part.parquet",
+      "sha256": "ae3c0f3c1ff6e61a56e1caf6bc47d141db1257299149550e0c43953cae1f7c93"
+    },
+    "BA": {
+      "arquivo": "data/processed/inpe_prodes/uf=BA/part.parquet",
+      "sha256": "bee23b8246dcc9d75b4625a45ce08efd8337c38c118eb932fa84e4750e2d50c4"
+    },
+    "CE": {
+      "arquivo": "data/processed/inpe_prodes/uf=CE/part.parquet",
+      "sha256": "bccccdd9c26f1303d5c26f00d09ec485ff5dbe6d2ad5b6fc07684f2cb036de68"
+    },
+    "DF": {
+      "arquivo": "data/processed/inpe_prodes/uf=DF/part.parquet",
+      "sha256": "bc4acfb5a9a8406661dd2442170879d01fb7dfda8f74950a46518028a0bac8b5"
+    },
+    "ES": {
+      "arquivo": "data/processed/inpe_prodes/uf=ES/part.parquet",
+      "sha256": "d5a0052594616adf4e12c7f7b147495a9b48a5e7433f960663af16155a1ced4c"
+    },
+    "GO": {
+      "arquivo": "data/processed/inpe_prodes/uf=GO/part.parquet",
+      "sha256": "28794db88a58bc793d16b8ae422ac72c74610061302cd66a1ef3ddccc552f1b9"
+    },
+    "MA": {
+      "arquivo": "data/processed/inpe_prodes/uf=MA/part.parquet",
+      "sha256": "1f0af68408ad713c307005e671a4afe7d5d7722a80a96a6feb893ca986de651b"
+    },
+    "MG": {
+      "arquivo": "data/processed/inpe_prodes/uf=MG/part.parquet",
+      "sha256": "91237232157381e4a033a5c4e5a08dc7b978c207a4e198765bcc4e79f15d3be4"
+    },
+    "MS": {
+      "arquivo": "data/processed/inpe_prodes/uf=MS/part.parquet",
+      "sha256": "684f326d380fb33b5681d61ca1b02ba52c8881edf64fa5d01f352334a2a5f3e7"
+    },
+    "MT": {
+      "arquivo": "data/processed/inpe_prodes/uf=MT/part.parquet",
+      "sha256": "e9e754f76519279c66043a7e85e2b447cd287df2fd128f4b1e8cdda5606b8ce1"
+    },
+    "PA": {
+      "arquivo": "data/processed/inpe_prodes/uf=PA/part.parquet",
+      "sha256": "95db75b78c296c7a6b9768b0d4611cd7e7ad258a0ed4c79cd450f62ade10903a"
+    },
+    "PB": {
+      "arquivo": "data/processed/inpe_prodes/uf=PB/part.parquet",
+      "sha256": "44df7468e5cbd1d231d82754126e3d0be858149116b5accdaf0f0ea83544057a"
+    },
+    "PE": {
+      "arquivo": "data/processed/inpe_prodes/uf=PE/part.parquet",
+      "sha256": "462d79f41b4b8f7e928445a2eec7652fe6337ede2ab5692744b845ff8c8e16ea"
+    },
+    "PI": {
+      "arquivo": "data/processed/inpe_prodes/uf=PI/part.parquet",
+      "sha256": "365dbe13ffe4b3e8be8ff7fd15ae861cb531b93bb8f5d82c687f17f48c3d52af"
+    },
+    "PR": {
+      "arquivo": "data/processed/inpe_prodes/uf=PR/part.parquet",
+      "sha256": "431ac40019ed37b7294b7025238fc9157c150735c5498a1b20e69f24ca7ac4ac"
+    },
+    "RJ": {
+      "arquivo": "data/processed/inpe_prodes/uf=RJ/part.parquet",
+      "sha256": "2c276b1a8eb2a1cf0f412db14692e19364b4325838b515c0515dbfa3d68b45ae"
+    },
+    "RN": {
+      "arquivo": "data/processed/inpe_prodes/uf=RN/part.parquet",
+      "sha256": "d4c827d6c38a6f4420828a782b0f84a42c50e7384cb14b2edfb69d7fc4926536"
+    },
+    "RO": {
+      "arquivo": "data/processed/inpe_prodes/uf=RO/part.parquet",
+      "sha256": "e3e0a319d398dc5c3c090f70013556acbc291fd309f1f7fbff23df5754f47167"
+    },
+    "RR": {
+      "arquivo": "data/processed/inpe_prodes/uf=RR/part.parquet",
+      "sha256": "9d30e77aced8cb06d2ae35e8d2bf1a4613130166d0aaf9bdb10e38fcb9b8dff8"
+    },
+    "RS": {
+      "arquivo": "data/processed/inpe_prodes/uf=RS/part.parquet",
+      "sha256": "7cd124e4e2fb5f09ead74705583b767027cdd4dcaf72ee1e20a9559ce5b2167a"
+    },
+    "SC": {
+      "arquivo": "data/processed/inpe_prodes/uf=SC/part.parquet",
+      "sha256": "d965c609548c93f9a6a296309d1c29530b7cecaf1a2f0b740d80e04849efb9c7"
+    },
+    "SE": {
+      "arquivo": "data/processed/inpe_prodes/uf=SE/part.parquet",
+      "sha256": "2af8d165833c9a1e3c164f8df5891223499ec67ce111fd2f430b58d9725fe252"
+    },
+    "SP": {
+      "arquivo": "data/processed/inpe_prodes/uf=SP/part.parquet",
+      "sha256": "8c2215146e2e75331dafab414897c9205af6037b4e17b1af837a315ac5858d18"
+    },
+    "TO": {
+      "arquivo": "data/processed/inpe_prodes/uf=TO/part.parquet",
+      "sha256": "c3c4825d620c7a336a980fd151efc6d8e18a38ab0f69961056ac6d3a8ed645d4"
+    }
+  },
+  "historico": [
+    {
+      "verificado_em_utc": "2026-10-31T00:59:55+00:00",
+      "mudancas": [],
+      "ufs": [
+        "MG"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T05:18:49+00:00",
+      "mudancas": [
+        {
+          "uf": "RS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "mata_atlantica",
+            "pampa"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T07:53:45+00:00",
+      "mudancas": [
+        {
+          "uf": "PR",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:20:02+00:00",
+      "mudancas": [
+        {
+          "uf": "SP",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:35:47+00:00",
+      "mudancas": [
+        {
+          "uf": "MS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T12:14:14+00:00",
+      "mudancas": [
+        {
+          "uf": "BA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "caatinga",
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T17:32:57+00:00",
+      "mudancas": [
+        {
+          "uf": "PA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-01T01:28:30+00:00",
+      "mudancas": [
+        {
+          "uf": "MT",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T17:47:12+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T17:55:14+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T18:01:14+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T18:13:19+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    }
+  ]
+}

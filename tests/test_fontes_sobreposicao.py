@@ -8,7 +8,8 @@ import shapely
 
 from conftest import ocorrencias
 from pipeline import prediagnostico
-from pipeline.fontes import funai_terras_indigenas, ibge_territorios_quilombolas, mma_unidades_conservacao
+from pipeline.fontes import (funai_terras_indigenas, ibge_territorios_quilombolas, incra_quilombolas,
+                             mma_unidades_conservacao)
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
 from test_prediagnostico import DENTRO, FORA, X0, Y0, alertas, car, embargos, lista_suja, prodes, situacoes
 
@@ -121,10 +122,11 @@ def uc(*linhas):
                          for c, cat, g, geo in linhas], columns=mma_unidades_conservacao.COLUNAS_SAIDA)
 
 
-def tq(*linhas):
-    return pd.DataFrame([{"cod_tq": c, "nome": f"Território {c}", "situacao": s, "uf": "MG",
-                          "data_referencia": pd.Timestamp("2022-07-31"), "geometria_wkt": g.wkt, "alertas": ""}
-                         for c, s, g in linhas], columns=ibge_territorios_quilombolas.COLUNAS_SAIDA)
+def tq(*linhas, base="INCRA"):
+    """Camada combinada (INCRA e IBGE 2022): linhas (código, situação, geometria)."""
+    return pd.DataFrame([{"codigo": c, "nome": f"Território {c}", "situacao": s, "uf": "MG", "base": base,
+                          "data_referencia": pd.Timestamp("2026-10-28"), "geometria_wkt": g.wkt, "alertas": ""}
+                         for c, s, g in linhas], columns=incra_quilombolas.COLUNAS_SAIDA)
 
 
 def com_protegidas(**camadas):
@@ -163,9 +165,55 @@ def test_uc_so_com_ponto_dentro_do_car_e_indicio():
     assert situacoes(ficha)["unidade_conservacao"] == "indício"
 
 
-def test_quilombola_delimitado_e_pendencia_e_em_estudo_e_indicio():
-    assert situacoes(com_protegidas(quilombola=tq(("1", "TITULADO", DENTRO))))["quilombola"] == "pendência"
-    assert situacoes(com_protegidas(quilombola=tq(("1", "ESTUDO TÉCNICO", DENTRO))))["quilombola"] == "indício"
+@pytest.mark.parametrize("situacao, esperado", [("TITULADO", "pendência"), ("RTID", "pendência"),
+                                                  ("PORTARIA", "pendência"), ("ESTUDO TÉCNICO", "indício"),
+                                                  ("TITULO ANULADO", "indício"), ("FASE NÃO INFORMADA", "indício")])
+def test_quilombola_delimitado_e_pendencia_e_em_estudo_ou_sem_fase_e_indicio(situacao, esperado):
+    ficha = com_protegidas(quilombola=tq(("1", situacao, DENTRO)))
+    assert situacoes(ficha)["quilombola"] == esperado
+    criterio = next(c for c in ficha["criterios"] if c["chave"] == "quilombola")
+    assert "base INCRA" in criterio["evidencia"]
+
+
+# --- INCRA (CMR/FUNAI) e camada combinada --------------------------------------------------------------------------
+
+def feicao_qi(i, fase="RTID", geometria=COBRE, processo="54100.000001/2020-01"):
+    return {"type": "Feature", "id": f"lim_quilombolas_a.{i}",
+            "geometry": shapely.geometry.mapping(geometria) if geometria else None,
+            "properties": {"no_comunidade": f"Comunidade {i}", "ds_fase": fase, "sg_uf": "MG",
+                           "no_municipio": "Município", "nu_processo": processo, "co_sr": "SR-06",
+                           "nu_area_ha": 10.0, "dt_publica": None, "dt_cadastro": "2026-10-28T16:40:03Z"}}
+
+
+def test_incra_fase_em_branco_vira_indicio_e_caixa_e_normalizada():
+    r = ResultadoFonte("incra", "teste")
+    saida, descartados = incra_quilombolas.transformar(resposta_ti([
+        feicao_qi(1), feicao_qi(2, fase=None), feicao_qi(3, fase="titulado"), feicao_qi(4, fase="OUTRA"),
+        feicao_qi(5, geometria=None), feicao_qi(6, processo=None)]), r)
+    assert saida["situacao"].tolist() == ["RTID", "FASE NÃO INFORMADA", "TITULADO", "OUTRA", "RTID"]
+    assert len(descartados) == 1
+    assert [ocorrencias(r, c) for c in ("QI_FASE_AUSENTE", "QI_FASE_CAIXA_DIFERENTE", "QI_FASE_FORA_DO_DOMINIO",
+                                        "QI_PROCESSO_AUSENTE")] == [1, 1, 1, 1]
+    assert str(saida.at[0, "data_cadastro"].date()) == "2026-10-28"
+
+
+def test_incra_resposta_incompleta_interrompe():
+    with pytest.raises(ErroDeValidacao, match="QI_RESPOSTA_INCOMPLETA"):
+        incra_quilombolas.transformar(resposta_ti([feicao_qi(1)], anunciado=2), ResultadoFonte("incra", "teste"))
+
+
+def test_combinada_fica_com_o_incra_e_o_territorio_que_so_o_ibge_tem():
+    r = ResultadoFonte("incra", "teste")
+    incra, _ = incra_quilombolas.transformar(resposta_ti([feicao_qi(1, geometria=COBRE)]), r)
+    so_ibge = shapely.box(X0 + 1, Y0, X0 + 1.01, Y0 + 0.01)
+    # O território 1 do IBGE é o mesmo do INCRA (desenho um pouco diferente); o 2 só existe no IBGE.
+    ibge, _ = ibge_territorios_quilombolas.transformar(
+        ([{"COD_TQ": "1", "NOM_TQ": "A", "STATUS": "TITULADO", "SG_UF": "MG"},
+          {"COD_TQ": "2", "NOM_TQ": "B", "STATUS": "ESTUDO TÉCNICO", "SG_UF": "MG"}],
+         np.array([COBRE.buffer(-0.001), so_ibge], dtype=object), PRJ_SIRGAS, 0), r)
+    combinada = incra_quilombolas.combinar(incra, ibge, r)
+    assert combinada["codigo"].tolist() == ["INCRA:lim_quilombolas_a.1", "IBGE:2"]
+    assert combinada["base"].tolist() == ["INCRA", "IBGE 2022"] and ocorrencias(r, "QUILOMBOLA_NAS_DUAS_BASES") == 1
 
 
 def test_fonte_nao_carregada_e_inconclusiva_e_impede_sem_pendencia():

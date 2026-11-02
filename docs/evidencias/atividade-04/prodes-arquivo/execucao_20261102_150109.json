@@ -1,0 +1,481 @@
+{
+  "inicio": "2026-11-02 15:01:09",
+  "comando": "python -m pipeline --fontes prodes --evidencia docs/evidencias/atividade-04/prodes-arquivo",
+  "duracao_segundos": 245.1,
+  "status": "ok",
+  "parametros": {
+    "fontes": [
+      "prodes"
+    ],
+    "desde": "2021-01-01",
+    "atualizar": false,
+    "verificar_prodes": false,
+    "prodes_pelo_wfs": false
+  },
+  "fontes": [
+    {
+      "fonte": "territorio",
+      "tipo_dado": "API (GeoJSON), referência",
+      "entrada": {
+        "ufs": {
+          "arquivo": "data/raw/ibge_malha_ufs.geojson",
+          "url": "https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo%2Bjson&intrarregiao=UF&qualidade=intermediaria",
+          "baixado_em_utc": "2026-10-31T00:50:54+00:00",
+          "cabecalho_http": {
+            "Content-Type": "application/vnd.geo+json; charset=utf-8",
+            "Last-Modified": null,
+            "Content-Length": null
+          },
+          "sha256": "09bc90c2391229ed1b07f11bbde0986180139f64b5e882379d8926c21eff0052",
+          "tamanho_bytes": 251135
+        },
+        "biomas": {
+          "arquivo": "data/raw/inpe_biomas.geojson",
+          "url": "https://terrabrasilis.dpi.inpe.br/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=prodes-brasil-nb:biomas_brasil&outputFormat=application/json",
+          "baixado_em_utc": "2026-10-31T00:50:58+00:00",
+          "cabecalho_http": {
+            "Content-Type": "application/json;charset=UTF-8",
+            "Last-Modified": null,
+            "Content-Length": null
+          },
+          "sha256": "11d78e767bd0e37dc4d23c9083385a21e15b13c3cd27b69683477afb0593443a",
+          "tamanho_bytes": 23676250
+        }
+      },
+      "transformacoes": [
+        "Código da UF (codarea) convertido para a sigla; nome do bioma para a chave do projeto"
+      ],
+      "validacoes": [
+        {
+          "codigo": "UF_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta é FeatureCollection com lista de features",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UF_CODIGO_DESCONHECIDO",
+          "descricao": "codarea fora da tabela de UFs do IBGE",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 27,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UF_QUANTIDADE",
+          "descricao": "Malha com as 27 UFs, cada uma uma vez",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UF_GEOM_AUSENTE",
+          "descricao": "Feição sem geometria",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 27,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "UF_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid",
+          "verificados": 27,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "BIOMA_ESTRUTURA_RESPOSTA",
+          "descricao": "Resposta é FeatureCollection com lista de features",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "BIOMA_DESCONHECIDO",
+          "descricao": "Nome de bioma fora da tabela do projeto",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "BIOMA_QUANTIDADE",
+          "descricao": "Os seis biomas, cada um uma vez",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "BIOMA_CRS_INESPERADO",
+          "descricao": "CRS diferente de EPSG::4674 (SIRGAS 2000)",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 1,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "BIOMA_GEOM_AUSENTE",
+          "descricao": "Feição sem geometria",
+          "severidade": "erro",
+          "tratamento": "interrompe a referência",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "BIOMA_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid",
+          "verificados": 6,
+          "ocorrencias": 5
+        }
+      ],
+      "saida": {
+        "arquivos": [
+          "data/processed/ibge_ufs.parquet",
+          "data/processed/inpe_biomas.parquet"
+        ],
+        "registros_produzidos": 33
+      },
+      "status": "ok",
+      "mensagem": ""
+    },
+    {
+      "fonte": "inpe_prodes",
+      "tipo_dado": "arquivo (shapefile por bioma), lote das 27 UFs com verificação mensal",
+      "entrada": {
+        "catalogo": "https://terrabrasilis.dpi.inpe.br/business/api/v1/download/all",
+        "desde": 2019,
+        "arquivos": {
+          "amazonia": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/amz-prodes/vector/yearly_deforestation_biome_amazonia_v20261016.zip",
+            "versao": "2026-10-16",
+            "sha256": "dd505c4c01711362141077118abd0c67a57a5c736421685d1452ecd6fb6e2866"
+          },
+          "caatinga": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/caatinga-prodes/vector/yearly_deforestation_biome_caatinga_v20260805.zip",
+            "versao": "2026-08-05",
+            "sha256": "6355925e536773c7098d1b0564461a80e95be1db0149253a3d8fa9257509beae"
+          },
+          "cerrado": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/cerrado-prodes/vector/yearly_deforestation_biome_cerrado_v20261016.zip",
+            "versao": "2026-10-16",
+            "sha256": "de44e1df3c84630cf2710d71ce79d5ad661e1c1a9319e3993832423c8586c1c7"
+          },
+          "mata_atlantica": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/mata-atlantica-prodes/vector/yearly_deforestation_biome_mata_atlantica_v20260806.zip",
+            "versao": "2026-08-06",
+            "sha256": "01f503ae99f168f2f6273dc3c1ef00f46588955a5d7700cc075fbcf078659a6e"
+          },
+          "pampa": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pampa-prodes/vector/yearly_deforestation_biome_pampa_v20260807.zip",
+            "versao": "2026-08-07",
+            "sha256": "e02480428d643c1b6bcf8a18d67c9e70c2f2e2ba2965bce38420f7c0b6a159c0"
+          },
+          "pantanal": {
+            "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pantanal-prodes/vector/yearly_deforestation_biome_pantanal_v20260717.zip",
+            "versao": "2026-07-17",
+            "sha256": "07fc3ff5bf2510ceecc22e63882e974ac5e1cbe7415051a18fb99ca99c16b2e6"
+          }
+        },
+        "verificacao": "feita nesta execução",
+        "verificado_em_utc": "2026-11-02T18:01:14+00:00",
+        "proxima_verificacao": "2026-12-02",
+        "ultimo_ano_publicado": {
+          "amazonia": 2025,
+          "caatinga": 2025,
+          "cerrado": 2026,
+          "mata_atlantica": 2025,
+          "pampa": 2025,
+          "pantanal": 2025
+        },
+        "biomas_refeitos": [
+          "amazonia",
+          "caatinga",
+          "cerrado",
+          "mata_atlantica",
+          "pampa",
+          "pantanal"
+        ],
+        "mudancas": []
+      },
+      "transformacoes": [
+        "Catálogo do TerraBrasilis consultado a cada 30 dias; baixa e trata só o bioma com versão nova",
+        "Peças bioma x UF pelo contorno do IBGE (o polígono de divisa entra nas duas UFs); a partição da UF troca só as linhas dos biomas refeitos"
+      ],
+      "validacoes": [
+        {
+          "codigo": "PRODES_BIOMA_FORA_DO_CATALOGO",
+          "descricao": "Bioma sem arquivo de incremento anual no catálogo do TerraBrasilis",
+          "severidade": "erro",
+          "tratamento": "interrompe; o lote anterior continua valendo",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_CRS_INESPERADO",
+          "descricao": "Sistema de referência diferente de SIRGAS 2000 no .prj",
+          "severidade": "erro",
+          "tratamento": "interrompe a fonte",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_DBF_LATIN1",
+          "descricao": "DBF gravado em latin1, não em UTF-8 (o Cerrado grava assim)",
+          "severidade": "correcao",
+          "tratamento": "lido em latin1",
+          "verificados": 6,
+          "ocorrencias": 2
+        },
+        {
+          "codigo": "PRODES_ARQUIVO_INCOMPLETO",
+          "descricao": "Número de registros do DBF diferente do de geometrias do SHX",
+          "severidade": "erro",
+          "tratamento": "interrompe; baixar de novo",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_UUID_AUSENTE",
+          "descricao": "Polígono sem uuid",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 1500898,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_UUID_DUPLICADO",
+          "descricao": "uuid repetido (retângulos ou anos que se sobrepõem trazem o mesmo polígono)",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 1500898,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_CLASSE_CAIXA_DIFERENTE",
+          "descricao": "main_class igual a DESMATAMENTO só sem diferenciar maiúsculas",
+          "severidade": "correcao",
+          "tratamento": "normalizada para maiúsculas",
+          "verificados": 1500898,
+          "ocorrencias": 105294
+        },
+        {
+          "codigo": "PRODES_CLASSE_FORA_DO_DOMINIO",
+          "descricao": "main_class diferente de DESMATAMENTO (ex.: RESERVATORIO)",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 1500898,
+          "ocorrencias": 6888
+        },
+        {
+          "codigo": "PRODES_GEOM_AUSENTE",
+          "descricao": "Geometria nula ou vazia",
+          "severidade": "descarte",
+          "tratamento": "registro vai para descartados",
+          "verificados": 1494010,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_GEOM_INVALIDA",
+          "descricao": "Geometria inválida (shapely is_valid)",
+          "severidade": "correcao",
+          "tratamento": "shapely.make_valid antes de qualquer interseção",
+          "verificados": 1494010,
+          "ocorrencias": 7
+        },
+        {
+          "codigo": "PRODES_UF_NORMALIZADA",
+          "descricao": "UF gravada por extenso (ex.: MINAS GERAIS)",
+          "severidade": "correcao",
+          "tratamento": "convertida para a sigla",
+          "verificados": 1494010,
+          "ocorrencias": 539943
+        },
+        {
+          "codigo": "PRODES_UF_INVALIDA",
+          "descricao": "UF que não é sigla nem nome de UF",
+          "severidade": "alerta",
+          "tratamento": "UF anulada",
+          "verificados": 1494010,
+          "ocorrencias": 1
+        },
+        {
+          "codigo": "PRODES_DATA_IMAGEM_AUSENTE",
+          "descricao": "image_date nula ou fora do formato AAAA-MM-DD",
+          "severidade": "alerta",
+          "tratamento": "sem data não entra na comparação com a data de corte",
+          "verificados": 1494010,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_DATA_FORA_DO_ANO_PRODES",
+          "descricao": "image_date fora de 01/08 do ano anterior a 31/07 do year",
+          "severidade": "alerta",
+          "tratamento": "mantido; a regra usa image_date, não year",
+          "verificados": 1494010,
+          "ocorrencias": 1071379
+        },
+        {
+          "codigo": "PRODES_DATA_IMAGEM_FUTURA",
+          "descricao": "image_date depois da data da execução",
+          "severidade": "alerta",
+          "tratamento": "mantido e marcado",
+          "verificados": 1494010,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_PUBLISH_YEAR_DIVERGENTE",
+          "descricao": "publish_year diferente de 01/01 do year",
+          "severidade": "alerta",
+          "tratamento": "campo ignorado",
+          "verificados": 1494010,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_AREA_DIVERGENTE",
+          "descricao": "area_km difere mais de 10% da área calculada da geometria",
+          "severidade": "alerta",
+          "tratamento": "usar a área calculada",
+          "verificados": 1494010,
+          "ocorrencias": 26
+        },
+        {
+          "codigo": "PRODES_FORA_DE_TODAS_AS_UFS",
+          "descricao": "Polígono que não toca o contorno de nenhuma UF (IBGE)",
+          "severidade": "descarte",
+          "tratamento": "fica fora do lote",
+          "verificados": 1494010,
+          "ocorrencias": 83
+        },
+        {
+          "codigo": "PRODES_UF_DIFERE_DO_CONTORNO",
+          "descricao": "Campo state diferente da UF do contorno (polígono de divisa ou gravado com a UF vizinha)",
+          "severidade": "alerta",
+          "tratamento": "vale a UF do contorno; state fica em uf_fonte",
+          "verificados": 1494010,
+          "ocorrencias": 2579
+        },
+        {
+          "codigo": "PRODES_ULTIMO_ANO_RECUOU",
+          "descricao": "Último ano publicado menor que o da versão anterior do arquivo",
+          "severidade": "alerta",
+          "tratamento": "lote regravado com a versão nova; conferir o catálogo",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_NOVO_ANO_PUBLICADO",
+          "descricao": "Ano PRODES novo desde a verificação anterior",
+          "severidade": "alerta",
+          "tratamento": "baixado; alertas DETER do ano passam a ser confirmados ou não",
+          "verificados": 6,
+          "ocorrencias": 0
+        },
+        {
+          "codigo": "PRODES_UUID_EM_DOIS_BIOMAS",
+          "descricao": "uuid presente no arquivo de dois biomas",
+          "severidade": "alerta",
+          "tratamento": "fica uma vez na partição",
+          "verificados": 1495608,
+          "ocorrencias": 0
+        }
+      ],
+      "saida": {
+        "pasta": "data/processed/inpe_prodes",
+        "particoes_regravadas": {
+          "AC": 45625,
+          "AL": 5986,
+          "AM": 47035,
+          "AP": 3713,
+          "BA": 166705,
+          "CE": 127175,
+          "DF": 659,
+          "ES": 5402,
+          "GO": 57800,
+          "MA": 187363,
+          "MG": 125814,
+          "MS": 18826,
+          "MT": 69045,
+          "PA": 171017,
+          "PB": 31827,
+          "PE": 51396,
+          "PI": 105913,
+          "PR": 18568,
+          "RJ": 2022,
+          "RN": 23063,
+          "RO": 32201,
+          "RR": 21475,
+          "RS": 61969,
+          "SC": 15802,
+          "SE": 7082,
+          "SP": 5476,
+          "TO": 86649
+        },
+        "ufs": [
+          "AC",
+          "AL",
+          "AM",
+          "AP",
+          "BA",
+          "CE",
+          "DF",
+          "ES",
+          "GO",
+          "MA",
+          "MG",
+          "MS",
+          "MT",
+          "PA",
+          "PB",
+          "PE",
+          "PI",
+          "PR",
+          "RJ",
+          "RN",
+          "RO",
+          "RR",
+          "RS",
+          "SC",
+          "SE",
+          "SP",
+          "TO"
+        ],
+        "registros_produzidos": 1494010,
+        "arquivo_publicacao": "data/processed/inpe_prodes_publicacao.json",
+        "arquivo_descartados": "data/processed/inpe_prodes_descartados.parquet",
+        "ultima_imagem": {
+          "amazonia": "2025-08-28",
+          "caatinga": "2025-12-19",
+          "cerrado": "2026-08-28",
+          "mata_atlantica": "2025-11-17",
+          "pampa": "2025-12-19",
+          "pantanal": "2025-08-28"
+        },
+        "colunas": [
+          "uuid",
+          "bioma",
+          "ano_prodes",
+          "data_imagem",
+          "uf",
+          "uf_fonte",
+          "data_publicacao",
+          "classe",
+          "area_km2_fonte",
+          "area_km2",
+          "satelite",
+          "sensor",
+          "geometria_wkt",
+          "alertas"
+        ]
+      },
+      "status": "ok",
+      "mensagem": ""
+    }
+  ]
+}

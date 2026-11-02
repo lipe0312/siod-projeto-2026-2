@@ -1,0 +1,8 @@
+id_produtor,cod_car,lat,lon,documento,nome_area,commodity,ccir,codigo_sigef,relatorio_ab_s
+COOP-001,MG-3148103-6245AC9B371A4422B2FA8011CFCC5566,,,111.444.777-35,Sítio exemplo 1,café,,,
+COOP-002,MG-3148103-5527FB32FFB24B7F850B487724583043,,,,Sítio exemplo 2,café,,,
+COOP-003,MG-3148103-A0B17B31272E42CEA4B4C06338C310AF,,,,Fazenda exemplo 3,café,,,
+COOP-004,,-17.70,-51.10,,Área por coordenada (GO),soja,,,
+COOP-005,MS-5006358-72D1C0B44C904850BD9F4A222CA93285,,,,Área exemplo 5,soja,,,
+COOP-006,,,,,Linha sem localização,café,,,
+COOP-007,,-51.10,-17.70,,Coordenada trocada,café,,,

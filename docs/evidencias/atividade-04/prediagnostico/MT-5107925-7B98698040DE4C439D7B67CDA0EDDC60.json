@@ -4,7 +4,7 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-11-02 12:37:19",
+    "gerado_em": "2026-11-02 15:23:16",
     "prodes": {
       "origem": "lote",
       "uf": "MT",
@@ -21,8 +21,8 @@
         "cerrado": "2026-08-12",
         "pantanal": "2025-08-28"
       },
-      "verificado_em": "2026-10-31",
-      "proxima_verificacao": "2026-11-29",
+      "verificado_em": "2026-11-02",
+      "proxima_verificacao": "2026-12-02",
       "ultimo_ano_do_imovel": 2026
     },
     "biomas": [
@@ -70,7 +70,7 @@
       "criterio": "Embargo IBAMA",
       "criterio_ab_s": 7,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhum embargo dentro do imóvel",
+      "evidencia": "Nenhum embargo dentro do imóvel; 1 na divisa, não atribuído(s) ao imóvel",
       "encaminhamento": "—",
       "fonte": "IBAMA",
       "aviso": null
@@ -110,9 +110,9 @@
       "criterio": "Sobreposição: território quilombola",
       "criterio_ab_s": 6,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "evidencia": "Nenhuma sobreposição. Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022.",
       "encaminhamento": "—",
-      "fonte": "IBGE (Censo 2022)",
+      "fonte": "INCRA (via CMR/FUNAI) e IBGE 2022",
       "aviso": null
     },
     {
@@ -130,7 +130,7 @@
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido pelo produtor no atendimento supre o dado",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "INCRA (SNCR)",
       "aviso": null
@@ -140,7 +140,7 @@
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "evidencia": "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "SIGEF-GEO (INCRA)",
       "aviso": null
@@ -157,7 +157,25 @@
     }
   ],
   "evidencias": {
-    "embargos": [],
+    "embargos": [
+      {
+        "id_embargo": "388214-C-18346",
+        "num_tad": "388214",
+        "ser_tad": "C",
+        "data_embargo": "2005-06-23T10:00:00.000",
+        "area_ha": 120.9013,
+        "descricao_infracao": "Fica embargada a atividade de desmate e queima na área de 124 hectares, objeto das autuações de desmate e queima ilegais.",
+        "municipio": "Sorriso",
+        "uf": "MT",
+        "situacao": "desembargado",
+        "data_desembargo": "2024-01-23T15:57:52.000",
+        "inter_ha": 0.4243968679,
+        "fracao_objeto": 0.0034967688,
+        "largura_m": 6.7926356176,
+        "classe": "tangente",
+        "como": "polígono"
+      }
+    ],
     "alertas": [],
     "prodes": [],
     "lista_suja": [],
@@ -168,18 +186,42 @@
   "geometria_car": "MULTIPOLYGON (((-55.57167667 -12.48834083, -55.57069516 -12.49235678, -55.56971365 -12.49637274, -55.56873214 -12.50038869, -55.56775064 -12.50440464, -55.56676913 -12.50842059, -55.56578762 -12.51243655, -55.56480611 -12.5164525, -55.5687312 -12.51740134, -55.5726563 -12.51835019, -55.57658139 -12.51929903, -55.58050648 -12.52024787, -55.58443158 -12.52119672, -55.58835667 -12.52214556, -55.59224872 -12.52308634, -55.59614078 -12.52402711, -55.60003283 -12.52496789, -55.60392489 -12.52590866, -55.60781694 -12.52684944, -55.61004875 -12.52738694, -55.61228056 -12.52792444, -55.61349667 -12.52822167, -55.61658473 -12.52896472, -55.61967278 -12.52970778, -55.62087611 -12.52999694, -55.62398175 -12.53074353, -55.62708739 -12.53149012, -55.63080464 -12.53219571, -55.63452189 -12.53290131, -55.63823914 -12.5336069, -55.64195639 -12.5343125, -55.64553945 -12.5349925, -55.6491225 -12.5356725, -55.65270556 -12.5363525, -55.65628861 -12.5370325, -55.65987167 -12.5377125, -55.66386111 -12.53846945, -55.66785056 -12.53922639, -55.67028153 -12.53968611, -55.6727125 -12.54014583, -55.67541445 -12.54065666, -55.67811639 -12.5411675, -55.67853722 -12.53932389, -55.67949722 -12.53509556, -55.68028931 -12.53163222, -55.68108139 -12.52816889, -55.68190445 -12.52455972, -55.6827275 -12.52095056, -55.68352111 -12.51747, -55.68431472 -12.51398945, -55.68510833 -12.51050889, -55.68619444 -12.51066833, -55.68796667 -12.51092611, -55.69128056 -12.51141264, -55.69459444 -12.51189917, -55.69418111 -12.51114278, -55.69292361 -12.50884167, -55.69282417 -12.50866, -55.69106868 -12.50544743, -55.68931319 -12.50223486, -55.68755771 -12.49902229, -55.68580222 -12.49580972, -55.68470853 -12.49380834, -55.68361484 -12.49180696, -55.68040005 -12.49356112, -55.67718525 -12.49531527, -55.67717919 -12.49531849, -55.67574222 -12.49608222, -55.67451417 -12.49972686, -55.67328611 -12.50337149, -55.67205805 -12.50701613, -55.66928458 -12.50649862, -55.66651111 -12.50598111, -55.66524977 -12.50574579, -55.66546472 -12.50552556, -55.66613008 -12.50525525, -55.66619213 -12.50523005, -55.66634472 -12.50516806, -55.66660572 -12.50495494, -55.66672342 -12.50485883, -55.66705639 -12.50458694, -55.66808167 -12.50356194, -55.66889233 -12.50277321, -55.66894085 -12.50272601, -55.66896444 -12.50270306, -55.67004639 -12.50167833, -55.67004917 -12.50167448, -55.67007326 -12.50164103, -55.67064583 -12.50084611, -55.67132917 -12.50020917, -55.67155889 -12.49959778, -55.67247278 -12.49818222, -55.67281667 -12.49743222, -55.67321611 -12.49693306, -55.67378667 -12.49615639, -55.67474878 -12.4942086, -55.67475883 -12.49418825, -55.6752661 -12.49316127, -55.67545921 -12.49277031, -55.67549772 -12.49269233, -55.67515444 -12.49229, -55.67512684 -12.49228477, -55.67150525 -12.49165359, -55.66788365 -12.4910224, -55.66787497 -12.49102086, -55.66416978 -12.49036266, -55.66046459 -12.48970446, -55.6567594 -12.48904626, -55.65292898 -12.48836769, -55.64909857 -12.48768912, -55.64526816 -12.48701056, -55.64143774 -12.48633199, -55.63760733 -12.48565342, -55.63760669 -12.48565605, -55.63760232 -12.48565544, -55.63751711 -12.48564354, -55.63715556 -12.48559306, -55.63694028 -12.48559472, -55.63449528 -12.48516694, -55.63395222 -12.48499083, -55.6337225 -12.48483833, -55.63151403 -12.48437291, -55.62930556 -12.4839075, -55.62901222 -12.48405111, -55.62860917 -12.48408278, -55.6256175 -12.48345361, -55.62262583 -12.48282444, -55.61891437 -12.48202597, -55.61520291 -12.4812275, -55.61149146 -12.48042903, -55.60778 -12.47963056, -55.60356339 -12.47872156, -55.59934678 -12.47781256, -55.59513016 -12.47690356, -55.59091355 -12.47599456, -55.58669694 -12.47508556, -55.58309166 -12.47432769, -55.57948639 -12.47356981, -55.57588111 -12.47281194, -55.57571 -12.47289083, -55.57560278 -12.47306306, -55.57468007 -12.47689542, -55.57375736 -12.48072778, -55.57283465 -12.48456014, -55.57191194 -12.4883925, -55.57167667 -12.48834083)))",
   "procedencia": [
     {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
+      "data": "2026-11-02",
+      "sha256": "fe68443566461a7869f284e062e00a99eec747025a889e3cc87166bcbdca1309",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-11-02",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-11-02",
+      "sha256": "0d460255edaa128abfbf38d6ca45e1b7810013dc06937e25ffcfc167940ebd5e",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
       "fonte": "FUNAI, terras indígenas (WFS, em lote)",
       "como": "lote",
       "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
-      "data": "2026-10-31",
-      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "data": "2026-11-02",
+      "sha256": "9b81d200c16288bda33aea715f4c828c578a1330dd662e077372f35009a6745f",
       "arquivo": "data/processed/funai_terras_indigenas.parquet"
     },
     {
       "fonte": "MMA, CNUC (shapefile, em lote)",
       "como": "lote",
       "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
       "arquivo": "data/processed/mma_unidades_conservacao.parquet"
     },
@@ -187,16 +229,24 @@
       "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
       "como": "lote",
       "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
       "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)",
+      "como": "lote",
+      "url": "https://cmr.funai.gov.br/geoserver/ows",
+      "data": "2026-11-02",
+      "sha256": "4fbb4b8fa7eb093cdb9859f53d29b7192c23416527c28a18b6cda78ee9cf1be7",
+      "arquivo": "data/processed/incra_quilombolas.parquet"
     },
     {
       "fonte": "INPE PRODES (lote, partição MT)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-31",
-      "sha256": "23b92495f68c89684c41ee3d09e95e397658e2cf2d7903685f9ac06276c0bf02",
+      "data": "verificado em 2026-11-02",
+      "sha256": "e9e754f76519279c66043a7e85e2b447cd287df2fd128f4b1e8cdda5606b8ce1",
       "arquivo": "data/processed/inpe_prodes/uf=MT/part.parquet"
     },
     {

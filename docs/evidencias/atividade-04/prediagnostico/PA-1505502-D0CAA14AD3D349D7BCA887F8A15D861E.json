@@ -4,7 +4,7 @@
     "lat": null,
     "lon": null,
     "documento_informado": true,
-    "gerado_em": "2026-11-02 12:37:16",
+    "gerado_em": "2026-11-02 15:23:12",
     "prodes": {
       "origem": "lote",
       "uf": "PA",
@@ -20,8 +20,8 @@
         "amazonia": "2025-08-27",
         "cerrado": "2026-08-12"
       },
-      "verificado_em": "2026-10-31",
-      "proxima_verificacao": "2026-11-29",
+      "verificado_em": "2026-11-02",
+      "proxima_verificacao": "2026-12-02",
       "ultimo_ano_do_imovel": 2025
     },
     "biomas": [
@@ -69,7 +69,7 @@
       "criterio": "Embargo IBAMA",
       "criterio_ab_s": 7,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhum embargo dentro do imóvel",
+      "evidencia": "Nenhum embargo dentro do imóvel; TAD 618287-E desembargado em 08/06/2017 (histórico, não conta)",
       "encaminhamento": "—",
       "fonte": "IBAMA",
       "aviso": null
@@ -79,7 +79,7 @@
       "criterio": "Desmatamento após 31/12/2020 (EUDR)",
       "criterio_ab_s": null,
       "situacao": "indício",
-      "evidencia": "1 polígono(s) PRODES após 2020 (9.5 ha no imóvel)",
+      "evidencia": "1 polígono(s) PRODES após 2020 (9.4 ha no imóvel)",
       "encaminhamento": "Conferir em imagem de satélite e com o produtor; o alerta ainda não foi confirmado pelo PRODES.",
       "fonte": "INPE DETER e PRODES",
       "aviso": null
@@ -109,9 +109,9 @@
       "criterio": "Sobreposição: território quilombola",
       "criterio_ab_s": 6,
       "situacao": "sem ocorrência",
-      "evidencia": "Nenhuma sobreposição. Base de 31/07/2022.",
+      "evidencia": "Nenhuma sobreposição. Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022.",
       "encaminhamento": "—",
-      "fonte": "IBGE (Censo 2022)",
+      "fonte": "INCRA (via CMR/FUNAI) e IBGE 2022",
       "aviso": null
     },
     {
@@ -129,7 +129,7 @@
       "criterio": "Fundiária: dados cadastrais",
       "criterio_ab_s": 1,
       "situacao": "não verificado",
-      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral",
+      "evidencia": "A consulta pública do SNCR tem hCaptcha e não traz a situação cadastral; o CCIR trazido pelo produtor no atendimento supre o dado",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "INCRA (SNCR)",
       "aviso": null
@@ -139,7 +139,7 @@
       "criterio": "Fundiária: dados geoespaciais",
       "criterio_ab_s": 2,
       "situacao": "não verificado",
-      "evidencia": "Acervo do INCRA sem endereço público desde out./2026 e com login gov.br",
+      "evidencia": "Acervo do INCRA sem DNS também de uma máquina no Brasil (02/11/2026) e SIGEF com login gov.br; o espelho do CMR/FUNAI só tem parcelas em volta de terras indígenas (ADR 0016)",
       "encaminhamento": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
       "fonte": "SIGEF-GEO (INCRA)",
       "aviso": null
@@ -156,7 +156,25 @@
     }
   ],
   "evidencias": {
-    "embargos": [],
+    "embargos": [
+      {
+        "id_embargo": "618287-E-1489610",
+        "num_tad": "618287",
+        "ser_tad": "E",
+        "data_embargo": "2017-04-11T15:58:00.000",
+        "area_ha": 568.8134,
+        "descricao_infracao": "Lei Federal 9605/98 70 1° 72 II,VII Decreto Federal 6514/08 3 II,VII 50 § 2°  Const. Federal 1988 225 § 4°    FICAM EMBARGADAS TODAS E QUAISQUER ATIVIDADES QUE POSSAM DIFICULTAR OU IMPEDIR A REGENERAÇÃO OU RECUPERAÇÃO DA VEGETAÇÃO NATIVA NA AREA DE 568,836 HECTARES  DESMATADOS NA FAZENDA SÃO FRANCISCO PARAGOMINAS PA, EXCETUANDO AS ATIVIDADES DE PREVENÇÃO E COMBATE A INCENDIOS FLORESTAIS. MAPA E MEMORIAL DESCRITIVO EM ANEXO.",
+        "municipio": "Paragominas",
+        "uf": "PA",
+        "situacao": "desembargado",
+        "data_desembargo": "2017-06-08T15:58:33.000",
+        "inter_ha": 545.883811452,
+        "fracao_objeto": 0.955420724,
+        "largura_m": 583.6286753181,
+        "classe": "principal",
+        "como": "polígono"
+      }
+    ],
     "alertas": [],
     "prodes": [
       {
@@ -164,10 +182,10 @@
         "bioma": "amazonia",
         "ano_prodes": 2021,
         "data_imagem": "2021-08-02T00:00:00.000",
-        "area_km2": 0.0940851531,
-        "inter_ha": 9.4507408914,
+        "area_km2": 0.0939369953,
+        "inter_ha": 9.4386647737,
         "fracao_objeto": 1.0,
-        "largura_m": 68.4132302298,
+        "largura_m": 68.4149216674,
         "classe": "principal"
       }
     ],
@@ -179,18 +197,42 @@
   "geometria_car": "MULTIPOLYGON (((-47.59917143 -3.1641828, -47.59919389 -3.16348944, -47.59929056 -3.16238361, -47.59937389 -3.16089056, -47.59951361 -3.15972361, -47.59957667 -3.15860472, -47.59967028 -3.15738056, -47.59975917 -3.15577111, -47.59988444 -3.15392833, -47.60004556 -3.15249639, -47.60008111 -3.15144389, -47.60016194 -3.1500875, -47.60024028 -3.14913833, -47.6003475 -3.14860694, -47.60036972 -3.14837222, -47.60034111 -3.14806306, -47.60041611 -3.14596639, -47.600975 -3.13973389, -47.60238389 -3.12472889, -47.6028225 -3.11999167, -47.60576639 -3.08819028, -47.57408694 -3.08604917, -47.57301167 -3.11797194, -47.57205861 -3.14343778, -47.57307861 -3.14347944, -47.57359806 -3.14351306, -47.57423111 -3.14349194, -47.57417111 -3.14508278, -47.58248333 -3.145965, -47.580385 -3.14780972, -47.57243444 -3.15390639, -47.57166528 -3.15426722, -47.57079083 -3.15474111, -47.57036361 -3.15543861, -47.56992083 -3.15638472, -47.56974083 -3.15696528, -47.56980806 -3.15744583, -47.56999194 -3.15793944, -47.57007361 -3.15815806, -47.56995167 -3.15862667, -47.569765 -3.15931028, -47.5990675 -3.16417389, -47.59917143 -3.1641828)))",
   "procedencia": [
     {
+      "fonte": "IBAMA, áreas embargadas (CSV)",
+      "como": "lote",
+      "url": "https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/TERMO_EMBARGO/termo_de_embargo.csv",
+      "data": "2026-11-02",
+      "sha256": "fe68443566461a7869f284e062e00a99eec747025a889e3cc87166bcbdca1309",
+      "arquivo": "data/processed/ibama_embargos.parquet"
+    },
+    {
+      "fonte": "INPE DETER (WFS, em lote)",
+      "como": "lote",
+      "url": "https://terrabrasilis.dpi.inpe.br/geoserver/{camada}/ows",
+      "data": "2026-11-02",
+      "sha256": "por partição, no relatório de execução",
+      "arquivo": "data/processed/inpe_deter_alertas.parquet"
+    },
+    {
+      "fonte": "MTE, Cadastro de Empregadores (PDF)",
+      "como": "lote",
+      "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/areas-de-atuacao/cadastro_de_empregadores.pdf",
+      "data": "2026-11-02",
+      "sha256": "0d460255edaa128abfbf38d6ca45e1b7810013dc06937e25ffcfc167940ebd5e",
+      "arquivo": "data/processed/mte_lista_suja.parquet"
+    },
+    {
       "fonte": "FUNAI, terras indígenas (WFS, em lote)",
       "como": "lote",
       "url": "https://geoserver.funai.gov.br/geoserver/Funai/ows",
-      "data": "2026-10-31",
-      "sha256": "ee8df87a9be9018e4b5f91ae57d2baf462dda391c96c2cfbe3b6c84da6ac1583",
+      "data": "2026-11-02",
+      "sha256": "9b81d200c16288bda33aea715f4c828c578a1330dd662e077372f35009a6745f",
       "arquivo": "data/processed/funai_terras_indigenas.parquet"
     },
     {
       "fonte": "MMA, CNUC (shapefile, em lote)",
       "como": "lote",
       "url": "https://dados.mma.gov.br/dataset/44b6dc8a-dc82-4a84-8d95-1b0da7c85dac/resource/6ba9a557-87e8-4882-acb7-b3e0f0ea192d/download/shp_cnuc_2025_08.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "97d754c1e01881d5f94e2f9e465fa95fe37b58c24a3df46989c7b30a9bb93fc6",
       "arquivo": "data/processed/mma_unidades_conservacao.parquet"
     },
@@ -198,16 +240,24 @@
       "fonte": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
       "como": "lote",
       "url": "https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Quilombolas_Primeiros_resultados_do_universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip",
-      "data": "2026-10-31",
+      "data": "2026-11-02",
       "sha256": "083d209197cc57a3c050768878fe527897bd5853d0d88295abf0014a70f6bbf9",
       "arquivo": "data/processed/ibge_territorios_quilombolas.parquet"
+    },
+    {
+      "fonte": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)",
+      "como": "lote",
+      "url": "https://cmr.funai.gov.br/geoserver/ows",
+      "data": "2026-11-02",
+      "sha256": "4fbb4b8fa7eb093cdb9859f53d29b7192c23416527c28a18b6cda78ee9cf1be7",
+      "arquivo": "data/processed/incra_quilombolas.parquet"
     },
     {
       "fonte": "INPE PRODES (lote, partição PA)",
       "como": "lote, verificação mensal",
       "url": "https://terrabrasilis.dpi.inpe.br/geoserver/prodes-*/ows",
-      "data": "verificado em 2026-10-31",
-      "sha256": "de77f334a02a281b2f597eef084857c9a292344087654fa72954c2c4007afd4b",
+      "data": "verificado em 2026-11-02",
+      "sha256": "95db75b78c296c7a6b9768b0d4611cd7e7ad258a0ed4c79cd450f62ade10903a",
       "arquivo": "data/processed/inpe_prodes/uf=PA/part.parquet"
     },
     {

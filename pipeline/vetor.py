@@ -69,4 +69,12 @@ def validar_geometrias(prefixo: str, geoms: np.ndarray, resultado: ResultadoFont
 
 def validar_crs_sirgas(prefixo: str, prj: str, resultado: ResultadoFonte) -> None:
     resultado.validar(f"{prefixo}_CRS_INESPERADO", "Sistema de referência diferente de SIRGAS 2000 no .prj", "erro",
-                      "interrompe a fonte", int(not prj or SIRGAS_2000 not in prj.upper()), 1)
+                      "interrompe a fonte", int(not eh_sirgas_2000(prj)), 1)
+
+
+def eh_sirgas_2000(prj: str) -> bool:
+    """SIRGAS 2000 geográfico: o ESRI grava GCS_SIRGAS_2000; o GDAL grava "SIRGAS 2000" com AUTHORITY EPSG 4674."""
+    texto = (prj or "").upper().lstrip()
+    if texto.startswith("PROJCS"):  # projetado (ex.: SIRGAS 2000 / UTM): coordenada em metros, não em graus
+        return False
+    return SIRGAS_2000 in texto or 'GEOGCS["SIRGAS 2000"' in texto or 'AUTHORITY["EPSG","4674"]' in texto

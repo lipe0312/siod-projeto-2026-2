@@ -7,7 +7,7 @@ Do ponto de vista do produtor (o cruzamento.py parte do embargo ou do alerta). P
   (da partição da UF no lote; a UF entra no lote na primeira vez que um imóvel dela é consultado). Em bioma sem DETER,
   o período depois da última imagem PRODES aparece como aviso de "sem cobertura";
 - Lista Suja: documento informado (pseudonimizado com a chave do pipeline, nunca gravado em claro);
-- terras indígenas (FUNAI), territórios quilombolas (IBGE) e unidades de conservação (CNUC): sobreposição com o CAR;
+- terras indígenas (FUNAI), territórios quilombolas (INCRA, pelo CMR/FUNAI, e IBGE 2022) e unidades de conservação (CNUC): sobreposição com o CAR;
 - demais critérios do AB+S (1, 2 e 8): "não verificado", nunca "conforme".
 
 Situação de cada critério: pendência (impede crédito ou venda sob a EUDR), indício (precisa de conferência),
@@ -32,8 +32,8 @@ from shapely.strtree import STRtree
 
 from pipeline import config, cruzamento, relatorio, territorio, vetor
 from pipeline.documentos import carregar_chave, pseudonimizar, somente_digitos
-from pipeline.fontes import (ab_s, funai_terras_indigenas, ibge_territorios_quilombolas, inpe_prodes,
-                             mma_unidades_conservacao, sicar)
+from pipeline.fontes import (ab_s, funai_terras_indigenas, incra_quilombolas, inpe_prodes, mma_unidades_conservacao,
+                             sicar)
 from pipeline.validacao import ErroDeValidacao
 
 log = logging.getLogger("pipeline")
@@ -61,7 +61,8 @@ ENCAMINHAMENTO = {
     "terra_indigena_estudo": "Terra indígena ainda em estudo: conferir na FUNAI a situação do processo e o limite.",
     "quilombola": "Sobreposição com território quilombola delimitado impede a qualificação no AgroBrasil+Sustentável. "
                   "Conferir o limite com o INCRA (a base aberta é a do IBGE de 31/07/2022).",
-    "quilombola_estudo": "Território quilombola em estudo técnico: conferir no INCRA a situação e o limite.",
+    "quilombola_estudo": "Território quilombola em estudo técnico, com título anulado ou sem fase informada: conferir no "
+                         "INCRA a situação e o limite.",
     "unidade_conservacao": "Unidade de conservação de proteção integral ou de domínio público: a atividade produtiva "
                            "dentro dela depende do órgão gestor. Conferir o limite e o plano de manejo.",
     "unidade_conservacao_indicio": "A categoria admite propriedade privada (APA, ARIE, RPPN) ou o limite é "
@@ -94,7 +95,9 @@ def _dentro_do_car(geoms, car_geom, car: pd.DataFrame) -> pd.DataFrame:
 def embargos_do_imovel(car: pd.DataFrame, car_geom, embargos: pd.DataFrame, documento_hash: str | None) -> pd.DataFrame:
     """Embargos com polígono que toca o CAR, com coordenada dentro dele, ou em nome do documento."""
     colunas = ["id_embargo", "num_tad", "ser_tad", "data_embargo", "area_ha", "descricao_infracao", "municipio", "uf",
-               "geometria_wkt"]
+               "geometria_wkt", "situacao", "data_desembargo"]
+    embargos = embargos.reindex(columns=list(dict.fromkeys([*embargos.columns, "situacao", "data_desembargo"])))
+    embargos["situacao"] = embargos["situacao"].fillna("ativo")
     candidatos = embargos[embargos["uf"] == car["uf"].iloc[0]]
     com_geom = candidatos[candidatos["geometria_wkt"].notna()].reset_index(drop=True)
     geoms = vetor.tornar_validas(shapely.from_wkt(com_geom["geometria_wkt"].to_numpy()))
@@ -165,9 +168,14 @@ def _tad(r) -> str:
 
 
 def _criterio_embargo(emb: pd.DataFrame) -> dict:
-    dentro = emb[emb["classe"].isin(CLASSES_DENTRO + ("coordenada", "documento"))]
-    na_divisa = len(emb) - len(dentro)
+    no_imovel = emb[emb["classe"].isin(CLASSES_DENTRO + ("coordenada", "documento"))]
+    na_divisa = len(emb) - len(no_imovel)
+    levantado = no_imovel[no_imovel.get("situacao", pd.Series("ativo", index=no_imovel.index)) == "desembargado"]
+    dentro = no_imovel.drop(levantado.index)
     nota = f"; {na_divisa} na divisa, não atribuído(s) ao imóvel" if na_divisa else ""
+    if len(levantado):
+        nota += "; " + ", ".join(f"TAD {_tad(r)} desembargado em {_br(_data(r.data_desembargo))}"
+                                 for r in levantado.itertuples()) + " (histórico, não conta)"
     if len(dentro):
         tads = ", ".join(f"TAD {_tad(r)} ({r.como})" for r in dentro.itertuples())
         return _criterio("embargo", "Embargo IBAMA", 7, "pendência", f"{len(dentro)} embargo(s): {tads}{nota}",
@@ -178,12 +186,13 @@ def _criterio_embargo(emb: pd.DataFrame) -> dict:
 
 def aviso_cobertura(biomas: list[str], ultima_imagem: dict) -> str | None:
     """Biomas do imóvel sem DETER: depois da última imagem PRODES, nenhuma fonte cobre o imóvel (ADR 0009, regra 4)."""
-    sem_deter = [b for b in biomas if b not in config.CAMADAS_DETER]
+    sem_deter = [b for b in biomas if b not in config.BIOMAS_COM_DETER]
     if not sem_deter:
         return None
     partes = [f"{NOME_BIOMA.get(b, b)} sem DETER: sem cobertura de {_br(ultima_imagem.get(b))} até hoje"
               for b in sem_deter]
-    return "; ".join(partes) + " (o próximo PRODES cobre esse período)"
+    return ("; ".join(partes) + " (o próximo PRODES cobre esse período). Para esse intervalo, conferir uma imagem de "
+            "satélite recente do imóvel (ex.: Sentinel-2 no Copernicus Browser ou Planet/NICFI no MapBiomas Alerta)")
 
 
 def _br(data: str | None) -> str:
@@ -245,7 +254,7 @@ LIMIAR_SOBREPOSICAO_CAR = 0.05  # fração do CAR; abaixo disso, com faixa estre
 CAMADAS_PROTEGIDAS = {
     # chave: (módulo da fonte, nome do critério, número no AB+S, fonte, argumento de --fontes)
     "terra_indigena": (funai_terras_indigenas, "Sobreposição: terras indígenas", 5, "FUNAI", "terras_indigenas"),
-    "quilombola": (ibge_territorios_quilombolas, "Sobreposição: território quilombola", 6, "IBGE (Censo 2022)",
+    "quilombola": (incra_quilombolas, "Sobreposição: território quilombola", 6, "INCRA (via CMR/FUNAI) e IBGE 2022",
                    "quilombolas"),
     "unidade_conservacao": (mma_unidades_conservacao, "Sobreposição: unidade de conservação", 9, "MMA (CNUC)",
                             "unidades_conservacao"),
@@ -292,7 +301,8 @@ def _situacao_protegida(chave: str, linha) -> tuple[str, str]:
     if chave == "terra_indigena":
         return ("indício", "terra_indigena_estudo") if linha.fase == "Em Estudo" else ("pendência", "terra_indigena")
     if chave == "quilombola":
-        return ("indício", "quilombola_estudo") if linha.situacao == "ESTUDO TÉCNICO" else ("pendência", "quilombola")
+        return (("indício", "quilombola_estudo") if linha.situacao in config.QUILOMBOLAS_INDICIO
+                else ("pendência", "quilombola"))
     fraca = (linha.categoria in config.UC_CATEGORIAS_INDICIO or linha.so_ponto
              or linha.qualidade_poligono == config.UC_POLIGONO_ESQUEMATICO)
     return ("indício", "unidade_conservacao_indicio") if fraca else ("pendência", "unidade_conservacao")
@@ -304,7 +314,7 @@ def _descricao_protegida(chave: str, r) -> str:
     if chave == "terra_indigena":
         return f"TI {r.nome} ({r.fase}; {onde})"
     if chave == "quilombola":
-        return f"Território {r.nome} ({r.situacao.lower()}; {onde})"
+        return f"Território {r.nome} ({r.situacao.lower()}, base {r.base}; {onde})"
     return f"{r.nome} ({r.categoria}, {r.grupo.lower()}; {onde})"
 
 
@@ -316,7 +326,7 @@ def criterio_protegido(chave: str, achados: pd.DataFrame | None) -> dict:
     dentro = achados[achados["classe"] != "tangente"]
     n_tangente = len(achados) - len(dentro)
     nota = f"; {n_tangente} só na borda, não contada(s)" if n_tangente else ""
-    base = " Base de 31/07/2022." if chave == "quilombola" else ""
+    base = " Bases: INCRA (republicada pelo CMR/FUNAI) e IBGE de 31/07/2022." if chave == "quilombola" else ""
     if dentro.empty:
         return _criterio(chave, nome, n_ab_s, "sem ocorrência", f"Nenhuma sobreposição{nota}.{base}".replace("..", "."),
                          "—", fonte)
@@ -419,7 +429,8 @@ def _procedencia_lote() -> list[dict]:
              "mte_lista_suja": "MTE, Cadastro de Empregadores (PDF)",
              "funai_terras_indigenas": "FUNAI, terras indígenas (WFS, em lote)",
              "mma_unidades_conservacao": "MMA, CNUC (shapefile, em lote)",
-             "ibge_territorios_quilombolas": "IBGE, territórios quilombolas 2022 (shapefile, em lote)"}
+             "ibge_territorios_quilombolas": "IBGE, territórios quilombolas 2022 (shapefile, em lote)",
+             "incra_quilombolas": "INCRA, áreas quilombolas (WFS do CMR/FUNAI, em lote)"}
     saida = []
     for fonte, nome in nomes.items():
         if fonte in fontes:

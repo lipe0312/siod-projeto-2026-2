@@ -244,7 +244,8 @@ def _evidencias_protegidas(ev: dict) -> str:
     vazio = pd.DataFrame()
     ti = [[_td(f"<b>T{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.fase))), _td(escape(str(r.etnia))),
            *_onde(r), _td(_data(r.data_atualizacao))] for i, r in enumerate(ev.get("terra_indigena", vazio).itertuples(), 1)]
-    tq = [[_td(f"<b>Q{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.situacao).capitalize())), *_onde(r)]
+    tq = [[_td(f"<b>Q{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.situacao).capitalize())),
+           _td(escape(str(getattr(r, "base", "IBGE 2022")))), *_onde(r)]
           for i, r in enumerate(ev.get("quilombola", vazio).itertuples(), 1)]
     uc = [[_td(f"<b>U{i}</b>"), _td(escape(str(r.nome))), _td(escape(str(r.categoria))), _td(escape(str(r.grupo))),
            _td(escape(str(r.esfera))), *_onde(r)] for i, r in enumerate(ev.get("unidade_conservacao", vazio).itertuples(), 1)]
@@ -252,8 +253,8 @@ def _evidencias_protegidas(ev: dict) -> str:
     return f"""<section class="card"><h2>Áreas protegidas</h2>
 <h3 style="font-size:15px;margin:4px 0 8px">Terras indígenas (FUNAI)</h3>{_tabela(
         ["#", "Terra indígena", "Fase", "Etnia", *cab, "Atualizada em"], ti, "Nenhuma terra indígena toca o imóvel.")}
-<h3 style="font-size:15px;margin:16px 0 8px">Territórios quilombolas (IBGE, base de 31/07/2022)</h3>{_tabela(
-        ["#", "Território", "Situação", *cab], tq, "Nenhum território quilombola delimitado toca o imóvel.")}
+<h3 style="font-size:15px;margin:16px 0 8px">Territórios quilombolas (INCRA e IBGE 2022)</h3>{_tabela(
+        ["#", "Território", "Situação", "Base", *cab], tq, "Nenhum território quilombola delimitado toca o imóvel.")}
 <h3 style="font-size:15px;margin:16px 0 8px">Unidades de conservação (CNUC/MMA)</h3>{_tabela(
         ["#", "Unidade", "Categoria", "Grupo", "Esfera", *cab], uc, "Nenhuma unidade de conservação toca o imóvel.")}
 <p class="mut">Classe: sobreposição atinge ao menos 5% do imóvel ou uma faixa mais larga que 30 m; tangente é contato de
@@ -461,14 +462,19 @@ def _situacao_prodes(publicacao: dict | None) -> str:
         imagem = (publicacao.get("ultima_imagem") or {}).get(bioma)
         linhas.append(f'<tr><td><b>{escape(NOME_BIOMA.get(bioma, bioma))}</b></td><td><div class="anos">{anos}</div>'
                       f'</td><td class="n">até {ultimo}</td><td class="n mut">última imagem {_data(imagem)}'
-                      f'{"" if bioma in config.CAMADAS_DETER else " · sem DETER"}</td></tr>')
+                      f'{"" if bioma in config.BIOMAS_COM_DETER else " · sem DETER"}</td></tr>')
+    origem = ("arquivo de cada bioma (TerraBrasilis), 27 UFs" if publicacao.get("origem", "").startswith("arquivo")
+              else "WFS, UF por UF")
+    versoes = "; ".join(f'{escape(NOME_BIOMA.get(b, b))} {_data(a.get("versao"))}'
+                        for b, a in (publicacao.get("arquivos") or {}).items())
     return f"""<section class="card"><h2>PRODES: fonte em lote por UF, conferida todo mês</h2>
+<p class="mut" style="font-size:13px">Origem: {origem}.{f" Versão de cada arquivo: {versoes}." if versoes else ""}</p>
 <div class="placar"><div><span class="eyebrow">verificado em</span><br><b>{_data(publicacao["verificado_em_utc"])}</b></div>
 <div><span class="eyebrow">próxima verificação</span><br><b>{_data(publicacao["proxima_verificacao"])}</b></div>
 <div><span class="eyebrow">UFs no lote</span><br><b>{escape(", ".join(publicacao["ufs"]))}</b></div></div>
 <div class="tabela"><table><tbody>{''.join(linhas)}</tbody></table></div>
-<p class="mut" style="font-size:13px">Verde: ano publicado. Contorno: ano que apareceu na última verificação. Cada UF
-entra no lote quando o primeiro imóvel dela é consultado. Em bioma sem DETER, depois da última imagem não há cobertura até
+<p class="mut" style="font-size:13px">Verde: ano publicado. Contorno: ano que apareceu na última verificação. A verificação
+compara a versão de cada arquivo no catálogo do TerraBrasilis e trata de novo só o bioma que mudou. Em bioma sem DETER, depois da última imagem não há cobertura até
 o próximo PRODES.</p>
 </section>"""
 

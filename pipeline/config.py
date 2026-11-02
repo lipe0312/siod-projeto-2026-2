@@ -13,6 +13,11 @@ CHAVE_ARQUIVO = RAIZ / "data" / "chave_pseudonimizacao"
 USER_AGENT = "siod-projeto-2026-2 (pipeline academico, PGCOMP/UFBA)"
 
 URL_IBAMA_EMBARGOS = "https://servicos.ibama.gov.br/ctf/publico/areasembargadas/arquivos/areas_embargadas.csv"
+# Desde 02/11/2026 o CSV acima responde 403. A fonte passa a ser o termo de embargo do Portal de Dados Abertos do IBAMA
+# (CKAN, conjunto fiscalizacao-termo-de-embargo), atualizado todo dia: traz também os termos cancelados e desembargados,
+# que o CSV antigo já tirava.
+URL_IBAMA_TERMO_EMBARGO = ("https://stibamadadosabertosprd.blob.core.windows.net/dados-abertos/dados/TERMOS_DE_EMBARGO/"
+                           "TERMO_EMBARGO/termo_de_embargo.csv")
 URL_LISTA_SUJA = (
     "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/"
     "areas-de-atuacao/cadastro_de_empregadores.pdf"
@@ -26,6 +31,16 @@ CAMADAS_DETER = {
     "cerrado": {"workspace": "deter-cerrado-nb", "tipo": "deter-cerrado-nb:deter_cerrado"},
 }
 CLASSES_DESMATAMENTO = ("DESMATAMENTO_CR", "DESMATAMENTO_VEG")
+# DETER do Pantanal (desde 08/2023): só na área de download do TerraBrasilis, em shapefile atualizado todo dia; o WFS
+# não tem a camada. As classes de supressão equivalem às de desmatamento da Amazônia e do Cerrado (corte raso e com
+# vegetação); queimada e mineração ficam fora, como lá (ADR 0015).
+DETER_ARQUIVOS = {
+    "pantanal": {"url": "https://terrabrasilis.dpi.inpe.br/file-delivery/download/deter-pantanal/shape",
+                 "arquivo": "deter-pantanal-public.zip", "base_shapefile": "deter-public",
+                 "classes": {"supressão com solo exposto": "DESMATAMENTO_CR",
+                             "supressão com vegetação": "DESMATAMENTO_VEG"}},
+}
+BIOMAS_COM_DETER = frozenset(CAMADAS_DETER) | frozenset(DETER_ARQUIVOS)
 DETER_DESDE_PADRAO = "2021-01-01"
 # Cada mês é pedido em uma única requisição; o maior mês observado tem menos de 9 mil alertas.
 DETER_LIMITE_POR_REQUISICAO = 50000
@@ -124,6 +139,11 @@ PRODES_LIMIAR_CONFIRMACAO = 0.10
 PRODES_DESDE = 2019
 PRODES_UFS_INICIAIS = ("MG",)
 PRODES_INTERVALO_VERIFICACAO_DIAS = 30
+# Forma padrão do lote desde 02/11/2026 (ADR 0015): o shapefile completo de cada bioma, da área de download do
+# TerraBrasilis. O catálogo diz a versão de cada arquivo (sufixo vAAAAMMDD); a verificação mensal compara a versão, e
+# só o bioma com versão nova é baixado e tratado de novo. O WFS fica como alternativa (--prodes-pelo-wfs).
+URL_TERRABRASILIS = "https://terrabrasilis.dpi.inpe.br"
+URL_CATALOGO_TERRABRASILIS = URL_TERRABRASILIS + "/business/api/v1/download/all"
 
 # Sobreposição com áreas protegidas (critérios 5, 6 e 9 do AB+S; ADR 0014). Fontes nacionais, em lote.
 URL_WFS_FUNAI = "https://geoserver.funai.gov.br/geoserver/Funai/ows"
@@ -137,6 +157,12 @@ URL_IBGE_QUILOMBOLAS = ("https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Q
                         "universo/Arquivos_geoespaciais_vetoriais_2a_apuracao_20231222/BR_TQ_2a_apuracao_20231222.zip")
 QUILOMBOLAS_DATA_REFERENCIA = "2022-07-31"  # data de referência do Censo 2022 para os territórios delimitados
 QUILOMBOLAS_SITUACOES = ("ESTUDO TÉCNICO", "RTID", "DELIMITADO", "PORTARIA", "DECRETO", "TITULADO")
+# Áreas quilombolas do INCRA, republicadas pelo GeoServer do CMR/FUNAI (o acervo do INCRA está fora do ar; ADR 0016).
+URL_WFS_CMR = "https://cmr.funai.gov.br/geoserver/ows"
+CAMADA_INCRA_QUILOMBOLAS = "CMR-PUBLICO:lim_quilombolas_a"
+QUILOMBOLAS_INCRA_FASES = ("RTID", "PORTARIA", "DECRETO", "TITULADO", "TITULO PARCIAL", "CCDRU", "TITULO ANULADO")
+# Situações que viram indício (e não pendência) na sobreposição com o CAR: em estudo, título anulado ou fase em branco.
+QUILOMBOLAS_INDICIO = ("ESTUDO TÉCNICO", "TITULO ANULADO", "FASE NÃO INFORMADA")
 # Categorias do SNUC (Lei 9.985/2000) em que a sobreposição é indício, não pendência: admitem propriedade privada.
 # Proteção integral e as demais de uso sustentável (Floresta, RESEX, RDS, Reserva de Fauna) são de domínio público.
 UC_CATEGORIAS_INDICIO = ("Área de Proteção Ambiental", "Área de Relevante Interesse Ecológico",

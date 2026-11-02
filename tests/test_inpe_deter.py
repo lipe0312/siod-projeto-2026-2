@@ -130,3 +130,86 @@ def test_particao_incompleta_interrompe(ref_municipios):
 def test_particoes_mensais_cobrem_todo_o_periodo():
     assert inpe_deter.particoes_mensais("2021-01-15", pd.Timestamp("2021-03-10")) == [
         ("2021-01-15", "2021-02-01"), ("2021-02-01", "2021-03-01"), ("2021-03-01", "2021-04-01")]
+
+
+# --- DETER do Pantanal pelo arquivo (área de download do TerraBrasilis) ---------------------------------------------
+
+PRJ_GDAL = ('GEOGCS["SIRGAS 2000",DATUM["Sistema_de_Referencia_Geocentrico_para_las_AmericaS_2000",SPHEROID['
+            '"GRS 1980",6378137,298.257222101]],AUTHORITY["EPSG","4674"]]')
+
+
+def zip_pantanal(caminho, linhas, prj=PRJ_GDAL):
+    """linhas: (uuid, classe, data, x). Quadrado de 0,1° em y = -19."""
+    import datetime as dt
+    import io
+    import zipfile
+
+    import shapefile
+    import shapely
+
+    shp, shx, dbf = io.BytesIO(), io.BytesIO(), io.BytesIO()
+    w = shapefile.Writer(shp=shp, shx=shx, dbf=dbf, shapeType=shapefile.POLYGON, encoding="utf-8")
+    for nome, tipo, tam, dec in [("FID", "C", 12, 0), ("UUID", "C", 36, 0), ("CLASS_NAME", "C", 254, 0),
+                                 ("AREA_KM", "N", 32, 10), ("VIEW_DATE", "D", 8, 0), ("SENSOR", "C", 10, 0),
+                                 ("SATELLITE", "C", 13, 0)]:
+        w.field(nome, tipo, tam, dec)
+    for uuid, classe, data, x in linhas:
+        caixa = shapely.box(x, -19.0, x + 0.1, -18.9)
+        w.poly([list(caixa.exterior.coords)[::-1]])
+        w.record(uuid, uuid, classe, 1.0, dt.date.fromisoformat(data), "WFI", "CBERS-4A")
+    w.close()
+    with zipfile.ZipFile(caminho, "w") as z:
+        for ext, buf in (("shp", shp), ("shx", shx), ("dbf", dbf)):
+            z.writestr(f"deter-pantanal-deter-public.{ext}", buf.getvalue())
+        z.writestr("deter-pantanal-deter-public.prj", prj)
+    return caminho
+
+
+@pytest.fixture
+def contorno_ms(tmp_path, monkeypatch):
+    import shapely
+
+    from pipeline import territorio
+    monkeypatch.setattr(territorio, "ARQ_UFS", tmp_path / "ufs.parquet")
+    pd.DataFrame({"uf": ["MS"], "cod_uf": ["50"], "geometria_wkt": [shapely.box(-58, -24, -50, -17).wkt]}).to_parquet(
+        territorio.ARQ_UFS)
+    territorio._ufs.cache_clear()
+    yield
+    territorio._ufs.cache_clear()
+
+
+def test_deter_pantanal_traduz_a_classe_e_fica_so_com_a_supressao(tmp_path, ref_municipios, contorno_ms):
+    z = zip_pantanal(tmp_path / "p.zip", [("a", "supressão com solo exposto", "2025-09-10", -57.0),
+                                          ("b", "supressão com vegetação", "2025-09-11", -56.0),
+                                          ("c", "cicatriz de queimada", "2025-09-12", -55.0),
+                                          ("d", "mineração", "2025-09-13", -54.0)])
+    r = ResultadoFonte("inpe_deter", "teste")
+    tabela = inpe_deter.tabela_arquivo(z, "pantanal", r)
+    saida, descartados = inpe_deter.transformar_tabela(tabela, ref_municipios, "2021-01-01", HOJE + pd.Timedelta(days=400), r)
+    assert saida["classe"].tolist() == ["DESMATAMENTO_CR", "DESMATAMENTO_VEG"]
+    assert set(saida["uf"]) == {"MS"} and saida["cod_municipio"].isna().all()
+    assert sorted(descartados["motivo"]) == ["DETER_CLASSE_FORA_DO_RECORTE"] * 2
+    assert ocorrencias(r, "DETER_PANTANAL_CLASSE_TRADUZIDA") == 2
+    # Sem município no arquivo, a validação de propriedade obrigatória (que é do WFS) não interrompe.
+    assert ocorrencias(r, "DETER_PROPRIEDADE_MUNICIPALITY_AUSENTE") == 0
+
+
+def test_deter_pantanal_projetado_interrompe(tmp_path, contorno_ms):
+    z = zip_pantanal(tmp_path / "p.zip", [("a", "supressão com solo exposto", "2025-09-10", -57.0)],
+                     prj='PROJCS["SIRGAS 2000 / UTM zone 21S",GEOGCS["SIRGAS 2000",AUTHORITY["EPSG","4674"]]]')
+    with pytest.raises(ErroDeValidacao, match="DETER_PANTANAL_CRS_INESPERADO"):
+        inpe_deter.tabela_arquivo(z, "pantanal", ResultadoFonte("inpe_deter", "teste"))
+
+
+@pytest.mark.parametrize("prj, esperado", [('GEOGCS["GCS_SIRGAS_2000",DATUM["D_SIRGAS_2000"]]', True), (PRJ_GDAL, True),
+                                           ('GEOGCS["WGS 84",AUTHORITY["EPSG","4326"]]', False), ("", False),
+                                           ('PROJCS["SIRGAS 2000 / UTM",GEOGCS["SIRGAS 2000"]]', False)])
+def test_reconhece_sirgas_2000_nas_duas_grafias(prj, esperado):
+    from pipeline import vetor
+    assert vetor.eh_sirgas_2000(prj) is esperado
+
+
+def test_pantanal_tem_deter_e_nao_gera_aviso_de_cobertura():
+    from pipeline import prediagnostico
+    assert prediagnostico.aviso_cobertura(["pantanal"], {"pantanal": "2025-08-12"}) is None
+    assert prediagnostico.aviso_cobertura(["pampa"], {"pampa": "2025-12-19"}).startswith("Pampa sem DETER")

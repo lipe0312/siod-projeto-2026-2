@@ -1,0 +1,160 @@
+2026-11-02 15:01:09 INFO    Início: python -m pipeline --fontes prodes --evidencia docs/evidencias/atividade-04/prodes-arquivo
+2026-11-02 15:01:09 INFO    Reutilizando arquivo já baixado: data/raw/ibge_malha_ufs.geojson
+2026-11-02 15:01:09 INFO    Reutilizando arquivo já baixado: data/raw/inpe_biomas.geojson
+2026-11-02 15:01:09 INFO    [territorio] UF_ESTRUTURA_RESPOSTA: 0 de 1 | interrompe a referência
+2026-11-02 15:01:09 INFO    [territorio] UF_CODIGO_DESCONHECIDO: 0 de 27 | interrompe a referência
+2026-11-02 15:01:09 INFO    [territorio] UF_QUANTIDADE: 0 de 1 | interrompe a referência
+2026-11-02 15:01:09 INFO    [territorio] UF_GEOM_AUSENTE: 0 de 27 | interrompe a referência
+2026-11-02 15:01:09 INFO    [territorio] UF_GEOM_INVALIDA: 1 de 27 | shapely.make_valid
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_ESTRUTURA_RESPOSTA: 0 de 1 | interrompe a referência
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_DESCONHECIDO: 0 de 6 | interrompe a referência
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_QUANTIDADE: 0 de 1 | interrompe a referência
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_CRS_INESPERADO: 0 de 1 | interrompe a referência
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_GEOM_AUSENTE: 0 de 6 | interrompe a referência
+2026-11-02 15:01:10 INFO    [territorio] BIOMA_GEOM_INVALIDA: 5 de 6 | shapely.make_valid
+2026-11-02 15:01:14 INFO    [territorio] transformação: Código da UF (codarea) convertido para a sigla; nome do bioma para a chave do projeto
+2026-11-02 15:01:15 INFO    [inpe_prodes] PRODES_BIOMA_FORA_DO_CATALOGO: 0 de 6 | interrompe; o lote anterior continua valendo
+2026-11-02 15:01:15 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_amazonia_v20261016.zip
+2026-11-02 15:01:15 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:01:17 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 1 de 1 | lido em latin1
+2026-11-02 15:01:19 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:01:38 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_amazonia_v20261016.zip: anos desde 2019, geometria 2D
+2026-11-02 15:01:38 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 358162 | registro vai para descartados
+2026-11-02 15:01:39 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 358162 | registro vai para descartados
+2026-11-02 15:01:39 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 105294 de 358162 | normalizada para maiúsculas
+2026-11-02 15:01:39 INFO    [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 0 de 358162 | registro vai para descartados
+2026-11-02 15:01:39 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 358162 | registro vai para descartados
+2026-11-02 15:01:41 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 4 de 358162 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:01:44 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 0 de 358162 | convertida para a sigla
+2026-11-02 15:01:44 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 358162 | UF anulada
+2026-11-02 15:01:44 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 358162 | sem data não entra na comparação com a data de corte
+2026-11-02 15:01:44 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 234184 de 358162 | mantido; a regra usa image_date, não year
+2026-11-02 15:01:44 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 358162 | mantido e marcado
+2026-11-02 15:01:45 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 358162 | campo ignorado
+2026-11-02 15:01:45 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:01:47 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 1 de 358162 | usar a área calculada
+2026-11-02 15:01:47 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:01:56 WARNING [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 29 de 358162 | fica fora do lote
+2026-11-02 15:01:56 WARNING [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 223 de 358162 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:01:57 INFO    [inpe_prodes] amazonia: versão 2026-10-16, último ano 2025, 358162 polígonos desde 2019 em 9 UFs
+2026-11-02 15:01:57 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_caatinga_v20260805.zip
+2026-11-02 15:01:58 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:02:16 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 0 de 1 | lido em latin1
+2026-11-02 15:02:21 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:02:54 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_caatinga_v20260805.zip: anos desde 2019, geometria 2D
+2026-11-02 15:02:54 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 419991 | registro vai para descartados
+2026-11-02 15:02:54 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 419991 | registro vai para descartados
+2026-11-02 15:02:54 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 0 de 419991 | normalizada para maiúsculas
+2026-11-02 15:02:54 WARNING [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 5608 de 419991 | registro vai para descartados
+2026-11-02 15:02:54 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 414383 | registro vai para descartados
+2026-11-02 15:02:56 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 0 de 414383 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:02:59 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 0 de 414383 | convertida para a sigla
+2026-11-02 15:02:59 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 414383 | UF anulada
+2026-11-02 15:02:59 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 414383 | sem data não entra na comparação com a data de corte
+2026-11-02 15:02:59 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 357640 de 414383 | mantido; a regra usa image_date, não year
+2026-11-02 15:02:59 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 414383 | mantido e marcado
+2026-11-02 15:02:59 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 414383 | campo ignorado
+2026-11-02 15:02:59 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:03:02 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 2 de 414383 | usar a área calculada
+2026-11-02 15:03:02 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:03:10 WARNING [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 2 de 414383 | fica fora do lote
+2026-11-02 15:03:11 WARNING [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 1371 de 414383 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:03:11 INFO    [inpe_prodes] caatinga: versão 2026-08-05, último ano 2025, 414383 polígonos desde 2019 em 10 UFs
+2026-11-02 15:03:11 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_cerrado_v20261016.zip
+2026-11-02 15:03:12 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:03:19 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 1 de 1 | lido em latin1
+2026-11-02 15:03:25 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:04:05 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_cerrado_v20261016.zip: anos desde 2019, geometria 2D
+2026-11-02 15:04:05 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 513989 | registro vai para descartados
+2026-11-02 15:04:05 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 513989 | registro vai para descartados
+2026-11-02 15:04:05 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 0 de 513989 | normalizada para maiúsculas
+2026-11-02 15:04:05 INFO    [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 0 de 513989 | registro vai para descartados
+2026-11-02 15:04:06 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 513989 | registro vai para descartados
+2026-11-02 15:04:09 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 1 de 513989 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:04:12 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 513688 de 513989 | convertida para a sigla
+2026-11-02 15:04:12 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 513989 | UF anulada
+2026-11-02 15:04:12 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 513989 | sem data não entra na comparação com a data de corte
+2026-11-02 15:04:12 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 353277 de 513989 | mantido; a regra usa image_date, não year
+2026-11-02 15:04:12 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 513989 | mantido e marcado
+2026-11-02 15:04:12 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 513989 | campo ignorado
+2026-11-02 15:04:12 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:04:16 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 13 de 513989 | usar a área calculada
+2026-11-02 15:04:16 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:04:29 WARNING [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 2 de 513989 | fica fora do lote
+2026-11-02 15:04:31 WARNING [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 678 de 513989 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:04:32 INFO    [inpe_prodes] cerrado: versão 2026-10-16, último ano 2026, 513989 polígonos desde 2019 em 13 UFs
+2026-11-02 15:04:32 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_mata_atlantica_v20260806.zip
+2026-11-02 15:04:32 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:04:39 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 0 de 1 | lido em latin1
+2026-11-02 15:04:41 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:04:55 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_mata_atlantica_v20260806.zip: anos desde 2019, geometria 2D
+2026-11-02 15:04:55 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 153063 | registro vai para descartados
+2026-11-02 15:04:55 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 153063 | registro vai para descartados
+2026-11-02 15:04:55 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 0 de 153063 | normalizada para maiúsculas
+2026-11-02 15:04:55 WARNING [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 887 de 153063 | registro vai para descartados
+2026-11-02 15:04:55 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 152176 | registro vai para descartados
+2026-11-02 15:04:56 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 0 de 152176 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:04:57 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 0 de 152176 | convertida para a sigla
+2026-11-02 15:04:57 WARNING [inpe_prodes] PRODES_UF_INVALIDA: 1 de 152176 | UF anulada
+2026-11-02 15:04:57 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 152176 | sem data não entra na comparação com a data de corte
+2026-11-02 15:04:57 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 76846 de 152176 | mantido; a regra usa image_date, não year
+2026-11-02 15:04:57 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 152176 | mantido e marcado
+2026-11-02 15:04:57 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 152176 | campo ignorado
+2026-11-02 15:04:57 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:04:58 INFO    [inpe_prodes] PRODES_AREA_DIVERGENTE: 0 de 152176 | usar a área calculada
+2026-11-02 15:04:58 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:05:01 WARNING [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 28 de 152176 | fica fora do lote
+2026-11-02 15:05:01 WARNING [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 303 de 152176 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:05:02 INFO    [inpe_prodes] mata_atlantica: versão 2026-08-06, último ano 2025, 152176 polígonos desde 2019 em 15 UFs
+2026-11-02 15:05:02 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_pampa_v20260807.zip
+2026-11-02 15:05:02 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:05:03 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 0 de 1 | lido em latin1
+2026-11-02 15:05:03 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:05:06 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_pampa_v20260807.zip: anos desde 2019, geometria 2D
+2026-11-02 15:05:06 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 46280 | registro vai para descartados
+2026-11-02 15:05:06 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 46280 | registro vai para descartados
+2026-11-02 15:05:06 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 0 de 46280 | normalizada para maiúsculas
+2026-11-02 15:05:06 WARNING [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 393 de 46280 | registro vai para descartados
+2026-11-02 15:05:06 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 45887 | registro vai para descartados
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 0 de 45887 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 26255 de 45887 | convertida para a sigla
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 45887 | UF anulada
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 45887 | sem data não entra na comparação com a data de corte
+2026-11-02 15:05:07 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 43364 de 45887 | mantido; a regra usa image_date, não year
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 45887 | mantido e marcado
+2026-11-02 15:05:07 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 45887 | campo ignorado
+2026-11-02 15:05:07 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:05:08 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 2 de 45887 | usar a área calculada
+2026-11-02 15:05:08 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:05:08 WARNING [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 22 de 45887 | fica fora do lote
+2026-11-02 15:05:09 INFO    [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 0 de 45887 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:05:09 INFO    [inpe_prodes] pampa: versão 2026-08-07, último ano 2025, 45887 polígonos desde 2019 em 1 UFs
+2026-11-02 15:05:09 INFO    Reutilizando arquivo já baixado: data/raw/inpe_prodes/arquivo_bioma/yearly_deforestation_biome_pantanal_v20260717.zip
+2026-11-02 15:05:09 INFO    [inpe_prodes] PRODES_CRS_INESPERADO: 0 de 1 | interrompe a fonte
+2026-11-02 15:05:09 INFO    [inpe_prodes] PRODES_DBF_LATIN1: 0 de 1 | lido em latin1
+2026-11-02 15:05:09 INFO    [inpe_prodes] PRODES_ARQUIVO_INCOMPLETO: 0 de 1 | interrompe; baixar de novo
+2026-11-02 15:05:10 INFO    [inpe_prodes] transformação: Leitura do shapefile yearly_deforestation_biome_pantanal_v20260717.zip: anos desde 2019, geometria 2D
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_UUID_AUSENTE: 0 de 9413 | registro vai para descartados
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_UUID_DUPLICADO: 0 de 9413 | registro vai para descartados
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_CLASSE_CAIXA_DIFERENTE: 0 de 9413 | normalizada para maiúsculas
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_CLASSE_FORA_DO_DOMINIO: 0 de 9413 | registro vai para descartados
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_GEOM_AUSENTE: 0 de 9413 | registro vai para descartados
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_GEOM_INVALIDA: 2 de 9413 | shapely.make_valid antes de qualquer interseção
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_UF_NORMALIZADA: 0 de 9413 | convertida para a sigla
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_UF_INVALIDA: 0 de 9413 | UF anulada
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_AUSENTE: 0 de 9413 | sem data não entra na comparação com a data de corte
+2026-11-02 15:05:10 WARNING [inpe_prodes] PRODES_DATA_FORA_DO_ANO_PRODES: 6068 de 9413 | mantido; a regra usa image_date, não year
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_DATA_IMAGEM_FUTURA: 0 de 9413 | mantido e marcado
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_PUBLISH_YEAR_DIVERGENTE: 0 de 9413 | campo ignorado
+2026-11-02 15:05:10 INFO    [inpe_prodes] transformação: publish_year ignorado: repete 01/01 do year e não informa a data de publicação; vale image_date (data da imagem usada no mapeamento)
+2026-11-02 15:05:10 WARNING [inpe_prodes] PRODES_AREA_DIVERGENTE: 8 de 9413 | usar a área calculada
+2026-11-02 15:05:10 INFO    [inpe_prodes] transformação: Área calculada da geometria em projeção equivalente local (km²)
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_FORA_DE_TODAS_AS_UFS: 0 de 9413 | fica fora do lote
+2026-11-02 15:05:10 WARNING [inpe_prodes] PRODES_UF_DIFERE_DO_CONTORNO: 4 de 9413 | vale a UF do contorno; state fica em uf_fonte
+2026-11-02 15:05:10 INFO    [inpe_prodes] pantanal: versão 2026-07-17, último ano 2025, 9413 polígonos desde 2019 em 2 UFs
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_ULTIMO_ANO_RECUOU: 0 de 6 | lote regravado com a versão nova; conferir o catálogo
+2026-11-02 15:05:10 INFO    [inpe_prodes] PRODES_NOVO_ANO_PUBLICADO: 0 de 6 | baixado; alertas DETER do ano passam a ser confirmados ou não
+2026-11-02 15:05:14 INFO    [inpe_prodes] PRODES_UUID_EM_DOIS_BIOMAS: 0 de 1495608 | fica uma vez na partição
+2026-11-02 15:05:14 INFO    [inpe_prodes] transformação: Catálogo do TerraBrasilis consultado a cada 30 dias; baixa e trata só o bioma com versão nova
+2026-11-02 15:05:14 INFO    [inpe_prodes] transformação: Peças bioma x UF pelo contorno do IBGE (o polígono de divisa entra nas duas UFs); a partição da UF troca só as linhas dos biomas refeitos
+2026-11-02 15:05:14 INFO    Fim: status ok em 245.1 s. Relatório: data/processed/relatorio_execucao.md

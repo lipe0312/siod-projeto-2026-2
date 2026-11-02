@@ -1,4 +1,10 @@
-"""Fonte tabular: Áreas Embargadas do IBAMA (CSV)."""
+"""Fonte tabular: embargos do IBAMA (CSV).
+
+Desde 02/11/2026, o termo de embargo do Portal de Dados Abertos (config.URL_IBAMA_TERMO_EMBARGO); o CSV de áreas
+embargadas do CTF (config.URL_IBAMA_EMBARGOS) passou a responder 403. `do_portal` leva as colunas do portal aos nomes
+do CSV antigo, para o tratamento ser o mesmo. O portal traz também termos cancelados (descartados) e desembargados
+(mantidos, com situacao = "desembargado": a ficha os mostra como histórico, não como pendência).
+"""
 
 import pandas as pd
 import shapely
@@ -17,8 +23,13 @@ COLUNAS_OBRIGATORIAS = [
 COLUNAS_SAIDA = [
     "id_embargo", "num_tad", "ser_tad", "seq_tad", "data_embargo", "data_ultima_alteracao", "pos_corte_eudr",
     "documento_hash", "tipo_documento", "cod_municipio", "municipio", "uf", "latitude", "longitude", "area_ha",
-    "biomas", "geometria_wkt", "descricao_infracao", "alertas",
+    "biomas", "geometria_wkt", "descricao_infracao", "situacao", "data_desembargo", "alertas",
 ]
+# Portal de Dados Abertos -> nomes do CSV antigo
+DE_PARA_PORTAL = {"COD_MUNICIPIO": "COD_MUNICIPIO_TAD", "MUNICIPIO": "NOM_MUNICIPIO_TAD", "UF": "SIG_UF_TAD",
+                  "GEOM_AREA_EMBARGADA": "WKT_GEOM_AREA_EMBARGADA", "DES_TAD": "DES_INFRACAO"}
+FORMATO_DATA_PORTAL = "%Y-%m-%d %H:%M:%S"
+STATUS_CANCELADO = ("Cancelado", "Excluído", "Substituído por outro")
 
 FORMATO_DATA = "%d/%m/%Y %H:%M:%S"
 DATA_MINIMA = pd.Timestamp("1980-01-01")
@@ -26,11 +37,28 @@ DATA_MINIMA = pd.Timestamp("1980-01-01")
 
 def ler(caminho) -> pd.DataFrame:
     """Lê tudo como texto; a tipagem é feita explicitamente em `transformar`."""
-    return pd.read_csv(caminho, sep=";", encoding="utf-8", dtype=str, keep_default_na=False, low_memory=False)
+    return pd.read_csv(caminho, sep=";", encoding="utf-8-sig", dtype=str, keep_default_na=False, low_memory=False)
+
+
+def do_portal(bruto: pd.DataFrame) -> pd.DataFrame:
+    """Colunas do termo de embargo do portal com os nomes do CSV antigo. A UF do código do município vem do IBGE (os dois
+    primeiros dígitos); datas passam para DD/MM/AAAA HH:MM:SS; o portal não traz bioma."""
+    df = bruto.rename(columns=DE_PARA_PORTAL)
+    df["COD_UF_TAD"] = df["COD_MUNICIPIO_TAD"].str[:2]
+    por_sigla = {v: k for k, v in config.CODIGO_UF_IBGE.items()}
+    df["COD_UF_TAD"] = df["SIG_UF_TAD"].str.strip().map(por_sigla).fillna(df["COD_UF_TAD"])
+    for c in ("DAT_EMBARGO", "DAT_ULT_ALTERACAO", "DAT_DESEMBARGO"):
+        data = pd.to_datetime(df[c].str.strip(), format=FORMATO_DATA_PORTAL, errors="coerce")
+        df[c] = data.dt.strftime(FORMATO_DATA).where(data.notna(), df[c])
+    df["DES_TIPO_BIOMA"] = ""
+    return df
 
 
 def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp,
                 resultado: ResultadoFonte) -> tuple[pd.DataFrame, pd.DataFrame]:
+    portal = "SIT_CANCELADO" in bruto.columns
+    if portal:
+        bruto = do_portal(bruto)
     faltando = [c for c in COLUNAS_OBRIGATORIAS if c not in bruto.columns]
     resultado.validar("IBAMA_COLUNAS_OBRIGATORIAS", f"Colunas obrigatórias presentes (ausentes: {faltando or 'nenhuma'})",
                       "erro", "interrompe a fonte", len(faltando), len(COLUNAS_OBRIGATORIAS))
@@ -38,13 +66,30 @@ def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame,
                       int(len(bruto) == 0), 1)
     n = len(bruto)
 
-    df = bruto[COLUNAS_OBRIGATORIAS].apply(lambda c: c.str.strip()).replace("", pd.NA)
+    extras = ["SIT_CANCELADO", "DES_STATUS_FORMULARIO", "SIT_DESEMBARGO", "DAT_DESEMBARGO"] if portal else []
+    df = bruto[COLUNAS_OBRIGATORIAS + extras].apply(lambda c: c.str.strip()).replace("", pd.NA)
     resultado.transformar("Seleção das 16 colunas relevantes; remoção de espaços; texto vazio vira ausente")
+    if portal:
+        cancelado = (df["SIT_CANCELADO"] == "S") | df["DES_STATUS_FORMULARIO"].isin(STATUS_CANCELADO)
+        resultado.validar("IBAMA_TERMO_CANCELADO", "Termo cancelado, excluído ou substituído por outro", "descarte",
+                          "registro vai para descartados (não é embargo)", cancelado, n)
+        descartados_cancelados = df[cancelado].assign(motivo="IBAMA_TERMO_CANCELADO")
+        df = df[~cancelado].copy()
+        n = len(df)
+        desembargado = df["SIT_DESEMBARGO"] == "S"
+        resultado.validar("IBAMA_DESEMBARGADO", "Termo com desembargo administrativo ou judicial", "alerta",
+                          "mantido com situacao = desembargado; não conta como pendência", desembargado, n)
+        df["situacao"] = desembargado.map({True: "desembargado", False: "ativo"})
+        df["data_desembargo"] = pd.to_datetime(df["DAT_DESEMBARGO"], format=FORMATO_DATA, errors="coerce")
+    else:
+        df["situacao"], df["data_desembargo"] = "ativo", pd.NaT
 
     sem_termo = df["NUM_TAD"].isna()
     resultado.validar("IBAMA_NUMERO_TERMO_AUSENTE", "Registro sem número do termo de embargo", "descarte",
                       "registro vai para descartados", sem_termo, n)
     descartados = [df[sem_termo].assign(motivo="IBAMA_NUMERO_TERMO_AUSENTE")]
+    if portal:
+        descartados.append(descartados_cancelados)
     df = df[~sem_termo].copy()
     marcas = Marcas(df.index)
 
@@ -202,9 +247,9 @@ def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame,
 
 
 def executar(chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp, atualizar: bool = False) -> ResultadoFonte:
-    resultado = ResultadoFonte("ibama_embargos", "tabular (CSV)")
-    destino = config.DADOS_BRUTOS / "areas_embargadas.csv"
-    resultado.entrada = baixar(config.URL_IBAMA_EMBARGOS, destino, atualizar)
+    resultado = ResultadoFonte("ibama_embargos", "tabular (CSV), Portal de Dados Abertos do IBAMA")
+    destino = config.DADOS_BRUTOS / "ibama_termo_de_embargo.csv"
+    resultado.entrada = baixar(config.URL_IBAMA_TERMO_EMBARGO, destino, atualizar)
     bruto = ler(destino)
     resultado.entrada.update(registros_recebidos=len(bruto), colunas_recebidas=bruto.shape[1])
     resultado.transformar("Leitura do CSV com separador ';', UTF-8 e todas as colunas como texto")
@@ -217,7 +262,7 @@ def executar(chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp, atu
     descartados.to_parquet(arq_desc, index=False)
     resultado.saida = {
         "arquivo": str(arq_saida.relative_to(config.RAIZ)),
-        "registros_produzidos": len(saida),
+        "registros_produzidos": len(saida), "por_situacao": saida["situacao"].value_counts().to_dict(),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "colunas": list(saida.columns),
         "arquivo_descartados": str(arq_desc.relative_to(config.RAIZ)),

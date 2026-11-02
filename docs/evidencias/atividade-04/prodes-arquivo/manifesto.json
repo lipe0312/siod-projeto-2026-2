@@ -1,0 +1,480 @@
+{
+  "desde": 2019,
+  "verificado_em_utc": "2026-11-02T18:13:19+00:00",
+  "proxima_verificacao": "2026-12-02",
+  "biomas": {
+    "amazonia": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/amz-prodes/vector/yearly_deforestation_biome_amazonia_v20261016.zip",
+      "versao": "2026-10-16",
+      "arquivo": "yearly_deforestation_biome_amazonia_v20261016.zip",
+      "sha256": "dd505c4c01711362141077118abd0c67a57a5c736421685d1452ecd6fb6e2866",
+      "tamanho_bytes": 434522954,
+      "baixado_em_utc": "2026-11-02T17:47:39+00:00",
+      "ultimo_ano_publicado": 2025,
+      "ufs": [
+        "AC",
+        "AM",
+        "AP",
+        "MA",
+        "MT",
+        "PA",
+        "RO",
+        "RR",
+        "TO"
+      ],
+      "ultima_imagem": "2025-08-28",
+      "data_publicacao": "2026-10-16",
+      "anos": {
+        "2019": 59547,
+        "2020": 45447,
+        "2021": 47038,
+        "2022": 64669,
+        "2023": 51338,
+        "2024": 48756,
+        "2025": 41367
+      },
+      "registros": 358162,
+      "descartados": 0
+    },
+    "caatinga": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/caatinga-prodes/vector/yearly_deforestation_biome_caatinga_v20260805.zip",
+      "versao": "2026-08-05",
+      "arquivo": "yearly_deforestation_biome_caatinga_v20260805.zip",
+      "sha256": "6355925e536773c7098d1b0564461a80e95be1db0149253a3d8fa9257509beae",
+      "tamanho_bytes": 865706608,
+      "baixado_em_utc": "2026-11-02T17:49:17+00:00",
+      "ultimo_ano_publicado": 2025,
+      "ufs": [
+        "AL",
+        "BA",
+        "CE",
+        "MA",
+        "MG",
+        "PB",
+        "PE",
+        "PI",
+        "RN",
+        "SE"
+      ],
+      "ultima_imagem": "2025-12-19",
+      "data_publicacao": null,
+      "anos": {
+        "2019": 49466,
+        "2020": 56130,
+        "2021": 51731,
+        "2022": 55162,
+        "2023": 68701,
+        "2024": 84515,
+        "2025": 48678
+      },
+      "registros": 414383,
+      "descartados": 5608
+    },
+    "cerrado": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/cerrado-prodes/vector/yearly_deforestation_biome_cerrado_v20261016.zip",
+      "versao": "2026-10-16",
+      "arquivo": "yearly_deforestation_biome_cerrado_v20261016.zip",
+      "sha256": "de44e1df3c84630cf2710d71ce79d5ad661e1c1a9319e3993832423c8586c1c7",
+      "tamanho_bytes": 789366218,
+      "baixado_em_utc": "2026-11-02T17:51:07+00:00",
+      "ultimo_ano_publicado": 2026,
+      "ufs": [
+        "BA",
+        "DF",
+        "GO",
+        "MA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PI",
+        "PR",
+        "RO",
+        "SP",
+        "TO"
+      ],
+      "ultima_imagem": "2026-08-28",
+      "data_publicacao": "2026-10-16",
+      "anos": {
+        "2019": 51073,
+        "2020": 69299,
+        "2021": 76321,
+        "2022": 74598,
+        "2023": 68612,
+        "2024": 62372,
+        "2025": 58780,
+        "2026": 52934
+      },
+      "registros": 513989,
+      "descartados": 0
+    },
+    "mata_atlantica": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/mata-atlantica-prodes/vector/yearly_deforestation_biome_mata_atlantica_v20260806.zip",
+      "versao": "2026-08-06",
+      "arquivo": "yearly_deforestation_biome_mata_atlantica_v20260806.zip",
+      "sha256": "01f503ae99f168f2f6273dc3c1ef00f46588955a5d7700cc075fbcf078659a6e",
+      "tamanho_bytes": 472880097,
+      "baixado_em_utc": "2026-11-02T17:52:57+00:00",
+      "ultimo_ano_publicado": 2025,
+      "ufs": [
+        "AL",
+        "BA",
+        "ES",
+        "GO",
+        "MG",
+        "MS",
+        "PB",
+        "PE",
+        "PR",
+        "RJ",
+        "RN",
+        "RS",
+        "SC",
+        "SE",
+        "SP"
+      ],
+      "ultima_imagem": "2025-11-17",
+      "data_publicacao": null,
+      "anos": {
+        "2019": 32299,
+        "2020": 23294,
+        "2021": 26558,
+        "2022": 25167,
+        "2023": 19964,
+        "2024": 13700,
+        "2025": 11194
+      },
+      "registros": 152176,
+      "descartados": 887
+    },
+    "pampa": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pampa-prodes/vector/yearly_deforestation_biome_pampa_v20260807.zip",
+      "versao": "2026-08-07",
+      "arquivo": "yearly_deforestation_biome_pampa_v20260807.zip",
+      "sha256": "e02480428d643c1b6bcf8a18d67c9e70c2f2e2ba2965bce38420f7c0b6a159c0",
+      "tamanho_bytes": 95996209,
+      "baixado_em_utc": "2026-11-02T17:53:27+00:00",
+      "ultimo_ano_publicado": 2025,
+      "ufs": [
+        "RS"
+      ],
+      "ultima_imagem": "2025-12-19",
+      "data_publicacao": null,
+      "anos": {
+        "2019": 7440,
+        "2020": 6770,
+        "2021": 12141,
+        "2022": 5822,
+        "2023": 5387,
+        "2024": 5093,
+        "2025": 3234
+      },
+      "registros": 45887,
+      "descartados": 393
+    },
+    "pantanal": {
+      "url": "https://terrabrasilis.dpi.inpe.br/download/dataset/pantanal-prodes/vector/yearly_deforestation_biome_pantanal_v20260717.zip",
+      "versao": "2026-07-17",
+      "arquivo": "yearly_deforestation_biome_pantanal_v20260717.zip",
+      "sha256": "07fc3ff5bf2510ceecc22e63882e974ac5e1cbe7415051a18fb99ca99c16b2e6",
+      "tamanho_bytes": 18117779,
+      "baixado_em_utc": "2026-11-02T17:53:35+00:00",
+      "ultimo_ano_publicado": 2025,
+      "ufs": [
+        "MS",
+        "MT"
+      ],
+      "ultima_imagem": "2025-08-28",
+      "data_publicacao": null,
+      "anos": {
+        "2019": 1317,
+        "2020": 1886,
+        "2021": 1754,
+        "2022": 984,
+        "2023": 896,
+        "2024": 1336,
+        "2025": 1240
+      },
+      "registros": 9413,
+      "descartados": 0
+    }
+  },
+  "historico": [
+    {
+      "verificado_em_utc": "2026-10-31T00:59:55+00:00",
+      "mudancas": [],
+      "ufs": [
+        "MG"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T05:18:49+00:00",
+      "mudancas": [
+        {
+          "uf": "RS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "mata_atlantica",
+            "pampa"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T07:53:45+00:00",
+      "mudancas": [
+        {
+          "uf": "PR",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:20:02+00:00",
+      "mudancas": [
+        {
+          "uf": "SP",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T09:35:47+00:00",
+      "mudancas": [
+        {
+          "uf": "MS",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "cerrado",
+            "mata_atlantica",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T12:14:14+00:00",
+      "mudancas": [
+        {
+          "uf": "BA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "caatinga",
+            "cerrado",
+            "mata_atlantica"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-10-31T17:32:57+00:00",
+      "mudancas": [
+        {
+          "uf": "PA",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-01T01:28:30+00:00",
+      "mudancas": [
+        {
+          "uf": "MT",
+          "tipo": "UF incluída no lote",
+          "biomas": [
+            "amazonia",
+            "cerrado",
+            "pantanal"
+          ]
+        }
+      ],
+      "ufs": [
+        "BA",
+        "MG",
+        "MS",
+        "MT",
+        "PA",
+        "PR",
+        "RS",
+        "SP"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T17:47:12+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T17:55:14+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T18:01:14+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [
+        "amazonia",
+        "caatinga",
+        "cerrado",
+        "mata_atlantica",
+        "pampa",
+        "pantanal"
+      ],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    },
+    {
+      "verificado_em_utc": "2026-11-02T18:13:19+00:00",
+      "mudancas": [],
+      "biomas_refeitos": [],
+      "ultimo_ano_publicado": {
+        "amazonia": 2025,
+        "caatinga": 2025,
+        "cerrado": 2026,
+        "mata_atlantica": 2025,
+        "pampa": 2025,
+        "pantanal": 2025
+      }
+    }
+  ]
+}
