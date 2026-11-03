@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>AgroValid, carteira no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#bc896e}a:hover{color:#f07c43}
+.th{--bg:#ffffff;--sf:#f7f4f1;--sf2:#ede8e4;--tx:#241914;--mu:#5e534d;--bd:#e3ddd9;--ctl:#8a7f78;--pri:#5c3621;--on:#ffffff;--fo:#5c3621;--logo:#5c3621;
+  --pend-i:#a51d14;--pend-t:#861a11;--pend-s:#fdeceb;--indi-i:#a86200;--indi-t:#774400;--indi-s:#fdf1d8;--sem-i:#2d7a47;--sem-t:#1d5633;--sem-s:#e6f2e9;
+  --inco-i:#2d4f8c;--inco-t:#233f70;--inco-s:#e8edf6;--nao-i:#6f655f;--nao-t:#4d4440;--nao-s:#efebe8;
+  --ease:cubic-bezier(.2,.8,.2,1);background:var(--bg);color:var(--tx)}
+.th.escuro{--bg:#1d1714;--sf:#2a221e;--sf2:#352b26;--tx:#f5f2f1;--mu:#c9c0ba;--bd:#43372f;--ctl:#8a7d75;--pri:#f07c43;--on:#160d09;--fo:#f07c43;--logo:#f07c43;
+  --pend-i:#f0695e;--pend-t:#ffb4ab;--pend-s:#3d1f1b;--indi-i:#f2b53a;--indi-t:#ffd88a;--indi-s:#3a2c12;--sem-i:#62c486;--sem-t:#a8e8bb;--sem-s:#1b3323;
+  --inco-i:#8ea6ec;--inco-t:#c9d5f7;--inco-s:#1f2538;--nao-i:#a39a93;--nao-t:#d6cec8;--nao-s:#332a25}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.selo{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:5px;font-weight:600;font-size:14px;white-space:nowrap;background:var(--s);color:var(--t)}
+.selo .ico{color:var(--i);width:16px;height:16px}
+.st-pend{--i:var(--pend-i);--t:var(--pend-t);--s:var(--pend-s)}.st-indi{--i:var(--indi-i);--t:var(--indi-t);--s:var(--indi-s)}
+.st-sem{--i:var(--sem-i);--t:var(--sem-t);--s:var(--sem-s)}.st-inco{--i:var(--inco-i);--t:var(--inco-t);--s:var(--inco-s)}.st-nao{--i:var(--nao-i);--t:var(--nao-t);--s:var(--nao-s)}
+.item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--bd);padding:16px 20px;color:var(--tx);font:15px/1.45 'Source Sans 3',system-ui,sans-serif;cursor:pointer}
+.item:focus-visible,.btn:focus-visible,.ic:focus-visible{outline:3px solid var(--fo);outline-offset:-3px}
+.item:active{background:var(--sf)}
+.mais{display:grid;grid-template-rows:0fr;transition:grid-template-rows 240ms var(--ease)}
+.mais.aberto{grid-template-rows:1fr}
+.mais>div{overflow:hidden}
+.chev{transition:transform 200ms var(--ease)}
+.aberto-ch .chev{transform:rotate(180deg)}
+.btn{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:6px;border:0;background:var(--pri);color:var(--on);font:600 16px 'Source Sans 3',system-ui,sans-serif;cursor:pointer;transition:transform 120ms var(--ease)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.ic{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:6px;border:0;background:transparent;color:var(--tx);box-shadow:inset 0 0 0 1.5px var(--ctl);cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition-duration:1ms!important}}
+</style>
+</helmet>
+<div class="th {{modo}}" style="width:390px;height:844px;box-sizing:border-box;display:flex;flex-direction:column;font-family:'Source Sans 3',system-ui,sans-serif;overflow:hidden">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-pend" viewBox="0 0 24 24"><path d="m15 9-6 6"></path><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"></path><path d="m9 9 6 6"></path></symbol>
+    <symbol id="i-indi" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></symbol>
+    <symbol id="i-sem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></symbol>
+    <symbol id="i-inco" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"></path><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"></path><path d="m2 2 20 20"></path><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"></path><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"></path></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></symbol>
+  </svg>
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--bd)">
+    <span style="display:inline-flex;align-items:center;gap:8px">
+      <svg width="22" height="24" viewBox="8 -1 84 107" aria-hidden="true"><path style="fill:var(--logo)" d="M8.578 87.431L26.368 49.873L23.111 42.233L31.728 38.559L50 -0.016L68.272 38.559L76.889 42.233L73.632 49.873L91.422 87.431L80.578 92.569L67.342 64.626L50 105.298L32.658 64.626L19.422 92.569ZM39.524 50.132L50 74.702L60.476 50.132L50 28.016L39.524 50.132Z"/></svg>
+      <span style="font:700 19px/1 'Zilla Slab',Georgia,serif">AgroValid</span>
+    </span>
+    <button class="ic" type="button" onClick="{{trocaModo}}" aria-label="{{rotuloModo}}">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 3a7 7 0 0 1 0 14Z" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <div style="padding:20px 20px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--bd)">
+    <h1 style="margin:0;font:700 32px/1.05 'Zilla Slab',Georgia,serif">Quem atender primeiro</h1>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+      <span class="selo st-pend" style="justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center"><svg class="ico" aria-hidden="true"><use href="#i-pend"></use></svg>Pendência</span>2</span>
+      <span class="selo st-inco" style="justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center"><svg class="ico" aria-hidden="true"><use href="#i-inco"></use></svg>Inconclusivo</span>2</span>
+      <span class="selo st-indi" style="justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center"><svg class="ico" aria-hidden="true"><use href="#i-indi"></use></svg>Indício</span>1</span>
+      <span class="selo st-sem" style="justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center"><svg class="ico" aria-hidden="true"><use href="#i-sem"></use></svg>Sem pendência</span>1</span>
+    </div>
+    <p style="margin:0;font-size:13px;color:var(--mu)">6 imóveis. Dados fictícios.</p>
+  </div>
+
+  <div style="flex:1;overflow-y:auto">
+    <sc-for list="{{linhas}}" as="r" hint-placeholder-count="6">
+      <button class="item {{r.chCls}}" type="button" aria-expanded="{{r.aberto}}" onClick="{{r.toggle}}">
+        <span style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">
+          <strong style="font-size:16px">{{r.id}}</strong>
+          <span style="font-variant-numeric:tabular-nums;color:var(--mu);font-size:14px">{{r.ha}}</span>
+        </span>
+        <span style="display:flex;align-items:center;gap:8px;margin-top:6px"><span class="selo st-{{r.cls}}"><svg class="ico" aria-hidden="true"><use href="#i-{{r.cls}}"></use></svg>{{r.sit}}</span><span style="color:var(--mu);font-size:14px">{{r.mun}}</span>
+          <svg class="chev" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" style="margin-left:auto"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></span>
+        <span style="display:block;margin-top:6px;color:var(--mu)">{{r.oque}}</span>
+        <span class="mais {{r.maisCls}}"><span style="display:block;overflow:hidden"><span style="display:block;margin-top:10px;padding:12px;background:var(--sf);border-radius:6px"><span style="display:block;font-size:13px;color:var(--mu)">Primeiro passo</span><span style="display:block;font-weight:600">{{r.passo}}</span></span></span></span>
+      </button>
+    </sc-for>
+  </div>
+
+  <div style="padding:12px 20px 28px;border-top:1px solid var(--bd);background:var(--bg)">
+    <button class="btn" type="button" style="width:100%">Enviar planilha</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modo":{"editor":"enum","options":["claro","escuro"],"default":"escuro"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { aberto: 0, modo: null }; }
+  renderVals() {
+    const s = this.state;
+    const modo = s.modo || this.props.modo || 'escuro';
+    const base = [
+      ['pend', 'Pendência', 'COOP-0142', 'Município A/MT', '1.240,0 ha', 'Embargo do IBAMA ativo dentro do polígono.', 'Pedir ao IBAMA a revisão do embargo.'],
+      ['pend', 'Pendência', 'COOP-0087', 'Município B/PA', '610,5 ha', 'CAR suspenso no SICAR.', 'Regularizar o CAR na secretaria estadual.'],
+      ['inco', 'Inconclusivo', 'COOP-0233', '', '', 'Linha sem localização.', 'Pedir o recibo do CAR ao produtor.'],
+      ['inco', 'Inconclusivo', 'COOP-0019', '', '', 'Coordenada fora do Brasil.', 'Conferir a coordenada na planilha.'],
+      ['indi', 'Indício', 'COOP-0310', 'Município C/MG', '88,2 ha', 'Sobreposição pequena com território quilombola.', 'Conferir no INCRA o limite do território.'],
+      ['sem', 'Sem pendência', 'COOP-0056', 'Município D/MG', '42,0 ha', 'Nada nas fontes verificadas.', 'Trazer CCIR e número SIGEF no atendimento.']
+    ];
+    return {
+      modo,
+      linhas: base.map((r, i) => ({
+        cls: r[0], sit: r[1], id: r[2], mun: r[3], ha: r[4], oque: r[5], passo: r[6],
+        aberto: s.aberto === i ? 'true' : 'false',
+        maisCls: s.aberto === i ? 'aberto' : '',
+        chCls: s.aberto === i ? 'aberto-ch' : '',
+        toggle: () => this.setState({ aberto: s.aberto === i ? -1 : i })
+      })),
+      rotuloModo: modo === 'escuro' ? 'Trocar para o modo claro' : 'Trocar para o modo escuro',
+      trocaModo: () => this.setState({ modo: modo === 'escuro' ? 'claro' : 'escuro' })
+    };
+  }
+}
+</script>
+</body>
+</html>

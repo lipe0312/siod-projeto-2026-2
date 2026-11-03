@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>AgroValid, fundamentos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#ae4d15}a:hover{color:#5c3621}
+.lt{--pend-i:#a51d14;--pend-t:#861a11;--pend-s:#fdeceb;--indi-i:#a86200;--indi-t:#774400;--indi-s:#fdf1d8;--sem-i:#2d7a47;--sem-t:#1d5633;--sem-s:#e6f2e9;--inco-i:#2d4f8c;--inco-t:#233f70;--inco-s:#e8edf6;--nao-i:#6f655f;--nao-t:#4d4440;--nao-s:#efebe8}
+.dk{--pend-i:#f0695e;--pend-t:#ffb4ab;--pend-s:#3d1f1b;--indi-i:#f2b53a;--indi-t:#ffd88a;--indi-s:#3a2c12;--sem-i:#62c486;--sem-t:#a8e8bb;--sem-s:#1b3323;--inco-i:#8ea6ec;--inco-t:#c9d5f7;--inco-s:#1f2538;--nao-i:#a39a93;--nao-t:#d6cec8;--nao-s:#332a25}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.selo{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:5px;font-weight:600;font-size:14px;white-space:nowrap;background:var(--s);color:var(--t)}
+.selo .ico{color:var(--i);width:16px;height:16px}
+.st-pend{--i:var(--pend-i);--t:var(--pend-t);--s:var(--pend-s)}.st-indi{--i:var(--indi-i);--t:var(--indi-t);--s:var(--indi-s)}
+.st-sem{--i:var(--sem-i);--t:var(--sem-t);--s:var(--sem-s)}.st-inco{--i:var(--inco-i);--t:var(--inco-t);--s:var(--inco-s)}.st-nao{--i:var(--nao-i);--t:var(--nao-t);--s:var(--nao-s)}
+.ico.lg{width:26px;height:26px}
+.big{width:48px;height:48px;border-radius:8px;display:grid;place-items:center;background:var(--s);color:var(--i)}
+</style>
+</helmet>
+<div style="width:1440px;box-sizing:border-box;padding:88px 96px 96px;background:#ffffff;color:#241914;font-family:'Source Sans 3',system-ui,sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column;gap:88px">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-pend" viewBox="0 0 24 24"><path d="m15 9-6 6"></path><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"></path><path d="m9 9 6 6"></path></symbol>
+    <symbol id="i-indi" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></symbol>
+    <symbol id="i-sem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></symbol>
+    <symbol id="i-inco" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"></path><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"></path><path d="m2 2 20 20"></path><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"></path><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"></path></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></symbol>
+  </svg>
+
+
+<header style="display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:64px;align-items:end">
+  <div style="display:flex;flex-direction:column;gap:28px">
+    <div style="display:flex;align-items:center;gap:18px">
+      <svg width="64" height="68" viewBox="8 -1 84 107" role="img" aria-label="Símbolo AgroValid"><path fill="#5c3621" d="M8.578 87.431L26.368 49.873L23.111 42.233L31.728 38.559L50 -0.016L68.272 38.559L76.889 42.233L73.632 49.873L91.422 87.431L80.578 92.569L67.342 64.626L50 105.298L32.658 64.626L19.422 92.569ZM39.524 50.132L50 74.702L60.476 50.132L50 28.016L39.524 50.132Z"/></svg>
+      <span style="font-family:'Zilla Slab',Georgia,serif;font-weight:700;font-size:64px;line-height:1;letter-spacing:-0.01em">AgroValid</span>
+    </div>
+    <h1 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-weight:600;font-size:40px;line-height:1.15;max-width:22ch">Um sistema de campo para quem decide quem atender primeiro.</h1>
+  </div>
+  <p style="margin:0;color:#5e534d;font-size:18px;max-width:46ch">Direção C, marca de ferro, aprovada como base. Este é o rascunho geral do design system: cores, tipo, a legenda de situações e os componentes. Cada parte ainda pode mudar antes de virar padrão.</p>
+</header>
+
+<section style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;border-top:2px solid #241914;padding-top:28px">
+  <h2 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-size:28px;line-height:1.1">Três regras</h2>
+  <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px">
+    <li style="display:flex;flex-direction:column;gap:8px"><strong style="font-size:19px">Couro e brasa são da marca, não do dado.</strong><span style="color:#5e534d">Botão, logo e foco usam a marca. Situação de imóvel nunca usa couro nem brasa, para ninguém ler um botão como alerta.</span></li>
+    <li style="display:flex;flex-direction:column;gap:8px"><strong style="font-size:19px">Vermelho, amarelo e verde, sempre com ícone e nome.</strong><span style="color:#5e534d">Vermelho bloqueia, amarelo pede conferência, verde não achou nada. Azul e cinza ficam para o que não deu ou não pôde ser verificado. Nenhuma situação depende só da cor.</span></li>
+    <li style="display:flex;flex-direction:column;gap:8px"><strong style="font-size:19px">Movimento só responde a quem clicou.</strong><span style="color:#5e534d">Nada pisca sozinho. O único gesto da marca é o carimbo, quando uma situação muda depois da rotina mensal.</span></li>
+  </ol>
+</section>
+
+<section style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;border-top:2px solid #241914;padding-top:28px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-size:28px;line-height:1.1">Cores</h2>
+    <p style="margin:0;color:#5e534d;font-size:14px">Contraste WCAG medido por script em cada par. Texto pede 4,5:1, forma pede 3:1.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+    <div style="background:#f7f4f1;border-radius:6px;padding:28px;display:flex;flex-direction:column;gap:14px">
+      <h3 style="margin:0 0 6px;font-size:17px">Claro</h3>
+      <sc-for list="{{claro}}" as="c" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:48px 120px 84px minmax(0,1fr) 64px;gap:14px;align-items:center;font-size:14px">
+          <span style="width:48px;height:32px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(36,25,20,.14);background:{{c.hex}}"></span>
+          <strong>{{c.nome}}</strong><span style="font-variant-numeric:tabular-nums;color:#5e534d">{{c.hex}}</span><span>{{c.uso}}</span><span style="text-align:right;font-variant-numeric:tabular-nums">{{c.cr}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="background:#1d1714;color:#f5f2f1;border-radius:6px;padding:28px;display:flex;flex-direction:column;gap:14px">
+      <h3 style="margin:0 0 6px;font-size:17px">Escuro</h3>
+      <sc-for list="{{escuro}}" as="c" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:48px 120px 84px minmax(0,1fr) 64px;gap:14px;align-items:center;font-size:14px">
+          <span style="width:48px;height:32px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(245,242,241,.18);background:{{c.hex}}"></span>
+          <strong>{{c.nome}}</strong><span style="font-variant-numeric:tabular-nums;color:#c9c0ba">{{c.hex}}</span><span>{{c.uso}}</span><span style="text-align:right;font-variant-numeric:tabular-nums">{{c.cr}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;border-top:2px solid #241914;padding-top:28px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-size:28px;line-height:1.1">Tipo</h2>
+    <p style="margin:0;color:#5e534d;font-size:14px">Duas famílias, OFL. Serifa grossa só em título e número grande.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:48px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <span style="color:#5e534d;font-size:14px">Zilla Slab 700, títulos</span>
+      <span style="font-family:'Zilla Slab',Georgia,serif;font-weight:700;font-size:72px;line-height:1;letter-spacing:-0.01em">Quem atender primeiro</span>
+      <span style="font-family:'Zilla Slab',Georgia,serif;font-weight:600;font-size:32px;line-height:1.15">Embargo do IBAMA dentro do polígono</span>
+      <span style="font-family:'Zilla Slab',Georgia,serif;font-weight:700;font-size:56px;line-height:1;font-variant-numeric:tabular-nums">1.240,0 <span style="font-size:24px;font-weight:600">ha</span></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <span style="color:#5e534d;font-size:14px">Source Sans 3, texto e tabela, algarismos tabulares</span>
+      <p style="margin:0;font-size:18px;line-height:1.55;max-width:44ch">Quais produtores da carteira atendo primeiro, qual pendência trato em cada um e com qual evidência.</p>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:#5e534d;max-width:52ch">Pré-diagnóstico com fontes públicas. Não é atestado de conformidade: o que não tem fonte aparece como não verificado.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:14px;font-variant-numeric:tabular-nums">
+        <span><strong style="display:block;font-size:22px">610,5</strong>hectares</span>
+        <span><strong style="display:block;font-size:22px">17</strong>imóveis</span>
+        <span><strong style="display:block;font-size:22px">31/12/2020</strong>marco EUDR</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;border-top:2px solid #241914;padding-top:28px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-size:28px;line-height:1.1">Situações</h2>
+    <p style="margin:0;color:#5e534d;font-size:14px">Semáforo no tom da marca. Ícones da biblioteca Lucide (licença ISC). Contraste e daltonismo medidos por script.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div class="lt" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px">
+      <sc-for list="{{legenda}}" as="s" hint-placeholder-count="5">
+        <div class="st-{{s.cls}}" style="border:1px solid #e5dfdb;border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px">
+          <span class="big"><svg class="ico lg" aria-hidden="true"><use href="#i-{{s.cls}}"></use></svg></span>
+          <strong style="font-family:'Zilla Slab',Georgia,serif;font-size:20px">{{s.nome}}</strong>
+          <span class="selo"><svg class="ico" aria-hidden="true"><use href="#i-{{s.cls}}"></use></svg>{{s.nome}}</span>
+          <span style="font-size:14px;color:#5e534d">{{s.quando}}</span>
+          <span style="font-size:13px;font-variant-numeric:tabular-nums">Ícone {{s.claro}}, {{s.icl}}:1 no selo. Texto {{s.tcl}}:1.</span>
+        </div>
+      </sc-for>
+    </div>
+    <div class="dk" style="background:#1d1714;color:#f5f2f1;border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:14px">
+      <strong>Escuro</strong>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <sc-for list="{{legenda}}" as="s" hint-placeholder-count="5">
+          <span class="selo st-{{s.cls}}"><svg class="ico" aria-hidden="true"><use href="#i-{{s.cls}}"></use></svg>{{s.nome}}</span>
+        </sc-for>
+      </div>
+      <span style="font-size:13px;color:#c9c0ba">Ícone no selo de 4,88 a 7,39:1, texto de 8,77 a 10,39:1.</span>
+    </div>
+    <p style="margin:0;font-size:13px;color:#5e534d">Menor distância ΔE2000 entre os ícones. Claro: 22,7 em visão normal, 9,4 protanopia, 8,6 deuteranopia, 9,9 tritanopia. Escuro: 24,1, 12,7, 9,0 e 3,8 (verde contra azul na tritanopia; o ícone e o nome separam os dois).</p>
+  </div>
+</section>
+
+<section style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;border-top:2px solid #241914;padding-top:28px">
+  <h2 style="margin:0;font-family:'Zilla Slab',Georgia,serif;font-size:28px;line-height:1.1">Fora do sistema</h2>
+  <ul style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 40px;color:#3d322c">
+    <li>Folha, gradiente, verde vivo e azul de banco.</li>
+    <li>Situação só por cor, sem ícone nem nome escrito.</li>
+    <li>Barra colorida na lateral de cartão ou de linha.</li>
+    <li>Quatro cartões iguais com número grande em cima da tabela.</li>
+    <li>Rótulo em caixa alta espaçada acima de cada título.</li>
+    <li>Animação de entrada em cada seção ao rolar a página.</li>
+  </ul>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2280}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      claro: [
+        { nome: 'Couro', hex: '#5c3621', uso: 'Botão principal, logo, foco', cr: '10,48' },
+        { nome: 'Brasa', hex: '#ae4d15', uso: 'Link e destaque pequeno', cr: '5,42' },
+        { nome: 'Tinta', hex: '#241914', uso: 'Texto', cr: '17,15' },
+        { nome: 'Tinta suave', hex: '#5e534d', uso: 'Texto de apoio', cr: '7,45' },
+        { nome: 'Cerca', hex: '#8a7f78', uso: 'Contorno de campo e botão', cr: '3,90' },
+        { nome: 'Terreiro', hex: '#f7f4f1', uso: 'Superfície, painel', cr: '' },
+        { nome: 'Papel', hex: '#ffffff', uso: 'Fundo', cr: '' }
+      ],
+      escuro: [
+        { nome: 'Brasa', hex: '#f07c43', uso: 'Botão principal, logo, foco', cr: '6,47' },
+        { nome: 'Couro claro', hex: '#bc896e', uso: 'Link', cr: '5,86' },
+        { nome: 'Tinta', hex: '#f5f2f1', uso: 'Texto', cr: '15,91' },
+        { nome: 'Tinta suave', hex: '#c9c0ba', uso: 'Texto de apoio', cr: '9,90' },
+        { nome: 'Cerca', hex: '#8a7d75', uso: 'Contorno de campo e botão', cr: '4,45' },
+        { nome: 'Galpão', hex: '#2a221e', uso: 'Superfície, painel', cr: '' },
+        { nome: 'Couro curtido', hex: '#1d1714', uso: 'Fundo', cr: '' }
+      ],
+      legenda: [
+        { cls: 'pend', nome: 'Pendência', quando: 'Achado que bloqueia crédito ou venda: embargo ativo, CAR suspenso.', claro: '#a51d14', icl: '6,60', tcl: '8,47' },
+        { cls: 'inco', nome: 'Inconclusivo', quando: 'Não deu para cruzar: sem localização ou coordenada fora do Brasil.', claro: '#2d4f8c', icl: '6,85', tcl: '8,86' },
+        { cls: 'indi', nome: 'Indício', quando: 'Sinal que pede conferência, como sobreposição pequena com território.', claro: '#a86200', icl: '4,25', tcl: '7,18' },
+        { cls: 'sem', nome: 'Sem pendência', quando: 'Nada nas fontes verificadas. Não quer dizer conforme.', claro: '#2d7a47', icl: '4,58', tcl: '7,50' },
+        { cls: 'nao', nome: 'Não verificado', quando: 'Critério sem fonte aberta, como CCIR ou SIGEF sem login.', claro: '#6f655f', icl: '4,79', tcl: '7,99' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

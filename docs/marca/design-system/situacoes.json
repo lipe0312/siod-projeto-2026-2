@@ -1,0 +1,140 @@
+{
+ "light": {
+  "pendencia": {
+   "icone": "#a51d14",
+   "texto": "#861a11",
+   "selo": "#fdeceb",
+   "icone_selo": 6.6,
+   "icone_superficie": 6.88,
+   "texto_selo": 8.47,
+   "dist_marca": 13.0
+  },
+  "indicio": {
+   "icone": "#a86200",
+   "texto": "#774400",
+   "selo": "#fdf1d8",
+   "icone_selo": 4.25,
+   "icone_superficie": 4.34,
+   "texto_selo": 7.18,
+   "dist_marca": 10.9
+  },
+  "sem_pendencia": {
+   "icone": "#2d7a47",
+   "texto": "#1d5633",
+   "selo": "#e6f2e9",
+   "icone_selo": 4.58,
+   "icone_superficie": 4.81,
+   "texto_selo": 7.5,
+   "dist_marca": 39.5
+  },
+  "inconclusivo": {
+   "icone": "#2d4f8c",
+   "texto": "#233f70",
+   "selo": "#e8edf6",
+   "icone_selo": 6.85,
+   "icone_superficie": 7.35,
+   "texto_selo": 8.86,
+   "dist_marca": 34.4
+  },
+  "nao_verificado": {
+   "icone": "#6f655f",
+   "texto": "#4d4440",
+   "selo": "#efebe8",
+   "icone_selo": 4.79,
+   "icone_superficie": 5.18,
+   "texto_selo": 7.99,
+   "dist_marca": 18.8
+  },
+  "_min_delta_e": {
+   "normal": [
+    22.7,
+    "indicio",
+    "nao_verificado"
+   ],
+   "protan": [
+    9.4,
+    "indicio",
+    "sem_pendencia"
+   ],
+   "deutan": [
+    8.6,
+    "sem_pendencia",
+    "nao_verificado"
+   ],
+   "tritan": [
+    9.9,
+    "sem_pendencia",
+    "inconclusivo"
+   ]
+  }
+ },
+ "dark": {
+  "pendencia": {
+   "icone": "#f0695e",
+   "texto": "#ffb4ab",
+   "selo": "#3d1f1b",
+   "icone_selo": 4.88,
+   "icone_superficie": 5.12,
+   "texto_selo": 8.77,
+   "dist_marca": 12.8
+  },
+  "indicio": {
+   "icone": "#f2b53a",
+   "texto": "#ffd88a",
+   "selo": "#3a2c12",
+   "icone_selo": 7.39,
+   "icone_superficie": 8.5,
+   "texto_selo": 9.97,
+   "dist_marca": 22.7
+  },
+  "sem_pendencia": {
+   "icone": "#62c486",
+   "texto": "#a8e8bb",
+   "selo": "#1b3323",
+   "icone_selo": 6.32,
+   "icone_superficie": 7.25,
+   "texto_selo": 9.66,
+   "dist_marca": 40.4
+  },
+  "inconclusivo": {
+   "icone": "#8ea6ec",
+   "texto": "#c9d5f7",
+   "selo": "#1f2538",
+   "icone_selo": 6.39,
+   "icone_superficie": 6.55,
+   "texto_selo": 10.39,
+   "dist_marca": 35.3
+  },
+  "nao_verificado": {
+   "icone": "#a39a93",
+   "texto": "#d6cec8",
+   "selo": "#332a25",
+   "icone_selo": 5.07,
+   "icone_superficie": 5.65,
+   "texto_selo": 9.02,
+   "dist_marca": 14.6
+  },
+  "_min_delta_e": {
+   "normal": [
+    24.1,
+    "pendencia",
+    "nao_verificado"
+   ],
+   "protan": [
+    12.7,
+    "indicio",
+    "sem_pendencia"
+   ],
+   "deutan": [
+    9.0,
+    "pendencia",
+    "sem_pendencia"
+   ],
+   "tritan": [
+    3.8,
+    "sem_pendencia",
+    "inconclusivo"
+   ]
+  }
+ }
+}

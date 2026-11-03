@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AgroValid · Design system</title>
+<link rel="icon" href="favicons/favicon-C.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root,[data-theme=light]{
+  --bg:#ffffff;--sf:#f7f4f1;--sf2:#efeae6;--tx:#241914;--mu:#5e534d;--bd:#e5dfdb;--ctl:#8a7f78;
+  --pri:#5c3621;--pri-h:#6e4129;--on:#ffffff;--lk:#ae4d15;--fo:#5c3621;--logo:#5c3621;--shadow:0 1px 2px rgba(36,25,20,.06);
+  --pend-i:#a51d14;--pend-t:#861a11;--pend-s:#fdeceb;
+  --indi-i:#a86200;--indi-t:#774400;--indi-s:#fdf1d8;
+  --sem-i:#2d7a47;--sem-t:#1d5633;--sem-s:#e6f2e9;
+  --inco-i:#2d4f8c;--inco-t:#233f70;--inco-s:#e8edf6;
+  --nao-i:#6f655f;--nao-t:#4d4440;--nao-s:#efebe8;
+  color-scheme:light}
+[data-theme=dark]{
+  --bg:#1d1714;--sf:#2a221e;--sf2:#352b26;--tx:#f5f2f1;--mu:#c9c0ba;--bd:#40352e;--ctl:#8a7d75;
+  --pri:#f07c43;--pri-h:#f5925f;--on:#160d09;--lk:#bc896e;--fo:#f07c43;--logo:#f07c43;--shadow:none;
+  --pend-i:#f0695e;--pend-t:#ffb4ab;--pend-s:#3d1f1b;
+  --indi-i:#f2b53a;--indi-t:#ffd88a;--indi-s:#3a2c12;
+  --sem-i:#62c486;--sem-t:#a8e8bb;--sem-s:#1b3323;
+  --inco-i:#8ea6ec;--inco-t:#c9d5f7;--inco-s:#1f2538;
+  --nao-i:#a39a93;--nao-t:#d6cec8;--nao-s:#332a25;
+  color-scheme:dark}
+:root{--ease:cubic-bezier(.2,.8,.2,1);--r:6px}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 'Source Sans 3',system-ui,sans-serif;transition:background-color 200ms,color 200ms}
+h1,h2,h3{font-family:'Zilla Slab',Georgia,serif;font-weight:700;letter-spacing:-.005em;margin:0}
+a{color:var(--lk)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}.ico.lg{width:28px;height:28px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--fo);outline-offset:2px}
+
+/* topo da página */
+.top{border-bottom:1px solid var(--bd)}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--tx);text-decoration:none}
+.brand b{font:700 21px/1 'Zilla Slab',Georgia,serif}
+.brand small{color:var(--mu);font-size:15px;padding-left:10px;border-left:1px solid var(--bd)}
+.top nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.top nav a{color:var(--mu);text-decoration:none;font-weight:600;font-size:15px;padding:10px 12px;border-radius:var(--r)}
+.top nav a:hover{color:var(--tx);background:var(--sf)}
+
+/* seções do documento */
+.sec{padding:72px 0;border-bottom:1px solid var(--bd)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 48px;align-items:end;margin-bottom:36px}
+.sec-head h2{font-size:clamp(28px,3.4vw,38px);line-height:1.1}
+.sec-head p{margin:0;color:var(--mu);max-width:56ch}
+.intro{padding-top:64px;padding-bottom:40px}
+.intro h1{font-size:clamp(36px,5.2vw,60px);line-height:1.04;max-width:18ch}
+.intro p{color:var(--mu);font-size:18px;max-width:60ch;margin:18px 0 0}
+
+/* botões */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r);border:0;font:600 15px/1 'Source Sans 3',system-ui,sans-serif;cursor:pointer;overflow:hidden;white-space:nowrap;text-decoration:none;
+  transition:background-color 150ms var(--ease),box-shadow 150ms var(--ease),transform 120ms var(--ease)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.b-pri{background:var(--pri);color:var(--on)}.b-pri:hover{background:var(--pri-h)}
+.b-sec{background:var(--bg);color:var(--tx);box-shadow:inset 0 0 0 1px var(--ctl)}.b-sec:hover{background:var(--sf)}
+.b-ghost{background:transparent;color:var(--tx)}.b-ghost:hover{background:var(--sf)}
+.b-sm{min-height:36px;padding:0 12px;font-size:14px}
+.b-icon{width:44px;padding:0}
+.go .ico{transition:transform 180ms var(--ease)}.go:hover .ico{transform:translateX(3px)}
+.btn .barra{position:absolute;inset:auto 0 0 0;height:3px;opacity:0;transition:opacity 150ms}
+.btn[aria-busy=true]{cursor:progress}.btn[aria-busy=true] .barra{opacity:1}
+.btn .barra::after{content:"";position:absolute;inset:0;width:40%;background:currentColor;opacity:.8;animation:corre 1.1s var(--ease) infinite}
+@keyframes corre{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+
+/* selo de situação */
+.selo{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:5px;font-weight:600;font-size:14px;white-space:nowrap;background:var(--s);color:var(--t)}
+.selo .ico{color:var(--i);width:16px;height:16px}
+.st-pend{--i:var(--pend-i);--t:var(--pend-t);--s:var(--pend-s)}
+.st-indi{--i:var(--indi-i);--t:var(--indi-t);--s:var(--indi-s)}
+.st-sem{--i:var(--sem-i);--t:var(--sem-t);--s:var(--sem-s)}
+.st-inco{--i:var(--inco-i);--t:var(--inco-t);--s:var(--inco-s)}
+.st-nao{--i:var(--nao-i);--t:var(--nao-t);--s:var(--nao-s)}
+
+/* app (painel) */
+.app{border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--bg);box-shadow:var(--shadow)}
+.app-bar{display:flex;align-items:center;gap:20px;padding:10px 20px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.app-bar nav{display:flex;gap:2px;flex:1;flex-wrap:nowrap;overflow-x:auto;min-width:0}
+.app-bar nav a{white-space:nowrap}
+.app-bar>.b-pri{margin-left:auto}
+.app-bar nav a{position:relative;color:var(--mu);text-decoration:none;font-weight:600;font-size:15px;padding:12px}
+.app-bar nav a:hover{color:var(--tx)}
+.app-bar nav a[aria-current=page]{color:var(--tx)}
+.app-bar nav a[aria-current=page]::after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:var(--pri);border-radius:2px}
+.app-body{padding:28px 20px 24px;display:flex;flex-direction:column;gap:24px}
+.page-head{display:flex;justify-content:space-between;gap:16px 32px;align-items:flex-end;flex-wrap:wrap}
+.page-head h3{font-size:clamp(26px,3vw,34px);line-height:1.1}
+.page-head p{margin:6px 0 0;color:var(--mu);font-size:15px}
+.resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.cel{display:flex;flex-direction:column;gap:4px;align-items:flex-start;padding:16px 18px;background:var(--bg);border:0;border-right:1px solid var(--bd);color:var(--tx);font:inherit;text-align:left;cursor:pointer;position:relative;transition:background-color 150ms}
+.cel:last-child{border-right:0}
+.cel:hover{background:var(--sf)}
+.cel .lbl{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px;color:var(--t)}
+.cel .lbl .ico{color:var(--i)}
+.cel .num{font:700 34px/1 'Zilla Slab',Georgia,serif;font-variant-numeric:tabular-nums;margin-top:6px}
+.cel .det{font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+.cel::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--i);transform:scaleX(0);transform-origin:left;transition:transform 200ms var(--ease)}
+.cel[aria-pressed=true]{background:var(--s)}
+.cel[aria-pressed=true]::after{transform:scaleX(1)}
+.barra-ferr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.busca{position:relative;flex:1;max-width:360px;min-width:220px}
+.busca .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu)}
+.busca input,.fld input{width:100%;min-height:42px;padding:0 12px 0 38px;border-radius:var(--r);border:1px solid var(--ctl);background:var(--bg);color:var(--tx);font:15px 'Source Sans 3',system-ui,sans-serif}
+.contagem{font-size:14px;color:var(--mu)}
+.limpar{background:none;border:0;color:var(--lk);font:600 14px 'Source Sans 3',system-ui,sans-serif;cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.tabela{border:1px solid var(--bd);border-radius:8px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:940px;font-size:15px}
+thead th{position:sticky;top:0;background:var(--sf);text-align:left;font-weight:600;font-size:13px;color:var(--mu);padding:10px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tbody td{padding:14px;border-bottom:1px solid var(--bd);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background-color 150ms}
+tbody tr:hover{background:var(--sf)}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.sub{display:block;font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+.ficha{display:inline-flex;align-items:center;gap:4px;color:var(--tx);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;padding:4px 0}
+.ficha:hover{color:var(--lk)}
+.ficha .ico{transition:transform 180ms var(--ease)}.ficha:hover .ico{transform:translateX(3px)}
+.linha-in{animation:entra 200ms var(--ease) both}
+@keyframes entra{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.cards{display:none;flex-direction:column;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.card{padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:8px}
+.card:last-child{border-bottom:0}
+.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.vazio{padding:28px;text-align:center;color:var(--mu)}
+.aviso{font-size:14px;color:var(--mu);margin:0}
+
+/* situações */
+.sit-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.sit{border:1px solid var(--bd);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.sit .big{width:44px;height:44px;border-radius:8px;display:grid;place-items:center;background:var(--s);color:var(--i)}
+.sit h3{font-size:20px}
+.sit p{margin:0;font-size:14px;color:var(--mu)}
+.sit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px;font-variant-numeric:tabular-nums}
+.sit dt{color:var(--mu)}.sit dd{margin:0;text-align:right}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:4px;border:1px solid rgba(128,128,128,.35)}
+
+/* componentes */
+.comp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.panel{border:1px solid var(--bd);border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:14px;background:var(--bg)}
+.panel h3{font-size:19px}
+.panel .note{margin:0;font-size:14px;color:var(--mu)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tabs{position:relative;display:inline-flex;gap:0;border-bottom:1px solid var(--bd);max-width:100%;overflow-x:auto}
+.tabs button{background:none;border:0;padding:12px 16px;font:600 15px 'Source Sans 3',system-ui,sans-serif;color:var(--mu);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--tx)}
+.tabs .ind{position:absolute;bottom:-1px;left:0;height:2px;background:var(--pri);border-radius:2px;transition:transform 180ms var(--ease),width 180ms var(--ease)}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label{font-weight:600;font-size:14px}
+.fld input{padding:0 12px}
+.fld small{font-size:13px;color:var(--mu)}
+.fld.erro input{border-color:var(--pend-i);box-shadow:inset 0 0 0 1px var(--pend-i)}
+.fld.erro small{color:var(--pend-t);display:flex;gap:6px;align-items:center}
+.carimbo-alvo.bate .selo{animation:carimba 280ms var(--ease)}
+@keyframes carimba{0%{transform:scale(1.35);opacity:0}60%{transform:scale(.96);opacity:1}100%{transform:scale(1)}}
+.mudou{font-size:13px;color:var(--mu)}
+
+/* fundamentos */
+.cores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.paleta{border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.paleta h3{font-size:17px;padding:14px 18px;border-bottom:1px solid var(--bd)}
+.paleta table{min-width:0;font-size:14px}
+.paleta td{padding:9px 18px;border-bottom:1px solid var(--bd)}
+.paleta tr:last-child td{border-bottom:0}
+.sw{display:inline-block;width:28px;height:20px;border-radius:4px;vertical-align:middle;box-shadow:inset 0 0 0 1px rgba(128,128,128,.3)}
+.ok{color:var(--sem-t);font-weight:600}
+.tipo{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:32px;border:1px solid var(--bd);border-radius:8px;padding:28px}
+.honesto{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.honesto ul{margin:0;padding-left:18px;color:var(--tx)}.honesto li{margin:6px 0}
+
+@media (max-width:900px){
+  .sit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .comp-grid,.cores,.tipo,.honesto,.sec-head{grid-template-columns:minmax(0,1fr)}
+  .resumo{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cel:nth-child(2){border-right:0}.cel:nth-child(-n+2){border-bottom:1px solid var(--bd)}
+}
+@media (max-width:720px){
+  .tabela{display:none}.cards{display:flex}
+  .app-bar .b-label{display:none}
+  .app-bar{gap:8px 12px}.app-bar nav{order:3;flex-basis:100%;margin:0 -8px}
+  .busca{max-width:none}
+  .top nav{display:none}
+  .sit-grid{grid-template-columns:minmax(0,1fr)}
+  .sec{padding:48px 0}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-pend" viewBox="0 0 24 24"><path d="m15 9-6 6"/><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/><path d="m9 9 6 6"/></symbol>
+  <symbol id="i-indi" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-sem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-inco" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"/><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"/><path d="m2 2 20 20"/><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"/><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"/></symbol>
+  <symbol id="i-nao" viewBox="0 0 24 24"><path d="M10.1 2.182a10 10 0 0 1 3.8 0"/><path d="M13.9 21.818a10 10 0 0 1-3.8 0"/><path d="M17.609 3.721a10 10 0 0 1 2.69 2.7"/><path d="M2.182 13.9a10 10 0 0 1 0-3.8"/><path d="M20.279 17.609a10 10 0 0 1-2.7 2.69"/><path d="M21.818 10.1a10 10 0 0 1 0 3.8"/><path d="M3.721 6.391a10 10 0 0 1 2.7-2.69"/><path d="M6.391 20.279a10 10 0 0 1-2.69-2.7"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-logo" viewBox="8 -1 84 107"><path stroke="none" fill="currentColor" d="M8.578 87.431L26.368 49.873L23.111 42.233L31.728 38.559L50 -0.016L68.272 38.559L76.889 42.233L73.632 49.873L91.422 87.431L80.578 92.569L67.342 64.626L50 105.298L32.658 64.626L19.422 92.569ZM39.524 50.132L50 74.702L60.476 50.132L50 28.016L39.524 50.132Z"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#painel"><svg class="ico" style="width:24px;height:26px;color:var(--logo)" aria-hidden="true"><use href="#i-logo"/></svg><b>AgroValid</b><small>Design system</small></a>
+    <nav aria-label="Seções"><a href="#painel">Painel</a><a href="#situacoes">Situações</a><a href="#componentes">Componentes</a><a href="#fundamentos">Fundamentos</a></nav>
+    <button class="btn b-sec b-icon tema" type="button" aria-label="Trocar para o modo escuro"><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg></button>
+  </div>
+</header>
+
+<main>
+<div class="wrap intro">
+  <h1>Direção C, marca de ferro, como sistema de produto</h1>
+  <p>Rascunho geral de 03/11/2026. A tela da carteira vem primeiro porque é onde o técnico passa o dia. Situações em vermelho, amarelo e verde no tom da marca, com ícone e texto em todo lugar. Os números de contraste foram medidos por script.</p>
+</div>
+
+<section class="sec" id="painel" style="padding-top:8px">
+  <div class="wrap">
+    <div class="app" id="app">
+      <div class="app-bar">
+        <span class="brand"><svg class="ico" style="width:22px;height:24px;color:var(--logo)" aria-hidden="true"><use href="#i-logo"/></svg><b style="font-size:19px">AgroValid</b></span>
+        <nav aria-label="Produto"><a href="#painel" aria-current="page">Carteira</a><a href="#painel">Ficha do imóvel</a><a href="#painel">Mudanças do mês</a></nav>
+        <button class="btn b-pri" type="button"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg><span class="b-label">Enviar planilha</span></button>
+      </div>
+      <div class="app-body">
+        <div class="page-head">
+          <div><h3>Carteira priorizada</h3><p>cooperativa-exemplo.csv, 6 imóveis, atualizada em 03/11/2026 às 09h12. Dados fictícios.</p></div>
+          <button class="btn b-sec" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"/></svg>Baixar CSV</button>
+        </div>
+        <div class="resumo" role="group" aria-label="Filtrar por situação" id="resumo"></div>
+        <div class="barra-ferr">
+          <label class="busca"><span class="sr">Buscar produtor, CAR ou município</span><svg class="ico sm" aria-hidden="true"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Buscar produtor, CAR ou município" autocomplete="off"></label>
+          <span class="contagem" aria-live="polite" id="contagem"></span>
+        </div>
+        <div class="tabela">
+          <table>
+            <caption class="sr">Imóveis em ordem de atendimento: pendência, inconclusivo, indício, sem pendência; dentro do grupo, mais pendências e maior área primeiro.</caption>
+            <thead><tr><th class="n" scope="col">#</th><th scope="col">Produtor e CAR</th><th scope="col">Município</th><th class="n" scope="col">Área (ha)</th><th scope="col">Situação</th><th scope="col">O que apareceu</th><th scope="col">Primeiro passo</th><th scope="col"><span class="sr">Ficha</span></th></tr></thead>
+            <tbody id="linhas"></tbody>
+          </table>
+        </div>
+        <div class="cards" id="cards"></div>
+        <p class="aviso">Pré-diagnóstico com fontes públicas. Não é atestado de conformidade; o que não tem fonte aparece como não verificado. O CPF e o CNPJ não são gravados.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="situacoes">
+  <div class="wrap">
+    <div class="sec-head"><h2>Situações</h2><p>Vermelho bloqueia, amarelo pede conferência, verde não achou nada. Azul e cinza ficam para o que o sistema não conseguiu ou não pôde verificar. Ícones da biblioteca Lucide (licença ISC), sempre com o nome escrito ao lado.</p></div>
+    <div class="sit-grid" id="sit"></div>
+    <p class="aviso" style="margin-top:18px" id="sit-medida"></p>
+  </div>
+</section>
+
+<section class="sec" id="componentes">
+  <div class="wrap">
+    <div class="sec-head"><h2>Componentes e movimento</h2><p>Clique nos exemplos. Movimento só quando alguém faz algo, entre 120 e 280 ms. Com reduzir movimento ligado, tudo chega no estado final.</p></div>
+    <div class="comp-grid">
+      <div class="panel">
+        <h3>Botões</h3>
+        <div class="row">
+          <button class="btn b-pri" type="button"><svg class="ico" aria-hidden="true"><use href="#i-upload"/></svg>Enviar planilha</button>
+          <button class="btn b-sec" type="button">Baixar CSV</button>
+          <button class="btn b-ghost go" type="button">Abrir ficha<svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+        <div class="row">
+          <button class="btn b-pri b-sm" type="button">Pequeno</button>
+          <button class="btn b-sec b-sm" type="button">Pequeno</button>
+          <button class="btn b-pri" type="button" disabled>Desativado</button>
+        </div>
+        <p class="note">Canto de 6 px. Afunda 1 px ao apertar. A seta anda só no botão que leva a outra tela.</p>
+      </div>
+      <div class="panel">
+        <h3>Enquanto trabalha</h3>
+        <div class="row"><button class="btn b-pri" type="button" id="gerar" style="min-width:190px">Gerar carteira<span class="barra" aria-hidden="true"></span></button><span class="note" id="gerar-msg" aria-live="polite"></span></div>
+        <p class="note">Barra fina na base do botão. O botão mantém o tamanho e fica com aria-busy até terminar.</p>
+      </div>
+      <div class="panel">
+        <h3>Navegação</h3>
+        <div class="tabs" role="tablist" id="tabs"><button role="tab" aria-selected="true" type="button">Carteira</button><button role="tab" aria-selected="false" type="button">Ficha do imóvel</button><button role="tab" aria-selected="false" type="button">Mudanças do mês</button><span class="ind" aria-hidden="true"></span></div>
+        <p class="note">O traço de couro desliza até a aba em 180 ms.</p>
+      </div>
+      <div class="panel">
+        <h3>Campos</h3>
+        <div class="comp-grid" style="gap:14px">
+          <div class="fld"><label for="f-car">Código do CAR</label><input id="f-car" value="MG-3100000-…" aria-describedby="f-car-h"><small id="f-car-h">Está no recibo de inscrição do CAR.</small></div>
+          <div class="fld erro"><label for="f-lat">Latitude</label><input id="f-lat" value="47,93" aria-invalid="true" aria-describedby="f-lat-h"><small id="f-lat-h"><svg class="ico sm" aria-hidden="true"><use href="#i-pend"/></svg>Fora do Brasil. Latitude e longitude trocadas?</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Selos</h3>
+        <div class="row" id="selos"></div>
+        <p class="note">Fundo claro da cor, ícone na cor cheia, texto escuro da mesma família. Contraste do texto acima de 7:1 em todos.</p>
+      </div>
+      <div class="panel">
+        <h3>Quando a situação muda</h3>
+        <div class="row" style="justify-content:space-between;background:var(--sf);border-radius:8px;padding:14px 16px">
+          <div style="display:flex;flex-direction:column;gap:6px"><strong>COOP-0310, Município C/MG</strong><span class="carimbo-alvo" id="carimbo"></span><span class="mudou" id="carimbo-msg"></span></div>
+          <button class="btn b-sec b-sm" type="button" id="rotina">Rodar rotina mensal</button>
+        </div>
+        <p class="note">O selo novo entra como um carimbo, em 280 ms. Só acontece quando a rotina mensal muda o resultado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="fundamentos">
+  <div class="wrap">
+    <div class="sec-head"><h2>Fundamentos</h2><p>Couro e brasa ficam para a marca e para a ação principal; as cores de situação nunca são usadas em botão. Contraste WCAG medido em cada par.</p></div>
+    <div class="cores">
+      <div class="paleta"><h3>Claro</h3><table><tbody id="pal-claro"></tbody></table></div>
+      <div class="paleta"><h3>Escuro</h3><table><tbody id="pal-escuro"></tbody></table></div>
+    </div>
+    <div class="tipo" style="margin-top:16px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span class="note" style="color:var(--mu);font-size:14px">Zilla Slab 700, títulos e números grandes</span>
+        <span style="font:700 clamp(40px,6vw,64px)/1 'Zilla Slab',Georgia,serif">Quem atender primeiro</span>
+        <span style="font:700 40px/1 'Zilla Slab',Georgia,serif;font-variant-numeric:tabular-nums">1.240,0 ha</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="color:var(--mu);font-size:14px">Source Sans 3, texto e tabela, algarismos tabulares</span>
+        <p style="margin:0;font-size:18px">Quais produtores da carteira atendo primeiro, qual pendência trato em cada um e com qual evidência.</p>
+        <p style="margin:0;font-size:15px;color:var(--mu)">Corpo 16 px, apoio 14 a 15 px, rótulo de tabela 13 px. Altura de linha 1,5.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="border-bottom:0">
+  <div class="wrap">
+    <div class="sec-head"><h2>O que foi medido</h2><p>Os números vêm de script; o resto é escolha de design.</p></div>
+    <div class="honesto">
+      <div class="panel"><h3>Medido</h3><ul>
+        <li>Contraste WCAG de cada token, nos dois modos, com a fórmula da skill brand-identity.</li>
+        <li>Situações: ícone com pelo menos 3:1 no selo e na superfície; texto do selo com pelo menos 7:1.</li>
+        <li>Distância ΔE2000 entre os ícones das situações, com visão normal e com protanopia, deuteranopia e tritanopia simuladas (valores na seção Situações).</li>
+        <li>Distância de pelo menos 10 entre as cores de situação e as cores da marca, para alerta não parecer botão.</li></ul></div>
+      <div class="panel"><h3>Escolha de design</h3><ul>
+        <li>Os ícones: octógono de parada para pendência, triângulo para indício, círculo com check para sem pendência, alfinete riscado para inconclusivo (quase sempre falta de localização) e círculo tracejado para não verificado.</li>
+        <li>O painel com resumo em faixa única, busca e tabela; no celular a tabela vira lista.</li>
+        <li>Vermelho, amarelo e verde se confundem com daltonismo por natureza. Por isso nenhuma situação depende só da cor.</li></ul></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const ST = {
+  pend: { nome: 'Pendência', desc: 'Achado que bloqueia crédito ou venda: embargo ativo, CAR suspenso, sobreposição com terra indígena.' },
+  inco: { nome: 'Inconclusivo', desc: 'Não deu para cruzar: linha sem localização ou coordenada fora do Brasil.' },
+  indi: { nome: 'Indício', desc: 'Sinal que pede conferência, como sobreposição pequena com território quilombola.' },
+  sem:  { nome: 'Sem pendência', desc: 'Nada nas fontes verificadas. Não quer dizer conforme.' },
+  nao:  { nome: 'Não verificado', desc: 'Critério sem fonte aberta, como CCIR ou SIGEF sem login gov.br.' }
+};
+const MED = {
+  light: { pend:['#a51d14','6,60','8,47'], indi:['#a86200','4,25','7,18'], sem:['#2d7a47','4,58','7,50'], inco:['#2d4f8c','6,85','8,86'], nao:['#6f655f','4,79','7,99'] },
+  dark:  { pend:['#f0695e','4,88','8,77'], indi:['#f2b53a','7,39','9,97'], sem:['#62c486','6,32','9,66'], inco:['#8ea6ec','6,39','10,39'], nao:['#a39a93','5,07','9,02'] }
+};
+const MIN = {
+  light: 'Claro: menor distância entre ícones 22,7 em visão normal, 9,4 protanopia, 8,6 deuteranopia, 9,9 tritanopia.',
+  dark: 'Escuro: 24,1 normal, 12,7 protanopia, 9,0 deuteranopia, 3,8 tritanopia (verde contra azul; o ícone e o texto separam os dois).'
+};
+const DADOS = [
+  ['pend','COOP-0142','CAR fictício 01','Município A/MT',1240.0,'Embargo do IBAMA ativo dentro do polígono e alerta DETER depois de 31/12/2020.','Pedir ao IBAMA a revisão do embargo.'],
+  ['pend','COOP-0087','CAR fictício 02','Município B/PA',610.5,'CAR suspenso no SICAR.','Regularizar o CAR na secretaria estadual.'],
+  ['inco','COOP-0233','Sem CAR na planilha','',null,'Linha sem localização: sem cod_car e sem lat/lon.','Pedir o recibo do CAR ao produtor.'],
+  ['inco','COOP-0019','Sem CAR na planilha','',null,'Coordenada fora do Brasil. Latitude e longitude trocadas?','Conferir a coordenada na planilha.'],
+  ['indi','COOP-0310','CAR fictício 05','Município C/MG',88.2,'Sobreposição pequena com território quilombola.','Conferir no INCRA o limite do território quilombola.'],
+  ['sem','COOP-0056','CAR fictício 06','Município D/MG',42.0,'Nada nas fontes verificadas.','Trazer CCIR e número SIGEF no atendimento.']
+];
+const PAL = {
+  'pal-claro': [['Fundo','#ffffff',''],['Superfície','#f7f4f1',''],['Texto','#241914','17,15'],['Texto de apoio','#5e534d','7,45'],['Contorno de campo','#8a7f78','3,90'],['Botão principal, couro','#5c3621','10,48'],['Link, brasa','#ae4d15','5,42']],
+  'pal-escuro': [['Fundo','#1d1714',''],['Superfície','#2a221e',''],['Texto','#f5f2f1','15,91'],['Texto de apoio','#c9c0ba','9,90'],['Contorno de campo','#8a7d75','4,45'],['Botão principal, brasa','#f07c43','6,47'],['Link, couro claro','#bc896e','5,86']]
+};
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const ico = (k, cls = '') => `<svg class="ico ${cls}" aria-hidden="true"><use href="#i-${k}"/></svg>`;
+const selo = (k) => `<span class="selo st-${k}">${ico(k)}${ST[k].nome}</span>`;
+const fmt = (v) => v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+let filtro = null;
+
+function tema() { return document.documentElement.dataset.theme; }
+
+function resumo() {
+  $('#resumo').innerHTML = ['pend','inco','indi','sem'].map((k) => {
+    const rs = DADOS.filter((d) => d[0] === k);
+    const ha = rs.reduce((a, d) => a + (d[4] || 0), 0);
+    return `<button class="cel st-${k}" type="button" data-k="${k}" aria-pressed="${filtro === k}">
+      <span class="lbl">${ico(k)}${ST[k].nome}</span><span class="num">${rs.length}</span>
+      <span class="det">${rs.length === 1 ? '1 imóvel' : rs.length + ' imóveis'}${ha ? ', ' + fmt(ha) + ' ha' : ''}</span></button>`;
+  }).join('');
+  document.querySelectorAll('.cel').forEach((b) => b.onclick = () => { filtro = filtro === b.dataset.k ? null : b.dataset.k; resumo(); linhas(); });
+}
+
+function linhas() {
+  const q = $('#q').value.trim().toLowerCase();
+  const rs = DADOS.map((d, i) => [i + 1, ...d]).filter((d) => (!filtro || d[1] === filtro) &&
+    (!q || (d[2] + ' ' + d[3] + ' ' + d[4]).toLowerCase().includes(q)));
+  const vazio = `<div class="vazio">Nenhum imóvel com esse filtro.</div>`;
+  $('#linhas').innerHTML = rs.length ? rs.map((d, i) => `<tr class="linha-in" style="animation-delay:${i * 25}ms">
+    <td class="n" style="color:var(--mu)">${d[0]}</td>
+    <td><strong>${esc(d[2])}</strong><span class="sub">${esc(d[3])}</span></td>
+    <td>${esc(d[4] || '—')}</td><td class="n">${fmt(d[5])}</td>
+    <td>${selo(d[1])}</td><td style="max-width:300px">${esc(d[6])}</td><td style="max-width:240px">${esc(d[7])}</td>
+    <td><a class="ficha" href="#painel">Ficha${ico('arrow','sm')}</a></td></tr>`).join('') : `<tr><td colspan="8">${vazio}</td></tr>`;
+  $('#cards').innerHTML = rs.length ? rs.map((d) => `<div class="card">
+    <div class="card-top"><div><strong>${esc(d[2])}</strong><span class="sub">${esc(d[4] || d[3])}${d[5] != null ? ', ' + fmt(d[5]) + ' ha' : ''}</span></div>${selo(d[1])}</div>
+    <span>${esc(d[6])}</span><span class="sub">Primeiro passo: ${esc(d[7])}</span>
+    <a class="ficha" href="#painel">Abrir ficha${ico('arrow','sm')}</a></div>`).join('') : vazio;
+  $('#contagem').innerHTML = `${rs.length} de ${DADOS.length} imóveis` + (filtro || q ? ` <button class="limpar" type="button" id="limpar">Limpar filtro</button>` : '');
+  const l = $('#limpar'); if (l) l.onclick = () => { filtro = null; $('#q').value = ''; resumo(); linhas(); };
+}
+
+function situacoes() {
+  const m = MED[tema()];
+  $('#sit').innerHTML = Object.keys(ST).map((k) => `<div class="sit st-${k}">
+    <span class="big">${ico(k, 'lg')}</span><h3>${ST[k].nome}</h3>${selo(k)}<p>${ST[k].desc}</p>
+    <dl><dt><span class="dot" style="background:${m[k][0]}"></span>${m[k][0]}</dt><dd></dd><dt>Ícone no selo</dt><dd>${m[k][1]}:1</dd><dt>Texto no selo</dt><dd>${m[k][2]}:1</dd></dl></div>`).join('');
+  $('#sit-medida').textContent = MIN[tema()];
+  $('#selos').innerHTML = Object.keys(ST).map(selo).join('');
+}
+
+function paletas() {
+  for (const [id, rows] of Object.entries(PAL)) {
+    $('#' + id).innerHTML = rows.map(([n, h, c]) => `<tr><td><span class="sw" style="background:${h}"></span></td><td>${n}</td><td style="font-variant-numeric:tabular-nums;color:var(--mu)">${h}</td><td class="n">${c ? `<span class="ok">${c}:1</span>` : ''}</td></tr>`).join('');
+  }
+}
+
+let mudou = false;
+function carimbo(animar) {
+  const k = mudou ? 'pend' : 'indi';
+  const alvo = $('#carimbo');
+  alvo.innerHTML = selo(k);
+  $('#carimbo-msg').textContent = mudou ? 'Mudou em 03/11/2026: alerta DETER novo dentro do polígono (exemplo).' : 'Sobreposição pequena com território quilombola (exemplo).';
+  $('#rotina').textContent = mudou ? 'Voltar ao mês anterior' : 'Rodar rotina mensal';
+  if (animar) { alvo.classList.remove('bate'); void alvo.offsetWidth; alvo.classList.add('bate'); }
+}
+$('#rotina').onclick = () => { mudou = !mudou; carimbo(true); };
+
+$('#gerar').onclick = (e) => {
+  const b = e.currentTarget; if (b.getAttribute('aria-busy') === 'true') return;
+  b.setAttribute('aria-busy', 'true'); $('#gerar-msg').textContent = 'Cruzando 6 imóveis com as fontes…';
+  setTimeout(() => { b.removeAttribute('aria-busy'); $('#gerar-msg').textContent = '6 imóveis, 2 com pendência.'; }, 2200);
+};
+
+function moveInd() {
+  const sel = $('#tabs [aria-selected=true]'); const ind = $('#tabs .ind');
+  ind.style.width = (sel.offsetWidth - 32) + 'px'; ind.style.transform = `translateX(${sel.offsetLeft + 16}px)`;
+}
+document.querySelectorAll('#tabs button').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('#tabs button').forEach((x) => x.setAttribute('aria-selected', x === b)); moveInd();
+});
+
+const temaBtn = $('.tema');
+function aplicaTema(t) {
+  document.documentElement.dataset.theme = t;
+  temaBtn.innerHTML = ico(t === 'dark' ? 'sun' : 'moon');
+  temaBtn.setAttribute('aria-label', t === 'dark' ? 'Trocar para o modo claro' : 'Trocar para o modo escuro');
+  try { localStorage.setItem('agrovalid-tema', t); } catch (e) {}
+  situacoes();
+}
+temaBtn.onclick = () => aplicaTema(tema() === 'dark' ? 'light' : 'dark');
+$('#q').oninput = linhas;
+
+let inicial = 'light';
+try { inicial = localStorage.getItem('agrovalid-tema') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+paletas(); resumo(); linhas(); carimbo(false); aplicaTema(inicial);
+addEventListener('load', moveInd); addEventListener('resize', moveInd); moveInd();
+</script>
+</body>
+</html>

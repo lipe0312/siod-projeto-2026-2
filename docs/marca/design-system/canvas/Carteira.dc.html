@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>AgroValid, carteira priorizada</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#ae4d15}a:hover{color:#5c3621}
+.th{--bg:#ffffff;--sf:#f7f4f1;--sf2:#efeae6;--tx:#241914;--mu:#5e534d;--bd:#e5dfdb;--ctl:#8a7f78;--pri:#5c3621;--pri-h:#6e4129;--on:#ffffff;--lk:#ae4d15;--fo:#5c3621;--logo:#5c3621;
+  --pend-i:#a51d14;--pend-t:#861a11;--pend-s:#fdeceb;--indi-i:#a86200;--indi-t:#774400;--indi-s:#fdf1d8;--sem-i:#2d7a47;--sem-t:#1d5633;--sem-s:#e6f2e9;
+  --inco-i:#2d4f8c;--inco-t:#233f70;--inco-s:#e8edf6;--nao-i:#6f655f;--nao-t:#4d4440;--nao-s:#efebe8;--ease:cubic-bezier(.2,.8,.2,1);background:var(--bg);color:var(--tx)}
+.th.escuro{--bg:#1d1714;--sf:#2a221e;--sf2:#352b26;--tx:#f5f2f1;--mu:#c9c0ba;--bd:#40352e;--ctl:#8a7d75;--pri:#f07c43;--pri-h:#f5925f;--on:#160d09;--lk:#e0a483;--fo:#f07c43;--logo:#f07c43;
+  --pend-i:#f0695e;--pend-t:#ffb4ab;--pend-s:#3d1f1b;--indi-i:#f2b53a;--indi-t:#ffd88a;--indi-s:#3a2c12;--sem-i:#62c486;--sem-t:#a8e8bb;--sem-s:#1b3323;
+  --inco-i:#8ea6ec;--inco-t:#c9d5f7;--inco-s:#1f2538;--nao-i:#a39a93;--nao-t:#d6cec8;--nao-s:#332a25}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:6px;border:0;font:600 15px/1 'Source Sans 3',system-ui,sans-serif;cursor:pointer;white-space:nowrap;transition:background-color 150ms var(--ease),transform 120ms var(--ease)}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn:focus-visible,.cel:focus-visible,.nav a:focus-visible,.ficha:focus-visible,.busca input:focus-visible{outline:3px solid var(--fo);outline-offset:2px}
+.b-pri{background:var(--pri);color:var(--on)}.b-pri:hover{background:var(--pri-h)}
+.b-sec{background:var(--bg);color:var(--tx);box-shadow:inset 0 0 0 1px var(--ctl)}.b-sec:hover{background:var(--sf)}
+.nav{display:flex;gap:2px;flex:1;overflow-x:auto;min-width:0}
+.nav a{position:relative;color:var(--mu);text-decoration:none;font-weight:600;font-size:15px;padding:12px;white-space:nowrap}
+.nav a:hover,.nav a[aria-current=page]{color:var(--tx)}
+.nav a[aria-current=page]::after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2px;background:var(--pri);border-radius:2px}
+.selo{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;border-radius:5px;font-weight:600;font-size:14px;white-space:nowrap;background:var(--s);color:var(--t)}
+.selo .ico{color:var(--i);width:16px;height:16px}
+.st-pend{--i:var(--pend-i);--t:var(--pend-t);--s:var(--pend-s)}.st-indi{--i:var(--indi-i);--t:var(--indi-t);--s:var(--indi-s)}
+.st-sem{--i:var(--sem-i);--t:var(--sem-t);--s:var(--sem-s)}.st-inco{--i:var(--inco-i);--t:var(--inco-t);--s:var(--inco-s)}.st-nao{--i:var(--nao-i);--t:var(--nao-t);--s:var(--nao-s)}
+.resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.cel{position:relative;display:flex;flex-direction:column;gap:4px;align-items:flex-start;padding:16px 18px;background:var(--bg);border:0;border-right:1px solid var(--bd);color:var(--tx);font:inherit;text-align:left;cursor:pointer;transition:background-color 150ms}
+.cel:last-child{border-right:0}.cel:hover{background:var(--sf)}
+.cel .lbl{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px;color:var(--t)}.cel .lbl .ico{color:var(--i)}
+.cel .num{font:700 34px/1 'Zilla Slab',Georgia,serif;font-variant-numeric:tabular-nums;margin-top:6px}
+.cel .det{font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+.cel::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--i);transform:scaleX(0);transform-origin:left;transition:transform 200ms var(--ease)}
+.cel[aria-pressed=true]{background:var(--s)}.cel[aria-pressed=true]::after{transform:scaleX(1)}
+.busca{position:relative;flex:1;max-width:360px;min-width:220px;display:block}
+.busca .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu)}
+.busca input{width:100%;box-sizing:border-box;min-height:42px;padding:0 12px 0 38px;border-radius:6px;border:1px solid var(--ctl);background:var(--bg);color:var(--tx);font:15px 'Source Sans 3',system-ui,sans-serif}
+.tabela{border:1px solid var(--bd);border-radius:8px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:940px;font-size:15px}
+th{background:var(--sf);text-align:left;font-weight:600;font-size:13px;color:var(--mu);padding:10px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:14px;border-bottom:1px solid var(--bd);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background-color 150ms}tbody tr:hover{background:var(--sf)}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.sub{display:block;font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+.ficha{display:inline-flex;align-items:center;gap:4px;color:var(--tx);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;padding:4px 0}
+.ficha:hover{color:var(--lk)}.ficha .ico{transition:transform 180ms var(--ease)}.ficha:hover .ico{transform:translateX(3px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.linha{animation:entra 200ms var(--ease) both}
+@keyframes entra{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+@media (max-width:900px){.resumo{grid-template-columns:repeat(2,minmax(0,1fr))}.cel:nth-child(2){border-right:0}.cel:nth-child(-n+2){border-bottom:1px solid var(--bd)}}
+@media (max-width:720px){.nav{order:3;flex-basis:100%}.b-label{display:none}.busca{max-width:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}}
+</style>
+</helmet>
+<div class="th {{modo}}" style="min-height:1080px;font-family:'Source Sans 3',system-ui,sans-serif;font-size:16px;line-height:1.5">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-pend" viewBox="0 0 24 24"><path d="m15 9-6 6"></path><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"></path><path d="m9 9 6 6"></path></symbol>
+    <symbol id="i-indi" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></symbol>
+    <symbol id="i-sem" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></symbol>
+    <symbol id="i-inco" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16"></path><path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568"></path><path d="m2 2 20 20"></path><path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533"></path><path d="M9.13 9.13a3 3 0 0 0 3.74 3.74"></path></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></symbol>
+  </svg>
+  <header style="border-bottom:1px solid var(--bd)">
+    <div style="max-width:1240px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap">
+      <a href="#" aria-label="AgroValid, início" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--tx)">
+        <svg width="22" height="24" viewBox="8 -1 84 107" aria-hidden="true"><path style="fill:var(--logo)" d="M8.578 87.431L26.368 49.873L23.111 42.233L31.728 38.559L50 -0.016L68.272 38.559L76.889 42.233L73.632 49.873L91.422 87.431L80.578 92.569L67.342 64.626L50 105.298L32.658 64.626L19.422 92.569ZM39.524 50.132L50 74.702L60.476 50.132L50 28.016L39.524 50.132Z"></path></svg>
+        <span style="font:700 20px/1 'Zilla Slab',Georgia,serif">AgroValid</span>
+      </a>
+      <nav class="nav" aria-label="Produto"><a href="#" aria-current="page">Carteira</a><a href="#">Ficha do imóvel</a><a href="#">Mudanças do mês</a></nav>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn b-sec" type="button" onClick="{{trocaModo}}" aria-label="{{rotuloModo}}" style="width:44px;padding:0"><svg class="ico" aria-hidden="true"><use href="{{iconeModo}}"></use></svg></button>
+        <button class="btn b-pri" type="button"><svg class="ico" aria-hidden="true"><use href="#i-upload"></use></svg><span class="b-label">Enviar planilha</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width:1240px;margin:0 auto;padding:32px 24px 48px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;justify-content:space-between;gap:16px 32px;align-items:flex-end;flex-wrap:wrap">
+      <div>
+        <h1 style="margin:0;font:700 clamp(28px,3.4vw,36px)/1.1 'Zilla Slab',Georgia,serif">Carteira priorizada</h1>
+        <p style="margin:6px 0 0;color:var(--mu);font-size:15px">cooperativa-exemplo.csv, 6 imóveis, atualizada em 03/11/2026 às 09h12. Dados fictícios.</p>
+      </div>
+      <button class="btn b-sec" type="button"><svg class="ico" aria-hidden="true"><use href="#i-download"></use></svg>Baixar CSV</button>
+    </div>
+
+    <div class="resumo" role="group" aria-label="Filtrar por situação">
+      <sc-for list="{{grupos}}" as="g" hint-placeholder-count="4">
+        <button class="cel st-{{g.cls}}" type="button" aria-pressed="{{g.sel}}" onClick="{{g.pick}}">
+          <span class="lbl"><svg class="ico sm" aria-hidden="true"><use href="#i-{{g.cls}}"></use></svg>{{g.nome}}</span>
+          <span class="num">{{g.n}}</span><span class="det">{{g.det}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <label class="busca"><span class="sr">Buscar produtor, CAR ou município</span><svg class="ico sm" aria-hidden="true"><use href="#i-search"></use></svg><input type="search" placeholder="Buscar produtor, CAR ou município"></label>
+      <span style="font-size:14px;color:var(--mu)" aria-live="polite">{{contagem}}</span>
+    </div>
+
+    <div class="tabela">
+      <table>
+        <caption class="sr">Imóveis em ordem de atendimento: pendência, inconclusivo, indício, sem pendência; dentro do grupo, mais pendências e maior área primeiro.</caption>
+        <thead><tr><th scope="col" class="n">#</th><th scope="col">Produtor e CAR</th><th scope="col">Município</th><th scope="col" class="n">Área (ha)</th><th scope="col">Situação</th><th scope="col">O que apareceu</th><th scope="col">Primeiro passo</th><th scope="col"><span class="sr">Ficha</span></th></tr></thead>
+        <tbody>
+          <sc-for list="{{linhas}}" as="r" hint-placeholder-count="6">
+            <tr class="linha" style="animation-delay:{{r.delay}}">
+              <td class="n" style="color:var(--mu)">{{r.p}}</td>
+              <td><strong>{{r.id}}</strong><span class="sub">{{r.car}}</span></td>
+              <td>{{r.mun}}</td>
+              <td class="n">{{r.ha}}</td>
+              <td><span class="selo st-{{r.cls}}"><svg class="ico" aria-hidden="true"><use href="#i-{{r.cls}}"></use></svg>{{r.sit}}</span></td>
+              <td style="max-width:300px">{{r.oque}}</td>
+              <td style="max-width:240px">{{r.passo}}</td>
+              <td><a class="ficha" href="#">Ficha<svg class="ico sm" aria-hidden="true"><use href="#i-arrow"></use></svg></a></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:0;font-size:14px;color:var(--mu)">Pré-diagnóstico com fontes públicas. Não é atestado de conformidade; o que não tem fonte aparece como não verificado. O CPF e o CNPJ não são gravados.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"modo":{"editor":"enum","options":["claro","escuro"],"default":"claro"},"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filtro: null, modo: null }; }
+  renderVals() {
+    const s = this.state;
+    const modo = s.modo || this.props.modo || 'claro';
+    const NOME = { pend: 'Pendência', inco: 'Inconclusivo', indi: 'Indício', sem: 'Sem pendência' };
+    const base = [
+      ['pend', 'COOP-0142', 'CAR fictício 01', 'Município A/MT', 1240.0, 'Embargo do IBAMA ativo dentro do polígono e alerta DETER depois de 31/12/2020.', 'Pedir ao IBAMA a revisão do embargo.'],
+      ['pend', 'COOP-0087', 'CAR fictício 02', 'Município B/PA', 610.5, 'CAR suspenso no SICAR.', 'Regularizar o CAR na secretaria estadual.'],
+      ['inco', 'COOP-0233', 'Sem CAR na planilha', '—', null, 'Linha sem localização: sem cod_car e sem lat/lon.', 'Pedir o recibo do CAR ao produtor.'],
+      ['inco', 'COOP-0019', 'Sem CAR na planilha', '—', null, 'Coordenada fora do Brasil. Latitude e longitude trocadas?', 'Conferir a coordenada na planilha.'],
+      ['indi', 'COOP-0310', 'CAR fictício 05', 'Município C/MG', 88.2, 'Sobreposição pequena com território quilombola.', 'Conferir no INCRA o limite do território quilombola.'],
+      ['sem', 'COOP-0056', 'CAR fictício 06', 'Município D/MG', 42.0, 'Nada nas fontes verificadas.', 'Trazer CCIR e número SIGEF no atendimento.']
+    ];
+    const fmt = (v) => v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const grupos = ['pend', 'inco', 'indi', 'sem'].map((cls) => {
+      const rs = base.filter((r) => r[0] === cls);
+      const ha = rs.reduce((a, r) => a + (r[4] || 0), 0);
+      return { cls, nome: NOME[cls], n: String(rs.length),
+        det: (rs.length === 1 ? '1 imóvel' : rs.length + ' imóveis') + (ha ? ', ' + fmt(ha) + ' ha' : ''),
+        sel: s.filtro === cls ? 'true' : 'false',
+        pick: () => this.setState({ filtro: s.filtro === cls ? null : cls }) };
+    });
+    const linhas = base.map((r, i) => ({ p: String(i + 1), cls: r[0], sit: NOME[r[0]], id: r[1], car: r[2], mun: r[3], ha: fmt(r[4]), oque: r[5], passo: r[6] }))
+      .filter((r) => !s.filtro || r.cls === s.filtro).map((r, i) => ({ ...r, delay: (i * 25) + 'ms' }));
+    return {
+      modo, grupos, linhas,
+      contagem: linhas.length + ' de ' + base.length + ' imóveis',
+      iconeModo: modo === 'escuro' ? '#i-sun' : '#i-moon',
+      rotuloModo: modo === 'escuro' ? 'Trocar para o modo claro' : 'Trocar para o modo escuro',
+      trocaModo: () => this.setState({ modo: modo === 'escuro' ? 'claro' : 'escuro' })
+    };
+  }
+}
+</script>
+</body>
+</html>
