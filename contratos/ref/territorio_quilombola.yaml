@@ -1,0 +1,17 @@
+tabela: ref.territorio_quilombola
+descricao: "Camada combinada do critério 6: INCRA inteiro mais o território do IBGE que o INCRA não cobre (ADR 0016)"
+fonte: incra_quilombolas
+chave: [codigo]
+historico: fotografia
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
+legado: quilombolas.parquet
+colunas:
+  - {nome: codigo,          tipo: texto, nulo: false}
+  - {nome: nome,            tipo: texto}
+  - {nome: situacao,        tipo: texto}
+  - {nome: uf,              tipo: texto}
+  - {nome: base,            tipo: texto}
+  - {nome: data_referencia, tipo: data_hora}
+  - {nome: geometria_wkt,   tipo: geometria}
+  - {nome: alertas,         tipo: texto}

@@ -1,0 +1,19 @@
+tabela: diag.criterio
+descricao: Situação de cada critério de um resultado
+fonte: pipeline
+chave: [resultado_id, chave]
+historico: registro
+particao: ano_mes
+perfil_banco: lite
+colunas:
+  - {nome: resultado_id,   tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto}
+  - {nome: chave,          tipo: texto, nulo: false}
+  - {nome: criterio,       tipo: texto}
+  - {nome: criterio_ab_s,  tipo: inteiro}
+  - {nome: situacao,       tipo: texto, nulo: false}
+  - {nome: evidencia,      tipo: texto}
+  - {nome: encaminhamento, tipo: texto}
+  - {nome: fonte,          tipo: texto}
+  - {nome: aviso,          tipo: texto}
+  - {nome: ano_mes,        tipo: texto, nulo: false}

@@ -1,0 +1,24 @@
+tabela: geo.imovel_car
+descricao: Imóvel do CAR consultado no WFS do SICAR (só os consultados; uma versão por consulta)
+fonte: sicar
+chave: [cod_imovel]
+historico: por_consulta
+particao: uf
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
+colunas:
+  - {nome: cod_imovel,                tipo: texto, nulo: false}
+  - {nome: uf,                        tipo: texto, nulo: false}
+  - {nome: cod_municipio,             tipo: texto}
+  - {nome: municipio,                 tipo: texto}
+  - {nome: tipo_imovel,               tipo: texto}
+  - {nome: status_imovel,             tipo: texto}
+  - {nome: condicao,                  tipo: texto}
+  - {nome: area_declarada_ha,         tipo: decimal}
+  - {nome: area_geom_ha,              tipo: decimal}
+  - {nome: m_fiscal,                  tipo: decimal}
+  - {nome: data_criacao,              tipo: data_hora}
+  - {nome: data_atualizacao,          tipo: data_hora}
+  - {nome: fracao_coberta_por_outros, tipo: decimal}
+  - {nome: geometria_wkt,             tipo: geometria, nulo: false}
+  - {nome: alertas,                   tipo: texto}

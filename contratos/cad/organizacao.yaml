@@ -1,0 +1,12 @@
+tabela: cad.organizacao
+descricao: "Cliente: cooperativa, empresa de assistência técnica ou outra"
+fonte: cadastro
+chave: [organizacao_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: nome,           tipo: texto, nulo: false}
+  - {nome: tipo,           tipo: texto, nulo: false}
+  - {nome: uf,             tipo: texto}
+  - {nome: criado_em,      tipo: data_hora, nulo: false}

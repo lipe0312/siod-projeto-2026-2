@@ -1,0 +1,14 @@
+# Catálogo de fontes (meta.fonte). `fonte` é o nome do ResultadoFonte; `ritmo` é o ritmo de atualização da origem.
+# acesso: lote (rotina mensal, lago) ou sob_demanda (consultada na hora; na versão lite fica fora do banco).
+- {fonte: ibge_municipios,              orgao: IBGE,  nome: "Municípios",                           tipo_dado: "API (JSON)",          acesso: lote,        ritmo: anual,      tabelas: [geo.municipio]}
+- {fonte: territorio,                   orgao: "IBGE e INPE", nome: "Contorno das UFs e dos biomas", tipo_dado: "API (GeoJSON)",       acesso: lote,        ritmo: raro,       tabelas: [geo.uf, geo.bioma]}
+- {fonte: sicar,                        orgao: SFB,   nome: "CAR pelo WFS do SICAR",                tipo_dado: "API (WFS)",           acesso: sob_demanda, ritmo: contínuo,   tabelas: [geo.imovel_car]}
+- {fonte: ibama_embargos,               orgao: IBAMA, nome: "Áreas embargadas",                     tipo_dado: "tabular (CSV)",       acesso: lote,        ritmo: contínuo,   tabelas: [ref.embargo_ibama]}
+- {fonte: inpe_deter,                   orgao: INPE,  nome: "DETER (Amazônia, Cerrado e Pantanal)", tipo_dado: "API (WFS) e arquivo", acesso: lote,        ritmo: diário,     tabelas: [ref.alerta_deter]}
+- {fonte: inpe_prodes,                  orgao: INPE,  nome: "PRODES por UF",                        tipo_dado: "arquivo (shapefile)", acesso: lote,        ritmo: anual,      tabelas: [ref.desmatamento_prodes]}
+- {fonte: mte_lista_suja,               orgao: MTE,   nome: "Cadastro de Empregadores",             tipo_dado: "documento (PDF)",     acesso: lote,        ritmo: semestral,  tabelas: [ref.lista_suja]}
+- {fonte: funai_terras_indigenas,       orgao: FUNAI, nome: "Terras indígenas",                     tipo_dado: "API (WFS)",           acesso: lote,        ritmo: irregular,  tabelas: [ref.terra_indigena]}
+- {fonte: mma_unidades_conservacao,     orgao: MMA,   nome: "Unidades de conservação (CNUC)",       tipo_dado: "shapefile",           acesso: lote,        ritmo: semestral,  tabelas: [ref.unidade_conservacao]}
+- {fonte: ibge_territorios_quilombolas, orgao: IBGE,  nome: "Territórios quilombolas (Censo 2022)", tipo_dado: "shapefile",           acesso: lote,        ritmo: fixo,       tabelas: [ref.quilombola_ibge]}
+- {fonte: incra_quilombolas,            orgao: INCRA, nome: "Áreas quilombolas (via CMR/FUNAI)",    tipo_dado: "API (WFS)",           acesso: lote,        ritmo: irregular,  tabelas: [ref.quilombola_incra, ref.territorio_quilombola]}
+- {fonte: ab_s,                         orgao: MAPA,  nome: "AgroBrasil+Sustentável (validação do relatório)", tipo_dado: "API (JSON)", acesso: sob_demanda, ritmo: por consulta, tabelas: [diag.conferencia_ab_s]}

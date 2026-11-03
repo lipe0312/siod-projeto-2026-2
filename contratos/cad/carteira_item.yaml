@@ -1,0 +1,14 @@
+tabela: cad.carteira_item
+descricao: "Cada linha da planilha importada, com o problema encontrado na conferência"
+fonte: cadastro
+chave: [carteira_id, linha]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: carteira_id,       tipo: texto, nulo: false}
+  - {nome: organizacao_id,    tipo: texto, nulo: false}
+  - {nome: linha,             tipo: inteiro, nulo: false}
+  - {nome: produtor_id,       tipo: texto}
+  - {nome: imovel_id,         tipo: texto}
+  - {nome: problema_na_linha, tipo: texto}
+  - {nome: extras_json,       tipo: json}

@@ -1,0 +1,23 @@
+tabela: ref.lista_suja
+descricao: "Cadastro de Empregadores do MTE (Lista Suja), com documento pseudonimizado"
+fonte: mte_lista_suja
+chave: [documento_hash, estabelecimento, ano_acao_fiscal]
+historico: validade
+acompanhar: [uf, cnae, trabalhadores_envolvidos, data_decisao, data_inclusao, data_inclusao_ultima]
+perfil_banco: lite
+legado: mte_lista_suja.parquet
+colunas:
+  - {nome: id_registro,               tipo: inteiro}
+  - {nome: documento_hash,            tipo: texto, nulo: false}
+  - {nome: tipo_documento,            tipo: texto}
+  - {nome: uf,                        tipo: texto}
+  - {nome: estabelecimento,           tipo: texto, nulo: false}
+  - {nome: cnae,                      tipo: texto}
+  - {nome: cnae_agropecuaria,         tipo: logico}
+  - {nome: trabalhadores_envolvidos,  tipo: inteiro}
+  - {nome: ano_acao_fiscal,           tipo: inteiro, nulo: false}
+  - {nome: data_decisao,              tipo: data_hora}
+  - {nome: data_inclusao,             tipo: data_hora}
+  - {nome: data_inclusao_ultima,      tipo: data_hora}
+  - {nome: data_atualizacao_cadastro, tipo: data_hora}
+  - {nome: alertas,                   tipo: texto}

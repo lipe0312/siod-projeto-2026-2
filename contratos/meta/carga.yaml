@@ -1,0 +1,23 @@
+tabela: meta.carga
+descricao: "Uma linha por execução de fonte (ResultadoFonte): entrada, saída e situação"
+fonte: pipeline
+chave: [carga_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: carga_id,              tipo: texto, nulo: false}
+  - {nome: fonte,                 tipo: texto, nulo: false}
+  - {nome: tipo_dado,             tipo: texto}
+  - {nome: iniciada_em,           tipo: data_hora, nulo: false}
+  - {nome: status,                tipo: texto, nulo: false}
+  - {nome: mensagem,              tipo: texto}
+  - {nome: url,                   tipo: texto}
+  - {nome: sha256_entrada,        tipo: texto}
+  - {nome: registros_recebidos,   tipo: inteiro}
+  - {nome: registros_produzidos,  tipo: inteiro}
+  - {nome: registros_descartados, tipo: inteiro}
+  - {nome: registros_com_alerta,  tipo: inteiro}
+  - {nome: tabelas_json,          tipo: json}
+  - {nome: entrada_json,          tipo: json}
+  - {nome: saida_json,            tipo: json}
+  - {nome: transformacoes_json,   tipo: json}

@@ -1,0 +1,15 @@
+tabela: cad.imovel
+descricao: "Imóvel atendido: o código do CAR ou, sem ele, a coordenada informada. O polígono fica em geo.imovel_car"
+fonte: cadastro
+chave: [imovel_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: imovel_id,      tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: cod_car,        tipo: texto}
+  - {nome: lat,            tipo: decimal}
+  - {nome: lon,            tipo: decimal}
+  - {nome: nome_area,      tipo: texto}
+  - {nome: commodity,      tipo: texto}
+  - {nome: criado_em,      tipo: data_hora, nulo: false}

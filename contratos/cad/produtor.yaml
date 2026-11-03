@@ -1,0 +1,13 @@
+tabela: cad.produtor
+descricao: "Produtor atendido; identificado pelo código da organização e pelo documento pseudonimizado, nunca pelo CPF (ADR 0002)"
+fonte: cadastro
+chave: [produtor_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: produtor_id,    tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: id_produtor,    tipo: texto, nulo: false}
+  - {nome: documento_hash, tipo: texto}
+  - {nome: tipo_documento, tipo: texto}
+  - {nome: criado_em,      tipo: data_hora, nulo: false}

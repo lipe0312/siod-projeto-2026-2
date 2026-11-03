@@ -1,0 +1,25 @@
+tabela: ref.desmatamento_prodes
+descricao: Desmatamento anual do PRODES por UF; o polígono na divisa entra nas duas UFs (ADR 0013 e 0015)
+fonte: inpe_prodes
+chave: [uuid, uf]
+historico: acrescimo
+particao: uf
+substituir_particao: true
+perfil_banco: completo
+geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674}
+legado: inpe_prodes
+colunas:
+  - {nome: uuid,            tipo: texto, nulo: false}
+  - {nome: bioma,           tipo: texto}
+  - {nome: ano_prodes,      tipo: inteiro}
+  - {nome: data_imagem,     tipo: data_hora}
+  - {nome: uf,              tipo: texto, nulo: false}
+  - {nome: uf_fonte,        tipo: texto}
+  - {nome: data_publicacao, tipo: data_hora}
+  - {nome: classe,          tipo: texto}
+  - {nome: area_km2_fonte,  tipo: decimal}
+  - {nome: area_km2,        tipo: decimal}
+  - {nome: satelite,        tipo: texto}
+  - {nome: sensor,          tipo: texto}
+  - {nome: geometria_wkt,   tipo: geometria}
+  - {nome: alertas,         tipo: texto}

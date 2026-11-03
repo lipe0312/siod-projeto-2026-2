@@ -1,0 +1,15 @@
+tabela: cad.area_producao
+descricao: "Polígono da área de produção (EUDR), quando não é o imóvel inteiro"
+fonte: cadastro
+chave: [area_id]
+historico: registro
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
+colunas:
+  - {nome: area_id,        tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: imovel_id,      tipo: texto, nulo: false}
+  - {nome: commodity,      tipo: texto}
+  - {nome: origem,         tipo: texto}
+  - {nome: criado_em,      tipo: data_hora, nulo: false}
+  - {nome: geometria_wkt,  tipo: geometria, nulo: false}

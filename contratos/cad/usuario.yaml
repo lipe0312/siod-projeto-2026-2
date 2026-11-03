@@ -1,0 +1,14 @@
+tabela: cad.usuario
+descricao: Técnico ou gestor de uma organização; id_externo liga ao provedor de login
+fonte: cadastro
+chave: [usuario_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: usuario_id,     tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: nome,           tipo: texto}
+  - {nome: email,          tipo: texto}
+  - {nome: papel,          tipo: texto, nulo: false}
+  - {nome: id_externo,     tipo: texto}
+  - {nome: criado_em,      tipo: data_hora, nulo: false}

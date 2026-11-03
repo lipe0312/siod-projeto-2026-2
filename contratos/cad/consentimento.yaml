@@ -1,0 +1,14 @@
+tabela: cad.consentimento
+descricao: Consentimento LGPD do produtor para uso do documento e do CAR
+fonte: cadastro
+chave: [consentimento_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: consentimento_id, tipo: texto, nulo: false}
+  - {nome: organizacao_id,   tipo: texto, nulo: false}
+  - {nome: produtor_id,      tipo: texto, nulo: false}
+  - {nome: finalidade,       tipo: texto, nulo: false}
+  - {nome: versao_termo,     tipo: texto, nulo: false}
+  - {nome: concedido_em,     tipo: data_hora, nulo: false}
+  - {nome: revogado_em,      tipo: data_hora}

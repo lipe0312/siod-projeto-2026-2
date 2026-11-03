@@ -1,0 +1,10 @@
+tabela: diag.execucao_carga
+descricao: Carga de cada fonte usada numa execução (reprodutibilidade)
+fonte: pipeline
+chave: [execucao_id, fonte]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: execucao_id, tipo: texto, nulo: false}
+  - {nome: fonte,       tipo: texto, nulo: false}
+  - {nome: carga_id,    tipo: texto}

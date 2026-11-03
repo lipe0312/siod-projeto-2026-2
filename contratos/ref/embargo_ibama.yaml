@@ -1,0 +1,31 @@
+tabela: ref.embargo_ibama
+descricao: "Áreas embargadas do IBAMA, com documento pseudonimizado (ADR 0002 e 0003)"
+fonte: ibama_embargos
+chave: [id_embargo]
+historico: validade
+acompanhar: [situacao, data_desembargo, data_ultima_alteracao, area_ha, documento_hash, geometria_wkt]
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674, perfil_banco: completo}
+legado: ibama_embargos.parquet
+colunas:
+  - {nome: id_embargo,            tipo: texto, nulo: false}
+  - {nome: num_tad,               tipo: texto}
+  - {nome: ser_tad,               tipo: texto}
+  - {nome: seq_tad,               tipo: texto}
+  - {nome: data_embargo,          tipo: data_hora}
+  - {nome: data_ultima_alteracao, tipo: data_hora}
+  - {nome: pos_corte_eudr,        tipo: logico}
+  - {nome: documento_hash,        tipo: texto}
+  - {nome: tipo_documento,        tipo: texto}
+  - {nome: cod_municipio,         tipo: texto}
+  - {nome: municipio,             tipo: texto}
+  - {nome: uf,                    tipo: texto}
+  - {nome: latitude,              tipo: decimal}
+  - {nome: longitude,             tipo: decimal}
+  - {nome: area_ha,               tipo: decimal}
+  - {nome: biomas,                tipo: texto}
+  - {nome: geometria_wkt,         tipo: geometria}
+  - {nome: descricao_infracao,    tipo: texto}
+  - {nome: situacao,              tipo: texto}
+  - {nome: data_desembargo,       tipo: data_hora}
+  - {nome: alertas,               tipo: texto}

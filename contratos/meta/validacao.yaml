@@ -1,0 +1,15 @@
+tabela: meta.validacao
+descricao: "Validações de cada carga (código, severidade, ocorrências)"
+fonte: pipeline
+chave: [carga_id, codigo]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: carga_id,    tipo: texto, nulo: false}
+  - {nome: fonte,       tipo: texto, nulo: false}
+  - {nome: codigo,      tipo: texto, nulo: false}
+  - {nome: descricao,   tipo: texto}
+  - {nome: severidade,  tipo: texto, nulo: false}
+  - {nome: tratamento,  tipo: texto}
+  - {nome: verificados, tipo: inteiro}
+  - {nome: ocorrencias, tipo: inteiro}

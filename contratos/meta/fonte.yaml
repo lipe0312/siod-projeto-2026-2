@@ -1,0 +1,14 @@
+tabela: meta.fonte
+descricao: "Catálogo de fontes, lido de contratos/fontes.yaml"
+fonte: pipeline
+chave: [fonte]
+historico: fotografia
+perfil_banco: lite
+colunas:
+  - {nome: fonte,     tipo: texto, nulo: false}
+  - {nome: orgao,     tipo: texto, nulo: false}
+  - {nome: nome,      tipo: texto, nulo: false}
+  - {nome: tipo_dado, tipo: texto}
+  - {nome: acesso,    tipo: texto}
+  - {nome: ritmo,     tipo: texto}
+  - {nome: tabelas,   tipo: texto}

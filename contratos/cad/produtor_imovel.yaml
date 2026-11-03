@@ -1,0 +1,11 @@
+tabela: cad.produtor_imovel
+descricao: "Vínculo entre produtor e imóvel (proprietário, posseiro, arrendatário)"
+fonte: cadastro
+chave: [produtor_id, imovel_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: produtor_id,    tipo: texto, nulo: false}
+  - {nome: imovel_id,      tipo: texto, nulo: false}
+  - {nome: vinculo,        tipo: texto}

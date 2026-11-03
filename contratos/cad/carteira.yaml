@@ -1,0 +1,14 @@
+tabela: cad.carteira
+descricao: Planilha importada por uma organização
+fonte: cadastro
+chave: [carteira_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: carteira_id,         tipo: texto, nulo: false}
+  - {nome: organizacao_id,      tipo: texto, nulo: false}
+  - {nome: arquivo_origem,      tipo: texto}
+  - {nome: sha256,              tipo: texto}
+  - {nome: importada_em,        tipo: data_hora, nulo: false}
+  - {nome: linhas,              tipo: inteiro}
+  - {nome: linhas_com_problema, tipo: inteiro}

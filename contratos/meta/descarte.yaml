@@ -1,0 +1,12 @@
+tabela: meta.descarte
+descricao: "Registros descartados por carga, com o motivo e o registro original em JSON"
+fonte: pipeline
+chave: [carga_id, registro_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: carga_id,    tipo: texto, nulo: false}
+  - {nome: fonte,       tipo: texto, nulo: false}
+  - {nome: registro_id, tipo: texto, nulo: false}
+  - {nome: motivo,      tipo: texto}
+  - {nome: dados_json,  tipo: json}

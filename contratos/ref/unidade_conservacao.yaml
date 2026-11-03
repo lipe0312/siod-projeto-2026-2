@@ -1,0 +1,21 @@
+tabela: ref.unidade_conservacao
+descricao: Unidades de conservação do CNUC/MMA (critério 9 do AB+S)
+fonte: mma_unidades_conservacao
+chave: [cd_cnuc]
+historico: fotografia
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674}
+legado: mma_unidades_conservacao.parquet
+colunas:
+  - {nome: cd_cnuc,            tipo: texto, nulo: false}
+  - {nome: nome,               tipo: texto}
+  - {nome: categoria,          tipo: texto}
+  - {nome: grupo,              tipo: texto}
+  - {nome: esfera,             tipo: texto}
+  - {nome: uf,                 tipo: texto}
+  - {nome: orgao_gestor,       tipo: texto}
+  - {nome: ano_criacao,        tipo: inteiro}
+  - {nome: qualidade_poligono, tipo: texto}
+  - {nome: so_ponto,           tipo: logico}
+  - {nome: geometria_wkt,      tipo: geometria}
+  - {nome: alertas,            tipo: texto}

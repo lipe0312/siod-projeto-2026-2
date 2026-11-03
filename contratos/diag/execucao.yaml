@@ -1,0 +1,17 @@
+tabela: diag.execucao
+descricao: "Uma rodada do pré-diagnóstico (carteira, demonstração ou consulta avulsa)"
+fonte: pipeline
+chave: [execucao_id]
+historico: registro
+particao: ano_mes
+perfil_banco: lite
+colunas:
+  - {nome: execucao_id,    tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto}
+  - {nome: tipo,           tipo: texto, nulo: false}
+  - {nome: carteira_id,    tipo: texto}
+  - {nome: iniciada_em,    tipo: data_hora, nulo: false}
+  - {nome: terminada_em,   tipo: data_hora}
+  - {nome: comando,        tipo: texto}
+  - {nome: versao_codigo,  tipo: texto}
+  - {nome: ano_mes,        tipo: texto, nulo: false}

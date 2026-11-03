@@ -1,0 +1,27 @@
+tabela: diag.resultado_imovel
+descricao: Resultado geral de um imóvel numa execução
+fonte: pipeline
+chave: [resultado_id]
+historico: registro
+particao: ano_mes
+perfil_banco: lite
+colunas:
+  - {nome: resultado_id,      tipo: texto, nulo: false}
+  - {nome: execucao_id,       tipo: texto, nulo: false}
+  - {nome: organizacao_id,    tipo: texto}
+  - {nome: imovel_id,         tipo: texto}
+  - {nome: cod_imovel,        tipo: texto}
+  - {nome: uf,                tipo: texto}
+  - {nome: cod_municipio,     tipo: texto}
+  - {nome: area_ha,           tipo: decimal}
+  - {nome: situacao,          tipo: texto, nulo: false}
+  - {nome: resumo,            tipo: texto}
+  - {nome: prioridade,        tipo: inteiro}
+  - {nome: n_pendencias,      tipo: inteiro}
+  - {nome: n_indicios,        tipo: inteiro}
+  - {nome: n_inconclusivos,   tipo: inteiro}
+  - {nome: n_nao_verificados, tipo: inteiro}
+  - {nome: n_sem_ocorrencia,  tipo: inteiro}
+  - {nome: gerado_em,         tipo: data_hora, nulo: false}
+  - {nome: ficha,             tipo: texto}
+  - {nome: ano_mes,           tipo: texto, nulo: false}

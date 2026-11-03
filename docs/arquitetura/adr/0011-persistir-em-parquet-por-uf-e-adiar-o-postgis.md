@@ -1,6 +1,6 @@
 # Persistir em Parquet particionado agora e em PostgreSQL com PostGIS depois
 
-Situação: **PostgreSQL com PostGIS adiado**, sem prioridade, por decisão de 30/10/2026. Até lá vale o Parquet particionado por UF, sem custo.
+Situação: **PostgreSQL com PostGIS adiado**, sem prioridade, por decisão de 30/10/2026. Até lá vale o Parquet particionado por UF, sem custo. Complementada pelo [ADR 0017](0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md) (03/11/2026): esquemas, histórico no lago e perfil lite do banco.
 
 ## Context and Problem Statement
 

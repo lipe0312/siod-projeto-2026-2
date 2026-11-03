@@ -1,0 +1,20 @@
+tabela: diag.conferencia_ab_s
+descricao: "Resultado oficial do AB+S ao lado do resultado do pipeline, por critério (ADR 0012)"
+fonte: ab_s
+chave: [conferencia_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: conferencia_id,    tipo: texto, nulo: false}
+  - {nome: organizacao_id,    tipo: texto}
+  - {nome: imovel_id,         tipo: texto}
+  - {nome: cod_imovel,        tipo: texto}
+  - {nome: uuid_relatorio,    tipo: texto, nulo: false}
+  - {nome: endpoint,          tipo: texto}
+  - {nome: consultado_em,     tipo: data_hora, nulo: false}
+  - {nome: status_resposta,   tipo: texto}
+  - {nome: criterio_ab_s,     tipo: inteiro}
+  - {nome: resultado_oficial, tipo: texto}
+  - {nome: resultado_id,      tipo: texto}
+  - {nome: situacao_pipeline, tipo: texto}
+  - {nome: concorda,          tipo: logico}

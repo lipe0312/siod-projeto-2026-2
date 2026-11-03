@@ -1,0 +1,20 @@
+tabela: ref.terra_indigena
+descricao: Terras indígenas da FUNAI (critério 5 do AB+S)
+fonte: funai_terras_indigenas
+chave: [terrai_codigo]
+historico: fotografia
+perfil_banco: lite
+geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
+legado: funai_terras_indigenas.parquet
+colunas:
+  - {nome: terrai_codigo,    tipo: texto, nulo: false}
+  - {nome: nome,             tipo: texto}
+  - {nome: etnia,            tipo: texto}
+  - {nome: fase,             tipo: texto}
+  - {nome: modalidade,       tipo: texto}
+  - {nome: uf,               tipo: texto}
+  - {nome: municipio,        tipo: texto}
+  - {nome: superficie_ha,    tipo: decimal}
+  - {nome: data_atualizacao, tipo: data_hora}
+  - {nome: geometria_wkt,    tipo: geometria}
+  - {nome: alertas,          tipo: texto}

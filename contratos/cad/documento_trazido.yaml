@@ -1,0 +1,13 @@
+tabela: cad.documento_trazido
+descricao: "O que o produtor trouxe: CCIR, código SIGEF, código do relatório AB+S"
+fonte: cadastro
+chave: [documento_id]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: documento_id,   tipo: texto, nulo: false}
+  - {nome: organizacao_id, tipo: texto, nulo: false}
+  - {nome: imovel_id,      tipo: texto, nulo: false}
+  - {nome: tipo,           tipo: texto, nulo: false}
+  - {nome: valor,          tipo: texto, nulo: false}
+  - {nome: informado_em,   tipo: data_hora, nulo: false}

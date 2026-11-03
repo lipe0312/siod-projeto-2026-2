@@ -1,0 +1,12 @@
+tabela: geo.municipio
+descricao: Municípios do IBGE com a chave de nome normalizado
+fonte: ibge_municipios
+chave: [cod_municipio]
+historico: fotografia
+perfil_banco: lite
+legado: ibge_municipios.parquet
+colunas:
+  - {nome: cod_municipio, tipo: texto, nulo: false}
+  - {nome: municipio,     tipo: texto}
+  - {nome: uf,            tipo: texto}
+  - {nome: chave,         tipo: texto}

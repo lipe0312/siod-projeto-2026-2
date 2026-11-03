@@ -1,0 +1,21 @@
+tabela: ref.quilombola_incra
+descricao: "Áreas quilombolas do INCRA, republicadas pelo CMR/FUNAI (ADR 0016)"
+fonte: incra_quilombolas
+chave: [id_incra]
+historico: fotografia
+perfil_banco: completo
+geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
+legado: incra_quilombolas.parquet
+colunas:
+  - {nome: id_incra,         tipo: texto, nulo: false}
+  - {nome: nome,             tipo: texto}
+  - {nome: situacao,         tipo: texto}
+  - {nome: uf,               tipo: texto}
+  - {nome: municipio,        tipo: texto}
+  - {nome: processo,         tipo: texto}
+  - {nome: superintendencia, tipo: texto}
+  - {nome: area_ha,          tipo: decimal}
+  - {nome: data_publicacao,  tipo: data_hora}
+  - {nome: data_cadastro,    tipo: data_hora}
+  - {nome: geometria_wkt,    tipo: geometria}
+  - {nome: alertas,          tipo: texto}
