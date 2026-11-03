@@ -2,6 +2,12 @@
 
 Situação em 02/11/2026. Liga o que já funciona ao que falta para o técnico usar o sistema no dia a dia.
 
+## Nome do produto
+
+**AgroValid** (escolhido em 03/11/2026). "Valid" porque o produto valida cada critério com fonte e data, e porque nunca declara "conforme": o que não tem fonte fica "não verificado". "Agro" no início facilita a busca pelo setor. O nome serve ao pré-diagnóstico e a uma futura consultoria de fazenda (por exemplo, "AgroValid Consultoria").
+
+Checagens feitas em 03/11/2026: `agrovalid.com` e `agrovalid.com.br` sem registro no Verisign e no Registro.br, e nenhuma marca com esse nome em busca aberta na web. Os domínios ainda não foram registrados e a **consulta de marca no INPI não foi feita**. Marca e identidade visual (logo e cores) estão em aberto.
+
 ## 1. Quem usa e para quê
 
 O **cliente** é a cooperativa ou a empresa de assistência técnica rural. O **usuário** é o técnico que acompanha os produtores. O **beneficiário** é o produtor, que precisa de crédito rural (MCR, Seção 2-9) e de vender para comprador sujeito à EUDR (30/12/2026 para empresas grandes e médias).

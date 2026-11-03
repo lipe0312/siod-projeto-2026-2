@@ -4,6 +4,8 @@ Projeto individual da disciplina **Sistemas Inteligentes Orientados a Dados** (I
 
 O objetivo é apoiar a identificação de pendências socioambientais que impedem produtores rurais de acessar crédito rural e de vender para compradores sujeitos à regulação europeia antidesmatamento. O projeto usa apenas dados públicos.
 
+**Nome do produto: AgroValid.** Valida, com fonte e data, se o imóvel de um produtor tem pendência socioambiental. O nome também comporta uma futura linha de consultoria de fazenda. Detalhes em [`docs/visao-do-produto.md`](docs/visao-do-produto.md#nome-do-produto).
+
 ## Problema
 
 **Contexto.** Duas regras deixaram essas pendências mais caras para o produtor:
