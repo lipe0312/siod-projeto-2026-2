@@ -101,7 +101,7 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
     saida, descartados = transformar(vetor.ler_shapefile_zip(destino, base),
                                      vetor.ler_shapefile_zip(destino, base + "_pontos"), resultado)
     lago.gravar("ref.unidade_conservacao", saida, resultado)
-    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.unidade_conservacao")),
+    resultado.saida.update({"arquivo": lago.relativo(lago.pasta("ref.unidade_conservacao")),
                             "registros_produzidos": len(saida), "registros_descartados": len(descartados),
                             "registros_com_alerta": int((saida["alertas"] != "").sum()),
                             "por_grupo": saida["grupo"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA})

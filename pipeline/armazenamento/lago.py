@@ -32,7 +32,7 @@ def pasta(tabela: str) -> Path:
     return config.LAGO / esquema / nome
 
 
-def _relativo(caminho: Path) -> str:
+def relativo(caminho: Path) -> str:
     return str(caminho.relative_to(config.RAIZ)) if caminho.is_relative_to(config.RAIZ) else str(caminho)
 
 
@@ -101,7 +101,7 @@ def _ler_legado(contrato: contratos.Contrato, particao=None, colunas=None) -> pd
         df = pd.read_parquet(caminho, columns=colunas)
     else:
         return None
-    log.warning("[lago] %s ainda não está no lago; lido de %s (legado)", contrato.tabela, _relativo(caminho))
+    log.warning("[lago] %s ainda não está no lago; lido de %s (legado)", contrato.tabela, relativo(caminho))
     return df
 
 
@@ -112,7 +112,7 @@ def ler(tabela: str, vigente: bool = True, particao=None, colunas: list[str] | N
     if df is None:
         df = _ler_legado(contrato, particao, colunas)
     if df is None:
-        raise TabelaAusente(f"{tabela} não está no lago ({_relativo(pasta(tabela))})")
+        raise TabelaAusente(f"{tabela} não está no lago ({relativo(pasta(tabela))})")
     return df
 
 

@@ -78,7 +78,7 @@ def carregar(atualizar: bool = False) -> ResultadoFonte:
     lago.gravar("geo.bioma", biomas, resultado)
     for f in (_ufs, _biomas):
         f.cache_clear()
-    resultado.saida.update({"arquivos": [lago._relativo(lago.pasta("geo.uf")), lago._relativo(lago.pasta("geo.bioma"))],
+    resultado.saida.update({"arquivos": [lago.relativo(lago.pasta("geo.uf")), lago.relativo(lago.pasta("geo.bioma"))],
                             "registros_produzidos": len(ufs) + len(biomas)})
     resultado.status = "ok"
     return resultado

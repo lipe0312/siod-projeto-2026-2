@@ -56,7 +56,7 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
     resultado.entrada["data_referencia"] = config.QUILOMBOLAS_DATA_REFERENCIA
     saida, descartados = transformar(vetor.ler_shapefile_zip(destino, BASE_SHAPEFILE), resultado)
     lago.gravar("ref.quilombola_ibge", saida, resultado)
-    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.quilombola_ibge")),
+    resultado.saida.update({"arquivo": lago.relativo(lago.pasta("ref.quilombola_ibge")),
                             "registros_produzidos": len(saida), "registros_descartados": len(descartados),
                             "registros_com_alerta": int((saida["alertas"] != "").sum()),
                             "por_situacao": saida["situacao"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA})

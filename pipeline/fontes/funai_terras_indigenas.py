@@ -88,7 +88,7 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
                           "completada pelo endereço AIA, com verificação")
     saida, descartados = transformar(resposta, resultado)
     lago.gravar("ref.terra_indigena", saida, resultado)
-    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.terra_indigena")),
+    resultado.saida.update({"arquivo": lago.relativo(lago.pasta("ref.terra_indigena")),
                             "registros_produzidos": len(saida), "registros_descartados": len(descartados),
                             "registros_com_alerta": int((saida["alertas"] != "").sum()),
                             "por_fase": saida["fase"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA})

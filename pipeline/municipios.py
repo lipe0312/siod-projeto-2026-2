@@ -67,7 +67,7 @@ def carregar_referencia(atualizar: bool = False) -> tuple[pd.DataFrame, Resultad
     resultado.entrada["registros_recebidos"] = len(dados) if isinstance(dados, list) else 0
     ref = construir_referencia(dados, resultado)
     lago.gravar("geo.municipio", ref, resultado)
-    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("geo.municipio")), "registros_produzidos": len(ref)})
+    resultado.saida.update({"arquivo": lago.relativo(lago.pasta("geo.municipio")), "registros_produzidos": len(ref)})
     resultado.status = "ok"
     return ref, resultado
 

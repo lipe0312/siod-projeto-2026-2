@@ -194,7 +194,7 @@ def executar(chave: bytes, hoje: pd.Timestamp, atualizar: bool = False) -> Resul
     resultado.entrada["registros_recebidos"] = len(saida) + len(descartados)
     lago.gravar(TABELA, saida, resultado)
     resultado.saida.update({
-        "arquivo": lago._relativo(lago.pasta(TABELA)),
+        "arquivo": lago.relativo(lago.pasta(TABELA)),
         "registros_produzidos": len(saida),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "colunas": list(saida.columns),

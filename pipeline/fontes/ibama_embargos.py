@@ -266,7 +266,7 @@ def executar(chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp, atu
     resumo_descartes = lago.gravar_descartes(descartados, resultado, ["num_tad", "ser_tad", "seq_tad"])
     resultado.saida["tabelas"]["meta.descarte"] = resumo_descartes
     resultado.saida.update({
-        "arquivo": lago._relativo(lago.pasta(TABELA)),
+        "arquivo": lago.relativo(lago.pasta(TABELA)),
         "registros_produzidos": len(saida), "por_situacao": saida["situacao"].value_counts().to_dict(),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "colunas": list(saida.columns),

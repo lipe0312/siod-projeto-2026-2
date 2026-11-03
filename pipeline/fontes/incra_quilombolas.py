@@ -135,11 +135,11 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
     lago.gravar("ref.quilombola_incra", incra, resultado)
     combinada = combinar(incra, ibge, resultado)
     lago.gravar("ref.territorio_quilombola", combinada, resultado)
-    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.quilombola_incra")),
+    resultado.saida.update({"arquivo": lago.relativo(lago.pasta("ref.quilombola_incra")),
                             "registros_produzidos": len(incra), "registros_descartados": len(descartados),
                             "registros_com_alerta": int((incra["alertas"] != "").sum()),
                             "por_situacao": incra["situacao"].value_counts().to_dict(),
-                            "arquivo_combinado": lago._relativo(lago.pasta("ref.territorio_quilombola")),
+                            "arquivo_combinado": lago.relativo(lago.pasta("ref.territorio_quilombola")),
                             "combinado_por_base": combinada["base"].value_counts().to_dict(),
                             "colunas": COLUNAS_INCRA})
     resultado.status = "ok"
