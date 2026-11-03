@@ -9,6 +9,10 @@ LOGS = RAIZ / "data" / "logs"
 # Lago: dado tratado por esquema e tabela, com histórico (ADR 0017); contratos de cada tabela em contratos/.
 LAGO = RAIZ / "data" / "lago"
 CONTRATOS = RAIZ / "contratos"
+# Arquivos intermediários de uma fonte (peças antes da partição final); não são lidos por mais ninguém.
+TRABALHO = RAIZ / "data" / "trabalho"
+# Saídas para pessoas (HTML e Markdown das fichas e das carteiras).
+SAIDAS = RAIZ / "data" / "saidas"
 
 CHAVE_ENV = "SIOD_CHAVE_PSEUDONIMIZACAO"
 CHAVE_ARQUIVO = RAIZ / "data" / "chave_pseudonimizacao"
