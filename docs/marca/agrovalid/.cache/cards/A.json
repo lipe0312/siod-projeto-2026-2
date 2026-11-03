@@ -1,0 +1,11 @@
+[
+ {
+  "id": "i18n.missing",
+  "component": "card",
+  "severity": "warn",
+  "measured": 41,
+  "threshold": 0,
+  "message": "no pt translation of the tool text; 41 label(s) shown in English",
+  "suggested_fix": "translate assets/i18n/en.json (keep keys and {placeholders}) to pt and save it as <work>/i18n.json with \"_lang\": \"pt\", then re-run"
+ }
+]

@@ -1,0 +1,319 @@
+{
+  "schema": "brand-identity/identity@1",
+  "brand": {
+    "name": "AgroValid",
+    "tagline": "Cada critério com fonte e data.",
+    "languages": [
+      "pt"
+    ],
+    "doc_lang": "pt",
+    "sector": "pré-diagnóstico socioambiental para crédito rural e EUDR",
+    "numbers": true,
+    "copy": {
+      "sentence": {
+        "pt": "Quais produtores da carteira atendo primeiro, qual pendência trato em cada um e com qual evidência."
+      },
+      "nav": [
+        "Carteira",
+        "Ficha do imóvel",
+        "Mudanças do mês"
+      ],
+      "cta": "Enviar planilha"
+    }
+  },
+  "set": {
+    "id": "B",
+    "name": "Grão",
+    "recommended": false,
+    "mechanism": "O grão de soja visto de cima: uma elipse cheia com o AV vazado e o hilo como traço, tipo humanista e paleta de cerrado e palha.",
+    "expression_move": "O AV vazado no grão: a marca é uma única forma cheia.",
+    "differs_by": "Verde oliva de cerrado em vez do verde folha; a palha aparece só como cor de apoio, nunca como fundo creme."
+  },
+  "axes": {
+    "warm_cool": -2,
+    "classic_contemporary": 0,
+    "quiet_loud": 0,
+    "friend_authority": -1
+  },
+  "components": {
+    "logo": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    },
+    "type": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    },
+    "palette": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    }
+  },
+  "type": {
+    "pairing_mode": "single-family",
+    "display": {
+      "family": "Fira Sans",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+        600
+      ],
+      "location": {
+        "wght": 600
+      },
+      "features": [],
+      "case": "as-is",
+      "tracking": -5,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+    },
+    "text": {
+      "family": "Fira Sans",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+        400,
+        600
+      ],
+      "location": {
+        "wght": 400
+      },
+      "features": [
+        "tnum"
+      ],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+    },
+    "mono": null
+  },
+  "logo": {
+    "type": "symbol+wordmark",
+    "concept": "Um grão de soja com o AV vazado: a commodity de mais volume na EUDR vira o recipiente da sigla.",
+    "symbol": "logo/symbol.svg",
+    "wordmark": {
+      "text": "AgroValid",
+      "role": "display",
+      "location": null,
+      "tracking": -5,
+      "case": "as-is"
+    },
+    "monogram": null,
+    "lockups": [
+      "horizontal",
+      "stacked"
+    ],
+    "colors": {
+      "grao": "primary",
+      "wordmark": "text"
+    },
+    "tags": [
+      "letterform",
+      "negative-space",
+      "literal-object"
+    ],
+    "clear_space": {
+      "unit": "cap-height",
+      "multiple": 1,
+      "inferred": true
+    },
+    "min_size": {
+      "px": 16,
+      "mm": 6
+    },
+    "defect": "em 16 px o vazado do AV entupia e o hilo lia como sublinhado"
+  },
+  "palette": "palette.json",
+  "defaults_used": [
+    {
+      "id": "negative-space",
+      "why": "O usuário pediu AV combinado a grão de soja; o vazado é a forma mais limpa de juntar os dois em 16 px."
+    },
+    {
+      "id": "literal-object",
+      "why": "Pedido do briefing (ícone de commodity). A soja é uma das commodities da EUDR citadas no README."
+    },
+    {
+      "id": "gold-brass-accent",
+      "why": "O briefing pede palha e grão; a palha fica como cor de apoio em áreas, nunca como texto nem como fundo creme."
+    }
+  ],
+  "rationale": [
+    {
+      "claim": "Oliva de cerrado (matiz amarelado, croma baixo) separa a marca do verde folha saturado.",
+      "evidence": "judgement",
+      "source": "briefing"
+    },
+    {
+      "claim": "Cores de situação (pendência, inconclusivo, indício, sem pendência, não verificado) são definidas e medidas à parte, em docs/marca/status.json.",
+      "evidence": "measured",
+      "source": "status.json"
+    }
+  ],
+  "derived": [
+    {
+      "file": "card.png",
+      "requires": [
+        "logo",
+        "type",
+        "palette"
+      ],
+      "inputs_sha256": "1c5b55e0834ca3b2622c0f8bac453cf4a6382ae39fe262025ccc4b44339e34ab"
+    }
+  ],
+  "audit": {
+    "schema": "brand-identity/audit@1",
+    "passed": true,
+    "counts": {
+      "gate": 0,
+      "warn": 3,
+      "info": 5
+    },
+    "findings": [
+      {
+        "id": "palette.contrast.light.accent-on-background",
+        "component": "palette",
+        "severity": "warn",
+        "measured": 2.59,
+        "threshold": 3.0,
+        "message": "light: accent #c79a3a on background #ffffff is 2.59:1, below 3.0:1 (accent fill against the page (needs a label or border if lower); WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.light.accent",
+          "from": "#c79a3a",
+          "to": "#ab7924",
+          "how": "use accent-600 (same scale)",
+          "ratio_after": 3.82
+        },
+        "roles": [
+          "light.accent",
+          "light.background"
+        ]
+      },
+      {
+        "id": "palette.contrast.light.border-on-background",
+        "component": "palette",
+        "severity": "info",
+        "measured": 1.25,
+        "threshold": 3.0,
+        "message": "light: border #e6e6e4 on background #ffffff is 1.25:1, below 3.0:1 (borders: dividers are exempt, input outlines need 3:1; WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.light.border",
+          "from": "#e6e6e4",
+          "to": "#72746e",
+          "how": "use neutral-500 (same scale)",
+          "ratio_after": 4.73
+        },
+        "roles": [
+          "light.border",
+          "light.background"
+        ]
+      },
+      {
+        "id": "palette.contrast.dark.border-on-background",
+        "component": "palette",
+        "severity": "info",
+        "measured": 1.88,
+        "threshold": 3.0,
+        "message": "dark: border #40423c on background #0f100c is 1.88:1, below 3.0:1 (borders: dividers are exempt, input outlines need 3:1; WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.dark.border",
+          "from": "#40423c",
+          "to": "#72746e",
+          "how": "use neutral-500 (same scale)",
+          "ratio_after": 4.04
+        },
+        "roles": [
+          "dark.border",
+          "dark.background"
+        ]
+      },
+      {
+        "id": "palette.structure.lightness-range",
+        "component": "palette",
+        "severity": "info",
+        "measured": [
+          33.0,
+          66.2
+        ],
+        "threshold": [
+          30,
+          85
+        ],
+        "message": "no brand/action colour is very light (L* >= 85) and none is very dark (L* <= 30); the neutrals carry the extremes, which is fine for most identities",
+        "suggested_fix": null,
+        "roles": [
+          "brand",
+          "light.primary",
+          "light.accent"
+        ]
+      },
+      {
+        "id": "type.display+text.web-weight",
+        "component": "type",
+        "severity": "info",
+        "measured": 25,
+        "threshold": null,
+        "message": "Fira Sans: ~25 KB WOFF2 for the brief's characters (per weight file; estimate)",
+        "suggested_fix": null
+      },
+      {
+        "id": "logo.thin-feature",
+        "component": "logo",
+        "severity": "info",
+        "measured": {
+          "stroke_px2": 0.68,
+          "gap_px2": 2.42
+        },
+        "threshold": ">= 1 px = 6.2 units (heuristic, uncalibrated)",
+        "message": "symbol at 16 px (min size): strokes/gaps thinner than 1 px (lost 0.68 px², clogged 2.42 px²); symbol-small.svg covers small sizes",
+        "suggested_fix": "add symbol_small_svg for small sizes, or raise logo.min_size.px (or thicken the thin part / widen the gap)"
+      },
+      {
+        "id": "logo.small-size",
+        "component": "logo",
+        "severity": "warn",
+        "measured": {
+          "stroke_px2": 0.6,
+          "gap_px2": 0.12
+        },
+        "threshold": "1 px (raster erosion test, heuristic, uncalibrated)",
+        "message": "symbol-small at 16 px: features narrower than 1 px (lost 0.6 px², clogged 0.12 px²)",
+        "suggested_fix": "add or simplify symbol-small.svg: fewer, bolder parts"
+      },
+      {
+        "id": "i18n.missing",
+        "component": "card",
+        "severity": "warn",
+        "measured": 38,
+        "threshold": 0,
+        "message": "no pt translation of the tool text; 38 label(s) shown in English",
+        "suggested_fix": "translate assets/i18n/en.json (keep keys and {placeholders}) to pt and save it as <work>/i18n.json with \"_lang\": \"pt\", then re-run"
+      }
+    ],
+    "defaults": {
+      "matched": [
+        "gold-brass-accent",
+        "logo-literal-object",
+        "logo-negative-space"
+      ]
+    }
+  },
+  "palette_build": {
+    "strategy": null,
+    "accent": "#c79a3a",
+    "light_bg": "white",
+    "dark_bg": null,
+    "neutral_tint": "primary",
+    "neutral_chroma": 0.018,
+    "extra": [
+      "#6e4a2c:Couro:apoio, gráficos"
+    ]
+  }
+}

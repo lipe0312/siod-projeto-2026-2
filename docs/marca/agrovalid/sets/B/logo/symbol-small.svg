@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<ellipse id="grao" cx="50" cy="50" rx="49" ry="42" data-color="primary"/>
+<path id="av" data-glyphs="AV" data-x="50" data-baseline="72" data-cap="46" data-anchor="middle" data-op="subtract"/>
+</svg>

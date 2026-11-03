@@ -1,0 +1,107 @@
+{
+ "units": "symbol grid 0..100; index = position in data-glyphs (1-based)",
+ "symbol": [
+  {
+   "id": "av",
+   "text": "AV",
+   "location": {
+    "wght": 700,
+    "wdth": 88
+   },
+   "glyphs": [
+    {
+     "index": 1,
+     "char": "A",
+     "x0": 5.79,
+     "x1": 52.22,
+     "cap_top": 10.0,
+     "baseline": 60.0,
+     "stems": [
+      [
+       12.15,
+       22.35
+      ],
+      [
+       35.22,
+       45.83
+      ]
+     ],
+     "pen_x": 5.49,
+     "advance": 44.4
+    },
+    {
+     "index": 2,
+     "char": "V",
+     "x0": 50.69,
+     "x1": 94.21,
+     "cap_top": 10.0,
+     "baseline": 60.0,
+     "stems": [
+      [
+       60.2,
+       70.72
+      ],
+      [
+       74.65,
+       84.7
+      ]
+     ],
+     "pen_x": 49.89,
+     "advance": 45.12
+    }
+   ]
+  }
+ ],
+ "symbol-small": [
+  {
+   "id": "av",
+   "text": "AV",
+   "location": {
+    "wght": 700,
+    "wdth": 88
+   },
+   "glyphs": [
+    {
+     "index": 1,
+     "char": "A",
+     "x0": -8.36,
+     "x1": 52.93,
+     "cap_top": 2.0,
+     "baseline": 68.0,
+     "stems": [
+      [
+       0.04,
+       13.5
+      ],
+      [
+       30.49,
+       44.49
+      ]
+     ],
+     "pen_x": -8.75,
+     "advance": 58.6
+    },
+    {
+     "index": 2,
+     "char": "V",
+     "x0": 50.91,
+     "x1": 108.36,
+     "cap_top": 2.0,
+     "baseline": 68.0,
+     "stems": [
+      [
+       63.47,
+       77.36
+      ],
+      [
+       82.53,
+       95.81
+      ]
+     ],
+     "pen_x": 49.86,
+     "advance": 59.56
+    }
+   ]
+  }
+ ]
+}

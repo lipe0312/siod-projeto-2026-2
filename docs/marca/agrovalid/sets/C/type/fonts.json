@@ -1,0 +1,27 @@
+{
+  "display": {
+    "family": "Zilla Slab",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/google/ofl/zillaslab/ZillaSlab-Bold.ttf",
+    "location": {
+      "wght": 700
+    },
+    "weights": [
+      700
+    ],
+    "features": []
+  },
+  "text": {
+    "family": "Source Sans 3",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/instances/SourceSans3-14fc1abeb9ba9741.ttf",
+    "location": {
+      "wght": 400
+    },
+    "weights": [
+      400,
+      600
+    ],
+    "features": [
+      "tnum"
+    ]
+  }
+}

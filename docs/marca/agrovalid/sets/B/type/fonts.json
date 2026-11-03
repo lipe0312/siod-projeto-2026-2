@@ -1,0 +1,27 @@
+{
+  "display": {
+    "family": "Fira Sans",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/google/ofl/firasans/FiraSans-SemiBold.ttf",
+    "location": {
+      "wght": 600
+    },
+    "weights": [
+      600
+    ],
+    "features": []
+  },
+  "text": {
+    "family": "Fira Sans",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/google/ofl/firasans/FiraSans-Regular.ttf",
+    "location": {
+      "wght": 400
+    },
+    "weights": [
+      400,
+      600
+    ],
+    "features": [
+      "tnum"
+    ]
+  }
+}

@@ -1,0 +1,599 @@
+{
+  "schema": "brand-identity/logo-build@1",
+  "set": "A",
+  "type": "symbol+wordmark",
+  "font": {
+    "path": "/Users/mainfilipe/.cache/brand-identity/fonts/instances/Archivo-71457a6720f50551.ttf",
+    "role": "display",
+    "location": {
+      "wght": 700,
+      "wdth": 88
+    },
+    "license": "OFL-1.1",
+    "family": "Archivo"
+  },
+  "masters": {
+    "symbol": "master-symbol.svg",
+    "symbol-small": "master-symbol-small.svg",
+    "wordmark": "master-wordmark.svg",
+    "lockup-horizontal": "master-lockup-horizontal.svg",
+    "lockup-stacked": "master-lockup-stacked.svg",
+    "primary": "master-primary.svg"
+  },
+  "versions": {
+    "full-color": {
+      "svg": "full-color.svg",
+      "png": "full-color.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 5176.39
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#843729",
+          "area": 2745.51
+        },
+        {
+          "role": "text",
+          "ids": [
+            "wordmark"
+          ],
+          "hex": "#171e19",
+          "area": 30234.28
+        }
+      ]
+    },
+    "full-color-dark": {
+      "svg": "full-color-dark.svg",
+      "png": "full-color-dark.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "dark",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#7fa68d",
+          "area": 5176.39
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#d77b69",
+          "area": 2745.51
+        },
+        {
+          "role": "text",
+          "ids": [
+            "wordmark"
+          ],
+          "hex": "#f1f4f2",
+          "area": 30234.28
+        }
+      ]
+    },
+    "one-color-dark": {
+      "svg": "one-color-dark.svg",
+      "png": "one-color-dark.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1",
+            "nivel-2",
+            "wordmark"
+          ],
+          "hex": "#171e19",
+          "area": 38156.18
+        }
+      ]
+    },
+    "one-color-light": {
+      "svg": "one-color-light.svg",
+      "png": "one-color-light.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "dark",
+      "ground": null,
+      "ground_role": null,
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1",
+            "nivel-2",
+            "wordmark"
+          ],
+          "hex": "#f1f4f2",
+          "area": 37229.38
+        }
+      ]
+    },
+    "on-light-background": {
+      "svg": "on-light-background.svg",
+      "png": "on-light-background.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "light",
+      "ground": "#eef0ec",
+      "ground_role": "background",
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 5176.39
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#843729",
+          "area": 2745.51
+        },
+        {
+          "role": "text",
+          "ids": [
+            "wordmark"
+          ],
+          "hex": "#171e19",
+          "area": 30234.28
+        }
+      ]
+    },
+    "on-dark-background": {
+      "svg": "on-dark-background.svg",
+      "png": "on-dark-background.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "dark",
+      "ground": "#0b110d",
+      "ground_role": "background",
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#7fa68d",
+          "area": 4619.07
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#d77b69",
+          "area": 2376.03
+        },
+        {
+          "role": "text",
+          "ids": [
+            "wordmark"
+          ],
+          "hex": "#f1f4f2",
+          "area": 30234.28
+        }
+      ]
+    },
+    "on-light-primary": {
+      "svg": "on-light-primary.svg",
+      "png": "on-light-primary.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "light",
+      "ground": "#143321",
+      "ground_role": "primary",
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1",
+            "nivel-2",
+            "wordmark"
+          ],
+          "hex": "#ffffff",
+          "area": 38156.18
+        }
+      ]
+    },
+    "on-light-accent": {
+      "svg": "on-light-accent.svg",
+      "png": "on-light-accent.png",
+      "size": [
+        1024,
+        352
+      ],
+      "mode": "light",
+      "ground": "#843729",
+      "ground_role": "accent",
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1",
+            "nivel-2",
+            "wordmark"
+          ],
+          "hex": "#ffffff",
+          "area": 38156.18
+        }
+      ]
+    },
+    "symbol-only": {
+      "svg": "symbol-only.svg",
+      "png": "symbol-only.png",
+      "size": [
+        1024,
+        959
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 2120.24
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#843729",
+          "area": 1124.56
+        }
+      ]
+    },
+    "favicon-16": {
+      "svg": "favicon-16.svg",
+      "png": "favicon-16.png",
+      "size": [
+        16,
+        16
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 3694.27
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1"
+          ],
+          "hex": "#843729",
+          "area": 1301.98
+        }
+      ]
+    },
+    "favicon-32": {
+      "svg": "favicon-32.svg",
+      "png": "favicon-32.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 3694.27
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1"
+          ],
+          "hex": "#843729",
+          "area": 1301.98
+        }
+      ]
+    },
+    "favicon-48": {
+      "svg": "favicon-48.svg",
+      "png": "favicon-48.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": false,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av"
+          ],
+          "hex": "#143321",
+          "area": 3694.27
+        },
+        {
+          "role": "accent",
+          "ids": [
+            "nivel-1"
+          ],
+          "hex": "#843729",
+          "area": 1301.98
+        }
+      ]
+    },
+    "small-16-one-color-dark": {
+      "svg": "small-16-one-color-dark.svg",
+      "png": "small-16-one-color-dark.png",
+      "size": [
+        16,
+        16
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1"
+          ],
+          "hex": "#171e19",
+          "area": 4996.25
+        }
+      ]
+    },
+    "small-16-one-color-light": {
+      "svg": "small-16-one-color-light.svg",
+      "png": "small-16-one-color-light.png",
+      "size": [
+        16,
+        16
+      ],
+      "mode": "dark",
+      "ground": "#0b110d",
+      "ground_role": "background",
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1"
+          ],
+          "hex": "#f1f4f2",
+          "area": 4457.34
+        }
+      ]
+    },
+    "small-32-one-color-dark": {
+      "svg": "small-32-one-color-dark.svg",
+      "png": "small-32-one-color-dark.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "light",
+      "ground": null,
+      "ground_role": null,
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1"
+          ],
+          "hex": "#171e19",
+          "area": 4996.25
+        }
+      ]
+    },
+    "small-32-one-color-light": {
+      "svg": "small-32-one-color-light.svg",
+      "png": "small-32-one-color-light.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "dark",
+      "ground": "#0b110d",
+      "ground_role": "background",
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1"
+          ],
+          "hex": "#f1f4f2",
+          "area": 4457.34
+        }
+      ]
+    },
+    "app-icon-512": {
+      "svg": "app-icon-512.svg",
+      "png": "app-icon-512.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "light",
+      "ground": "#143321",
+      "ground_role": "primary",
+      "one_color": true,
+      "device": null,
+      "parts": [
+        {
+          "role": "primary",
+          "ids": [
+            "av",
+            "nivel-1",
+            "nivel-2"
+          ],
+          "hex": "#ffffff",
+          "area": 3244.8
+        }
+      ]
+    }
+  },
+  "small": {},
+  "sources": {
+    "symbol": {
+      "sha256": "2caa17016942d1f96db3d4a964202d61097ae848e17c369722eb034bf32ec479"
+    },
+    "symbol_small": {
+      "sha256": "e3400536681cd29cb0588f760dde07ee5d07088e71af2af72e66a22a9773e558"
+    }
+  },
+  "optics": {
+    "cap_height": 687.0,
+    "x_height": 527.0,
+    "upm": 1000,
+    "overshoot_top": 0.0175,
+    "overshoot_bottom": 0.0175,
+    "x_overshoot_top": 0.0228,
+    "stem": 20.961,
+    "crossbar": 17.758,
+    "crossbar_stem_ratio": 0.847
+  },
+  "glyphs": {
+    "wordmark": "wordmark-glyphs.json",
+    "small": "small-glyphs.json"
+  },
+  "primary": "lockup-horizontal",
+  "anchors": {
+    "symbol": 47,
+    "symbol-small": 42
+  },
+  "clear_space": {
+    "unit": "cap-height",
+    "multiple": 1.0,
+    "units": 100.0
+  },
+  "grounds": [
+    {
+      "mode": "light",
+      "ground": "background",
+      "on": "full colour"
+    },
+    {
+      "mode": "dark",
+      "ground": "background",
+      "on": "full colour"
+    },
+    {
+      "mode": "light",
+      "ground": "primary",
+      "on": "onPrimary"
+    },
+    {
+      "mode": "light",
+      "ground": "accent",
+      "on": "onAccent"
+    }
+  ],
+  "favicon_source": "symbol-small.svg",
+  "app_icon": {
+    "tile": "primary",
+    "mark": "onPrimary",
+    "content": 0.58,
+    "optical_lift": 0.015,
+    "source": "default"
+  }
+}

@@ -1,0 +1,317 @@
+{
+  "schema": "brand-identity/identity@1",
+  "brand": {
+    "name": "AgroValid",
+    "tagline": "Cada critério com fonte e data.",
+    "languages": [
+      "pt"
+    ],
+    "doc_lang": "pt",
+    "sector": "pré-diagnóstico socioambiental para crédito rural e EUDR",
+    "numbers": true,
+    "copy": {
+      "sentence": {
+        "pt": "Quais produtores da carteira atendo primeiro, qual pendência trato em cada um e com qual evidência."
+      },
+      "nav": [
+        "Carteira",
+        "Ficha do imóvel",
+        "Mudanças do mês"
+      ],
+      "cta": "Enviar planilha"
+    }
+  },
+  "set": {
+    "id": "C",
+    "name": "Marca de ferro",
+    "recommended": false,
+    "mechanism": "A marca de ferro do gado: AV monolinear de traço grosso, em que o V nasce na base e passa das pernas do A como chifres curtos; serifa grossa no nome e couro e brasa sobre fundo escuro.",
+    "expression_move": "O fundo escuro de couro curtido: a marca vive em superfície escura.",
+    "differs_by": "A única direção escura e pecuária; lê como ofício de fazenda, longe do visual de app."
+  },
+  "axes": {
+    "warm_cool": -1,
+    "classic_contemporary": -2,
+    "quiet_loud": 1,
+    "friend_authority": 2
+  },
+  "components": {
+    "logo": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    },
+    "type": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    },
+    "palette": {
+      "mode": "new",
+      "status": "proposed",
+      "source": null,
+      "sha256": null
+    }
+  },
+  "type": {
+    "pairing_mode": "contrast",
+    "display": {
+      "family": "Zilla Slab",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+        700
+      ],
+      "location": {},
+      "features": [],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "Rockwell, Georgia, serif",
+      "file": null
+    },
+    "text": {
+      "family": "Source Sans 3",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+        400,
+        600
+      ],
+      "location": {
+        "wght": 400
+      },
+      "features": [
+        "tnum"
+      ],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+    },
+    "mono": null
+  },
+  "logo": {
+    "type": "symbol+wordmark",
+    "concept": "O AV como marca de ferro: as pontas do V passam das pernas do A como chifres de boi.",
+    "symbol": "logo/symbol.svg",
+    "wordmark": {
+      "text": "AgroValid",
+      "role": "display",
+      "location": null,
+      "tracking": 0,
+      "case": "as-is"
+    },
+    "monogram": null,
+    "lockups": [
+      "horizontal",
+      "stacked"
+    ],
+    "colors": {
+      "ferro": "primary",
+      "wordmark": "text"
+    },
+    "tags": [
+      "letterform"
+    ],
+    "clear_space": {
+      "unit": "cap-height",
+      "multiple": 1,
+      "inferred": true
+    },
+    "min_size": {
+      "px": 16,
+      "mm": 6
+    },
+    "defect": "o V cruzava alto e a marca lia como estrela"
+  },
+  "palette": "palette.json",
+  "defaults_used": [
+    {
+      "id": "terracotta-clay",
+      "why": "A brasa é a cor do ferro de marcar em brasa, o material do conceito; o briefing pede couro e um acento de alerta."
+    },
+    {
+      "id": "gold-brass-accent",
+      "why": "Palha pedida no briefing; aqui só como texto de destaque sobre o fundo escuro."
+    }
+  ],
+  "rationale": [
+    {
+      "claim": "Couro e brasa vêm do briefing (couro, acento de alerta); o fundo escuro é escolha de estratégia, não de tendência.",
+      "evidence": "judgement",
+      "source": "briefing"
+    },
+    {
+      "claim": "Cores de situação (pendência, inconclusivo, indício, sem pendência, não verificado) são definidas e medidas à parte, em docs/marca/status.json.",
+      "evidence": "measured",
+      "source": "status.json"
+    }
+  ],
+  "derived": [
+    {
+      "file": "card.png",
+      "requires": [
+        "logo",
+        "type",
+        "palette"
+      ],
+      "inputs_sha256": "f3111588b9b217efda45833879a3577312b0879d65815374a2708009d9ba2ce8"
+    }
+  ],
+  "audit": {
+    "schema": "brand-identity/audit@1",
+    "passed": true,
+    "counts": {
+      "gate": 0,
+      "warn": 2,
+      "info": 7
+    },
+    "findings": [
+      {
+        "id": "palette.extended.ui.light.ext-1",
+        "component": "palette",
+        "severity": "warn",
+        "measured": 1.82,
+        "threshold": 3.0,
+        "message": "light: ext-1 #d9bd7e is 1.82:1 on the light background #ffffff; as a stripe, chart series or thin line it needs 3:1 (WCAG 1.4.11)",
+        "suggested_fix": {
+          "change": "extended.ext-1",
+          "from": "#d9bd7e",
+          "to": "#b08e5b",
+          "how": "use ext-1-500 for stripes, chart series and thin lines"
+        },
+        "roles": [
+          "ext-1"
+        ]
+      },
+      {
+        "id": "palette.contrast.light.border-on-background",
+        "component": "palette",
+        "severity": "info",
+        "measured": 1.25,
+        "threshold": 3.0,
+        "message": "light: border #e9e5e4 on background #ffffff is 1.25:1, below 3.0:1 (borders: dividers are exempt, input outlines need 3:1; WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.light.border",
+          "from": "#e9e5e4",
+          "to": "#7b706b",
+          "how": "use neutral-500 (same scale)",
+          "ratio_after": 4.8
+        },
+        "roles": [
+          "light.border",
+          "light.background"
+        ]
+      },
+      {
+        "id": "palette.contrast.dark.link-on-text",
+        "component": "palette",
+        "severity": "info",
+        "measured": 2.72,
+        "threshold": 3.0,
+        "message": "dark: link #bc896e on text #f5f2f1 is 2.72:1, below 3.0:1 (underline links in dark mode (WCAG G183: without underline a link needs 3:1 against body text); WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.dark.link",
+          "from": "#bc896e",
+          "to": "#9d6d53",
+          "how": "use primary-600 (same scale)",
+          "ratio_after": 3.97
+        },
+        "roles": [
+          "dark.link",
+          "dark.text"
+        ]
+      },
+      {
+        "id": "palette.contrast.dark.border-on-background",
+        "component": "palette",
+        "severity": "info",
+        "measured": 2.38,
+        "threshold": 3.0,
+        "message": "dark: border #5e534d on background #1d1714 is 2.38:1, below 3.0:1 (borders: dividers are exempt, input outlines need 3:1; WCAG 2, no rounding)",
+        "suggested_fix": {
+          "change": "modes.dark.border",
+          "from": "#5e534d",
+          "to": "#7b706b",
+          "how": "use neutral-500 (same scale)",
+          "ratio_after": 3.69
+        },
+        "roles": [
+          "dark.border",
+          "dark.background"
+        ]
+      },
+      {
+        "id": "palette.harmony.primary-accent",
+        "component": "palette",
+        "severity": "info",
+        "measured": -0.46,
+        "threshold": -0.3,
+        "message": "Ou-Luo two-colour model scores #5c3621 + #ae4d15 at -0.46 (negative = less harmonious on a grey CRT test, no context): model signal only; the pairing table in references/pairing.md takes precedence",
+        "suggested_fix": null,
+        "roles": [
+          "light.primary",
+          "light.accent"
+        ]
+      },
+      {
+        "id": "type.display.coverage.gf-latin-core",
+        "component": "type",
+        "severity": "info",
+        "measured": "304/319",
+        "threshold": "GF Latin Core",
+        "message": "Zilla Slab misses 15/319 GF Latin Core codepoints (reach beyond the brief's languages)",
+        "suggested_fix": "matters only if the brand may add more Latin-script languages"
+      },
+      {
+        "id": "type.display.web-weight",
+        "component": "type",
+        "severity": "info",
+        "measured": 33,
+        "threshold": null,
+        "message": "Zilla Slab: ~33 KB WOFF2 for the brief's characters (per weight file; estimate)",
+        "suggested_fix": null
+      },
+      {
+        "id": "type.text.web-weight",
+        "component": "type",
+        "severity": "info",
+        "measured": 40,
+        "threshold": null,
+        "message": "Source Sans 3: ~40 KB WOFF2 for the brief's characters (one variable file, all weights; estimate)",
+        "suggested_fix": null
+      },
+      {
+        "id": "i18n.missing",
+        "component": "card",
+        "severity": "warn",
+        "measured": 38,
+        "threshold": 0,
+        "message": "no pt translation of the tool text; 38 label(s) shown in English",
+        "suggested_fix": "translate assets/i18n/en.json (keep keys and {placeholders}) to pt and save it as <work>/i18n.json with \"_lang\": \"pt\", then re-run"
+      }
+    ],
+    "defaults": {
+      "matched": [
+        "terracotta-clay",
+        "gold-brass-accent"
+      ]
+    }
+  },
+  "palette_build": {
+    "strategy": null,
+    "accent": "#d0632a",
+    "light_bg": "white",
+    "dark_bg": "#1d1714",
+    "neutral_tint": "primary",
+    "neutral_chroma": 0.02,
+    "extra": [
+      "#d9bd7e:Palha:texto de destaque no escuro"
+    ]
+  },
+  "card": {
+    "ground": "dark"
+  }
+}

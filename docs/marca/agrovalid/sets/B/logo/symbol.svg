@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<ellipse id="grao" cx="50" cy="50" rx="47" ry="38" data-color="primary"/>
+<path id="av" data-glyphs="AV" data-x="50" data-baseline="66" data-cap="34" data-anchor="middle" data-op="subtract"/>
+<rect id="hilo" x="40" y="74" width="20" height="5" rx="2.5" data-op="subtract"/>
+</svg>

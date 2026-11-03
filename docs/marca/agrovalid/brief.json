@@ -1,0 +1,39 @@
+{
+  "schema": "brand-identity/brief@1",
+  "brand": "AgroValid",
+  "tagline": "Cada critério com fonte e data.",
+  "site": null,
+  "languages": [
+    "pt"
+  ],
+  "doc_lang": "pt",
+  "numbers": true,
+  "components": {
+    "logo": "new",
+    "type": "new",
+    "palette": "new"
+  },
+  "sources": {},
+  "sets": 3,
+  "sector": "pré-diagnóstico socioambiental para crédito rural e EUDR",
+  "audience": "técnicos de cooperativa e de assistência técnica rural",
+  "attributes": [
+    "sóbrio",
+    "confiável",
+    "técnico",
+    "raiz no campo"
+  ],
+  "competitors": [],
+  "axes": [],
+  "copy": {
+    "sentence": {
+      "pt": "Quais produtores da carteira atendo primeiro, qual pendência trato em cada um e com qual evidência."
+    },
+    "nav": [
+      "Carteira",
+      "Ficha do imóvel",
+      "Mudanças do mês"
+    ],
+    "cta": "Enviar planilha"
+  }
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<path id="av" data-glyphs="AV" data-x="50" data-baseline="60" data-cap="50" data-anchor="middle" data-color="primary"/>
+<rect id="nivel-1" x="6" y="68" width="88" height="8" rx="4" data-color="accent"/>
+<rect id="nivel-2" x="22" y="82" width="56" height="8" rx="4" data-color="accent"/>
+</svg>

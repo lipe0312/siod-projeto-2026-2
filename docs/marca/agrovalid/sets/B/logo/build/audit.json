@@ -1,0 +1,29 @@
+{
+  "schema": "brand-identity/audit@1",
+  "findings": [
+    {
+      "id": "logo.thin-feature",
+      "component": "logo",
+      "severity": "info",
+      "measured": {
+        "stroke_px2": 0.68,
+        "gap_px2": 2.42
+      },
+      "threshold": ">= 1 px = 6.2 units (heuristic, uncalibrated)",
+      "message": "symbol at 16 px (min size): strokes/gaps thinner than 1 px (lost 0.68 px², clogged 2.42 px²); symbol-small.svg covers small sizes",
+      "suggested_fix": "add symbol_small_svg for small sizes, or raise logo.min_size.px (or thicken the thin part / widen the gap)"
+    },
+    {
+      "id": "logo.small-size",
+      "component": "logo",
+      "severity": "warn",
+      "measured": {
+        "stroke_px2": 0.6,
+        "gap_px2": 0.12
+      },
+      "threshold": "1 px (raster erosion test, heuristic, uncalibrated)",
+      "message": "symbol-small at 16 px: features narrower than 1 px (lost 0.6 px², clogged 0.12 px²)",
+      "suggested_fix": "add or simplify symbol-small.svg: fewer, bolder parts"
+    }
+  ]
+}

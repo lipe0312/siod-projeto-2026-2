@@ -1,0 +1,156 @@
+{
+ "units": "wordmark: cap height 100, cap top y=0, baseline y=100, x from the pen origin; index = data-glyph",
+ "text": "AgroValid",
+ "glyphs": [
+  {
+   "index": 1,
+   "char": "A",
+   "x0": 0.58,
+   "x1": 93.45,
+   "pen_x": 0.0,
+   "advance": 94.03,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     13.31,
+     33.7
+    ],
+    [
+     59.46,
+     80.66
+    ]
+   ]
+  },
+  {
+   "index": 2,
+   "char": "g",
+   "x0": 94.18,
+   "x1": 169.58,
+   "pen_x": 92.58,
+   "advance": 78.17,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": []
+  },
+  {
+   "index": 3,
+   "char": "r",
+   "x0": 177.58,
+   "x1": 218.34,
+   "pen_x": 169.29,
+   "advance": 48.47,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     177.58,
+     196.65
+    ]
+   ]
+  },
+  {
+   "index": 4,
+   "char": "o",
+   "x0": 221.4,
+   "x1": 290.98,
+   "pen_x": 216.3,
+   "advance": 79.77,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     221.4,
+     241.05
+    ],
+    [
+     271.32,
+     290.97
+    ]
+   ]
+  },
+  {
+   "index": 5,
+   "char": "V",
+   "x0": 296.22,
+   "x1": 383.26,
+   "pen_x": 294.61,
+   "advance": 83.7,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     315.24,
+     336.28
+    ],
+    [
+     344.12,
+     364.24
+    ]
+   ]
+  },
+  {
+   "index": 6,
+   "char": "a",
+   "x0": 381.37,
+   "x1": 453.13,
+   "pen_x": 376.86,
+   "advance": 76.71,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": []
+  },
+  {
+   "index": 7,
+   "char": "l",
+   "x0": 460.41,
+   "x1": 479.48,
+   "pen_x": 452.11,
+   "advance": 35.66,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     460.41,
+     479.48
+    ]
+   ]
+  },
+  {
+   "index": 8,
+   "char": "i",
+   "x0": 494.61,
+   "x1": 513.68,
+   "pen_x": 486.32,
+   "advance": 35.81,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     494.61,
+     513.68
+    ]
+   ]
+  },
+  {
+   "index": 9,
+   "char": "d",
+   "x0": 525.76,
+   "x1": 591.7,
+   "pen_x": 520.67,
+   "advance": 79.48,
+   "cap_top": 0,
+   "baseline": 100,
+   "stems": [
+    [
+     525.77,
+     545.41
+    ],
+    [
+     572.78,
+     591.7
+    ]
+   ]
+  }
+ ]
+}

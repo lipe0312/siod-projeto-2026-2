@@ -1,0 +1,505 @@
+{
+ "schema": "brand-identity/sets@1",
+ "sets": [
+  {
+   "identity": {
+    "set": {
+     "id": "A",
+     "name": "Curva de nível",
+     "recommended": true,
+     "mechanism": "A planta de levantamento: o AV em grotesca técnica pousado sobre duas curvas de nível em terra, mata escura como tinta e papel de mapa como fundo.",
+     "expression_move": "As duas barras de nível em terra roxa: a única forma repetida e a única cor quente da marca.",
+     "differs_by": "Sem folha, sem gradiente e sem verde vivo: verde quase preto de mata e terra roxa sobre papel cinza-esverdeado, lido como mapa técnico e não como selo ESG."
+    },
+    "axes": {
+     "warm_cool": 0,
+     "classic_contemporary": 1,
+     "quiet_loud": -1,
+     "friend_authority": 1
+    },
+    "type": {
+     "pairing_mode": "single-family",
+     "display": {
+      "family": "Archivo",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       700
+      ],
+      "location": {
+       "wght": 700,
+       "wdth": 88
+      },
+      "features": [],
+      "case": "as-is",
+      "tracking": -10,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+     },
+     "text": {
+      "family": "Archivo",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       400,
+       600
+      ],
+      "location": {
+       "wght": 400,
+       "wdth": 100
+      },
+      "features": [
+       "tnum"
+      ],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+     },
+     "mono": null
+    },
+    "logo": {
+     "type": "symbol+wordmark",
+     "concept": "O monograma pousado sobre curvas de nível: o produto lê o terreno do imóvel antes de dizer qualquer coisa.",
+     "symbol": "logo/symbol.svg",
+     "wordmark": {
+      "text": "AgroValid",
+      "role": "display",
+      "location": null,
+      "tracking": -10,
+      "case": "as-is"
+     },
+     "monogram": null,
+     "lockups": [
+      "horizontal",
+      "stacked"
+     ],
+     "colors": {
+      "av": "primary",
+      "nivel-1": "accent",
+      "nivel-2": "accent",
+      "wordmark": "text"
+     },
+     "tags": [
+      "letterform"
+     ],
+     "clear_space": {
+      "unit": "cap-height",
+      "multiple": 1,
+      "inferred": true
+     },
+     "min_size": {
+      "px": 16,
+      "mm": 6
+     },
+     "defect": "em 16 px o monograma ocupava pouco do quadro"
+    },
+    "palette_build": {
+     "strategy": null,
+     "accent": "#843729",
+     "light_bg": "#eef0ec",
+     "dark_bg": null,
+     "neutral_tint": "primary",
+     "neutral_chroma": 0.014,
+     "extra": []
+    },
+    "defaults_used": [],
+    "rationale": [
+     {
+      "claim": "Verde de mata quase preto e terra roxa vêm do pedido do briefing (terra, mata/cerrado) e ficam longe do verde neon e do azul de fintech.",
+      "evidence": "judgement",
+      "source": "briefing"
+     },
+     {
+      "claim": "Archivo tem algarismos tabulares e eixo de largura; a carteira mostra área e contagem de pendências.",
+      "evidence": "measured",
+      "source": "fonts audit"
+     },
+     {
+      "claim": "Cores de situação (pendência, inconclusivo, indício, sem pendência, não verificado) são definidas e medidas à parte, em docs/marca/status.json.",
+      "evidence": "measured",
+      "source": "status.json"
+     }
+    ]
+   },
+   "palette": {
+    "schema": "brand-identity/palette@1",
+    "name": "Curva de nível",
+    "direction": "Mata escura e terra roxa sobre papel de levantamento.",
+    "brand": [
+     {
+      "id": "brand-1",
+      "name": "Mata",
+      "hex": "#143321",
+      "source": "chosen",
+      "locked": false,
+      "usage": "monograma, títulos, botão principal",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     },
+     {
+      "id": "brand-2",
+      "name": "Terra roxa",
+      "hex": "#843729",
+      "source": "chosen",
+      "locked": false,
+      "usage": "curvas de nível do símbolo, destaque pontual",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     }
+    ],
+    "feels": [
+     "sóbrio",
+     "técnico",
+     "de campo"
+    ]
+   },
+   "symbol_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">\n<path id=\"av\" data-glyphs=\"AV\" data-x=\"50\" data-baseline=\"60\" data-cap=\"50\" data-anchor=\"middle\" data-color=\"primary\"/>\n<rect id=\"nivel-1\" x=\"6\" y=\"68\" width=\"88\" height=\"8\" rx=\"4\" data-color=\"accent\"/>\n<rect id=\"nivel-2\" x=\"22\" y=\"82\" width=\"56\" height=\"8\" rx=\"4\" data-color=\"accent\"/>\n</svg>",
+   "symbol_small_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">\n<path id=\"av\" data-glyphs=\"AV\" data-x=\"50\" data-baseline=\"68\" data-cap=\"66\" data-anchor=\"middle\" data-color=\"primary\"/>\n<rect id=\"nivel-1\" x=\"2\" y=\"78\" width=\"96\" height=\"14\" rx=\"7\" data-color=\"accent\"/>\n</svg>",
+   "wordmark_detail_svg": null
+  },
+  {
+   "identity": {
+    "set": {
+     "id": "B",
+     "name": "Grão",
+     "recommended": false,
+     "mechanism": "O grão de soja visto de cima: uma elipse cheia com o AV vazado e o hilo como traço, tipo humanista e paleta de cerrado e palha.",
+     "expression_move": "O AV vazado no grão: a marca é uma única forma cheia.",
+     "differs_by": "Verde oliva de cerrado em vez do verde folha; a palha aparece só como cor de apoio, nunca como fundo creme."
+    },
+    "axes": {
+     "warm_cool": -2,
+     "classic_contemporary": 0,
+     "quiet_loud": 0,
+     "friend_authority": -1
+    },
+    "type": {
+     "pairing_mode": "single-family",
+     "display": {
+      "family": "Fira Sans",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       600
+      ],
+      "location": {
+       "wght": 600
+      },
+      "features": [],
+      "case": "as-is",
+      "tracking": -5,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+     },
+     "text": {
+      "family": "Fira Sans",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       400,
+       600
+      ],
+      "location": {
+       "wght": 400
+      },
+      "features": [
+       "tnum"
+      ],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+     },
+     "mono": null
+    },
+    "logo": {
+     "type": "symbol+wordmark",
+     "concept": "Um grão de soja com o AV vazado: a commodity de mais volume na EUDR vira o recipiente da sigla.",
+     "symbol": "logo/symbol.svg",
+     "wordmark": {
+      "text": "AgroValid",
+      "role": "display",
+      "location": null,
+      "tracking": -5,
+      "case": "as-is"
+     },
+     "monogram": null,
+     "lockups": [
+      "horizontal",
+      "stacked"
+     ],
+     "colors": {
+      "grao": "primary",
+      "wordmark": "text"
+     },
+     "tags": [
+      "letterform",
+      "negative-space",
+      "literal-object"
+     ],
+     "clear_space": {
+      "unit": "cap-height",
+      "multiple": 1,
+      "inferred": true
+     },
+     "min_size": {
+      "px": 16,
+      "mm": 6
+     },
+     "defect": "em 16 px o vazado do AV entupia e o hilo lia como sublinhado"
+    },
+    "palette_build": {
+     "strategy": null,
+     "accent": "#c79a3a",
+     "light_bg": "white",
+     "dark_bg": null,
+     "neutral_tint": "primary",
+     "neutral_chroma": 0.018,
+     "extra": [
+      "#6e4a2c:Couro:apoio, gráficos"
+     ]
+    },
+    "defaults_used": [
+     {
+      "id": "negative-space",
+      "why": "O usuário pediu AV combinado a grão de soja; o vazado é a forma mais limpa de juntar os dois em 16 px."
+     },
+     {
+      "id": "literal-object",
+      "why": "Pedido do briefing (ícone de commodity). A soja é uma das commodities da EUDR citadas no README."
+     },
+     {
+      "id": "gold-brass-accent",
+      "why": "O briefing pede palha e grão; a palha fica como cor de apoio em áreas, nunca como texto nem como fundo creme."
+     }
+    ],
+    "rationale": [
+     {
+      "claim": "Oliva de cerrado (matiz amarelado, croma baixo) separa a marca do verde folha saturado.",
+      "evidence": "judgement",
+      "source": "briefing"
+     },
+     {
+      "claim": "Cores de situação (pendência, inconclusivo, indício, sem pendência, não verificado) são definidas e medidas à parte, em docs/marca/status.json.",
+      "evidence": "measured",
+      "source": "status.json"
+     }
+    ]
+   },
+   "palette": {
+    "schema": "brand-identity/palette@1",
+    "name": "Grão",
+    "direction": "Oliva de cerrado com palha de grão seco.",
+    "brand": [
+     {
+      "id": "brand-1",
+      "name": "Cerrado",
+      "hex": "#475229",
+      "source": "chosen",
+      "locked": false,
+      "usage": "símbolo, títulos, botão principal",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     },
+     {
+      "id": "brand-2",
+      "name": "Palha",
+      "hex": "#c79a3a",
+      "source": "chosen",
+      "locked": false,
+      "usage": "destaques, ilustração; nunca texto sobre branco",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     }
+    ],
+    "feels": [
+     "próximo",
+     "de lavoura",
+     "claro"
+    ]
+   },
+   "symbol_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">\n<ellipse id=\"grao\" cx=\"50\" cy=\"50\" rx=\"47\" ry=\"38\" data-color=\"primary\"/>\n<path id=\"av\" data-glyphs=\"AV\" data-x=\"50\" data-baseline=\"66\" data-cap=\"34\" data-anchor=\"middle\" data-op=\"subtract\"/>\n<rect id=\"hilo\" x=\"40\" y=\"74\" width=\"20\" height=\"5\" rx=\"2.5\" data-op=\"subtract\"/>\n</svg>",
+   "symbol_small_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">\n<ellipse id=\"grao\" cx=\"50\" cy=\"50\" rx=\"49\" ry=\"42\" data-color=\"primary\"/>\n<path id=\"av\" data-glyphs=\"AV\" data-x=\"50\" data-baseline=\"72\" data-cap=\"46\" data-anchor=\"middle\" data-op=\"subtract\"/>\n</svg>",
+   "wordmark_detail_svg": null
+  },
+  {
+   "identity": {
+    "set": {
+     "id": "C",
+     "name": "Marca de ferro",
+     "recommended": false,
+     "mechanism": "A marca de ferro do gado: AV monolinear de traço grosso, em que o V nasce na base e passa das pernas do A como chifres curtos; serifa grossa no nome e couro e brasa sobre fundo escuro.",
+     "expression_move": "O fundo escuro de couro curtido: a marca vive em superfície escura.",
+     "differs_by": "A única direção escura e pecuária; lê como ofício de fazenda, longe do visual de app."
+    },
+    "card": {
+     "ground": "dark"
+    },
+    "axes": {
+     "warm_cool": -1,
+     "classic_contemporary": -2,
+     "quiet_loud": 1,
+     "friend_authority": 2
+    },
+    "type": {
+     "pairing_mode": "contrast",
+     "display": {
+      "family": "Zilla Slab",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       700
+      ],
+      "location": {},
+      "features": [],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "Rockwell, Georgia, serif",
+      "file": null
+     },
+     "text": {
+      "family": "Source Sans 3",
+      "source": "google",
+      "license": "OFL-1.1",
+      "weights": [
+       400,
+       600
+      ],
+      "location": {
+       "wght": 400
+      },
+      "features": [
+       "tnum"
+      ],
+      "case": "as-is",
+      "tracking": 0,
+      "fallback": "system-ui, sans-serif",
+      "file": null
+     },
+     "mono": null
+    },
+    "logo": {
+     "type": "symbol+wordmark",
+     "concept": "O AV como marca de ferro: as pontas do V passam das pernas do A como chifres de boi.",
+     "symbol": "logo/symbol.svg",
+     "wordmark": {
+      "text": "AgroValid",
+      "role": "display",
+      "location": null,
+      "tracking": 0,
+      "case": "as-is"
+     },
+     "monogram": null,
+     "lockups": [
+      "horizontal",
+      "stacked"
+     ],
+     "colors": {
+      "ferro": "primary",
+      "wordmark": "text"
+     },
+     "tags": [
+      "letterform"
+     ],
+     "clear_space": {
+      "unit": "cap-height",
+      "multiple": 1,
+      "inferred": true
+     },
+     "min_size": {
+      "px": 16,
+      "mm": 6
+     },
+     "defect": "o V cruzava alto e a marca lia como estrela"
+    },
+    "palette_build": {
+     "strategy": null,
+     "accent": "#d0632a",
+     "light_bg": "white",
+     "dark_bg": "#1d1714",
+     "neutral_tint": "primary",
+     "neutral_chroma": 0.02,
+     "extra": [
+      "#d9bd7e:Palha:texto de destaque no escuro"
+     ]
+    },
+    "defaults_used": [
+     {
+      "id": "terracotta-clay",
+      "why": "A brasa é a cor do ferro de marcar em brasa, o material do conceito; o briefing pede couro e um acento de alerta."
+     },
+     {
+      "id": "gold-brass-accent",
+      "why": "Palha pedida no briefing; aqui só como texto de destaque sobre o fundo escuro."
+     }
+    ],
+    "rationale": [
+     {
+      "claim": "Couro e brasa vêm do briefing (couro, acento de alerta); o fundo escuro é escolha de estratégia, não de tendência.",
+      "evidence": "judgement",
+      "source": "briefing"
+     },
+     {
+      "claim": "Cores de situação (pendência, inconclusivo, indício, sem pendência, não verificado) são definidas e medidas à parte, em docs/marca/status.json.",
+      "evidence": "measured",
+      "source": "status.json"
+     }
+    ]
+   },
+   "palette": {
+    "schema": "brand-identity/palette@1",
+    "name": "Marca de ferro",
+    "direction": "Couro curtido e brasa de ferro sobre quase preto.",
+    "brand": [
+     {
+      "id": "brand-1",
+      "name": "Couro",
+      "hex": "#5c3621",
+      "source": "chosen",
+      "locked": false,
+      "usage": "símbolo no claro, títulos, superfícies",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     },
+     {
+      "id": "brand-2",
+      "name": "Brasa",
+      "hex": "#d0632a",
+      "source": "chosen",
+      "locked": false,
+      "usage": "símbolo e chamadas no escuro",
+      "print": {
+       "lab_d50": null,
+       "cmyk": null,
+       "pantone_ref": null
+      }
+     }
+    ],
+    "feels": [
+     "firme",
+     "de ofício",
+     "pecuário"
+    ]
+   },
+   "symbol_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">\n<g id=\"ferro\" data-color=\"primary\">\n<path id=\"a\" d=\"M14 90 L50 14 L86 90\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/>\n<path id=\"v\" d=\"M28.63 39.88 L50 90 L71.37 39.88\" fill=\"none\" stroke=\"#000\" stroke-width=\"12\" stroke-linejoin=\"miter\" stroke-linecap=\"butt\"/>\n</g>\n</svg>",
+   "symbol_small_svg": null,
+   "wordmark_detail_svg": null
+  }
+ ]
+}

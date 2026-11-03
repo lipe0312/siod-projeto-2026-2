@@ -1,0 +1,29 @@
+{
+  "display": {
+    "family": "Archivo",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/instances/Archivo-71457a6720f50551.ttf",
+    "location": {
+      "wght": 700,
+      "wdth": 88
+    },
+    "weights": [
+      700
+    ],
+    "features": []
+  },
+  "text": {
+    "family": "Archivo",
+    "file": "/Users/mainfilipe/.cache/brand-identity/fonts/instances/Archivo-e064a79a7c6d5d28.ttf",
+    "location": {
+      "wght": 400,
+      "wdth": 100
+    },
+    "weights": [
+      400,
+      600
+    ],
+    "features": [
+      "tnum"
+    ]
+  }
+}
