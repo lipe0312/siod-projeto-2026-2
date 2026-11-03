@@ -10,6 +10,7 @@ import pandas as pd
 import shapely
 
 from pipeline import config
+from pipeline.armazenamento import lago
 from pipeline.documentos import digito_valido, pseudonimizar, somente_digitos, tipo_documento
 from pipeline.download import baixar
 from pipeline.validacao import Marcas, ResultadoFonte
@@ -31,6 +32,7 @@ DE_PARA_PORTAL = {"COD_MUNICIPIO": "COD_MUNICIPIO_TAD", "MUNICIPIO": "NOM_MUNICI
 FORMATO_DATA_PORTAL = "%Y-%m-%d %H:%M:%S"
 STATUS_CANCELADO = ("Cancelado", "Excluído", "Substituído por outro")
 
+TABELA = "ref.embargo_ibama"
 FORMATO_DATA = "%d/%m/%Y %H:%M:%S"
 DATA_MINIMA = pd.Timestamp("1980-01-01")
 
@@ -54,6 +56,11 @@ def do_portal(bruto: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _termo(df: pd.DataFrame) -> dict:
+    """Número, série e sequencial do termo, para identificar o descarte (ainda sem as colunas de saída)."""
+    return {"num_tad": df["NUM_TAD"], "ser_tad": df["SER_TAD"], "seq_tad": df["SEQ_TAD"]}
+
+
 def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp,
                 resultado: ResultadoFonte) -> tuple[pd.DataFrame, pd.DataFrame]:
     portal = "SIT_CANCELADO" in bruto.columns
@@ -73,7 +80,7 @@ def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame,
         cancelado = (df["SIT_CANCELADO"] == "S") | df["DES_STATUS_FORMULARIO"].isin(STATUS_CANCELADO)
         resultado.validar("IBAMA_TERMO_CANCELADO", "Termo cancelado, excluído ou substituído por outro", "descarte",
                           "registro vai para descartados (não é embargo)", cancelado, n)
-        descartados_cancelados = df[cancelado].assign(motivo="IBAMA_TERMO_CANCELADO")
+        descartados_cancelados = df[cancelado].assign(motivo="IBAMA_TERMO_CANCELADO", **_termo(df[cancelado]))
         df = df[~cancelado].copy()
         n = len(df)
         desembargado = df["SIT_DESEMBARGO"] == "S"
@@ -87,7 +94,7 @@ def transformar(bruto: pd.DataFrame, chave: bytes, ref_municipios: pd.DataFrame,
     sem_termo = df["NUM_TAD"].isna()
     resultado.validar("IBAMA_NUMERO_TERMO_AUSENTE", "Registro sem número do termo de embargo", "descarte",
                       "registro vai para descartados", sem_termo, n)
-    descartados = [df[sem_termo].assign(motivo="IBAMA_NUMERO_TERMO_AUSENTE")]
+    descartados = [df[sem_termo].assign(motivo="IBAMA_NUMERO_TERMO_AUSENTE", **_termo(df[sem_termo]))]
     if portal:
         descartados.append(descartados_cancelados)
     df = df[~sem_termo].copy()
@@ -255,18 +262,15 @@ def executar(chave: bytes, ref_municipios: pd.DataFrame, hoje: pd.Timestamp, atu
     resultado.transformar("Leitura do CSV com separador ';', UTF-8 e todas as colunas como texto")
 
     saida, descartados = transformar(bruto, chave, ref_municipios, hoje, resultado)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    arq_saida = config.DADOS_PROCESSADOS / "ibama_embargos.parquet"
-    arq_desc = config.DADOS_PROCESSADOS / "ibama_embargos_descartados.parquet"
-    saida.to_parquet(arq_saida, index=False)
-    descartados.to_parquet(arq_desc, index=False)
-    resultado.saida = {
-        "arquivo": str(arq_saida.relative_to(config.RAIZ)),
+    lago.gravar(TABELA, saida, resultado)
+    resumo_descartes = lago.gravar_descartes(descartados, resultado, ["num_tad", "ser_tad", "seq_tad"])
+    resultado.saida["tabelas"]["meta.descarte"] = resumo_descartes
+    resultado.saida.update({
+        "arquivo": lago._relativo(lago.pasta(TABELA)),
         "registros_produzidos": len(saida), "por_situacao": saida["situacao"].value_counts().to_dict(),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "colunas": list(saida.columns),
-        "arquivo_descartados": str(arq_desc.relative_to(config.RAIZ)),
         "registros_descartados": len(descartados),
-    }
+    })
     resultado.status = "ok"
     return resultado

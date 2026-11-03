@@ -141,4 +141,13 @@ def gravar_descartes(df: pd.DataFrame, resultado: ResultadoFonte, chave: str | l
     # O mesmo registro pode ter mais de um motivo; fica uma linha com os motivos juntos.
     saida = saida.groupby(["carga_id", "fonte", "registro_id"], as_index=False, sort=False).agg(
         motivo=("motivo", lambda m: "; ".join(dict.fromkeys(m.dropna()))), dados_json=("dados_json", "first"))
+    # Mesmo conjunto de descartes da última carga da fonte: não grava de novo (a fonte em lote repete todo mês).
+    anteriores = ler_ou_none("meta.descarte")
+    if anteriores is not None:
+        anteriores = anteriores[anteriores["fonte"] == resultado.fonte]
+        if not anteriores.empty:
+            ultima = anteriores[anteriores["carga_id"] == anteriores["carga_id"].max()]
+            assinatura = lambda d: sorted(zip(d["registro_id"], d["motivo"].fillna("")))
+            if assinatura(ultima) == assinatura(saida):
+                return {"historico": "registro", "inseridos": 0, "igual_a_carga": ultima["carga_id"].iloc[0]}
     return gravar("meta.descarte", saida, carga_id=resultado.carga_id)

@@ -1,11 +1,13 @@
 """Fonte documento: Cadastro de Empregadores do Ministério do Trabalho ("Lista Suja"), publicado em PDF."""
 
+import hashlib
 import re
 
 import pandas as pd
 import pdfplumber
 
 from pipeline import config
+from pipeline.armazenamento import lago
 from pipeline.documentos import digito_valido, pseudonimizar, somente_digitos, tipo_documento
 from pipeline.download import baixar
 from pipeline.validacao import Marcas, ResultadoFonte
@@ -18,15 +20,26 @@ COLUNAS_INTERNAS = [
     "id", "ano", "uf", "empregador", "documento", "estabelecimento", "trabalhadores", "cnae", "decisao", "inclusao",
 ]
 COLUNAS_SAIDA = [
-    "id_registro", "documento_hash", "tipo_documento", "uf", "estabelecimento", "cnae", "cnae_agropecuaria",
+    "chave_registro", "id_registro", "documento_hash", "tipo_documento", "uf", "estabelecimento", "cnae", "cnae_agropecuaria",
     "trabalhadores_envolvidos", "ano_acao_fiscal", "data_decisao", "data_inclusao", "data_inclusao_ultima",
     "data_atualizacao_cadastro", "alertas",
 ]
 PADRAO_DATA = re.compile(r"\d{2}/\d{2}/\d{4}")
+TABELA = "ref.lista_suja"
 
 
 def _limpar(celula) -> str:
     return re.sub(r"\s+", " ", (celula or "").replace("\n", " ")).strip()
+
+
+def chave_registro(df: pd.DataFrame) -> pd.Series:
+    """Chave estável do registro: id_registro é a linha do PDF e muda a cada versão. Vem do documento (já em HMAC), do
+    estabelecimento e do ano da ação fiscal (vazio quando nulo), mais um sequencial para os registros que repetem essa
+    tripla com outro número de trabalhadores (ordem do PDF). Hash de 32 dígitos, sem dado pessoal em claro."""
+    base = (df["documento_hash"].fillna("") + "|" + df["estabelecimento"].fillna("") + "|"
+            + df["ano_acao_fiscal"].astype("string").fillna(""))
+    sequencial = df.assign(_base=base).sort_values("id_registro").groupby("_base").cumcount().reindex(df.index)
+    return (base + "|" + sequencial.astype(str)).map(lambda t: hashlib.sha256(t.encode()).hexdigest()[:32])
 
 
 def extrair(caminho) -> tuple[list[str], list[list[list[str]]]]:
@@ -161,6 +174,9 @@ def transformar(textos: list[str], tabelas: list, chave: bytes, hoje: pd.Timesta
     df["data_inclusao_ultima"] = inclusao_ultima.mask(inclusao_invalida)
     df["data_atualizacao_cadastro"] = atualizacao
     resultado.transformar("Datas de decisão e inclusão convertidas de texto; data de atualização lida do cabeçalho do documento")
+    df["chave_registro"] = chave_registro(df)
+    resultado.transformar("Chave chave_registro = hash de documento + estabelecimento + ano da ação + sequencial "
+                          "(id_registro é a linha do PDF e não é estável)")
 
     df["alertas"] = marcas.coluna()
     return df[COLUNAS_SAIDA].reset_index(drop=True), descartados
@@ -176,15 +192,13 @@ def executar(chave: bytes, hoje: pd.Timestamp, atualizar: bool = False) -> Resul
 
     saida, descartados = transformar(textos, tabelas, chave, hoje, resultado)
     resultado.entrada["registros_recebidos"] = len(saida) + len(descartados)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    arq_saida = config.DADOS_PROCESSADOS / "mte_lista_suja.parquet"
-    saida.to_parquet(arq_saida, index=False)
-    resultado.saida = {
-        "arquivo": str(arq_saida.relative_to(config.RAIZ)),
+    lago.gravar(TABELA, saida, resultado)
+    resultado.saida.update({
+        "arquivo": lago._relativo(lago.pasta(TABELA)),
         "registros_produzidos": len(saida),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "colunas": list(saida.columns),
         "registros_descartados": len(descartados),
-    }
+    })
     resultado.status = "ok"
     return resultado

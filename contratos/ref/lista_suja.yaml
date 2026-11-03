@@ -1,21 +1,22 @@
 tabela: ref.lista_suja
-descricao: "Cadastro de Empregadores do MTE (Lista Suja), com documento pseudonimizado"
+descricao: "Cadastro de Empregadores do MTE (Lista Suja), com documento pseudonimizado; chave_registro é o hash de documento, estabelecimento, ano da ação e sequencial (id_registro é a linha do PDF e muda)"
 fonte: mte_lista_suja
-chave: [documento_hash, estabelecimento, ano_acao_fiscal]
+chave: [chave_registro]
 historico: validade
 acompanhar: [uf, cnae, trabalhadores_envolvidos, data_decisao, data_inclusao, data_inclusao_ultima]
 perfil_banco: lite
 legado: mte_lista_suja.parquet
 colunas:
+  - {nome: chave_registro,            tipo: texto, nulo: false}
   - {nome: id_registro,               tipo: inteiro}
-  - {nome: documento_hash,            tipo: texto, nulo: false}
+  - {nome: documento_hash,            tipo: texto}
   - {nome: tipo_documento,            tipo: texto}
   - {nome: uf,                        tipo: texto}
   - {nome: estabelecimento,           tipo: texto, nulo: false}
   - {nome: cnae,                      tipo: texto}
   - {nome: cnae_agropecuaria,         tipo: logico}
   - {nome: trabalhadores_envolvidos,  tipo: inteiro}
-  - {nome: ano_acao_fiscal,           tipo: inteiro, nulo: false}
+  - {nome: ano_acao_fiscal,           tipo: inteiro}
   - {nome: data_decisao,              tipo: data_hora}
   - {nome: data_inclusao,             tipo: data_hora}
   - {nome: data_inclusao_ultima,      tipo: data_hora}

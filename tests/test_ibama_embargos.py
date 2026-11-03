@@ -173,3 +173,61 @@ def test_embargo_desembargado_no_imovel_nao_e_pendencia():
     ativo = embargos(("e1", DENTRO, None, None))  # sem a coluna situacao (CSV antigo): conta como ativo
     ficha = prediagnostico.diagnosticar(car(), ativo, alertas(), lista_suja(), prodes(), ultimo_ano_prodes=2025)
     assert next(c for c in ficha["criterios"] if c["chave"] == "embargo")["situacao"] == "pendência"
+
+
+# --- Gravação no lago (histórico por validade) ----------------------------------------------------------------------
+
+@pytest.fixture
+def lago_tmp(tmp_path, monkeypatch):
+    from pipeline import config
+    monkeypatch.setattr(config, "RAIZ", tmp_path)
+    monkeypatch.setattr(config, "LAGO", tmp_path / "data" / "lago")
+    monkeypatch.setattr(config, "DADOS_BRUTOS", tmp_path / "data" / "raw")
+    monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "data" / "processed")
+    return tmp_path
+
+
+def executar(monkeypatch, linhas, ref, n):
+    bruto = pd.DataFrame(linhas).astype(str).replace("None", "")
+    monkeypatch.setattr(ibama_embargos, "baixar", lambda *a, **k: {})
+    monkeypatch.setattr(ibama_embargos, "ler", lambda caminho: bruto)
+    monkeypatch.setattr(ibama_embargos, "ResultadoFonte",
+                        lambda fonte, tipo: ResultadoFonte(fonte, tipo, carga_id=f"{fonte}:2026091{n}T120000"))
+    return ibama_embargos.executar(CHAVE, ref, HOJE)
+
+
+def test_executar_grava_embargos_e_descartes_no_lago(lago_tmp, monkeypatch, ref_municipios):
+    from pipeline.armazenamento import lago
+    linhas = [linha_portal(), linha_portal(SEQ_TAD="2", SIT_CANCELADO="S"), linha_portal(SEQ_TAD="3", NUM_TAD="")]
+    r = executar(monkeypatch, linhas, ref_municipios, 1)
+    assert r.saida["arquivo"] == "data/lago/ref/embargo_ibama"
+    assert r.saida["registros_produzidos"] == 1 and r.saida["registros_descartados"] == 2
+    assert r.saida["tabelas"]["ref.embargo_ibama"]["inseridos"] == 1
+    assert r.saida["tabelas"]["meta.descarte"]["inseridos"] == 2
+    assert not (lago_tmp / "data" / "processed").exists()  # nem a saída nem o *_descartados.parquet
+    assert lago.ler("ref.embargo_ibama")["id_embargo"].tolist() == ["100-A-1"]
+    descartes = lago.ler("meta.descarte")
+    assert set(descartes["motivo"]) == {"IBAMA_TERMO_CANCELADO", "IBAMA_NUMERO_TERMO_AUSENTE"}
+    assert CPF_VALIDO not in descartes["dados_json"].str.cat() and "100-A-1" not in set(descartes["registro_id"])
+
+
+def test_segunda_gravacao_igual_nao_cria_versao_e_mudanca_de_situacao_cria(lago_tmp, monkeypatch, ref_municipios):
+    from pipeline.armazenamento import lago
+    linhas = [linha_portal(), linha_portal(SEQ_TAD="2", NUM_TAD="200")]
+    executar(monkeypatch, linhas, ref_municipios, 1)
+    resumo = executar(monkeypatch, linhas, ref_municipios, 2).saida["tabelas"]["ref.embargo_ibama"]
+    assert (resumo["inseridos"], resumo["alterados"], resumo["encerrados"], resumo["versoes"]) == (0, 0, 0, 2)
+
+    # Só a data da última alteração muda: corrige a versão aberta, sem abrir outra.
+    corrigido = [linha_portal(DAT_ULT_ALTERACAO="2022-06-01 08:00:00"), linhas[1]]
+    resumo = executar(monkeypatch, corrigido, ref_municipios, 3).saida["tabelas"]["ref.embargo_ibama"]
+    assert (resumo["alterados"], resumo["inalterados"], resumo["versoes"]) == (0, 2, 2)
+
+    # Desembargo muda a situação: fecha a versão anterior e abre uma nova.
+    desembargado = [linha_portal(SIT_DESEMBARGO="S", DAT_DESEMBARGO="2024-02-01 09:00:00"), linhas[1]]
+    resumo = executar(monkeypatch, desembargado, ref_municipios, 4).saida["tabelas"]["ref.embargo_ibama"]
+    assert (resumo["alterados"], resumo["inalterados"], resumo["versoes"]) == (1, 1, 3)
+    vigente = lago.ler("ref.embargo_ibama").set_index("id_embargo")
+    assert len(vigente) == 2 and vigente.loc["100-A-1", "situacao"] == "desembargado"
+    historico = lago.ler("ref.embargo_ibama", vigente=False)
+    assert historico["valido_ate"].notna().sum() == 1 and set(historico["situacao"]) == {"ativo", "desembargado"}

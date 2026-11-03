@@ -139,6 +139,8 @@ def test_cargas_e_descartes_vao_para_meta(tmp_path, monkeypatch):
     descartes = pd.DataFrame({"id_embargo": ["X-1", None], "motivo": ["sem data", "sem data"],
                               "area_ha": [1.0, 2.0]})
     assert lago.gravar_descartes(descartes, r, "id_embargo")["inseridos"] == 2
+    r2 = ResultadoFonte("ibama_embargos", "tabular (CSV)", carga_id="ibama_embargos:20261203T100000")
+    assert lago.gravar_descartes(descartes, r2, "id_embargo")["inseridos"] == 0  # mesmo conjunto, mês seguinte
     cargas.registrar([r])
     assert cargas.ultima("ibama_embargos")["sha256_entrada"] == "abc"
     assert lago.ler("meta.validacao")["codigo"].tolist() == ["IBAMA_TESTE"]

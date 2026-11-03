@@ -98,3 +98,57 @@ def test_pagina_sem_texto_gera_alerta():
 def test_documento_sem_registros_interrompe():
     with pytest.raises(ErroDeValidacao, match="LS_SEM_REGISTROS"):
         processar([[titulo("I- PUBLICAÇÃO"), CABECALHO]])
+
+
+# --- Chave do registro e gravação no lago --------------------------------------------------------------------------
+
+def test_chave_do_registro_e_estavel_unica_e_sem_documento_em_claro():
+    pagina = [CABECALHO, registro("1"), registro("2", CPF_VALIDO_2, ano="", uf=""),
+              registro("3", CNPJ_VALIDO, trab="7"), registro("4", CNPJ_VALIDO, trab="8")]
+    saida, _, _ = processar([pagina])
+    assert saida["chave_registro"].is_unique and saida["chave_registro"].str.fullmatch(r"[0-9a-f]{32}").all()
+    assert pd.isna(saida.loc[2, "ano_acao_fiscal"])  # nulo na tripla, mas a chave existe
+    # A numeração do PDF muda entre versões; a chave não.
+    nova, _, _ = processar([[CABECALHO, registro("40", CNPJ_VALIDO, trab="7"), registro("41", CNPJ_VALIDO, trab="8"),
+                             registro("42", CPF_VALIDO_2, ano="", uf=""), registro("43")]])
+    assert (nova.set_index("chave_registro")["trabalhadores_envolvidos"].to_dict()
+            == saida.set_index("chave_registro")["trabalhadores_envolvidos"].to_dict())
+    assert CPF_VALIDO not in saida.to_string()
+
+
+@pytest.fixture
+def lago_tmp(tmp_path, monkeypatch):
+    from pipeline import config
+    monkeypatch.setattr(config, "RAIZ", tmp_path)
+    monkeypatch.setattr(config, "LAGO", tmp_path / "data" / "lago")
+    monkeypatch.setattr(config, "DADOS_BRUTOS", tmp_path / "data" / "raw")
+    monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "data" / "processed")
+    return tmp_path
+
+
+def executar(monkeypatch, tabelas, n):
+    monkeypatch.setattr(mte_lista_suja, "baixar", lambda *a, **k: {})
+    monkeypatch.setattr(mte_lista_suja, "extrair", lambda caminho: ([TEXTO] * len(tabelas), tabelas))
+    monkeypatch.setattr(mte_lista_suja, "ResultadoFonte",
+                        lambda fonte, tipo: ResultadoFonte(fonte, tipo, carga_id=f"{fonte}:2026091{n}T120000"))
+    return mte_lista_suja.executar(CHAVE, HOJE)
+
+
+def test_executar_grava_no_lago_e_so_abre_versao_quando_algo_muda(lago_tmp, monkeypatch):
+    from pipeline.armazenamento import lago
+    r1 = executar(monkeypatch, [[CABECALHO, registro("1"), registro("2", CNPJ_VALIDO)]], 1)
+    assert r1.saida["arquivo"] == "data/lago/ref/lista_suja" and r1.saida["registros_produzidos"] == 2
+    assert r1.saida["tabelas"]["ref.lista_suja"]["inseridos"] == 2
+    assert not (lago_tmp / "data" / "processed").exists()  # nada em data/processed
+
+    r2 = executar(monkeypatch, [[CABECALHO, registro("2", CNPJ_VALIDO), registro("1")]], 2)  # outra ordem, mesmo dado
+    resumo = r2.saida["tabelas"]["ref.lista_suja"]
+    assert (resumo["inseridos"], resumo["alterados"], resumo["encerrados"], resumo["versoes"]) == (0, 0, 0, 2)
+
+    # Mudança em coluna acompanhada (trabalhadores) fecha a versão e abre outra; id_registro novo não conta.
+    r3 = executar(monkeypatch, [[CABECALHO, registro("7", trab="9"), registro("8", CNPJ_VALIDO)]], 3)
+    resumo = r3.saida["tabelas"]["ref.lista_suja"]
+    assert (resumo["alterados"], resumo["inalterados"], resumo["versoes"]) == (1, 1, 3)
+    vigente = lago.ler("ref.lista_suja")
+    assert len(vigente) == 2 and sorted(vigente["trabalhadores_envolvidos"]) == [5, 9]
+    assert {"id_registro", "documento_hash", "data_inclusao", "data_decisao", "uf", "cnae"} <= set(vigente.columns)
