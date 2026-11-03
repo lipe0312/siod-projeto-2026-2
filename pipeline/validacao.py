@@ -2,6 +2,7 @@
 
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 
 import pandas as pd
 
@@ -38,6 +39,11 @@ class ResultadoFonte:
     saida: dict = field(default_factory=dict)
     status: str = "pendente"
     mensagem: str = ""
+    carga_id: str = ""  # <fonte>:<AAAAMMDDTHHMMSS>; identifica a carga em meta.carga e nas linhas gravadas no lago
+
+    def __post_init__(self):
+        if not self.carga_id:
+            self.carga_id = f"{self.fonte}:{datetime.now():%Y%m%dT%H%M%S}"
 
     def transformar(self, descricao: str) -> None:
         self.transformacoes.append(descricao)

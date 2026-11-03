@@ -31,6 +31,7 @@ import shapely
 from shapely.strtree import STRtree
 
 from pipeline import config, cruzamento, relatorio, territorio, vetor
+from pipeline.armazenamento import lago
 from pipeline.documentos import carregar_chave, pseudonimizar, somente_digitos
 from pipeline.fontes import (ab_s, funai_terras_indigenas, incra_quilombolas, inpe_prodes, mma_unidades_conservacao,
                              sicar)
@@ -261,12 +262,16 @@ CAMADAS_PROTEGIDAS = {
 }
 
 
+# Tabela do lago de cada camada protegida (ADR 0017).
+TABELAS_PROTEGIDAS = {"terra_indigena": "ref.terra_indigena", "quilombola": "ref.territorio_quilombola",
+                      "unidade_conservacao": "ref.unidade_conservacao"}
+
+
 @functools.cache
 def _camada_protegida(chave: str) -> tuple[pd.DataFrame, STRtree] | None:
-    arquivo = CAMADAS_PROTEGIDAS[chave][0].ARQ_SAIDA
-    if not arquivo.exists():
+    df = lago.ler_ou_none(TABELAS_PROTEGIDAS[chave])
+    if df is None:
         return None
-    df = pd.read_parquet(arquivo)
     return df, STRtree(shapely.from_wkt(df["geometria_wkt"].to_numpy()))
 
 
@@ -321,7 +326,7 @@ def _descricao_protegida(chave: str, r) -> str:
 def criterio_protegido(chave: str, achados: pd.DataFrame | None) -> dict:
     modulo, nome, n_ab_s, fonte, argumento = CAMADAS_PROTEGIDAS[chave]
     if achados is None:
-        return _criterio(chave, nome, n_ab_s, "inconclusivo", f"Fonte não carregada ({modulo.ARQ_SAIDA.name}); rodar "
+        return _criterio(chave, nome, n_ab_s, "inconclusivo", f"Fonte não carregada ({TABELAS_PROTEGIDAS[chave]}); rodar "
                          f"python -m pipeline --fontes {argumento}", ENCAMINHAMENTO["fonte_ausente"], fonte)
     dentro = achados[achados["classe"] != "tangente"]
     n_tangente = len(achados) - len(dentro)
@@ -541,10 +546,9 @@ def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float
         publicacao, proc_prodes, ultimo, aviso = {"origem": "falhou", "motivo": str(e)[:300]}, [], None, None
     consulta["prodes"] = {**publicacao, "ultimo_ano_do_imovel": ultimo}
     consulta["biomas"] = biomas
-    ler = lambda nome: pd.read_parquet(config.DADOS_PROCESSADOS / f"{nome}.parquet")
     protegidas = {chave: _camada_protegida(chave) for chave in CAMADAS_PROTEGIDAS}
-    ficha = diagnosticar(car, ler("ibama_embargos"), ler("inpe_deter_alertas"), ler("mte_lista_suja"), prodes,
-                         documento_hash, ultimo, protegidas, falha, aviso)
+    ficha = diagnosticar(car, lago.ler("ref.embargo_ibama"), lago.ler("ref.alerta_deter"), lago.ler("ref.lista_suja"),
+                         prodes, documento_hash, ultimo, protegidas, falha, aviso)
     return {"consulta": consulta, **ficha, "procedencia": _procedencia_lote() + proc_prodes + procedencia}
 
 

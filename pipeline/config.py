@@ -6,6 +6,9 @@ RAIZ = Path(__file__).resolve().parent.parent
 DADOS_BRUTOS = RAIZ / "data" / "raw"
 DADOS_PROCESSADOS = RAIZ / "data" / "processed"
 LOGS = RAIZ / "data" / "logs"
+# Lago: dado tratado por esquema e tabela, com histórico (ADR 0017); contratos de cada tabela em contratos/.
+LAGO = RAIZ / "data" / "lago"
+CONTRATOS = RAIZ / "contratos"
 
 CHAVE_ENV = "SIOD_CHAVE_PSEUDONIMIZACAO"
 CHAVE_ARQUIVO = RAIZ / "data" / "chave_pseudonimizacao"

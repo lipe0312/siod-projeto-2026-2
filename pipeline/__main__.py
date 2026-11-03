@@ -13,6 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline import config, relatorio, territorio
+from pipeline.armazenamento import cargas, lago
 from pipeline.documentos import carregar_chave
 from pipeline.fontes import (funai_terras_indigenas, ibama_embargos, ibge_territorios_quilombolas, incra_quilombolas,
                              inpe_deter, inpe_prodes, mma_unidades_conservacao, mte_lista_suja)
@@ -79,7 +80,7 @@ def main(argv=None) -> int:
     if {"ibama", "deter"} & set(args.fontes):
         r_ibge = rodar("ibge_municipios", "API (JSON)", lambda: carregar_referencia(args.atualizar)[1])
         if r_ibge.status == "ok":
-            ref = pd.read_parquet(config.DADOS_PROCESSADOS / "ibge_municipios.parquet")
+            ref = lago.ler("geo.municipio").drop(columns="carga_id", errors="ignore")
     sem_referencia = "referência de municípios do IBGE indisponível"
     if "ibama" in args.fontes:
         if ref is None:
@@ -125,6 +126,8 @@ def main(argv=None) -> int:
                                "prodes_pelo_wfs": args.prodes_pelo_wfs}}
     arq_json, arq_md = relatorio.escrever(execucao, resultados, config.DADOS_PROCESSADOS, "relatorio_execucao")
     atualizar_procedencia(resultados, execucao["inicio"])
+    cargas.registrar(resultados)  # meta.carga e meta.validacao, com histórico (ADR 0017)
+    cargas.registrar_catalogo()
     log.info("Fim: status %s em %.1f s. Relatório: %s", status, execucao["duracao_segundos"], _legivel(arq_md))
 
     if args.evidencia:
