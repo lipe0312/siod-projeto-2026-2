@@ -20,6 +20,7 @@ import shapely
 from requests.adapters import HTTPAdapter
 
 from pipeline import config, vetor, wfs
+from pipeline.armazenamento import lago
 from pipeline.download import baixar
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -275,6 +276,8 @@ def _consultar_filtro(tipo: str, cql: str, uf: str, atualizar: bool) -> tuple[pd
     _registrar(resultado, meta, resposta)
     saida, descartados = transformar([resposta], resultado)
     resultado.saida = {"registros_produzidos": len(saida), "registros_descartados": len(descartados)}
+    if not saida.empty:  # uma versão por consulta, só quando o imóvel mudou (ADR 0017)
+        lago.gravar("geo.imovel_car", saida, resultado)
     resultado.status = "ok"
     return saida, resultado
 

@@ -58,6 +58,24 @@ def gravar(tabela: str, df: pd.DataFrame, resultado: ResultadoFonte | None = Non
     return resumo
 
 
+def quadro(tabela: str, linhas: list[dict]) -> pd.DataFrame:
+    """DataFrame com as colunas e os tipos do contrato (linhas vazias viram quadro vazio com as colunas certas)."""
+    contrato = contratos.carregar(tabela)
+    df = pd.DataFrame(linhas, columns=contrato.nomes)
+    for c in contrato.colunas:
+        if c.tipo == "data_hora":
+            df[c.nome] = pd.to_datetime(df[c.nome])
+        elif c.tipo == "inteiro":
+            df[c.nome] = df[c.nome].astype("Int64")
+        elif c.tipo == "decimal":
+            df[c.nome] = pd.to_numeric(df[c.nome]).astype("float64")
+        elif c.tipo == "logico":
+            df[c.nome] = df[c.nome].astype("boolean")
+        else:
+            df[c.nome] = df[c.nome].astype("string")
+    return df
+
+
 def existe(tabela: str) -> bool:
     contrato = contratos.carregar(tabela)
     p = pasta(tabela)

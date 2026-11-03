@@ -178,7 +178,7 @@ UC_GRUPOS = ("Proteção Integral", "Uso Sustentável")
 UC_POLIGONO_ESQUEMATICO = "Polígono é uma representação esquemática da localização da UC"
 
 # Pré-diagnóstico: pasta das fichas e CARs da demonstração (6 do café de MG, 1 por bioma no resto do país e 4 com sobreposição a área protegida).
-PREDIAGNOSTICO = DADOS_PROCESSADOS / "prediagnostico"
+PREDIAGNOSTICO = SAIDAS / "prediagnostico"
 # `esperado`: situação de cada critério verificado e do resultado, conferida na página da demonstração.
 _LIMPO = {"car": "sem ocorrência", "embargo": "sem ocorrência", "desmatamento": "sem ocorrência",
           "lista_suja": "sem ocorrência", "terra_indigena": "sem ocorrência", "quilombola": "sem ocorrência",

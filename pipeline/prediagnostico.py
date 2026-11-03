@@ -599,11 +599,16 @@ def demonstracao(atualizar: bool = False, baixar_prodes: bool = True) -> Path:
     cada critério com o esperado para o caso."""
     from pipeline import ficha_html
 
+    from pipeline import resultados
+
     fichas = []
+    execucao = resultados.Execucao("demonstracao", comando="python -m pipeline.prediagnostico --demo")
     for cod, caso in config.CARS_DEMONSTRACAO.items():
         ficha = executar(cod, documento=DOCUMENTO_DEMONSTRACAO, atualizar=atualizar, baixar_prodes=baixar_prodes)
         caminhos = escrever(ficha)
+        execucao.acrescentar(ficha, ficha_arquivo=caminhos["html"].name)
         fichas.append((ficha, caso, caminhos["html"].name))
+    execucao.encerrar()
     indice = config.PREDIAGNOSTICO / "index.html"
     indice.write_text(ficha_html.indice(fichas, inpe_prodes.ler_publicacao()), encoding="utf-8")
     return indice
@@ -633,6 +638,11 @@ def main(argv=None) -> int:
     lat, lon = args.ponto or (None, None)
     ficha = executar(args.car, lat, lon, args.documento, args.atualizar, not args.sem_baixar_prodes)
     caminhos = escrever(ficha)
+    from pipeline import resultados
+
+    execucao = resultados.Execucao("avulsa", comando="python -m pipeline.prediagnostico")
+    execucao.acrescentar(ficha, ficha_arquivo=caminhos["html"].name)
+    execucao.encerrar()
     log.info("Resultado: %s. Ficha: %s", ficha["resultado"]["situacao"], caminhos["html"])
     return 0
 

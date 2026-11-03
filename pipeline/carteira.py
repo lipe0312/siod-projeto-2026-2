@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline import config, prediagnostico, relatorio
+from pipeline import cadastro, config, prediagnostico, relatorio, resultados
 from pipeline.documentos import cpf_valido, cnpj_valido
 
 log = logging.getLogger("pipeline")
@@ -88,7 +88,10 @@ def resumir(ficha: dict) -> dict:
             "_n_pendencias": len(pend)}
 
 
-def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar) -> pd.DataFrame:
+def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar,
+              execucao=None, ids: dict | None = None) -> pd.DataFrame:
+    """Uma linha por imóvel, em ordem de prioridade. Com `execucao` (resultados.Execucao), cada ficha vai também para
+    o esquema diag, ligada ao imóvel do cadastro (`ids`, de cadastro.importar_carteira)."""
     linhas = []
     for i, linha in df.iterrows():
         linha = pd.Series({k: _valor(linha, k) for k in df.columns}, dtype=object)
@@ -109,7 +112,10 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
                            "_n_pendencias": 0})
             continue
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
+        resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
+                                            ficha_arquivo=f"fichas/{caminhos['html'].name}") if execucao else None
         linhas.append({**base, **resumir(ficha), "ficha": f"fichas/{caminhos['html'].name}",
+                       "_resultado_id": resultado_id,
                        "problema_na_linha": None if ficha["imovel"].get("cod_imovel") else
                        ficha["criterios"][0]["evidencia"]})
     saida = pd.DataFrame(linhas)
@@ -120,6 +126,10 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
     saida = saida.sort_values(["_ordem", "_n_pendencias", "area_ha"], ascending=[True, False, False],
                               na_position="last", kind="stable").reset_index(drop=True)
     saida.insert(0, "prioridade", range(1, len(saida) + 1))
+    if execucao and "_resultado_id" in saida:
+        prioridade = dict(zip(saida["_resultado_id"], saida["prioridade"]))
+        for r in execucao.resultados:
+            r["prioridade"] = prioridade.get(r["resultado_id"])
     extras = [c for c in saida.columns if c not in COLUNAS_SAIDA and not c.startswith("_")]
     return saida.reindex(columns=[*COLUNAS_SAIDA, *extras])
 
@@ -157,13 +167,23 @@ com fontes públicas: não é atestado de conformidade. O CPF/CNPJ não é grava
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Carteira priorizada a partir de uma planilha de imóveis.")
     parser.add_argument("planilha", type=Path, help="CSV ou XLSX com id_produtor e cod_car ou lat/lon")
-    parser.add_argument("--saida", type=Path, help="pasta de saída (padrão: data/processed/carteiras/<nome>)")
+    parser.add_argument("--saida", type=Path, help="pasta de saída (padrão: data/saidas/carteiras/<nome>/<AAAA-MM>)")
+    parser.add_argument("--organizacao", help="nome da cooperativa ou empresa no cadastro (padrão: nome da planilha)")
     parser.add_argument("--sem-baixar-prodes", action="store_true")
     args = parser.parse_args(argv)
     relatorio.configurar_log(config.LOGS / f"carteira_{datetime.now():%Y%m%d_%H%M%S}.log")
-    pasta = args.saida or config.DADOS_PROCESSADOS / "carteiras" / args.planilha.stem
+    pasta = args.saida or config.SAIDAS / "carteiras" / args.planilha.stem / f"{datetime.now():%Y-%m}"
     pasta.mkdir(parents=True, exist_ok=True)
-    saida = processar(ler_planilha(args.planilha), pasta, not args.sem_baixar_prodes)
+    planilha = ler_planilha(args.planilha)
+    # Cadastro (cad) e resultado (diag) no lago: é o que permite ver, no mês seguinte, o que mudou (ADR 0017).
+    organizacao_id = cadastro.organizacao(args.organizacao or args.planilha.stem)
+    problemas = {i: m for i, linha in planilha.iterrows() if (m := problema(
+        pd.Series({k: _valor(linha, k) for k in planilha.columns}, dtype=object)))}
+    carteira_id, ids = cadastro.importar_carteira(planilha, organizacao_id, args.planilha, problemas)
+    execucao = resultados.Execucao("carteira", organizacao_id, carteira_id,
+                                   "python -m pipeline.carteira " + " ".join(argv if argv is not None else sys.argv[1:]))
+    saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids)
+    execucao.encerrar()
     saida.to_csv(pasta / "carteira.csv", index=False)
     (pasta / "carteira.html").write_text(html(saida, args.planilha.name), encoding="utf-8")
     log.info("Carteira: %d imóveis; %s", len(saida), pasta / "carteira.html")

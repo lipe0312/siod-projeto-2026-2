@@ -40,3 +40,11 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "rede" in item.keywords:
             item.add_marker(pular)
+
+
+@pytest.fixture(autouse=True)
+def lago_temporario(tmp_path, monkeypatch):
+    """Nenhum teste grava no lago real (data/lago): cada um tem o seu, vazio."""
+    from pipeline import config
+
+    monkeypatch.setattr(config, "LAGO", tmp_path / "lago")
