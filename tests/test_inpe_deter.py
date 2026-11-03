@@ -170,10 +170,9 @@ def contorno_ms(tmp_path, monkeypatch):
     import shapely
 
     from pipeline import territorio
-    monkeypatch.setattr(territorio, "ARQ_UFS", tmp_path / "ufs.parquet")
-    pd.DataFrame({"uf": ["MS"], "cod_uf": ["50"], "geometria_wkt": [shapely.box(-58, -24, -50, -17).wkt]}).to_parquet(
-        territorio.ARQ_UFS)
-    territorio._ufs.cache_clear()
+    from test_territorio import gravar_contornos
+    ms = pd.DataFrame({"uf": ["MS"], "cod_uf": ["50"], "geometria_wkt": [shapely.box(-58, -24, -50, -17).wkt]})
+    gravar_contornos(tmp_path, monkeypatch, ufs=ms, biomas=None)
     yield
     territorio._ufs.cache_clear()
 

@@ -1,13 +1,17 @@
 """Terras indígenas, unidades de conservação e territórios quilombolas: validações das fontes e critérios de
 sobreposição no pré-diagnóstico (sem rede)."""
 
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
 import shapely
 
+from apoio_lago import relogio_que_avanca, usar_lago_temporario
 from conftest import ocorrencias
-from pipeline import prediagnostico
+from pipeline import download, prediagnostico, vetor
+from pipeline.armazenamento import lago
 from pipeline.fontes import (funai_terras_indigenas, ibge_territorios_quilombolas, incra_quilombolas,
                              mma_unidades_conservacao)
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
@@ -244,3 +248,111 @@ def test_bioma_sem_deter_fica_sem_ocorrencia_com_aviso_de_cobertura():
     criterio = next(c for c in ficha["criterios"] if c["chave"] == "desmatamento")
     assert criterio["situacao"] == "sem ocorrência" and criterio["aviso"] == aviso
     assert ficha["resultado"]["situacao"] == "sem pendência nas fontes verificadas"
+
+
+# --- Gravação no lago (histórico fotografia) ------------------------------------------------------------------------
+
+META_DOWNLOAD = {"status_http": 200, "consultado_em_utc": "2026-11-03T10:00:00Z", "sha256": "0" * 64}
+
+
+@pytest.fixture
+def lago_de_teste(tmp_path, monkeypatch):
+    usar_lago_temporario(monkeypatch, tmp_path)
+    relogio_que_avanca(monkeypatch)
+    return tmp_path
+
+
+def novo(resultado, tabela):
+    return resultado.saida["tabelas"][tabela]["novo"]
+
+
+def sem_parquet_em_processed(raiz):
+    return not list((raiz / "data" / "processed").glob("*.parquet"))
+
+
+def test_ti_grava_no_lago_e_so_cria_carga_nova_quando_muda(lago_de_teste, monkeypatch):
+    corrente = {"resposta": resposta_ti([feicao_ti(1), feicao_ti(2)])}
+    monkeypatch.setattr(download, "sessao_com_intermediario", lambda *a, **k: None)
+    monkeypatch.setattr(download, "consultar",
+                        lambda *a, **k: (json.dumps(corrente["resposta"]).encode(), META_DOWNLOAD))
+    primeira, igual = funai_terras_indigenas.executar(), funai_terras_indigenas.executar()
+    assert novo(primeira, "ref.terra_indigena") and not novo(igual, "ref.terra_indigena")
+    assert primeira.saida["arquivo"] == "data/lago/ref/terra_indigena" and primeira.saida["registros_produzidos"] == 2
+    assert igual.saida["tabelas"]["ref.terra_indigena"]["carga_vigente"] == primeira.carga_id
+
+    corrente["resposta"] = resposta_ti([feicao_ti(1), feicao_ti(2, fase="Declarada")])
+    mudou = funai_terras_indigenas.executar()
+    assert novo(mudou, "ref.terra_indigena")
+    vigente = lago.ler("ref.terra_indigena").set_index("terrai_codigo")
+    assert vigente["fase"].to_dict() == {"1": "Regularizada", "2": "Declarada"}
+    assert set(vigente["carga_id"]) == {mudou.carga_id}
+    assert len(lago.ler("ref.terra_indigena", vigente=False)) == 4  # as duas cargas ficam guardadas
+    assert sem_parquet_em_processed(lago_de_teste)
+
+
+def test_uc_grava_no_lago_e_so_cria_carga_nova_quando_muda(lago_de_teste, monkeypatch):
+    pacote = {"result": {"resources": [{"name": "2025_08", "format": "zip + shp", "created": "2025-09-03",
+                                        "url": "https://dados.mma.gov.br/b.zip"}]}}
+    corrente = {"categoria": "Parque"}
+
+    def shapefile(caminho, base):
+        if base.endswith("_pontos"):
+            return pontos_cnuc(("4", shapely.Point(X0, Y0)))
+        return camada_cnuc(("1", corrente["categoria"], "Proteção Integral", COBRE, ""))
+
+    monkeypatch.setattr(download, "consultar", lambda *a, **k: (json.dumps(pacote).encode(), META_DOWNLOAD))
+    monkeypatch.setattr(download, "baixar", lambda *a, **k: {})
+    monkeypatch.setattr(vetor, "ler_shapefile_zip", shapefile)
+    primeira, igual = mma_unidades_conservacao.executar(), mma_unidades_conservacao.executar()
+    assert novo(primeira, "ref.unidade_conservacao") and not novo(igual, "ref.unidade_conservacao")
+    assert primeira.saida["arquivo"] == "data/lago/ref/unidade_conservacao"
+    assert primeira.saida["registros_produzidos"] == 2
+
+    corrente["categoria"] = "Floresta"
+    assert novo(mma_unidades_conservacao.executar(), "ref.unidade_conservacao")
+    assert lago.ler("ref.unidade_conservacao").set_index("cd_cnuc").at["1", "categoria"] == "Floresta"
+    assert len(lago.ler("ref.unidade_conservacao", vigente=False)) == 4
+    assert sem_parquet_em_processed(lago_de_teste)
+
+
+def camada_ibge(situacao_2="ESTUDO TÉCNICO"):
+    registros = [{"COD_TQ": "1", "NOM_TQ": "A", "STATUS": "TITULADO", "SG_UF": "MG"},
+                 {"COD_TQ": "2", "NOM_TQ": "B", "STATUS": situacao_2, "SG_UF": "MG"}]
+    so_ibge = shapely.box(X0 + 1, Y0, X0 + 1.01, Y0 + 0.01)
+    return registros, np.array([COBRE.buffer(-0.001), so_ibge], dtype=object), PRJ_SIRGAS, 0
+
+
+def test_quilombolas_gravam_no_lago_e_a_combinada_le_o_ibge_do_lago(lago_de_teste, monkeypatch):
+    corrente = {"ibge": camada_ibge(), "incra": resposta_ti([feicao_qi(1, geometria=COBRE)])}
+    monkeypatch.setattr(download, "baixar", lambda *a, **k: {})
+    monkeypatch.setattr(download, "consultar", lambda *a, **k: (json.dumps(corrente["incra"]).encode(),
+                                                                 META_DOWNLOAD))
+    monkeypatch.setattr(vetor, "ler_shapefile_zip", lambda *a: corrente["ibge"])
+
+    with pytest.raises(RuntimeError, match="ref.quilombola_ibge ausente"):
+        incra_quilombolas.executar()  # sem o IBGE no lago não há o que combinar
+
+    ibge1, incra1 = ibge_territorios_quilombolas.executar(), incra_quilombolas.executar()
+    assert novo(ibge1, "ref.quilombola_ibge") and ibge1.saida["arquivo"] == "data/lago/ref/quilombola_ibge"
+    assert ibge1.saida["registros_produzidos"] == 2
+    assert novo(incra1, "ref.quilombola_incra") and novo(incra1, "ref.territorio_quilombola")
+    assert incra1.saida["arquivo"] == "data/lago/ref/quilombola_incra"
+    assert incra1.saida["arquivo_combinado"] == "data/lago/ref/territorio_quilombola"
+    assert incra1.saida["combinado_por_base"] == {"INCRA": 1, "IBGE 2022": 1}
+    assert lago.ler("ref.territorio_quilombola")["codigo"].tolist() == ["INCRA:lim_quilombolas_a.1", "IBGE:2"]
+
+    ibge2, incra2 = ibge_territorios_quilombolas.executar(), incra_quilombolas.executar()
+    assert not novo(ibge2, "ref.quilombola_ibge")
+    assert not novo(incra2, "ref.quilombola_incra") and not novo(incra2, "ref.territorio_quilombola")
+
+    corrente["ibge"] = camada_ibge(situacao_2="TITULADO")  # só o IBGE muda: a combinada acompanha
+    ibge3, incra3 = ibge_territorios_quilombolas.executar(), incra_quilombolas.executar()
+    assert novo(ibge3, "ref.quilombola_ibge") and novo(incra3, "ref.territorio_quilombola")
+    assert not novo(incra3, "ref.quilombola_incra")
+    assert lago.ler("ref.territorio_quilombola").set_index("codigo").at["IBGE:2", "situacao"] == "TITULADO"
+
+    corrente["incra"] = resposta_ti([feicao_qi(1, geometria=COBRE, fase="TITULADO")])
+    incra4 = incra_quilombolas.executar()
+    assert novo(incra4, "ref.quilombola_incra") and novo(incra4, "ref.territorio_quilombola")
+    assert len(lago.ler("ref.quilombola_incra", vigente=False)) == 2
+    assert sem_parquet_em_processed(lago_de_teste)

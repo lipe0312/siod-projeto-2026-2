@@ -7,6 +7,7 @@ import unicodedata
 import pandas as pd
 
 from pipeline import config
+from pipeline.armazenamento import lago
 from pipeline.download import baixar
 from pipeline.validacao import ResultadoFonte
 
@@ -65,10 +66,8 @@ def carregar_referencia(atualizar: bool = False) -> tuple[pd.DataFrame, Resultad
     dados = json.loads((config.DADOS_BRUTOS / "ibge_municipios.json").read_text(encoding="utf-8"))
     resultado.entrada["registros_recebidos"] = len(dados) if isinstance(dados, list) else 0
     ref = construir_referencia(dados, resultado)
-    destino = config.DADOS_PROCESSADOS / "ibge_municipios.parquet"
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    ref.to_parquet(destino, index=False)
-    resultado.saida = {"arquivo": str(destino.relative_to(config.RAIZ)), "registros_produzidos": len(ref)}
+    lago.gravar("geo.municipio", ref, resultado)
+    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("geo.municipio")), "registros_produzidos": len(ref)})
     resultado.status = "ok"
     return ref, resultado
 

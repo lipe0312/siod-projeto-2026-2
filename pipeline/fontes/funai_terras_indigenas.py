@@ -13,9 +13,9 @@ import pandas as pd
 import shapely
 
 from pipeline import config, download, vetor, wfs
+from pipeline.armazenamento import lago
 from pipeline.validacao import Marcas, ResultadoFonte
 
-ARQ_SAIDA = config.DADOS_PROCESSADOS / "funai_terras_indigenas.parquet"
 LIMITE = 5000  # o Brasil tem menos de mil terras indígenas com polígono
 COLUNAS_SAIDA = ["terrai_codigo", "nome", "etnia", "fase", "modalidade", "uf", "municipio", "superficie_ha",
                  "data_atualizacao", "geometria_wkt", "alertas"]
@@ -87,11 +87,10 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
     resultado.transformar("Uma requisição com count (o serviço recusa pedido sem count); cadeia de certificado "
                           "completada pelo endereço AIA, com verificação")
     saida, descartados = transformar(resposta, resultado)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    saida.to_parquet(ARQ_SAIDA, index=False)
-    resultado.saida = {"arquivo": str(ARQ_SAIDA.relative_to(config.RAIZ)), "registros_produzidos": len(saida),
-                       "registros_descartados": len(descartados),
-                       "registros_com_alerta": int((saida["alertas"] != "").sum()),
-                       "por_fase": saida["fase"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA}
+    lago.gravar("ref.terra_indigena", saida, resultado)
+    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.terra_indigena")),
+                            "registros_produzidos": len(saida), "registros_descartados": len(descartados),
+                            "registros_com_alerta": int((saida["alertas"] != "").sum()),
+                            "por_fase": saida["fase"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA})
     resultado.status = "ok"
     return resultado

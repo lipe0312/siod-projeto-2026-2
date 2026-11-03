@@ -14,9 +14,9 @@ import pandas as pd
 import shapely
 
 from pipeline import config, download, vetor
+from pipeline.armazenamento import lago
 from pipeline.validacao import Marcas, ResultadoFonte
 
-ARQ_SAIDA = config.DADOS_PROCESSADOS / "mma_unidades_conservacao.parquet"
 COLUNAS_SAIDA = ["cd_cnuc", "nome", "categoria", "grupo", "esfera", "uf", "orgao_gestor", "ano_criacao",
                  "qualidade_poligono", "so_ponto", "geometria_wkt", "alertas"]
 GRUPO_PONTO = {"PI": "Proteção Integral", "US": "Uso Sustentável"}
@@ -100,11 +100,10 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
     base = destino.stem.removeprefix("shp_")
     saida, descartados = transformar(vetor.ler_shapefile_zip(destino, base),
                                      vetor.ler_shapefile_zip(destino, base + "_pontos"), resultado)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    saida.to_parquet(ARQ_SAIDA, index=False)
-    resultado.saida = {"arquivo": str(ARQ_SAIDA.relative_to(config.RAIZ)), "registros_produzidos": len(saida),
-                       "registros_descartados": len(descartados),
-                       "registros_com_alerta": int((saida["alertas"] != "").sum()),
-                       "por_grupo": saida["grupo"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA}
+    lago.gravar("ref.unidade_conservacao", saida, resultado)
+    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.unidade_conservacao")),
+                            "registros_produzidos": len(saida), "registros_descartados": len(descartados),
+                            "registros_com_alerta": int((saida["alertas"] != "").sum()),
+                            "por_grupo": saida["grupo"].value_counts().to_dict(), "colunas": COLUNAS_SAIDA})
     resultado.status = "ok"
     return resultado

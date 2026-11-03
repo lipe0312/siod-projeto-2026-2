@@ -1,4 +1,4 @@
-"""Referência territorial: contorno das UFs (malha do IBGE) e dos biomas (INPE), em data/processed/.
+"""Referência territorial: contorno das UFs (malha do IBGE) e dos biomas (INPE), no lago (geo.uf e geo.bioma).
 
 A UF de um ponto (sede do imóvel), de um polígono PRODES ou de um imóvel vem do contorno, não de um campo de texto da
 fonte (ADR 0013): o campo `state` do PRODES pode trazer a UF vizinha num polígono de divisa, e a consulta por ponto
@@ -14,11 +14,9 @@ import shapely
 from shapely.strtree import STRtree
 
 from pipeline import config, vetor
+from pipeline.armazenamento import lago
 from pipeline.download import baixar
 from pipeline.validacao import ResultadoFonte
-
-ARQ_UFS = config.DADOS_PROCESSADOS / "ibge_ufs.parquet"
-ARQ_BIOMAS = config.DADOS_PROCESSADOS / "inpe_biomas.parquet"
 
 
 def _feicoes(resposta: dict, resultado: ResultadoFonte, prefixo: str) -> list[dict]:
@@ -67,7 +65,7 @@ def construir_biomas(resposta: dict, resultado: ResultadoFonte) -> pd.DataFrame:
 
 
 def carregar(atualizar: bool = False) -> ResultadoFonte:
-    """Baixa (ou reaproveita) a malha de UFs e os biomas, valida e grava os dois parquets."""
+    """Baixa (ou reaproveita) a malha de UFs e os biomas, valida e grava geo.uf e geo.bioma no lago."""
     resultado = ResultadoFonte("territorio", "API (GeoJSON), referência")
     destinos = {"ufs": config.DADOS_BRUTOS / "ibge_malha_ufs.geojson",
                 "biomas": config.DADOS_BRUTOS / "inpe_biomas.geojson"}
@@ -76,31 +74,30 @@ def carregar(atualizar: bool = False) -> ResultadoFonte:
     ufs = construir_ufs(json.loads(destinos["ufs"].read_text()), resultado)
     biomas = construir_biomas(json.loads(destinos["biomas"].read_text()), resultado)
     resultado.transformar("Código da UF (codarea) convertido para a sigla; nome do bioma para a chave do projeto")
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    ufs.to_parquet(ARQ_UFS, index=False)
-    biomas.to_parquet(ARQ_BIOMAS, index=False)
+    lago.gravar("geo.uf", ufs, resultado)
+    lago.gravar("geo.bioma", biomas, resultado)
     for f in (_ufs, _biomas):
         f.cache_clear()
-    resultado.saida = {"arquivos": [str(ARQ_UFS.relative_to(config.RAIZ)), str(ARQ_BIOMAS.relative_to(config.RAIZ))],
-                       "registros_produzidos": len(ufs) + len(biomas)}
+    resultado.saida.update({"arquivos": [lago._relativo(lago.pasta("geo.uf")), lago._relativo(lago.pasta("geo.bioma"))],
+                            "registros_produzidos": len(ufs) + len(biomas)})
     resultado.status = "ok"
     return resultado
 
 
 @functools.cache
 def _ufs() -> tuple[list[str], np.ndarray, STRtree]:
-    if not ARQ_UFS.exists():
+    if not lago.existe("geo.uf"):
         carregar()
-    df = pd.read_parquet(ARQ_UFS)
+    df = lago.ler("geo.uf")
     geoms = shapely.from_wkt(df["geometria_wkt"].to_numpy())
     return df["uf"].tolist(), geoms, STRtree(geoms)
 
 
 @functools.cache
 def _biomas() -> tuple[list[str], np.ndarray, STRtree]:
-    if not ARQ_BIOMAS.exists():
+    if not lago.existe("geo.bioma"):
         carregar()
-    df = pd.read_parquet(ARQ_BIOMAS)
+    df = lago.ler("geo.bioma")
     geoms = shapely.from_wkt(df["geometria_wkt"].to_numpy())
     return df["bioma"].tolist(), geoms, STRtree(geoms)
 

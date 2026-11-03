@@ -1,6 +1,11 @@
+import json
+
 import pandas as pd
 import pytest
 
+from apoio_lago import relogio_que_avanca, usar_lago_temporario
+from pipeline import municipios
+from pipeline.armazenamento import lago
 from pipeline.municipios import construir_referencia, normalizar_nome, resolver_por_nome
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
 
@@ -48,3 +53,28 @@ def test_nome_e_uf_repetidos_interrompem():
     dados = [municipio(i, f"M{i}", "PA") for i in range(5600)] + [municipio(9999999, "M1", "PA")]
     with pytest.raises(ErroDeValidacao, match="IBGE_NOME_UF_DUPLICADO"):
         construir_referencia(dados, ResultadoFonte("ibge", "API"))
+
+
+def test_referencia_grava_no_lago_e_so_cria_carga_nova_quando_muda(tmp_path, monkeypatch):
+    usar_lago_temporario(monkeypatch, tmp_path)
+    relogio_que_avanca(monkeypatch)
+    monkeypatch.setattr(municipios, "baixar", lambda *a, **k: {})
+    arquivo = tmp_path / "data" / "raw" / "ibge_municipios.json"
+    arquivo.parent.mkdir(parents=True)
+    dados = [municipio(i, f"M{i}", "PA") for i in range(5600)]
+    arquivo.write_text(json.dumps(dados))
+
+    ref, primeira = municipios.carregar_referencia()
+    _, igual = municipios.carregar_referencia()
+    assert len(ref) == 5600 and "carga_id" not in ref.columns  # retorno compatível: só as colunas de sempre
+    assert primeira.saida["tabelas"]["geo.municipio"]["novo"] and not igual.saida["tabelas"]["geo.municipio"]["novo"]
+    assert primeira.saida["arquivo"] == "data/lago/geo/municipio" and primeira.saida["registros_produzidos"] == 5600
+
+    dados[0] = municipio(0, "Renomeado", "PA")
+    arquivo.write_text(json.dumps(dados))
+    mudou = municipios.carregar_referencia()[1]
+    assert mudou.saida["tabelas"]["geo.municipio"]["novo"]
+    vigente = lago.ler("geo.municipio").set_index("cod_municipio")
+    assert vigente.at["0", "municipio"] == "Renomeado" and set(vigente["carga_id"]) == {mudou.carga_id}
+    assert len(lago.ler("geo.municipio", vigente=False)) == 2 * 5600  # as duas cargas ficam guardadas
+    assert not (tmp_path / "data" / "processed").exists()

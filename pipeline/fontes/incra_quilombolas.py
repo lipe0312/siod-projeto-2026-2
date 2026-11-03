@@ -8,7 +8,7 @@ Por que esta camada (testado em 02/11/2026):
   decreto, título), cadastradas em 28/10/2026. Só 4 tocam terra indígena: é a base nacional, não um recorte;
 - 37 dessas áreas não tocam nenhum território da base do IBGE de 31/07/2022 (22 em fase de RTID, mais recentes).
 
-Camada combinada (`ARQ_SAIDA`): todas as áreas do INCRA, mais os territórios do IBGE que não coincidem com nenhuma
+Camada combinada (ref.territorio_quilombola): todas as áreas do INCRA, mais os territórios do IBGE que não coincidem com nenhuma
 delas (menos de LIMIAR_MESMO_TERRITORIO da área coberta pelo INCRA). Cada linha diz a base de onde veio.
 """
 
@@ -20,11 +20,9 @@ import shapely
 from shapely.strtree import STRtree
 
 from pipeline import config, download, vetor, wfs
-from pipeline.fontes import ibge_territorios_quilombolas
+from pipeline.armazenamento import lago
 from pipeline.validacao import Marcas, ResultadoFonte
 
-ARQ_INCRA = config.DADOS_PROCESSADOS / "incra_quilombolas.parquet"
-ARQ_SAIDA = config.DADOS_PROCESSADOS / "quilombolas.parquet"
 COLUNAS_INCRA = ["id_incra", "nome", "situacao", "uf", "municipio", "processo", "superintendencia", "area_ha",
                  "data_publicacao", "data_cadastro", "geometria_wkt", "alertas"]
 COLUNAS_SAIDA = ["codigo", "nome", "situacao", "uf", "base", "data_referencia", "geometria_wkt", "alertas"]
@@ -130,18 +128,19 @@ def executar(atualizar: bool = False) -> ResultadoFonte:
                          "sha256": meta["sha256"], "anunciado": resposta.get("numberMatched")}
     resultado.transformar("Uma requisição com count; a camada é a do INCRA, republicada pelo CMR/FUNAI")
     incra, descartados = transformar(resposta, resultado)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    incra.to_parquet(ARQ_INCRA, index=False)
-    arq_ibge = ibge_territorios_quilombolas.ARQ_SAIDA
-    if not arq_ibge.exists():
-        raise RuntimeError(f"{arq_ibge.name} ausente: rodar a fonte quilombolas do IBGE antes de combinar")
-    combinada = combinar(incra, pd.read_parquet(arq_ibge), resultado)
-    combinada.to_parquet(ARQ_SAIDA, index=False)
-    resultado.saida = {"arquivo": str(ARQ_INCRA.relative_to(config.RAIZ)), "registros_produzidos": len(incra),
-                       "registros_descartados": len(descartados),
-                       "registros_com_alerta": int((incra["alertas"] != "").sum()),
-                       "por_situacao": incra["situacao"].value_counts().to_dict(),
-                       "arquivo_combinado": str(ARQ_SAIDA.relative_to(config.RAIZ)),
-                       "combinado_por_base": combinada["base"].value_counts().to_dict(), "colunas": COLUNAS_INCRA}
+    try:
+        ibge = lago.ler("ref.quilombola_ibge").drop(columns="carga_id", errors="ignore")
+    except lago.TabelaAusente:
+        raise RuntimeError("ref.quilombola_ibge ausente: rodar a fonte quilombolas do IBGE antes de combinar") from None
+    lago.gravar("ref.quilombola_incra", incra, resultado)
+    combinada = combinar(incra, ibge, resultado)
+    lago.gravar("ref.territorio_quilombola", combinada, resultado)
+    resultado.saida.update({"arquivo": lago._relativo(lago.pasta("ref.quilombola_incra")),
+                            "registros_produzidos": len(incra), "registros_descartados": len(descartados),
+                            "registros_com_alerta": int((incra["alertas"] != "").sum()),
+                            "por_situacao": incra["situacao"].value_counts().to_dict(),
+                            "arquivo_combinado": lago._relativo(lago.pasta("ref.territorio_quilombola")),
+                            "combinado_por_base": combinada["base"].value_counts().to_dict(),
+                            "colunas": COLUNAS_INCRA})
     resultado.status = "ok"
     return resultado

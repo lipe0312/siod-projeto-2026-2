@@ -14,6 +14,7 @@ from pipeline import config, prediagnostico, territorio, wfs
 from pipeline.fontes import inpe_prodes
 from pipeline.validacao import ErroDeValidacao
 from test_inpe_prodes import poligono, quadrado, resposta
+from test_territorio import gravar_contornos
 
 HOJE = pd.Timestamp("2026-10-30")
 # MG a oeste de -45, SP a leste; Cerrado e Mata Atlântica nas duas. Polígonos fictícios ao longo de y = -18.
@@ -93,14 +94,10 @@ def servico(tmp_path, monkeypatch):
     monkeypatch.setattr(inpe_prodes, "PASTA_SAIDA", tmp_path / "processed" / "inpe_prodes")
     for nome in ("ARQ_DESCARTADOS", "ARQ_PUBLICACAO"):
         monkeypatch.setattr(inpe_prodes, nome, tmp_path / "processed" / getattr(inpe_prodes, nome).name)
-    monkeypatch.setattr(territorio, "ARQ_UFS", tmp_path / "ufs.parquet")
-    monkeypatch.setattr(territorio, "ARQ_BIOMAS", tmp_path / "biomas.parquet")
-    pd.DataFrame({"uf": ["MG", "SP"], "cod_uf": ["31", "35"], "geometria_wkt": [MG.wkt, SP.wkt]}).to_parquet(
-        territorio.ARQ_UFS)
-    pd.DataFrame({"bioma": ["cerrado", "mata_atlantica"], "nome": ["Cerrado", "Mata Atlântica"],
-                  "geometria_wkt": [CERRADO.wkt, MATA.wkt]}).to_parquet(territorio.ARQ_BIOMAS)
-    territorio._ufs.cache_clear()
-    territorio._biomas.cache_clear()
+    gravar_contornos(tmp_path, monkeypatch, pd.DataFrame({"uf": ["MG", "SP"], "cod_uf": ["31", "35"],
+                                                         "geometria_wkt": [MG.wkt, SP.wkt]}),
+                     pd.DataFrame({"bioma": ["cerrado", "mata_atlantica"], "nome": ["Cerrado", "Mata Atlântica"],
+                                   "geometria_wkt": [CERRADO.wkt, MATA.wkt]}))
     yield s
     territorio._ufs.cache_clear()
     territorio._biomas.cache_clear()
