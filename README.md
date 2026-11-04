@@ -76,8 +76,7 @@ Decisão de 03/11/2026: o dado em cinco esquemas (`meta`, `geo`, `ref`, `cad`, `
 2. Aceitar o PDF do AB+S no pré-diagnóstico e mostrar o resultado oficial ao lado de cada critério.
 3. Integrar os critérios 2 e 8 (SIGEF) quando o acervo do INCRA voltar a ter endereço público.
 4. Agendar a verificação mensal no `crontab` e validar a dor com técnicos de assistência técnica e de cooperativas.
-5. Carteira com "o que mudou": a comparação já existe (`resultados.mudancas`, visão `diag.mudanca`); falta mostrá-la na carteira.
-6. Ligar o perfil lite num banco gerenciado (Neon ou Supabase) quando houver API e mais de um usuário; até lá, o banco é opcional e local.
+5. Ligar o perfil lite num banco gerenciado (Neon ou Supabase) quando houver API e mais de um usuário; até lá, o banco é opcional e local.
 
 ## Como reproduzir na sua máquina
 
@@ -262,7 +261,7 @@ Desde 02/11/2026, o lote vem do arquivo de cada bioma na área de download do Te
 
 Para rodar todo mês sozinho, use a rotina mensal em [`agendamento/`](agendamento/LEIA-ME.md) (launchd no macOS ou `cron` no Linux). Ela atualiza todas as fontes em lote e roda a demonstração como teste de regressão. Não tem custo.
 
-**Carteira.** `python -m pipeline.carteira planilha.xlsx` recebe a planilha de uma cooperativa (uma linha por imóvel: `id_produtor` e `cod_car` ou `lat`/`lon`; modelo em [`docs/modelos/carteira_modelo.csv`](docs/modelos/carteira_modelo.csv)) e devolve a lista de atendimento em ordem de prioridade, com uma ficha por imóvel. O que o cliente vê e o que cada stakeholder entrega estão em [`docs/visao-do-produto.md`](docs/visao-do-produto.md).
+**Carteira.** `python -m pipeline.carteira planilha.xlsx` recebe a planilha de uma cooperativa (uma linha por imóvel: `id_produtor` e `cod_car` ou `lat`/`lon`; modelo em [`docs/modelos/carteira_modelo.csv`](docs/modelos/carteira_modelo.csv)) e devolve a lista de atendimento em ordem de prioridade, com uma ficha por imóvel. Cada linha diz se o imóvel mudou desde a execução anterior da mesma organização (`--organizacao`; padrão: o nome da planilha) (colunas `mudou` e `o_que_mudou`, ex.: "Embargo IBAMA: sem ocorrência → pendência") e o topo do `carteira.html` mostra quantos mudaram e desde quando; na primeira execução, "sem comparação". O que o cliente vê e o que cada stakeholder entrega estão em [`docs/visao-do-produto.md`](docs/visao-do-produto.md).
 
 Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa), a ficha avisa o período sem cobertura entre a última imagem PRODES e a data da consulta. O Pantanal tem DETER desde 08/2023, pelo arquivo do TerraBrasilis. Evidências em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
 
