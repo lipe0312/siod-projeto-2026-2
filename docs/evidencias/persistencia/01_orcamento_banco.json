@@ -1,0 +1,402 @@
+{
+  "gerado_em": "2026-11-04 00:01 UTC",
+  "meta_lite_mb": 250,
+  "limite_lite_mb": 300,
+  "lite_mb": 184.8,
+  "completo_mb": 2030.0,
+  "cabe_supabase_500mb": true,
+  "cabe_neon_1gb": true,
+  "linhas_do_legado_fora_da_chave": {
+    "ref.desmatamento_prodes": 1726
+  },
+  "perfis": {
+    "lite": {
+      "perfil": "lite",
+      "tabelas": {
+        "cad.area_producao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.carteira": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.carteira_item": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.consentimento": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.documento_trazido": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.organizacao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.produtor": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.produtor_imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.usuario": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.conferencia_ab_s": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "diag.criterio": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.evidencia": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 40960
+        },
+        "diag.execucao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.execucao_carga": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.resultado_imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "geo.bioma": {
+          "linhas": 6,
+          "descartadas_legado": 0,
+          "segundos": 0.7,
+          "bytes": 11280384
+        },
+        "geo.imovel_car": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 40960
+        },
+        "geo.municipio": {
+          "linhas": 5571,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 688128
+        },
+        "geo.uf": {
+          "linhas": 27,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 344064
+        },
+        "meta.carga": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.descarte": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.fonte": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.validacao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "ref.embargo_ibama": {
+          "linhas": 110377,
+          "descartadas_legado": 0,
+          "segundos": 1.9,
+          "bytes": 70098944
+        },
+        "ref.lista_suja": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "ref.terra_indigena": {
+          "linhas": 665,
+          "descartadas_legado": 0,
+          "segundos": 1.3,
+          "bytes": 31547392
+        },
+        "ref.territorio_quilombola": {
+          "linhas": 540,
+          "descartadas_legado": 0,
+          "segundos": 0.2,
+          "bytes": 3907584
+        },
+        "ref.unidade_conservacao": {
+          "linhas": 3301,
+          "descartadas_legado": 0,
+          "segundos": 3.7,
+          "bytes": 66289664
+        }
+      },
+      "total_bytes": 184778752,
+      "banco_bytes": 201499151,
+      "segundos_total": 8.2
+    },
+    "completo": {
+      "perfil": "completo",
+      "tabelas": {
+        "cad.area_producao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.carteira": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.carteira_item": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.consentimento": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.documento_trazido": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.organizacao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.produtor": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "cad.produtor_imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "cad.usuario": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.conferencia_ab_s": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "diag.criterio": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.evidencia": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 40960
+        },
+        "diag.execucao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.execucao_carga": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "diag.resultado_imovel": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "geo.bioma": {
+          "linhas": 6,
+          "descartadas_legado": 0,
+          "segundos": 0.7,
+          "bytes": 11280384
+        },
+        "geo.imovel_car": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 40960
+        },
+        "geo.municipio": {
+          "linhas": 5571,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 688128
+        },
+        "geo.uf": {
+          "linhas": 27,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 344064
+        },
+        "meta.carga": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.descarte": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.fonte": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "meta.validacao": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 24576
+        },
+        "ref.alerta_deter": {
+          "linhas": 247970,
+          "descartadas_legado": 0,
+          "segundos": 6.3,
+          "bytes": 212582400
+        },
+        "ref.desmatamento_prodes": {
+          "linhas": 1493882,
+          "descartadas_legado": 1726,
+          "segundos": 50.6,
+          "bytes": 1551360000
+        },
+        "ref.embargo_ibama": {
+          "linhas": 110377,
+          "descartadas_legado": 0,
+          "segundos": 6.2,
+          "bytes": 144318464
+        },
+        "ref.lista_suja": {
+          "linhas": null,
+          "descartadas_legado": 0,
+          "segundos": 0.0,
+          "bytes": 32768
+        },
+        "ref.quilombola_ibge": {
+          "linhas": 495,
+          "descartadas_legado": 0,
+          "segundos": 0.3,
+          "bytes": 3448832
+        },
+        "ref.quilombola_incra": {
+          "linhas": 446,
+          "descartadas_legado": 0,
+          "segundos": 0.2,
+          "bytes": 3637248
+        },
+        "ref.terra_indigena": {
+          "linhas": 665,
+          "descartadas_legado": 0,
+          "segundos": 1.8,
+          "bytes": 31514624
+        },
+        "ref.territorio_quilombola": {
+          "linhas": 540,
+          "descartadas_legado": 0,
+          "segundos": 0.2,
+          "bytes": 3907584
+        },
+        "ref.unidade_conservacao": {
+          "linhas": 3301,
+          "descartadas_legado": 0,
+          "segundos": 4.4,
+          "bytes": 66289664
+        }
+      },
+      "total_bytes": 2029993984,
+      "banco_bytes": 2046951951,
+      "segundos_total": 71.1
+    }
+  }
+}

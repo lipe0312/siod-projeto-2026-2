@@ -27,19 +27,24 @@ def ocorrencias(resultado, codigo):
 
 def pytest_addoption(parser):
     parser.addoption("--rede", action="store_true", help="roda também os testes que consultam serviços reais")
+    parser.addoption("--banco", action="store_true",
+                     help="roda também os testes que usam um Postgres/PostGIS local (banco/docker-compose.yml)")
 
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "rede: consulta um serviço real; só roda com --rede")
+    config.addinivalue_line("markers", "banco: usa um Postgres/PostGIS local; só roda com --banco")
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--rede"):
-        return
-    pular = pytest.mark.skip(reason="consulta à rede; use --rede")
-    for item in items:
-        if "rede" in item.keywords:
-            item.add_marker(pular)
+    for opcao, marca, motivo in (("--rede", "rede", "consulta à rede; use --rede"),
+                                 ("--banco", "banco", "precisa do Postgres local; use --banco")):
+        if config.getoption(opcao):
+            continue
+        pular = pytest.mark.skip(reason=motivo)
+        for item in items:
+            if marca in item.keywords:
+                item.add_marker(pular)
 
 
 @pytest.fixture(autouse=True)
