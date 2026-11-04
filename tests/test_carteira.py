@@ -98,7 +98,7 @@ def test_carteira_mostra_o_que_mudou_desde_a_execucao_anterior_da_mesma_organiza
     linha = saida.set_index("id_produtor")
     assert linha.at["P1", "mudou"] == "sim"
     assert linha.at["P1", "o_que_mudou"] == "Embargo IBAMA: sem ocorrência → pendência"
-    assert linha.at["P2", "mudou"] == "sim" and "Alerta DETER: (não avaliado) → indício" in linha.at["P2", "o_que_mudou"]
+    assert linha.at["P2", "mudou"] == "sim" and "Alerta DETER: (não constava) → indício" in linha.at["P2", "o_que_mudou"]
     assert linha.at["P3", "mudou"] == "não"  # a pendência da Coop B não vaza
     assert pd.isna(linha.at["P4", "mudou"]) and linha.at["P4", "o_que_mudou"].startswith("sem comparação")
     assert pd.isna(linha.at["P5", "mudou"]) and linha.at["P5", "o_que_mudou"] == "sem comparação"
@@ -110,3 +110,42 @@ def test_carteira_mostra_o_que_mudou_desde_a_execucao_anterior_da_mesma_organiza
     for t in (csv, texto):
         assert CPF_VALIDO not in t and "111.444.777-35" not in t
     assert resultados.mudancas(outra, {"MG-3"}).empty  # Coop B tem uma execução só
+
+
+def test_car_duplicado_na_planilha_nao_se_compara_com_a_propria_execucao(tmp_path):
+    org = cadastro.organizacao("Coop Dup")
+    df = pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1"}, {"id_produtor": "P1b", "cod_car": "MG-1"}])
+    saida, comp = rodar(df, org, {"MG-1": ficha_de("MG-1", "2026-10-02 10:00:00")}, tmp_path / "m1")
+    assert comp["primeira"] and saida["mudou"].isna().all()
+    assert set(saida["o_que_mudou"]) == {"sem comparação (primeira execução do imóvel)"}
+    saida, comp = rodar(df, org, {"MG-1": ficha_de("MG-1", "2026-11-02 10:00:00", "pendência")}, tmp_path / "m2")
+    assert saida["mudou"].tolist() == ["sim", "sim"]
+    assert set(saida["o_que_mudou"]) == {"Embargo IBAMA: sem ocorrência → pendência"}
+    assert comp["desde"] == pd.Timestamp("2026-10-02 10:00:00")
+
+
+def test_criterio_que_sumiu_linha_com_problema_e_imovel_que_saiu_da_planilha(tmp_path):
+    org = cadastro.organizacao("Coop C")
+    df = pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1"}, {"id_produtor": "P9", "cod_car": "MG-OLD"}])
+    rodar(df, org, {"MG-1": ficha_de("MG-1", "2026-09-02 10:00:00", deter=True),
+                    "MG-OLD": ficha_de("MG-OLD", "2026-09-02 10:00:00")}, tmp_path / "m1")
+    rodar(df, org, {"MG-1": ficha_de("MG-1", "2026-10-02 10:00:00", deter=True),
+                    "MG-OLD": ficha_de("MG-OLD", "2026-10-02 10:00:00", "pendência")}, tmp_path / "m2")
+    # Mês 3: MG-OLD saiu da planilha (mudou no mês 2, mas não é desta carteira); MG-1 perde o alerta; P2 traz o
+    # mesmo CAR com documento inválido.
+    df3 = pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1"},
+                        {"id_produtor": "P2", "cod_car": "MG-1", "documento": "111.444.777-00"}])
+    saida, comp = rodar(df3, org, {"MG-1": ficha_de("MG-1", "2026-11-02 10:00:00")}, tmp_path / "m3")
+    linha = saida.set_index("id_produtor")
+    assert linha.at["P1", "mudou"] == "sim" and linha.at["P1", "o_que_mudou"] == "Alerta DETER: indício → (não constava)"
+    assert pd.isna(linha.at["P2", "mudou"]) and linha.at["P2", "o_que_mudou"] == "sem comparação"
+    assert "MG-OLD" not in set(saida["cod_car"]) and comp["mudaram"] == 1 and comp["comparados"] == 1
+    assert "MG-OLD" in set(resultados.mudancas(org)["cod_imovel"])  # existe no lago, mas fica fora da carteira
+    assert set(resultados.mudancas(org, set(saida["cod_car"].dropna()))["cod_imovel"]) == {"MG-1"}
+    assert "1 imóvel mudou desde 02/10/2026" in carteira.html(saida, "c.csv", comp)
+
+
+def test_faixa_com_datas_anteriores_diferentes():
+    comp = {"primeira": False, "comparados": 2, "mudaram": 1, "desde": pd.Timestamp("2026-10-20 10:00"),
+            "desde_min": pd.Timestamp("2026-09-02 10:00")}
+    assert "desde a execução anterior de cada imóvel (02/09/2026 a 20/10/2026)" in carteira._faixa_mudancas(comp)

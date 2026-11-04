@@ -156,9 +156,10 @@ def comparar(saida: pd.DataFrame, organizacao_id: str, execucao_id: str | None =
     datas = resultados.anteriores(organizacao_id, cods)
     textos = {}
     for cod, grupo in resultados.mudancas(organizacao_id, cods).groupby("cod_imovel", sort=False):
-        texto = "; ".join(f"{_situacao(m.criterio, m.chave)}: {_situacao(m.situacao_anterior, '(não avaliado)')} → "
-                          f"{_situacao(m.situacao_atual, '(não avaliado)')}" for m in grupo.itertuples())
-        textos[cod] = sem_documento({"o_que_mudou": texto})["o_que_mudou"]
+        # Um trecho por critério; sem_documento por trecho, para um documento num trecho não apagar os outros.
+        trechos = {str(i): f"{_situacao(m.criterio, m.chave)}: {_situacao(m.situacao_anterior, '(não constava)')} → "
+                           f"{_situacao(m.situacao_atual, '(não constava)')}" for i, m in enumerate(grupo.itertuples())}
+        textos[cod] = "; ".join(sem_documento(trechos).values())
     def marca(ok, cod):
         if not ok:
             return None, "sem comparação"
@@ -170,10 +171,10 @@ def comparar(saida: pd.DataFrame, organizacao_id: str, execucao_id: str | None =
     saida["mudou"] = [m for m, _ in marcas]
     saida["o_que_mudou"] = [t for _, t in marcas]
     mudou = saida["mudou"].tolist()
-    desde = datas.max() if len(datas) else None
+    datas = pd.to_datetime(datas).dropna()
     return saida, {"primeira": datas.empty and not resultados.ha_execucao_anterior(organizacao_id, execucao_id),
                    "comparados": len(datas), "mudaram": mudou.count("sim"),
-                   "desde": None if desde is None or pd.isna(desde) else pd.Timestamp(desde)}
+                   "desde": datas.max() if len(datas) else None, "desde_min": datas.min() if len(datas) else None}
 
 
 def _faixa_mudancas(comparacao: dict | None) -> str:
@@ -184,9 +185,11 @@ def _faixa_mudancas(comparacao: dict | None) -> str:
     elif not comparacao["comparados"]:
         texto = "Nenhum imóvel desta planilha estava em uma execução anterior: sem comparação."
     else:
-        n = comparacao["mudaram"]
-        texto = (f"<b>{n} {'imóvel mudou' if n == 1 else 'imóveis mudaram'} desde "
-                 f"{comparacao['desde']:%d/%m/%Y}</b> (execução anterior), entre {comparacao['comparados']} comparados."
+        n, de, ate = comparacao["mudaram"], comparacao.get("desde_min"), comparacao["desde"]
+        desde = (f"{ate:%d/%m/%Y}" if de is None or de.date() == ate.date()
+                 else f"a execução anterior de cada imóvel ({de:%d/%m/%Y} a {ate:%d/%m/%Y})")
+        texto = (f"<b>{n} {'imóvel mudou' if n == 1 else 'imóveis mudaram'} desde {desde}</b>"
+                 f", entre {comparacao['comparados']} comparados."
                  + (" Linhas marcadas com ↻." if n else ""))
     return f'<section class="aviso mudancas">{texto}</section>'
 

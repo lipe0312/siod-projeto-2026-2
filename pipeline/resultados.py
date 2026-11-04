@@ -134,7 +134,9 @@ class Execucao:
 
 def _pares(organizacao_id: str | None, cod_imoveis=None) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
     """Resultados das duas últimas execuções de cada imóvel da organização que tem pelo menos duas (coluna `ordem`:
-    anterior/atual) e os critérios do lago. `cod_imoveis` restringe aos imóveis informados (ex.: a carteira atual)."""
+    anterior/atual) e os critérios do lago. `cod_imoveis` restringe aos imóveis informados (ex.: a carteira atual).
+    O mesmo CAR em duas linhas da planilha dá dois resultados na mesma execução: vale só o último de cada execução,
+    para a execução nunca se comparar consigo mesma."""
     res, crit = lago.ler_ou_none("diag.resultado_imovel"), lago.ler_ou_none("diag.criterio")
     if res is None or crit is None:
         return None, crit
@@ -142,7 +144,8 @@ def _pares(organizacao_id: str | None, cod_imoveis=None) -> tuple[pd.DataFrame |
     res = res[mesma_org & res["cod_imovel"].notna()]
     if cod_imoveis is not None:
         res = res[res["cod_imovel"].isin(list(cod_imoveis))]
-    ultimos = res.sort_values("gerado_em", kind="stable").groupby("cod_imovel").tail(2)
+    res = res.sort_values("gerado_em", kind="stable").groupby(["cod_imovel", "execucao_id"]).tail(1)
+    ultimos = res.groupby("cod_imovel").tail(2)
     pares = ultimos.groupby("cod_imovel").filter(lambda g: len(g) == 2)
     if pares.empty:
         return None, crit
@@ -158,14 +161,14 @@ def anteriores(organizacao_id: str | None = DEMONSTRACAO, cod_imoveis=None) -> p
     return pd.Series(anterior["gerado_em"].values, index=anterior["cod_imovel"].values, name="gerado_em_anterior")
 
 
-def ha_execucao_anterior(organizacao_id: str | None, execucao_id: str | None = None) -> bool:
-    """A organização já tinha alguma execução gravada além de `execucao_id`?"""
+def ha_execucao_anterior(organizacao_id: str | None, execucao_id: str | None = None, tipo: str = "carteira") -> bool:
+    """A organização já tinha alguma execução do `tipo` gravada além de `execucao_id`?"""
     execucoes = lago.ler_ou_none("diag.execucao")
     if execucoes is None:
         return False
     mesma_org = (execucoes["organizacao_id"].isna() if organizacao_id is None
                  else execucoes["organizacao_id"] == organizacao_id)
-    return bool((mesma_org & (execucoes["execucao_id"] != execucao_id)).any())
+    return bool((mesma_org & (execucoes["tipo"] == tipo) & (execucoes["execucao_id"] != execucao_id)).any())
 
 
 def mudancas(organizacao_id: str | None = DEMONSTRACAO, cod_imoveis=None) -> pd.DataFrame:
