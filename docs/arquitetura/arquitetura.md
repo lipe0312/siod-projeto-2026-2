@@ -1,6 +1,6 @@
 # Arquitetura
 
-Versão 4 — 30/10/2026 (Atividade 04, Brasil inteiro e áreas protegidas). Versão 3 — 30/10/2026 (Atividade 04). Versão 2 — 14/10/2026 (Atividade 03). Versão 1 — 13/09/2026 (Atividade 02).
+Versão 6 — 03/11/2026 (persistência: lago com histórico, cinco esquemas e banco lite). Versão 5 — 02/11/2026. Versão 4 — 30/10/2026 (Atividade 04, Brasil inteiro e áreas protegidas). Versão 3 — 30/10/2026 (Atividade 04). Versão 2 — 14/10/2026 (Atividade 03). Versão 1 — 13/09/2026 (Atividade 02).
 
 ## O que este documento cobre
 
@@ -38,9 +38,9 @@ flowchart LR
       P3 --> P4["Validação<br/>erro · descarte · correção · alerta"]
       P4 --> P5["Pseudonimização<br/>CPF/CNPJ → HMAC-SHA256"]
     end
-    S1[("Saída estruturada<br/>Parquet em data/processed")]
+    S1[("Lago Parquet com histórico<br/>data/lago, por contrato")]
     S2["Relatório de execução<br/>JSON · Markdown · log"]
-    PER[("Persistência")]
+    PER[("Banco PostGIS<br/>perfil lite (opcional)")]
     API["API / serviço"]
     UI["Interface"]
     IA["Inteligência<br/>regra de cruzamento"]
@@ -75,7 +75,7 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 |---|---|---|
 | Fontes de dados | Bases públicas que indicam pendência socioambiental (embargo, desmatamento, trabalho análogo ao de escravo) e a referência de municípios | **Definida** |
 | Pipeline | Transformar cada fonte bruta em tabela validada, tipada e sem dados pessoais | **Implementado** (`pipeline/`) |
-| Persistência | Guardar ocorrências e avaliações com histórico e permitir consulta espacial | **Parquet particionado por UF**, sem custo (30/10/2026); PostgreSQL + PostGIS adiado para quando houver API e mais de um usuário ([ADR 0011](adr/0011-persistir-em-parquet-por-uf-e-adiar-o-postgis.md)) |
+| Persistência | Guardar ocorrências e avaliações com histórico e permitir consulta espacial | **Definida** (03/11/2026): lago Parquet em cinco esquemas (`meta`, `geo`, `ref`, `cad`, `diag`), com histórico por tipo de fonte e contrato por tabela; banco PostGIS opcional, gerado dos contratos, com perfil lite (208,8 MB) que cabe no plano gratuito do Supabase e do Neon ([ADR 0011](adr/0011-persistir-em-parquet-por-uf-e-adiar-o-postgis.md) e [ADR 0017](adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md)) |
 | API / serviço | Responder, por produtor, quais pendências existem e com qual evidência | Prevista — Aula 05 |
 | Interface | Painel para o técnico priorizar produtores | Prevista — Aulas 06 e 07 |
 | Usuários e permissões | Cada técnico vê apenas os produtores que atende | Prevista — Aula 08 |
@@ -90,7 +90,7 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 | INPE — DETER Amazônia e Cerrado | API (WFS, GeoJSON) | Uma requisição por mês de imagem, sem autenticação | Classes de desmatamento com imagem desde 01/01/2021 | `data/raw/inpe_deter/<camada>/desde_<data>/<AAAA-MM>.json.gz` |
 | MTE — Cadastro de Empregadores | Documento (PDF) | Download direto do gov.br | Documento completo | `data/raw/lista_suja.pdf` |
 | IBGE — Municípios | API (JSON) | Requisição única, sem autenticação | Lista completa | `data/raw/ibge_municipios.json` |
-| INPE — PRODES (lote, Atividade 04) | API (WFS, GeoJSON) | Contagem por ano a cada 30 dias; baixa só o que mudou e o último publicado ([ADR 0010](adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)); retângulo da UF dividido em partes ([ADR 0013](adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)) | Seis biomas, anos desde 2019, por UF: começa em MG e ganha a UF de cada imóvel consultado; UF pelo contorno do IBGE | `data/raw/inpe_prodes/lote/`, com `manifesto.json`; saída em `data/processed/inpe_prodes/uf=XX/` |
+| INPE — PRODES (lote, Atividade 04) | API (WFS, GeoJSON) | Contagem por ano a cada 30 dias; baixa só o que mudou e o último publicado ([ADR 0010](adr/0010-persistir-o-prodes-em-lote-e-verificar-a-publicacao-todo-mes.md)); retângulo da UF dividido em partes ([ADR 0013](adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)) | Seis biomas, anos desde 2019, por UF: começa em MG e ganha a UF de cada imóvel consultado; UF pelo contorno do IBGE | `data/raw/inpe_prodes/lote/`, com `manifesto.json`; saída em `data/lago/ref/desmatamento_prodes/uf=XX/` |
 | IBGE e INPE — contorno das UFs e dos biomas | API (GeoJSON) | Requisição única | Brasil | `data/raw/ibge_malha_ufs.geojson`, `data/raw/inpe_biomas.geojson` |
 | FUNAI — terras indígenas | API (WFS, GeoJSON) | Requisição única com `count`; cadeia de certificado completada pelo AIA ([ADR 0014](adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)) | Brasil (665) | `data/raw/funai/` |
 | MMA — unidades de conservação (CNUC) | Shapefile | Recurso escolhido pelo CKAN | Brasil (3.301) | `data/raw/cnuc/` |
@@ -131,7 +131,7 @@ Execução: `python -m pipeline`. Cada fonte é processada de forma independente
    - `correcao`: o valor é ajustado de forma determinística e a contagem é registrada;
    - `alerta`: o registro é mantido, o campo inválido é anulado quando for o caso e o código vai para a coluna `alertas`.
 5. **Pseudonimização:** o CPF/CNPJ é substituído por HMAC-SHA256 e o nome da pessoa é removido.
-6. **Saída:** Parquet em `data/processed/`, mais o relatório `relatorio_execucao.json` e `.md`, e o log em `data/logs/`.
+6. **Saída:** tabela do lago (`data/lago/<esquema>/<tabela>/`), validada pelo contrato e gravada conforme o histórico; a carga em `meta.carga`; o relatório `relatorio_execucao.json` e `.md` em `data/processed/`; o log em `data/logs/`.
 
 **Saídas**
 
@@ -144,7 +144,7 @@ Execução: `python -m pipeline`. Cada fonte é processada de forma independente
 | `mte_lista_suja.parquet` | Um registro do cadastro por linha |
 | `ibge_municipios.parquet` | Tabela de referência de municípios |
 
-A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, booleanos) e ocupa menos espaço que CSV. Serve de contrato com a camada de persistência, que ainda não foi definida.
+A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, booleanos) e ocupa menos espaço que CSV. Desde a versão 6, cada tabela tem um contrato em `contratos/`, e o banco é carregado a partir do lago (ADR 0017).
 
 **Decisões**
 
@@ -207,3 +207,4 @@ Nesta versão, a fatia vai da saída do pipeline até a regra de cruzamento: `py
 | 3 | 30/10/2026 | Decididos: PostgreSQL + PostGIS como persistência e serviço agendado (ADR 0011), AB+S como gabarito (ADR 0012), recorte nacional com UF pelo contorno e inconclusivo para dado incompleto (ADR 0013) | Medição de três formas de persistência e teste em um CAR por bioma: o modelo em memória não escala, e o pré-diagnóstico não funcionava fora de MG |
 | 4 | 30/10/2026 | PRODES dos seis biomas em lote por UF, com a UF pelo contorno do IBGE e a UF incluída quando o imóvel chega (ADR 0013); persistência em Parquet particionado e PostGIS adiado (ADR 0011); terras indígenas, quilombolas e unidades de conservação em lote (ADR 0014) | O pré-diagnóstico não funcionava fora de MG; não pagar nada agora; 6 dos 9 critérios do AB+S estavam sem verificação |
 | 5 | 02/11/2026 | PRODES das 27 UFs pelo arquivo de cada bioma e DETER do Pantanal pelo arquivo (ADR 0015); quilombola pelo INCRA via CMR/FUNAI (ADR 0016); IBAMA pelo Portal de Dados Abertos, com desembargo; carteira por planilha; rotina mensal agendada | A carga pelo WFS levava horas por UF; o CSV do IBAMA passou a responder 403; o técnico atende uma carteira, não um imóvel |
+| 6 | 03/11/2026 | Lago em cinco esquemas com histórico (fotografia, validade, acréscimo, por consulta), contratos por tabela, cadastro da carteira e resultado do pré-diagnóstico no lago, banco PostGIS gerado dos contratos com perfis lite e completo (ADR 0017) | Cada execução sobrescrevia o dado; não dava para saber o que mudou nem separar o dado público do cadastro do cliente; o banco gratuito tem limite de espaço |

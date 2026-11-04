@@ -4,7 +4,7 @@ O banco é uma cópia do lago Parquet, refeita a qualquer momento (ADR [0011](..
 
 | Arquivo | O que é |
 |---|---|
-| `docker-compose.yml` | PostGIS 17-3.5 (`imresamu/postgis`, a imagem da medição do ADR 0011, com build arm64), porta 5433 no host, volume nomeado `agrovalid_pgdata` |
+| `docker-compose.yml` | PostGIS 17-3.5 (`imresamu/postgis`, a imagem da medição do ADR 0011, com build arm64), porta 5433 no host (`AGROVALID_PG_PORTA` troca), volume nomeado `agrovalid_pgdata` |
 | `migracoes/0001_extensoes_e_esquemas.sql` | PostGIS, os cinco esquemas (`meta`, `geo`, `ref`, `cad`, `diag`) e a tabela `meta.migracao`. Escrita à mão |
 | `migracoes/0002_tabelas_lite.sql` | Tabelas do perfil lite. **Gerada** |
 | `migracoes/0003_tabelas_completo.sql` | Tabelas do perfil completo e as geometrias que o lite não leva. **Gerada**; só se aplica no perfil completo |

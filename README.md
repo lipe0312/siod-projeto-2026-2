@@ -68,11 +68,14 @@ Decisões de 30/10/2026:
 - Brasil inteiro por UF, sem aceitar dado incompleto como limpo ([ADR 0013](docs/arquitetura/adr/0013-cobrir-o-brasil-inteiro-sem-aceitar-dado-incompleto-como-limpo.md)).
 - Terras indígenas, quilombolas e unidades de conservação por sobreposição ([ADR 0014](docs/arquitetura/adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)).
 
+Decisão de 03/11/2026: o dado em cinco esquemas (`meta`, `geo`, `ref`, `cad`, `diag`), com histórico no lago Parquet e um perfil lite do banco que cabe no plano gratuito do Supabase e do Neon ([ADR 0017](docs/arquitetura/adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md); seção 7).
+
 1. Obter um relatório AB+S real para registrar a primeira resposta válida e começar a matriz de concordância.
 2. Aceitar o PDF do AB+S no pré-diagnóstico e mostrar o resultado oficial ao lado de cada critério.
 3. Integrar os critérios 2 e 8 (SIGEF) quando o acervo do INCRA voltar a ter endereço público.
 4. Agendar a verificação mensal no `crontab` e validar a dor com técnicos de assistência técnica e de cooperativas.
-5. Futuro, sem prioridade: PostgreSQL + PostGIS quando houver API e mais de um usuário.
+5. Carteira com "o que mudou": a comparação já existe (`resultados.mudancas`, visão `diag.mudanca`); falta mostrá-la na carteira.
+6. Ligar o perfil lite num banco gerenciado (Neon ou Supabase) quando houver API e mais de um usuário; até lá, o banco é opcional e local.
 
 ## Como reproduzir na sua máquina
 
@@ -174,8 +177,9 @@ python -m pipeline --help
 |---|---|
 | Relatório da execução (contagens, transformações e cada validação) | `data/processed/relatorio_execucao.md` e `.json` |
 | Log com as mensagens da execução | `data/logs/pipeline_<data>_<hora>.log` |
-| Tabelas tratadas | `data/processed/ibama_embargos.parquet`, `inpe_deter_alertas.parquet`, `mte_lista_suja.parquet`, `ibge_municipios.parquet` |
-| Registros descartados, com o motivo | `data/processed/ibama_embargos_descartados.parquet`, `inpe_deter_alertas_descartados.parquet` |
+| Tabelas tratadas, com histórico | `data/lago/<esquema>/<tabela>/` (ex.: `data/lago/ref/embargo_ibama/`), lidas por `lago.ler("ref.embargo_ibama")`; seção 7 |
+| Registros descartados, com o motivo | `meta.descarte` no lago |
+| Cada execução de cada fonte | `meta.carga` e `meta.validacao` no lago |
 | Arquivos brutos e procedência | `data/raw/` (cada arquivo com um `.meta.json`; as respostas do INPE com um `manifesto.json`) |
 | Execução de referência, para comparar | [`docs/evidencias/atividade-02/`](docs/evidencias/atividade-02/) |
 
@@ -184,7 +188,7 @@ O processo termina com código 0 quando todas as fontes processam sem erro. Para
 Para conferir rapidamente quantos registros cada tabela tem (o comando é igual nos três sistemas):
 
 ```bash
-python -c "import pandas as pd; [print(f, len(pd.read_parquet(f'data/processed/{f}.parquet'))) for f in ['ibge_municipios','ibama_embargos','inpe_deter_alertas','mte_lista_suja']]"
+python -c "from pipeline.armazenamento import lago; [print(t, len(lago.ler(t))) for t in ['geo.municipio','ref.embargo_ibama','ref.alerta_deter','ref.lista_suja']]"
 ```
 
 **d) Chave de pseudonimização.** O CPF/CNPJ é substituído por um código calculado com uma chave secreta. Se a variável `SIOD_CHAVE_PSEUDONIMIZACAO` não estiver definida, a chave é criada em `data/chave_pseudonimizacao` e reutilizada nas execuções seguintes. Para usar uma chave própria:
@@ -227,12 +231,12 @@ Do ponto de vista do produtor: para um CAR, junta
 - a Lista Suja;
 - a sobreposição com terras indígenas (FUNAI), territórios quilombolas (IBGE) e unidades de conservação (CNUC).
 
-Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com evidência, encaminhamento e procedência. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/processed/prediagnostico/`.
+Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com evidência, encaminhamento e procedência. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/saidas/prediagnostico/`, e o resultado, critério a critério, no esquema `diag` do lago (seção 7).
 
 Antes, rode `python -m pipeline` com todas as fontes. O PRODES de uma UF é baixado na primeira vez que um imóvel dela é consultado (seção 6). Nessa primeira vez a consulta demora: o TerraBrasilis responde 502 com frequência, e o pipeline repete e divide o pedido.
 
 ```bash
-python -m pipeline.prediagnostico --demo                                   # 17 CARs reais; abra data/processed/prediagnostico/index.html
+python -m pipeline.prediagnostico --demo                                   # 17 CARs reais; abra data/saidas/prediagnostico/index.html
 python -m pipeline.prediagnostico --demo --sem-baixar-prodes               # sem baixar UF nova: imóvel de UF fora do lote sai inconclusivo
 python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
 python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada; a UF vem do contorno
@@ -242,7 +246,7 @@ O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado e
 
 ### 6. PRODES em lote por UF, conferido todo mês
 
-O PRODES sai uma vez por ano, sem data fixa. O lote guarda os anos desde 2019 dos biomas de cada UF, numa partição por UF: `data/processed/inpe_prodes/uf=XX/part.parquet`. Ele começa com MG (`config.PRODES_UFS_INICIAIS`) e ganha a UF de cada imóvel consultado. A UF de cada polígono vem do contorno do IBGE, não do campo `state` do INPE: o polígono de divisa entra nas duas UFs.
+O PRODES sai uma vez por ano, sem data fixa. O lote guarda os anos desde 2019 dos biomas de cada UF, numa partição por UF: `data/lago/ref/desmatamento_prodes/uf=XX/part.parquet`. Ele começa com MG (`config.PRODES_UFS_INICIAIS`) e ganha a UF de cada imóvel consultado. A UF de cada polígono vem do contorno do IBGE, não do campo `state` do INPE: o polígono de divisa entra nas duas UFs.
 
 A cada `python -m pipeline --fontes prodes`:
 
@@ -250,7 +254,7 @@ A cada `python -m pipeline --fontes prodes`:
 - senão, conta os polígonos de cada ano no Brasil: o último ano com polígono é o último publicado;
 - em cada UF do lote, pede cada ano pelo retângulo da UF, dividido em quatro enquanto passar de 8 mil polígonos ou o serviço responder 502;
 - baixa de novo só o que mudou, mais o último ano publicado;
-- registra ano novo, ano consolidado alterado, último ano revisado e UF incluída no histórico (`data/processed/inpe_prodes_publicacao.json`), com a última imagem de cada bioma.
+- registra ano novo, ano consolidado alterado, último ano revisado e UF incluída no histórico (`data/lago/ref/desmatamento_prodes/_publicacao.json`), com a última imagem de cada bioma.
 
 Desde 02/11/2026, o lote vem do arquivo de cada bioma na área de download do TerraBrasilis: as 27 UFs em cerca de 4 minutos, e a verificação mensal compara a versão do arquivo ([ADR 0015](docs/arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md)). A forma anterior, pelo WFS UF por UF, continua em `--prodes-pelo-wfs`.
 
@@ -259,6 +263,33 @@ Para rodar todo mês sozinho, use a rotina mensal em [`agendamento/`](agendament
 **Carteira.** `python -m pipeline.carteira planilha.xlsx` recebe a planilha de uma cooperativa (uma linha por imóvel: `id_produtor` e `cod_car` ou `lat`/`lon`; modelo em [`docs/modelos/carteira_modelo.csv`](docs/modelos/carteira_modelo.csv)) e devolve a lista de atendimento em ordem de prioridade, com uma ficha por imóvel. O que o cliente vê e o que cada stakeholder entrega estão em [`docs/visao-do-produto.md`](docs/visao-do-produto.md).
 
 Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa), a ficha avisa o período sem cobertura entre a última imagem PRODES e a data da consulta. O Pantanal tem DETER desde 08/2023, pelo arquivo do TerraBrasilis. Evidências em [`docs/evidencias/atividade-04/prodes-lote/`](docs/evidencias/atividade-04/prodes-lote/).
+
+### 7. Lago e banco
+
+Desde 03/11/2026, o dado tratado fica em `data/lago/<esquema>/<tabela>/`, validado por um contrato por tabela em [`contratos/`](contratos/LEIA-ME.md) ([ADR 0017](docs/arquitetura/adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md)):
+
+| Esquema | O que guarda | Histórico |
+|---|---|---|
+| `meta` | Cada carga de cada fonte, validações, descartes, catálogo de fontes | registro |
+| `geo` | UF, município, bioma e o imóvel do CAR consultado | fotografia; o CAR por consulta |
+| `ref` | Embargo, DETER, PRODES, Lista Suja, terra indígena, UC, quilombola | validade (IBAMA, Lista Suja), acréscimo (DETER, PRODES), fotografia (as demais) |
+| `cad` | Organização, produtor (só com o documento pseudonimizado), imóvel, documentos trazidos, carteira | registro |
+| `diag` | Execução, resultado por imóvel, critério, evidência com a geometria da interseção | registro |
+
+```bash
+python -c "from pipeline.armazenamento import lago; print(lago.ler('ref.embargo_ibama', vigente=False).tail())"  # versões
+python -c "from pipeline import resultados; print(resultados.mudancas())"   # o que mudou entre as duas últimas demonstrações
+```
+
+O banco é **opcional**: uma cópia do lago, refeita a qualquer momento ([`banco/LEIA-ME.md`](banco/LEIA-ME.md)). O perfil **lite** (cadastro, resultado, camadas pequenas e o embargo sem geometria) mediu 208,8 MB e cabe no plano gratuito do Supabase (500 MB) e do Neon; o **completo** (com DETER e PRODES) mediu 2.132 MB ([`docs/evidencias/persistencia/`](docs/evidencias/persistencia/)). Na versão lite, DETER, PRODES, SICAR e AB+S ficam fora do banco: o pipeline lê do lago ou consulta o serviço na hora.
+
+```bash
+docker compose -f banco/docker-compose.yml up -d --wait
+export AGROVALID_DATABASE_URL=postgresql://agrovalid:agrovalid@localhost:5433/agrovalid
+python -m pipeline.armazenamento.banco --perfil lite --migrar
+```
+
+Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite no fim.
 
 ### Problemas comuns
 
@@ -283,6 +314,10 @@ Nos biomas sem DETER (Mata Atlântica, Caatinga, Pampa), a ficha avisa o períod
 | [`pipeline/documentos.py`](pipeline/documentos.py) | Dígito verificador de CPF/CNPJ e pseudonimização | 02 |
 | [`pipeline/municipios.py`](pipeline/municipios.py) | Referência de municípios do IBGE e resolução de município por nome | 02 |
 | [`pipeline/relatorio.py`](pipeline/relatorio.py) | Log em arquivo e relatório em JSON e Markdown | 02 |
+| [`contratos/`](contratos/LEIA-ME.md) | Um contrato YAML por tabela: colunas, chave, histórico e perfil do banco | Persistência |
+| [`pipeline/armazenamento/`](pipeline/armazenamento/) | Lago com histórico (`lago`, `historico`, `contratos`, `cargas`), DDL gerado e carga no banco (`ddl`, `banco`) | Persistência |
+| [`pipeline/cadastro.py`](pipeline/cadastro.py), [`pipeline/resultados.py`](pipeline/resultados.py) | Cadastro da carteira (`cad`) e resultado do pré-diagnóstico com as mudanças entre execuções (`diag`) | Persistência |
+| [`banco/`](banco/LEIA-ME.md) | Migrações do PostGIS, segurança por organização e Docker local | Persistência |
 | [`pipeline/fontes/ibama_embargos.py`](pipeline/fontes/ibama_embargos.py) | Fonte tabular: embargos do IBAMA (CSV) | 02 |
 | [`pipeline/fontes/inpe_deter.py`](pipeline/fontes/inpe_deter.py) | Fonte API: alertas de desmatamento do INPE (WFS/GeoJSON) | 02 |
 | [`pipeline/fontes/mte_lista_suja.py`](pipeline/fontes/mte_lista_suja.py) | Fonte documento: Lista Suja do Ministério do Trabalho (PDF) | 02 |

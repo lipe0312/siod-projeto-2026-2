@@ -6,7 +6,7 @@ Um arquivo YAML por tabela, em `contratos/<esquema>/<tabela>.yaml`. O contrato d
 - como o histórico é guardado;
 - se a tabela vai ao banco.
 
-O pipeline valida o DataFrame contra o contrato antes de gravar no lago (`pipeline/armazenamento/contratos.py`). O DDL do banco (`banco/migracoes/0002_tabelas.sql`) é gerado a partir dos contratos.
+O pipeline valida o DataFrame contra o contrato antes de gravar no lago (`pipeline/armazenamento/contratos.py`). As migrações 0002 a 0005 do banco (`banco/migracoes/`) são geradas a partir dos contratos por `python -m pipeline.armazenamento.ddl`.
 
 Os contratos não dependem de Python. Qualquer ferramenta que leia YAML (dbt, um serviço em outra linguagem, uma API) usa a mesma definição. Decisão em [ADR 0017](../docs/arquitetura/adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md).
 
@@ -63,4 +63,4 @@ Os contratos não dependem de Python. Qualquer ferramenta que leia YAML (dbt, um
 1. Escreva `contratos/<esquema>/<tabela>.yaml`. Um esquema novo é só uma pasta nova, por exemplo `mercado/` para o CEPEA.
 2. Se for uma fonte nova, acrescente-a em `contratos/fontes.yaml`.
 3. No módulo da fonte, grave com `lago.gravar("<esquema>.<tabela>", df, resultado)`.
-4. Gere o DDL de novo (`banco/LEIA-ME.md`) e rode `python -m pytest`. O teste acusa o DDL desatualizado.
+4. Gere as migrações de novo (`python -m pipeline.armazenamento.ddl`) e rode `python -m pytest`. O teste acusa migração desatualizada.

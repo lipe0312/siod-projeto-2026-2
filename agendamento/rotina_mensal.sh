@@ -8,6 +8,8 @@ PY="$RAIZ/.venv/bin/python"
 LOGS="$RAIZ/data/logs/agendamento"
 mkdir -p "$LOGS"
 CARIMBO=$(date +%Y%m%d_%H%M%S)
+# Variáveis locais (ex.: AGROVALID_DATABASE_URL), em .env na raiz, que não é versionado.
+[[ -f "$RAIZ/.env" ]] && { set -a; source "$RAIZ/.env"; set +a; }
 SAIDA=0
 
 etapa() {
@@ -26,8 +28,13 @@ etapa "IBAMA, Lista Suja, FUNAI, CNUC, quilombolas" "$PY" -m pipeline \
   --fontes ibama lista_suja terras_indigenas unidades_conservacao quilombolas --atualizar
 # 3. DETER: Amazônia e Cerrado pelo WFS (partições mensais) e Pantanal pelo arquivo diário.
 etapa "DETER" "$PY" -m pipeline --fontes deter --atualizar
-# 4. Regressão: os 17 imóveis da demonstração; a página diz quais mudaram de resultado.
+# 4. Regressão: os 17 imóveis da demonstração; a página diz quais mudaram de resultado, e diag guarda a execução.
 etapa "demonstração" "$PY" -m pipeline.prediagnostico --demo --sem-baixar-prodes
+
+# 5. Banco (opcional): recarrega o perfil lite a partir do lago, só com AGROVALID_DATABASE_URL definida (ADR 0017).
+if [[ -n "${AGROVALID_DATABASE_URL:-}" ]]; then
+  etapa "banco (perfil lite)" "$PY" -m pipeline.armazenamento.banco --perfil lite --migrar
+fi
 
 echo "[$(date '+%F %T')] rotina terminada com código $SAIDA" >> "$LOGS/rotina_$CARIMBO.log"
 exit $SAIDA

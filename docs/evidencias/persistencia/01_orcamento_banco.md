@@ -1,31 +1,38 @@
 # Orçamento do banco: lite e completo
 
-Medido em 2026-11-04 00:01 UTC num PostGIS 17-3.5 local (`banco/docker-compose.yml`), com `python -m pipeline.armazenamento.banco`. Tamanho por `pg_total_relation_size` (dados, índices e TOAST). Cada perfil foi carregado num banco novo.
+Medido em 2026-11-04 00:12 UTC num PostGIS 17-3.5 local (`banco/docker-compose.yml`), com `python -m pipeline.armazenamento.banco`. Tamanho por `pg_total_relation_size` (dados, índices e TOAST). Cada perfil foi carregado num banco novo.
 
 | | MB | Meta | Supabase gratuito (500 MB) | Neon gratuito (1 GB por projeto) |
 |---|---:|---|---|---|
-| **Lite** | **184,8** | ≤ 250 MB (limite 300): dentro da meta | cabe | cabe |
-| **Completo** | **2.030,0** | | não cabe | não cabe |
+| **Lite** | **208,8** | ≤ 250 MB (limite 300): dentro da meta | cabe | cabe |
+| **Completo** | **2.132,4** | | não cabe | não cabe |
 
 ## Perfil lite
 
 | Tabela | Origem | Linhas | MB | Segundos |
 |---|---|---:|---:|---:|
-| `ref.embargo_ibama` | legado | 110.377 | 70,1 | 1,9 |
-| `ref.unidade_conservacao` | legado | 3.301 | 66,3 | 3,7 |
-| `ref.terra_indigena` | legado | 665 | 31,5 | 1,3 |
-| `geo.bioma` | legado | 6 | 11,3 | 0,7 |
-| `ref.territorio_quilombola` | legado | 540 | 3,9 | 0,2 |
-| `geo.municipio` | legado | 5.571 | 0,7 | 0,0 |
-| `geo.uf` | legado | 27 | 0,3 | 0,0 |
-| `diag.evidencia` | ausente | não carregada | 0,0 | 0,0 |
-| `geo.imovel_car` | ausente | não carregada | 0,0 | 0,0 |
+| `ref.embargo_ibama` | lago | 110.377 | 75,9 | 2,2 |
+| `ref.unidade_conservacao` | lago | 3.301 | 66,5 | 4,1 |
+| `ref.terra_indigena` | lago | 665 | 31,6 | 1,4 |
+| `meta.descarte` | lago | 30.003 | 16,7 | 0,4 |
+| `geo.bioma` | lago | 6 | 11,2 | 0,8 |
+| `ref.territorio_quilombola` | lago | 540 | 3,9 | 0,2 |
+| `geo.municipio` | lago | 5.571 | 1,0 | 0,0 |
+| `ref.lista_suja` | lago | 507 | 0,4 | 0,0 |
+| `geo.uf` | lago | 27 | 0,4 | 0,0 |
+| `diag.evidencia` | lago | 62 | 0,2 | 0,0 |
+| `geo.imovel_car` | lago | 17 | 0,1 | 0,0 |
+| `diag.criterio` | lago | 170 | 0,1 | 0,1 |
+| `meta.validacao` | lago | 143 | 0,1 | 0,0 |
+| `meta.carga` | lago | 10 | 0,1 | 0,0 |
+| `diag.resultado_imovel` | lago | 17 | 0,1 | 0,0 |
+| `diag.execucao` | lago | 1 | 0,0 | 0,0 |
+| `diag.execucao_carga` | lago | 10 | 0,0 | 0,0 |
+| `meta.fonte` | lago | 12 | 0,0 | 0,0 |
 | `cad.area_producao` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.imovel` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.produtor` | ausente | não carregada | 0,0 | 0,0 |
 | `diag.conferencia_ab_s` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.resultado_imovel` | ausente | não carregada | 0,0 | 0,0 |
-| `ref.lista_suja` | legado | não carregada | 0,0 | 0,0 |
 | `cad.carteira` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.carteira_item` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.consentimento` | ausente | não carregada | 0,0 | 0,0 |
@@ -33,38 +40,38 @@ Medido em 2026-11-04 00:01 UTC num PostGIS 17-3.5 local (`banco/docker-compose.y
 | `cad.organizacao` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.produtor_imovel` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.usuario` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.criterio` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.execucao` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.execucao_carga` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.carga` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.descarte` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.fonte` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.validacao` | ausente | não carregada | 0,0 | 0,0 |
-| **Total das tabelas** | | | **184,8** | 8,2 |
+| **Total das tabelas** | | | **208,8** | 9,6 |
 
 ## Perfil completo
 
 | Tabela | Origem | Linhas | MB | Segundos |
 |---|---|---:|---:|---:|
-| `ref.desmatamento_prodes` | legado | 1.493.882 | 1.551,4 | 50,6 |
-| `ref.alerta_deter` | legado | 247.970 | 212,6 | 6,3 |
-| `ref.embargo_ibama` | legado | 110.377 | 144,3 | 6,2 |
-| `ref.unidade_conservacao` | legado | 3.301 | 66,3 | 4,4 |
-| `ref.terra_indigena` | legado | 665 | 31,5 | 1,8 |
-| `geo.bioma` | legado | 6 | 11,3 | 0,7 |
-| `ref.territorio_quilombola` | legado | 540 | 3,9 | 0,2 |
-| `ref.quilombola_incra` | legado | 446 | 3,6 | 0,2 |
-| `ref.quilombola_ibge` | legado | 495 | 3,4 | 0,3 |
-| `geo.municipio` | legado | 5.571 | 0,7 | 0,0 |
-| `geo.uf` | legado | 27 | 0,3 | 0,0 |
-| `diag.evidencia` | ausente | não carregada | 0,0 | 0,0 |
-| `geo.imovel_car` | ausente | não carregada | 0,0 | 0,0 |
+| `ref.desmatamento_prodes` | lago | 1.495.608 | 1.619,1 | 85,8 |
+| `ref.alerta_deter` | lago | 247.970 | 221,8 | 6,4 |
+| `ref.embargo_ibama` | lago | 110.377 | 151,6 | 6,2 |
+| `ref.unidade_conservacao` | lago | 3.301 | 66,5 | 3,9 |
+| `ref.terra_indigena` | lago | 665 | 31,6 | 1,5 |
+| `meta.descarte` | lago | 30.003 | 16,8 | 0,4 |
+| `geo.bioma` | lago | 6 | 11,3 | 0,7 |
+| `ref.territorio_quilombola` | lago | 540 | 3,9 | 0,2 |
+| `ref.quilombola_incra` | lago | 446 | 3,7 | 0,2 |
+| `ref.quilombola_ibge` | lago | 495 | 3,5 | 0,2 |
+| `geo.municipio` | lago | 5.571 | 0,8 | 0,0 |
+| `ref.lista_suja` | lago | 507 | 0,4 | 0,0 |
+| `geo.uf` | lago | 27 | 0,4 | 0,0 |
+| `diag.evidencia` | lago | 62 | 0,2 | 0,0 |
+| `geo.imovel_car` | lago | 17 | 0,1 | 0,0 |
+| `diag.criterio` | lago | 170 | 0,1 | 0,0 |
+| `meta.validacao` | lago | 143 | 0,1 | 0,0 |
+| `meta.carga` | lago | 10 | 0,1 | 0,0 |
+| `diag.resultado_imovel` | lago | 17 | 0,1 | 0,0 |
+| `diag.execucao` | lago | 1 | 0,0 | 0,0 |
+| `diag.execucao_carga` | lago | 10 | 0,0 | 0,0 |
+| `meta.fonte` | lago | 12 | 0,0 | 0,0 |
 | `cad.area_producao` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.imovel` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.produtor` | ausente | não carregada | 0,0 | 0,0 |
 | `diag.conferencia_ab_s` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.resultado_imovel` | ausente | não carregada | 0,0 | 0,0 |
-| `ref.lista_suja` | legado | não carregada | 0,0 | 0,0 |
 | `cad.carteira` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.carteira_item` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.consentimento` | ausente | não carregada | 0,0 | 0,0 |
@@ -72,20 +79,7 @@ Medido em 2026-11-04 00:01 UTC num PostGIS 17-3.5 local (`banco/docker-compose.y
 | `cad.organizacao` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.produtor_imovel` | ausente | não carregada | 0,0 | 0,0 |
 | `cad.usuario` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.criterio` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.execucao` | ausente | não carregada | 0,0 | 0,0 |
-| `diag.execucao_carga` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.carga` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.descarte` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.fonte` | ausente | não carregada | 0,0 | 0,0 |
-| `meta.validacao` | ausente | não carregada | 0,0 | 0,0 |
-| **Total das tabelas** | | | **2.030,0** | 71,1 |
-
-## Linhas do legado fora da chave
-
-Enquanto a fonte não grava no lago, `lago.ler` entrega o arquivo antigo sem a validação do contrato. O carregador deixa de fora as linhas com chave nula ou repetida (o banco não as aceitaria):
-
-- `ref.desmatamento_prodes`: 1726
+| **Total das tabelas** | | | **2.132,4** | 105,9 |
 
 ## Observações
 

@@ -20,7 +20,7 @@ A pergunta que o sistema responde é: **quais produtores da minha carteira atend
 |---|---|---|
 | **Carteira priorizada** | Uma linha por imóvel, ordenada: pendência > inconclusivo > indício > sem pendência; dentro do grupo, mais pendências e maior área primeiro. Para cada um: o que apareceu, o primeiro passo e o link da ficha | **Pronta** (`python -m pipeline.carteira`, 02/11/2026) |
 | **Ficha do imóvel** | Para cada critério: situação, evidência (mapa, polígonos, datas, área no imóvel), encaminhamento, fonte e data do dado e SHA-256 de cada arquivo | **Pronta** (Atividade 04) |
-| **Mudanças desde o último mês** | Imóveis cujo resultado mudou depois da rotina mensal (PRODES novo, DETER novo, embargo novo, Lista Suja nova), com o critério que mudou | A fazer: a rotina já roda e a demonstração já compara o esperado com o obtido; falta comparar a carteira com a do mês anterior |
+| **Mudanças desde o último mês** | Imóveis cujo resultado mudou depois da rotina mensal (PRODES novo, DETER novo, embargo novo, Lista Suja nova), com o critério que mudou | Em parte (03/11/2026): cadastro e resultado ficam no lago com histórico, e `resultados.mudancas` (visão `diag.mudanca` no banco) já lista o critério que mudou; falta mostrar na carteira |
 | **Resultado oficial do AB+S ao lado** | Quando o produtor traz o relatório AB+S, cada critério mostra o resultado do pipeline e o oficial. A matriz de concordância mede o acerto | A fazer: depende do primeiro relatório real (ADR 0012) |
 | **Dossiê para o comprador (EUDR)** | Polígono da área de produção, ausência de desmatamento após 31/12/2020 com a fonte e a data de cada imagem, e o que não foi verificado | A fazer: os dados já estão na ficha; falta o formato que o comprador pede |
 
@@ -89,4 +89,4 @@ São atualizadas pela rotina mensal ([`agendamento/`](../agendamento/LEIA-ME.md)
 | 3 | **Piloto com uma cooperativa** (café de MG, já na demonstração): uma carteira real, medindo o tempo de triagem contra a consulta separada a cada base | É a hipótese do projeto ("reduzir o tempo de triagem") | Médio, depende de parceiro |
 | 4 | **Entrada do polígono da área de produção** (KML ou GeoJSON) e dossiê EUDR | A EUDR exige a geolocalização da área, não do imóvel | Médio |
 | 5 | **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal | Tira a última fonte que depende do WFS em partições mensais | Pequeno |
-| 6 | **API e PostgreSQL/PostGIS** | Só quando houver mais de um técnico ao mesmo tempo (ADR 0011) | Grande |
+| 6 | **API sobre o banco lite** | O banco já existe e é gerado dos contratos (ADR 0017); falta a API e ligar um Neon ou Supabase gratuito quando houver mais de um técnico | Médio |
