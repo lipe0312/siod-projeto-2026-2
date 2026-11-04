@@ -20,7 +20,7 @@ A pergunta que o sistema responde é: **quais produtores da minha carteira atend
 |---|---|---|
 | **Carteira priorizada** | Uma linha por imóvel, ordenada: pendência > inconclusivo > indício > sem pendência; dentro do grupo, mais pendências e maior área primeiro. Para cada um: o que apareceu, o primeiro passo e o link da ficha | **Pronta** (`python -m pipeline.carteira`, 02/11/2026) |
 | **Ficha do imóvel** | Para cada critério: situação, evidência (mapa, polígonos, datas, área no imóvel), encaminhamento, fonte e data do dado e SHA-256 de cada arquivo | **Pronta** (Atividade 04) |
-| **Mudanças desde o último mês** | Imóveis cujo resultado mudou depois da rotina mensal (PRODES novo, DETER novo, embargo novo, Lista Suja nova), com o critério que mudou | Em parte (03/11/2026): cadastro e resultado ficam no lago com histórico, e `resultados.mudancas` (visão `diag.mudanca` no banco) já lista o critério que mudou; falta mostrar na carteira |
+| **Mudanças desde o último mês** | Imóveis cujo resultado mudou depois da rotina mensal (PRODES novo, DETER novo, embargo novo, Lista Suja nova), com o critério que mudou | Sim (04/11/2026): a carteira compara cada imóvel com a execução anterior da mesma organização (`resultados.mudancas`, visão `diag.mudanca` no banco); colunas `mudou` e `o_que_mudou` no CSV e "N imóveis mudaram desde <data>" no topo do HTML |
 | **Resultado oficial do AB+S ao lado** | Quando o produtor traz o relatório AB+S, cada critério mostra o resultado do pipeline e o oficial. A matriz de concordância mede o acerto | A fazer: depende do primeiro relatório real (ADR 0012) |
 | **Dossiê para o comprador (EUDR)** | Polígono da área de produção, ausência de desmatamento após 31/12/2020 com a fonte e a data de cada imagem, e o que não foi verificado | A fazer: os dados já estão na ficha; falta o formato que o comprador pede |
 
@@ -85,7 +85,7 @@ São atualizadas pela rotina mensal ([`agendamento/`](../agendamento/LEIA-ME.md)
 | # | Passo | Por que vem antes | Esforço |
 |---|---|---|---|
 | 1 | **Primeiro relatório AB+S real** e matriz de concordância | Sem ele, não há medida de acerto, só regressão; é o maior risco do projeto (README) | Depende de um produtor voluntário |
-| 2 | **Carteira com "o que mudou"**: comparar com a carteira do mês anterior | É o que faz o técnico voltar todo mês, e a rotina mensal já existe | Pequeno |
+| 2 | ~~**Carteira com "o que mudou"**~~ (feito em 04/11/2026): comparar com a execução anterior de cada imóvel | É o que faz o técnico voltar todo mês, e a rotina mensal já existe | Pequeno |
 | 3 | **Piloto com uma cooperativa** (café de MG, já na demonstração): uma carteira real, medindo o tempo de triagem contra a consulta separada a cada base | É a hipótese do projeto ("reduzir o tempo de triagem") | Médio, depende de parceiro |
 | 4 | **Entrada do polígono da área de produção** (KML ou GeoJSON) e dossiê EUDR | A EUDR exige a geolocalização da área, não do imóvel | Médio |
 | 5 | **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal | Tira a última fonte que depende do WFS em partições mensais | Pequeno |
