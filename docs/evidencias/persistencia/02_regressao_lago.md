@@ -1,6 +1,6 @@
 # Regressão do lago: demonstração dos 17 imóveis
 
-Execução `09ab9edb-5caa-40b7-9f2a-b45c583ca18a` de 2026-11-03 21:10:22.746934: **17 de 17 imóveis iguais** às fichas da Atividade 04, critério a critério.
+Execução `c254ac90-060d-47e7-abcc-95df5c76e7fb` de 2026-11-04 18:57:53.138146: **17 de 17 imóveis iguais** às fichas da Atividade 04, critério a critério.
 
 | Imóvel | Resultado antes | Resultado depois | Critérios diferentes |
 |---|---|---|---|
