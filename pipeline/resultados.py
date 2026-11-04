@@ -132,21 +132,51 @@ class Execucao:
         return resumo
 
 
-def mudancas(organizacao_id: str | None = DEMONSTRACAO) -> pd.DataFrame:
-    """Critérios cuja situação mudou entre as duas últimas execuções de cada imóvel da organização (padrão: a
-    demonstração; None: as consultas avulsas, sem organização). Critério que apareceu ou sumiu também conta."""
-    colunas = ["cod_imovel", "chave", "criterio", "situacao_anterior", "situacao_atual", "gerado_em_anterior",
-               "gerado_em_atual", "evidencia_atual"]
+def _pares(organizacao_id: str | None, cod_imoveis=None) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+    """Resultados das duas últimas execuções de cada imóvel da organização que tem pelo menos duas (coluna `ordem`:
+    anterior/atual) e os critérios do lago. `cod_imoveis` restringe aos imóveis informados (ex.: a carteira atual)."""
     res, crit = lago.ler_ou_none("diag.resultado_imovel"), lago.ler_ou_none("diag.criterio")
     if res is None or crit is None:
-        return pd.DataFrame(columns=colunas)
+        return None, crit
     mesma_org = res["organizacao_id"].isna() if organizacao_id is None else res["organizacao_id"] == organizacao_id
-    res = res[mesma_org & res["cod_imovel"].notna()].sort_values("gerado_em")
-    ultimos = res.groupby("cod_imovel").tail(2)
+    res = res[mesma_org & res["cod_imovel"].notna()]
+    if cod_imoveis is not None:
+        res = res[res["cod_imovel"].isin(list(cod_imoveis))]
+    ultimos = res.sort_values("gerado_em", kind="stable").groupby("cod_imovel").tail(2)
     pares = ultimos.groupby("cod_imovel").filter(lambda g: len(g) == 2)
     if pares.empty:
+        return None, crit
+    return pares.assign(ordem=pares.groupby("cod_imovel").cumcount().map({0: "anterior", 1: "atual"})), crit
+
+
+def anteriores(organizacao_id: str | None = DEMONSTRACAO, cod_imoveis=None) -> pd.Series:
+    """Data da execução anterior de cada imóvel da organização que já tem duas execuções (índice: cod_imovel)."""
+    pares, _ = _pares(organizacao_id, cod_imoveis)
+    if pares is None:
+        return pd.Series(dtype="datetime64[ns]", name="gerado_em_anterior")
+    anterior = pares[pares["ordem"] == "anterior"]
+    return pd.Series(anterior["gerado_em"].values, index=anterior["cod_imovel"].values, name="gerado_em_anterior")
+
+
+def ha_execucao_anterior(organizacao_id: str | None, execucao_id: str | None = None) -> bool:
+    """A organização já tinha alguma execução gravada além de `execucao_id`?"""
+    execucoes = lago.ler_ou_none("diag.execucao")
+    if execucoes is None:
+        return False
+    mesma_org = (execucoes["organizacao_id"].isna() if organizacao_id is None
+                 else execucoes["organizacao_id"] == organizacao_id)
+    return bool((mesma_org & (execucoes["execucao_id"] != execucao_id)).any())
+
+
+def mudancas(organizacao_id: str | None = DEMONSTRACAO, cod_imoveis=None) -> pd.DataFrame:
+    """Critérios cuja situação mudou entre as duas últimas execuções de cada imóvel da organização (padrão: a
+    demonstração; None: as consultas avulsas, sem organização). Critério que apareceu ou sumiu também conta.
+    `cod_imoveis` restringe a comparação a esses imóveis (a carteira atual)."""
+    colunas = ["cod_imovel", "chave", "criterio", "situacao_anterior", "situacao_atual", "gerado_em_anterior",
+               "gerado_em_atual", "evidencia_atual"]
+    pares, crit = _pares(organizacao_id, cod_imoveis)
+    if pares is None or crit is None:
         return pd.DataFrame(columns=colunas)
-    pares = pares.assign(ordem=pares.groupby("cod_imovel").cumcount().map({0: "anterior", 1: "atual"}))
     crit = crit.merge(pares[["resultado_id", "cod_imovel", "gerado_em", "ordem"]], on="resultado_id")
     largo = crit.pivot_table(index=["cod_imovel", "chave"], columns="ordem",
                              values=["situacao", "gerado_em", "evidencia", "criterio"], aggfunc="first")
