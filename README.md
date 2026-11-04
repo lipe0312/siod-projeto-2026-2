@@ -1,5 +1,7 @@
 # Projeto de SIOD — 2026.2
 
+[![Testes](https://github.com/lipe0312/siod-projeto-2026-2/actions/workflows/testes.yml/badge.svg)](https://github.com/lipe0312/siod-projeto-2026-2/actions/workflows/testes.yml)
+
 Projeto individual da disciplina **Sistemas Inteligentes Orientados a Dados** (IC0046, PGCOMP/UFBA, 2026.2).
 
 O objetivo é apoiar a identificação de pendências socioambientais que impedem produtores rurais de acessar crédito rural e de vender para compradores sujeitos à regulação europeia antidesmatamento. O projeto usa apenas dados públicos.

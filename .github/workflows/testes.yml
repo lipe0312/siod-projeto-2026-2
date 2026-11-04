@@ -1,0 +1,61 @@
+name: Testes
+
+# Push na main e PR para a main: um commit de PR roda uma vez só (pelo pull_request).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: testes-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    name: Testes offline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      # Inclui test_migracoes_commitadas_estao_em_dia_com_os_contratos (falha se as migrações geradas estiverem velhas).
+      - run: python -m pytest -q
+
+  banco:
+    name: Testes com PostGIS (--banco)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: imresamu/postgis:17-3.5
+        env:
+          POSTGRES_USER: agrovalid
+          POSTGRES_PASSWORD: agrovalid
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U agrovalid"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Credencial do contêiner efêmero do runner (a mesma de banco/docker-compose.yml), não um segredo.
+      # Banco real (Neon/Supabase) nunca entra aqui: URL só no .env ou em secrets.
+      AGROVALID_TEST_URL: postgresql://agrovalid:agrovalid@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q --banco
