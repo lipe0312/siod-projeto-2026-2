@@ -112,10 +112,10 @@ def test_migrar_e_carregar_dados_sinteticos(novo_banco, lago_sintetico):
     # Geometria como EWKT no SRID do contrato; nula quando a linha não tem.
     assert consultar(url, "SELECT count(*), count(geometria), min(ST_SRID(geometria)) FROM ref.terra_indigena") \
         == [(2, 1, 4674)]
-    # Embargo no completo ganha a geometria; fuso vira UTC sem fuso.
+    # Embargo no completo ganha a geometria; o valor com fuso (15h UTC) vira horário de Brasília sem fuso.
     assert consultar(url, "SELECT count(geometria) FROM ref.embargo_ibama") == [(3,)]
     assert consultar(url, "SELECT data_embargo FROM ref.embargo_ibama WHERE id_embargo = 'e1' AND valido_ate IS NULL") \
-        == [(datetime(2026, 1, 1, 15),)]
+        == [(datetime(2026, 1, 1, 12),)]
     assert consultar(url, "SELECT descricao_infracao FROM ref.embargo_ibama WHERE situacao = 'ativo' AND id_embargo = 'e1'") \
         == [('linha\ncom "aspas", vírgula e \\N',)]
     # Visões do estado vigente.
@@ -168,10 +168,11 @@ def banco_com_carteiras(novo_banco, lago_sintetico):
             conn.execute("INSERT INTO cad.imovel (imovel_id, organizacao_id, cod_car, criado_em) "
                          "VALUES (%s, %s, %s, now())", (f"im-{org}", org, f"BA-{org[:4]}"))
         conn.execute("INSERT INTO diag.execucao (execucao_id, organizacao_id, tipo, iniciada_em, ano_mes) VALUES "
-                     "('ex-a', %s, 'carteira', now(), '2026-11'), ('ex-demo', NULL, 'demonstracao', now(), '2026-11')",
+                     "('ex-a', %s, 'carteira', now(), '2026-11'), ('ex-demo', 'demonstracao', 'demonstracao', now(), '2026-11'), "
+                     "('ex-avulsa', NULL, 'avulsa', now(), '2026-11')",
                      (ORG_A,))
         conn.execute("INSERT INTO diag.execucao_carga (execucao_id, fonte) VALUES ('ex-a', 'inpe_prodes'), "
-                     "('ex-demo', 'inpe_prodes')")
+                     "('ex-demo', 'inpe_prodes'), ('ex-avulsa', 'inpe_prodes')")
     return url
 
 
@@ -190,7 +191,7 @@ def test_rls_uma_organizacao_nao_ve_a_carteira_da_outra(banco_com_carteiras):
         assert a.execute("SELECT organizacao_id FROM cad.organizacao").fetchall() == [(ORG_A,)]
     with como_app(url, ORG_B) as b:
         assert b.execute("SELECT organizacao_id FROM cad.imovel").fetchall() == [(ORG_B,)]
-        # Demonstração (organizacao_id nulo) é de todos; a execução de A, não.
+        # Demonstração é de todos; a execução de A e a consulta avulsa (sem organização), não.
         assert b.execute("SELECT execucao_id FROM diag.execucao ORDER BY 1").fetchall() == [("ex-demo",)]
         # diag.execucao_carga não tem organizacao_id e segue a execução.
         assert b.execute("SELECT execucao_id FROM diag.execucao_carga").fetchall() == [("ex-demo",)]
@@ -199,6 +200,7 @@ def test_rls_uma_organizacao_nao_ve_a_carteira_da_outra(banco_com_carteiras):
         assert sem.execute("SELECT count(*) FROM diag.execucao").fetchone() == (1,)  # só a demonstração
     # O dono (quem carrega) não é afetado.
     assert consultar(url, "SELECT count(*) FROM cad.imovel") == [(2,)]
+    assert consultar(url, "SELECT count(*) FROM diag.execucao") == [(3,)]
 
 
 def test_rls_papel_so_le_e_insere_na_propria_organizacao(banco_com_carteiras):
@@ -227,6 +229,8 @@ def test_mudanca_acusa_o_criterio_que_mudou_entre_as_duas_ultimas_execucoes(banc
         ("r5", "e3", ORG_A, "CAR-2", "2026-11-01", "sem_ocorrencia", "sem_ocorrencia"),
         ("r6", "e3", ORG_B, "CAR-1", "2026-11-01", "pendencia", "pendencia"),             # outra org, uma execução só
         ("r7", "e3", ORG_A, "CAR-3", "2026-11-01", "pendencia", "pendencia"),             # uma execução só
+        ("r8", "e2", ORG_A, "CAR-4", "2026-10-01", "pendencia", "sem_ocorrencia"),
+        ("r9", "e3", ORG_A, "CAR-4", "2026-11-01", None, "sem_ocorrencia"),               # critério sumiu
     ]
     with psycopg.connect(url, autocommit=True) as conn:
         for rid, exe, org, car, quando, embargo, prodes in resultados:
@@ -234,9 +238,12 @@ def test_mudanca_acusa_o_criterio_que_mudou_entre_as_duas_ultimas_execucoes(banc
                          "situacao, gerado_em, ano_mes) VALUES (%s, %s, %s, %s, 'x', %s, %s)",
                          (rid, exe, org, car, quando, quando[:7]))
             for chave, situacao in (("embargo", embargo), ("prodes", prodes)):
+                if situacao is None:
+                    continue
                 conn.execute("INSERT INTO diag.criterio (resultado_id, organizacao_id, chave, criterio, situacao, ano_mes) "
                              "VALUES (%s, %s, %s, %s, %s, %s)", (rid, org, chave, chave.upper(), situacao, quando[:7]))
-    esperado = [(ORG_A, "CAR-1", "embargo", "indicio", "pendencia", datetime(2026, 10, 1), datetime(2026, 11, 1))]
+    esperado = [(ORG_A, "CAR-1", "embargo", "indicio", "pendencia", datetime(2026, 10, 1), datetime(2026, 11, 1)),
+                (ORG_A, "CAR-4", "embargo", "pendencia", None, datetime(2026, 10, 1), datetime(2026, 11, 1))]
     consulta = ("SELECT organizacao_id, cod_imovel, chave, situacao_anterior, situacao_atual, data_anterior, data_atual "
                 "FROM diag.mudanca ORDER BY 1, 2, 3")
     assert consultar(url, consulta) == esperado

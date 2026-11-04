@@ -99,28 +99,28 @@ CREATE POLICY usuario_insercao ON cad.usuario FOR INSERT
 -- diag.conferencia_ab_s
 ALTER TABLE diag.conferencia_ab_s ENABLE ROW LEVEL SECURITY;
 CREATE POLICY conferencia_ab_s_leitura ON diag.conferencia_ab_s FOR SELECT
-    USING (organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true));
+    USING (organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY conferencia_ab_s_insercao ON diag.conferencia_ab_s FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
 
 -- diag.criterio
 ALTER TABLE diag.criterio ENABLE ROW LEVEL SECURITY;
 CREATE POLICY criterio_leitura ON diag.criterio FOR SELECT
-    USING (organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true));
+    USING (organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY criterio_insercao ON diag.criterio FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
 
 -- diag.evidencia
 ALTER TABLE diag.evidencia ENABLE ROW LEVEL SECURITY;
 CREATE POLICY evidencia_leitura ON diag.evidencia FOR SELECT
-    USING (organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true));
+    USING (organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY evidencia_insercao ON diag.evidencia FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
 
 -- diag.execucao
 ALTER TABLE diag.execucao ENABLE ROW LEVEL SECURITY;
 CREATE POLICY execucao_leitura ON diag.execucao FOR SELECT
-    USING (organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true));
+    USING (organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY execucao_insercao ON diag.execucao FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
 
@@ -134,6 +134,6 @@ CREATE POLICY execucao_carga_insercao ON diag.execucao_carga FOR INSERT
 -- diag.resultado_imovel
 ALTER TABLE diag.resultado_imovel ENABLE ROW LEVEL SECURITY;
 CREATE POLICY resultado_imovel_leitura ON diag.resultado_imovel FOR SELECT
-    USING (organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true));
+    USING (organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY resultado_imovel_insercao ON diag.resultado_imovel FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));

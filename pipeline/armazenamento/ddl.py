@@ -10,7 +10,8 @@ A 0001 (extensões e esquemas) é escrita à mão. Tabelas com perfil `fora` nun
 Convenções do banco:
 - a coluna de geometria do contrato (`geometria_wkt`, WKT no lago) vira `geometria geometry(Geometry, 4674)`; o tipo
   declarado no contrato (MultiPolygon etc.) vai em COMMENT, porque os dados reais misturam Polygon e MultiPolygon;
-- `data_hora` vira `timestamp` sem fuso; o que vier com fuso é convertido para UTC antes (o carregador faz isso);
+- `data_hora` vira `timestamp` sem fuso, no horário de Brasília (o do pipeline, que grava `datetime.now()` local); o que
+  vier com fuso é convertido para America/Sao_Paulo antes (o carregador faz isso);
 - as colunas de controle do histórico (contratos.CONTROLE) vêm depois das colunas do contrato.
 """
 
@@ -157,8 +158,9 @@ def _regra_rls(c: Contrato) -> tuple[str, str] | None:
         return None
     if "organizacao_id" in c.nomes:
         propria = f"organizacao_id = {atual}"
-        # Resultado de demonstração (sem organização) é visível a todos; a escrita exige a organização.
-        leitura = f"organizacao_id IS NULL OR {propria}" if c.esquema == "diag" else propria
+        # Só a demonstração (organizacao_id = 'demonstracao', CARs públicos e CPF fictício) é visível a todos. Linha sem
+        # organização (consulta avulsa da equipe) não é visível ao papel da aplicação; a escrita exige a organização.
+        leitura = f"organizacao_id = 'demonstracao' OR {propria}" if c.esquema == "diag" else propria
         return leitura, propria
     if c.esquema == "diag" and "execucao_id" in c.nomes:
         # Sem organizacao_id: segue a execução, que já passa pela política dela.
@@ -188,7 +190,7 @@ def _bloco(titulo: str, sql: str) -> str:
 def gerar_0002() -> str:
     partes = [CABECALHO, "-- Perfil lite: cabe nos planos gratuitos do Supabase (500 MB) e do Neon (1 GB por projeto).\n"
               "-- Embargo do IBAMA entra sem geometria; ela vem na 0003, só no perfil completo.\n"
-              "-- data_hora vira timestamp sem fuso, em UTC.\n"]
+              "-- data_hora vira timestamp sem fuso, no horário de Brasília (America/Sao_Paulo).\n"]
     partes += [_bloco(c.tabela, criar_tabela(c)) for c in tabelas("lite")]
     return "\n".join(partes)
 
@@ -250,10 +252,10 @@ WITH ordenado AS (
 )
 SELECT atual.organizacao_id,
        atual.cod_imovel,
-       c_atual.chave,
-       c_atual.criterio,
-       c_antes.situacao AS situacao_anterior,
-       c_atual.situacao AS situacao_atual,
+       m.chave,
+       m.criterio,
+       m.situacao_anterior,
+       m.situacao_atual,
        antes.gerado_em  AS data_anterior,
        atual.gerado_em  AS data_atual,
        antes.resultado_id AS resultado_anterior_id,
@@ -263,10 +265,18 @@ JOIN ordenado antes
   ON antes.ordem = 2
  AND antes.cod_imovel = atual.cod_imovel
  AND antes.organizacao_id IS NOT DISTINCT FROM atual.organizacao_id
-JOIN diag.criterio c_atual ON c_atual.resultado_id = atual.resultado_id
-JOIN diag.criterio c_antes ON c_antes.resultado_id = antes.resultado_id AND c_antes.chave = c_atual.chave
+-- FULL JOIN: o critério que apareceu ou sumiu entre as duas execuções também é mudança.
+CROSS JOIN LATERAL (
+    SELECT coalesce(ca.chave, cb.chave)       AS chave,
+           coalesce(ca.criterio, cb.criterio) AS criterio,
+           cb.situacao AS situacao_anterior,
+           ca.situacao AS situacao_atual
+    FROM (SELECT chave, criterio, situacao FROM diag.criterio WHERE resultado_id = atual.resultado_id) ca
+    FULL JOIN (SELECT chave, criterio, situacao FROM diag.criterio WHERE resultado_id = antes.resultado_id) cb
+      ON cb.chave = ca.chave
+) m
 WHERE atual.ordem = 1
-  AND c_antes.situacao IS DISTINCT FROM c_atual.situacao;
+  AND m.situacao_anterior IS DISTINCT FROM m.situacao_atual;
 
 COMMENT ON VIEW diag.mudanca IS 'Critério cuja situação mudou entre as duas últimas execuções de um imóvel, por organização.';"""
 

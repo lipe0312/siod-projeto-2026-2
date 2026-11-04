@@ -99,7 +99,8 @@ def test_rls_em_todas_as_tabelas_de_cad_e_diag_com_organizacao():
         if c.esquema in ("cad", "diag") and "organizacao_id" in c.nomes:
             assert f"ALTER TABLE {c.tabela} ENABLE ROW LEVEL SECURITY;" in sql, c.tabela
     assert "FORCE ROW LEVEL SECURITY;" not in sql
-    assert "organizacao_id IS NULL OR organizacao_id = current_setting('app.organizacao_id', true)" in sql
+    assert "organizacao_id = 'demonstracao' OR organizacao_id = current_setting('app.organizacao_id', true)" in sql
+    assert "organizacao_id IS NULL OR" not in sql  # consulta avulsa (sem organização) não fica visível a todos
     assert "CREATE ROLE agrovalid_app NOLOGIN" in sql
 
 

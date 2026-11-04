@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline.armazenamento import lago
-from pipeline.documentos import carregar_chave, pseudonimizar, somente_digitos, tipo_documento
+from pipeline.documentos import carregar_chave, pseudonimizar, sem_documento, somente_digitos, tipo_documento
 
 INFORMADOS = ("ccir", "codigo_sigef", "relatorio_ab_s")
 EXTRAS_IMOVEL = ("nome_area", "commodity")
@@ -44,6 +44,14 @@ def organizacao(nome: str, tipo: str = "cooperativa", uf: str | None = None) -> 
 
 def _texto(valor) -> str | None:
     return None if valor is None or pd.isna(valor) or str(valor).strip() == "" else str(valor).strip()
+
+
+def _coordenada(valor) -> float | None:
+    """Coordenada decimal (vírgula ou ponto); None se não for número (a carteira já marca a linha com o problema)."""
+    try:
+        return float(str(valor).replace(",", "."))
+    except (TypeError, ValueError):
+        return None
 
 
 def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
@@ -82,7 +90,7 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
                 imovel_id = str(uuid.uuid4())
                 if cod_car:
                     por_car[cod_car] = imovel_id
-                coordenada = lambda c: None if cod_car else float(str(linha[c]).replace(",", "."))
+                coordenada = lambda c: None if cod_car else _coordenada(linha.get(c))
                 novos["cad.imovel"].append({
                     "imovel_id": imovel_id, "organizacao_id": organizacao_id, "cod_car": cod_car,
                     "lat": coordenada("lat"), "lon": coordenada("lon"), "criado_em": momento,
@@ -96,8 +104,9 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
                     novos["cad.documento_trazido"].append({
                         "documento_id": str(uuid.uuid4()), "organizacao_id": organizacao_id, "imovel_id": imovel_id,
                         "tipo": tipo, "valor": _texto(linha.get(tipo)), "informado_em": momento})
-        extras = {k: _texto(v) for k, v in linha.items()
-                  if k not in ("documento", "lat", "lon", "id_produtor", "cod_car", *INFORMADOS) and _texto(v)}
+        extras = sem_documento({k: _texto(v) for k, v in linha.items()
+                                if k not in ("documento", "lat", "lon", "id_produtor", "cod_car", *INFORMADOS)
+                                and _texto(v)})
         itens.append({"carteira_id": carteira_id, "organizacao_id": organizacao_id, "linha": int(i) + 2,
                       "produtor_id": produtor_id, "imovel_id": imovel_id, "problema_na_linha": problemas.get(i),
                       "extras_json": pd.Series(extras).to_json(force_ascii=False) if extras else None})

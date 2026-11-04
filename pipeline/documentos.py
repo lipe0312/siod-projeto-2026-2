@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import logging
 import os
+import re
 import secrets
 
 import pandas as pd
@@ -52,6 +53,23 @@ def digito_valido(numeros: pd.Series) -> pd.Series:
         return cpf_valido(n) if len(n) == 11 else cnpj_valido(n) if len(n) == 14 else False
 
     return numeros.map(verificar).astype(bool)
+
+
+NOME_DE_DOCUMENTO = re.compile(r"cpf|cnpj|documento", re.IGNORECASE)
+FORMATO_CPF_CNPJ = re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b|\b\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}\b")
+OMITIDO = "[documento omitido]"
+
+
+def sem_documento(valores: dict, preservar=()) -> dict:
+    """Colunas livres de uma planilha sem CPF ou CNPJ em claro: sai a coluna com nome de documento, e o valor no
+    formato de um vira OMITIDO. `preservar`: colunas conhecidas, que passam sem conferência (ex.: cod_car)."""
+    saida = {}
+    for k, v in valores.items():
+        if k in preservar:
+            saida[k] = v
+        elif not NOME_DE_DOCUMENTO.search(str(k)):
+            saida[k] = OMITIDO if isinstance(v, str) and FORMATO_CPF_CNPJ.search(v) else v
+    return saida
 
 
 def carregar_chave() -> bytes:

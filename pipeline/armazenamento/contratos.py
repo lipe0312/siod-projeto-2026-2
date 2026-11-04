@@ -148,4 +148,11 @@ def validar(df: pd.DataFrame, contrato: Contrato) -> pd.DataFrame:
         erros.append(f"chave {list(contrato.chave)} repetida em {repetidas} linha(s)")
     if erros:
         raise ErroDeContrato(f"{tabela}: " + "; ".join(erros))
-    return df[contrato.nomes].reset_index(drop=True)
+    df = df[contrato.nomes].reset_index(drop=True)
+    # Número no dtype do contrato: o hash do histórico compara texto, e 5 (Int64) e 5.0 (float) abririam versão nova.
+    for c in contrato.colunas:
+        if c.tipo == "inteiro" and not types.is_integer_dtype(df[c.nome]):
+            df[c.nome] = df[c.nome].astype("Int64")
+        elif c.tipo == "decimal" and not types.is_float_dtype(df[c.nome]):
+            df[c.nome] = df[c.nome].astype("float64")
+    return df

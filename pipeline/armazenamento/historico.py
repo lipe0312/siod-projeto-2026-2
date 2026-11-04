@@ -59,6 +59,11 @@ def hash_linhas(df: pd.DataFrame, colunas) -> pd.Series:
     return valores.map(lambda v: f"{v:016x}").astype("string").set_axis(df.index)
 
 
+def _colunas(contrato: Contrato) -> list[str]:
+    """Colunas gravadas: as do contrato e as de controle do histórico."""
+    return [*contrato.nomes, *contrato.controle]
+
+
 def chave_linhas(df: pd.DataFrame, chave) -> pd.Series:
     return hash_linhas(df, chave)
 
@@ -155,8 +160,12 @@ def validade(pasta: Path, df: pd.DataFrame, contrato: Contrato, carga_id: str, m
                                         valido_ate=pd.NaT)
     abertas_novas = novo[~mesmo_hash].assign(carga_id=carga_id, valido_de=instante, valido_ate=pd.NaT)
     encerradas = abertas[sumiram | abertas["_k"].isin(novo.loc[alterados, "_k"])].assign(valido_ate=instante)
+    # Versão aberta e fechada na mesma carga (duas gravações no mesmo segundo) não chegou a valer: sai, para a chave
+    # (registro, valido_de) não repetir.
+    encerradas = encerradas[encerradas["valido_de"] != instante]
     partes = [fechadas, encerradas.drop(columns="_k"), continuam.drop(columns="_k"), abertas_novas.drop(columns="_k")]
-    saida = pd.concat([p for p in partes if not p.empty], ignore_index=True)[hist.columns]
+    # Colunas do contrato atual: coluna nova no contrato fica nula nas versões antigas, em vez de sumir.
+    saida = pd.concat([p for p in partes if not p.empty], ignore_index=True).reindex(columns=_colunas(contrato))
     gravar_parquet(saida, arquivo)
     return {"historico": "validade", "inseridos": int((~em_ambos).sum()), "alterados": int(alterados.sum()),
             "encerrados": int(sumiram.sum()), "inalterados": int(mesmo_hash.sum()), "versoes": len(saida)}
@@ -203,7 +212,7 @@ def por_consulta(pasta: Path, df: pd.DataFrame, contrato: Contrato, carga_id: st
         arquivo = _sub(pasta, contrato, valor) / ARQ_VERSOES
         novo = grupo.assign(carga_id=carga_id, consultado_em=pd.Timestamp(momento))
         if arquivo.exists():
-            velho = pd.read_parquet(arquivo)
+            velho = pd.read_parquet(arquivo).reindex(columns=_colunas(contrato))
             ultimas = velho.sort_values("consultado_em").drop_duplicates(list(contrato.chave), keep="last")
             ultimas = ultimas.assign(_k=chave_linhas(ultimas, contrato.chave),
                                      _h=hash_linhas(ultimas, contrato.nomes)).set_index("_k")["_h"]
@@ -213,8 +222,11 @@ def por_consulta(pasta: Path, df: pd.DataFrame, contrato: Contrato, carga_id: st
             novo = novo[~repetido]
             if novo.empty:
                 continue
-            novo = pd.concat([velho, novo], ignore_index=True)
-            resumo["inseridos"] += int((~repetido).sum())
+            # Outra consulta da mesma chave no mesmo segundo é substituída: (chave, consultado_em) não repete.
+            mesmo_instante = (velho["consultado_em"] == pd.Timestamp(momento)) & \
+                chave_linhas(velho, contrato.chave).isin(chave_linhas(novo, contrato.chave))
+            resumo["inseridos"] += len(novo)
+            novo = pd.concat([velho[~mesmo_instante], novo], ignore_index=True)
         else:
             resumo["inseridos"] += len(novo)
         gravar_parquet(novo, arquivo)
@@ -255,17 +267,17 @@ def ler(pasta: Path, contrato: Contrato, vigente: bool = True, particao=None, co
         df = _ler_arquivos([pasta / ARQ_VERSOES], leitura)
         if df is None or not vigente:
             return df
-        return df[df["valido_ate"].isna()].reset_index(drop=True)[pedidas or [*contrato.nomes, *extras]]
+        return df[df["valido_ate"].isna()].reset_index(drop=True).reindex(columns=pedidas or [*contrato.nomes, *extras])
     if h == "acrescimo":
         df = _ler_arquivos(_arquivos_particao(pasta, contrato, ARQ_PARTE, particao), pedidas)
-        return df if df is None or not vigente else df[pedidas or [*contrato.nomes, *extras]]
+        return df if df is None or not vigente else df.reindex(columns=pedidas or [*contrato.nomes, *extras])
     if h == "por_consulta":
         leitura = None if pedidas is None else list(dict.fromkeys([*pedidas, *contrato.chave, "consultado_em"]))
         df = _ler_arquivos(_arquivos_particao(pasta, contrato, ARQ_VERSOES, particao), leitura)
         if df is None or not vigente:
             return df
         df = df.sort_values("consultado_em").drop_duplicates(list(contrato.chave), keep="last")
-        return df.reset_index(drop=True)[pedidas or [*contrato.nomes, *extras]]
+        return df.reset_index(drop=True).reindex(columns=pedidas or [*contrato.nomes, *extras])
     arquivos = sorted(pasta.glob("**/part-*.parquet")) if particao is None else \
         sorted((pasta / f"{contrato.particao}={particao}").glob("part-*.parquet"))
     return _ler_arquivos(arquivos, pedidas)

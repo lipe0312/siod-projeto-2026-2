@@ -26,6 +26,7 @@ import psycopg
 from pipeline.armazenamento import contratos, ddl, lago
 from pipeline.armazenamento.contratos import Contrato
 
+FUSO = "America/Sao_Paulo"
 log = logging.getLogger("pipeline")
 
 VARIAVEL_URL = "AGROVALID_DATABASE_URL"
@@ -78,9 +79,13 @@ def migrar(conn: psycopg.Connection, perfil: str) -> list[str]:
 # Preparo do DataFrame para o COPY
 # ---------------------------------------------------------------------------------------------------------------
 
-def _utc_sem_fuso(serie: pd.Series) -> pd.Series:
-    """O que vier com fuso é convertido para UTC; o que vier sem fuso já é tratado como UTC."""
-    return pd.to_datetime(serie, utc=True).dt.tz_localize(None)
+def _local_sem_fuso(serie: pd.Series) -> pd.Series:
+    """Horário de Brasília sem fuso, como o pipeline grava (datetime.now() local). O que vier com fuso (a data do
+    SICAR, em UTC) é convertido para America/Sao_Paulo; o que vier sem fuso fica como está."""
+    serie = pd.to_datetime(serie)
+    if getattr(serie.dt, "tz", None) is not None:
+        serie = serie.dt.tz_convert(FUSO).dt.tz_localize(None)
+    return serie
 
 
 def _iso(serie: pd.Series, unidade: str) -> pd.Series:
@@ -99,7 +104,7 @@ def _como_texto(serie: pd.Series, tipo: str) -> pd.Series:
     if tipo == "logico":
         return serie.astype("boolean")
     if tipo == "data_hora":
-        return _iso(_utc_sem_fuso(serie), "us").str.replace("T", " ", regex=False)
+        return _iso(_local_sem_fuso(serie), "us").str.replace("T", " ", regex=False)
     if tipo == "data":
         return _iso(pd.to_datetime(serie), "D")
     if tipo == "geometria":
@@ -198,7 +203,7 @@ def escolher(perfil: str, tabelas: list[str] | None) -> list[Contrato]:
 def carregar(url: str, perfil: str, aplicar_migracoes: bool = False, tabelas: list[str] | None = None) -> dict:
     """Carrega o perfil e devolve {"tabelas": {nome: {"linhas", "bytes", "segundos"}}, "total_bytes", "banco_bytes"}."""
     selecionadas = escolher(perfil, tabelas)
-    agora = pd.Timestamp.now("UTC").tz_localize(None)
+    agora = pd.Timestamp.now()  # local, como o pipeline
     resumo = {}
     with psycopg.connect(url, autocommit=True) as conn:
         if aplicar_migracoes:

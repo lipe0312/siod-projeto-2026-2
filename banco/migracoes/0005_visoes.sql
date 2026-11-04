@@ -31,10 +31,10 @@ WITH ordenado AS (
 )
 SELECT atual.organizacao_id,
        atual.cod_imovel,
-       c_atual.chave,
-       c_atual.criterio,
-       c_antes.situacao AS situacao_anterior,
-       c_atual.situacao AS situacao_atual,
+       m.chave,
+       m.criterio,
+       m.situacao_anterior,
+       m.situacao_atual,
        antes.gerado_em  AS data_anterior,
        atual.gerado_em  AS data_atual,
        antes.resultado_id AS resultado_anterior_id,
@@ -44,9 +44,17 @@ JOIN ordenado antes
   ON antes.ordem = 2
  AND antes.cod_imovel = atual.cod_imovel
  AND antes.organizacao_id IS NOT DISTINCT FROM atual.organizacao_id
-JOIN diag.criterio c_atual ON c_atual.resultado_id = atual.resultado_id
-JOIN diag.criterio c_antes ON c_antes.resultado_id = antes.resultado_id AND c_antes.chave = c_atual.chave
+-- FULL JOIN: o critério que apareceu ou sumiu entre as duas execuções também é mudança.
+CROSS JOIN LATERAL (
+    SELECT coalesce(ca.chave, cb.chave)       AS chave,
+           coalesce(ca.criterio, cb.criterio) AS criterio,
+           cb.situacao AS situacao_anterior,
+           ca.situacao AS situacao_atual
+    FROM (SELECT chave, criterio, situacao FROM diag.criterio WHERE resultado_id = atual.resultado_id) ca
+    FULL JOIN (SELECT chave, criterio, situacao FROM diag.criterio WHERE resultado_id = antes.resultado_id) cb
+      ON cb.chave = ca.chave
+) m
 WHERE atual.ordem = 1
-  AND c_antes.situacao IS DISTINCT FROM c_atual.situacao;
+  AND m.situacao_anterior IS DISTINCT FROM m.situacao_atual;
 
 COMMENT ON VIEW diag.mudanca IS 'Critério cuja situação mudou entre as duas últimas execuções de um imóvel, por organização.';

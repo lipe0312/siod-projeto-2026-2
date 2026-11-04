@@ -26,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 from pipeline import cadastro, config, prediagnostico, relatorio, resultados
-from pipeline.documentos import cpf_valido, cnpj_valido
+from pipeline.documentos import cnpj_valido, cpf_valido, sem_documento
 
 log = logging.getLogger("pipeline")
 
@@ -95,7 +95,8 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
     linhas = []
     for i, linha in df.iterrows():
         linha = pd.Series({k: _valor(linha, k) for k in df.columns}, dtype=object)
-        base = {k: linha.get(k) for k in df.columns if k not in ("documento", "lat", "lon")}
+        base = sem_documento({k: linha.get(k) for k in df.columns if k not in ("documento", "lat", "lon")},
+                             preservar=("id_produtor", "cod_car", *INFORMADOS))
         base["documento_informado"] = "sim" if linha.get("documento") else "não"
         motivo = problema(linha)
         if motivo:

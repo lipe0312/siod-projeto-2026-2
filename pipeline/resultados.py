@@ -29,7 +29,7 @@ EVIDENCIAS = {
     "embargos": ("embargo", "ref.embargo_ibama", "id_embargo"),
     "alertas": ("desmatamento", "ref.alerta_deter", "id_alerta"),
     "prodes": ("desmatamento", "ref.desmatamento_prodes", "uuid"),
-    "lista_suja": ("lista_suja", "ref.lista_suja", "id_registro"),
+    "lista_suja": ("lista_suja", "ref.lista_suja", "chave_registro"),
     "terra_indigena": ("terra_indigena", "ref.terra_indigena", "terrai_codigo"),
     "quilombola": ("quilombola", "ref.territorio_quilombola", "codigo"),
     "unidade_conservacao": ("unidade_conservacao", "ref.unidade_conservacao", "cd_cnuc"),
@@ -37,6 +37,9 @@ EVIDENCIAS = {
 CONTAGEM = {"pendência": "n_pendencias", "indício": "n_indicios", "inconclusivo": "n_inconclusivos",
             "não verificado": "n_nao_verificados", "sem ocorrência": "n_sem_ocorrencia"}
 MEDIDAS = ("classe", "inter_ha", "fracao_objeto", "fracao_car", "largura_m")
+# Organização das execuções de demonstração (CARs públicos, CPF fictício): a única visível a todos no banco. A consulta
+# avulsa fica sem organização e não é visível ao papel da aplicação (banco/migracoes/0004).
+DEMONSTRACAO = "demonstracao"
 
 
 def _versao_codigo() -> str | None:
@@ -65,6 +68,8 @@ class Execucao:
                  comando: str | None = None):
         self.id = str(uuid.uuid4())
         self.inicio = datetime.now()
+        if tipo == "demonstracao" and organizacao_id is None:
+            organizacao_id = DEMONSTRACAO
         self.tipo, self.organizacao_id, self.carteira_id, self.comando = tipo, organizacao_id, carteira_id, comando
         self.ano_mes = f"{self.inicio:%Y-%m}"
         self.resultados, self.criterios, self.evidencias = [], [], []
@@ -127,9 +132,9 @@ class Execucao:
         return resumo
 
 
-def mudancas(organizacao_id: str | None = None) -> pd.DataFrame:
-    """Critérios cuja situação mudou entre as duas últimas execuções de cada imóvel da organização (sem organização:
-    as execuções sem dono, como a demonstração). Critério que apareceu ou sumiu também conta."""
+def mudancas(organizacao_id: str | None = DEMONSTRACAO) -> pd.DataFrame:
+    """Critérios cuja situação mudou entre as duas últimas execuções de cada imóvel da organização (padrão: a
+    demonstração; None: as consultas avulsas, sem organização). Critério que apareceu ou sumiu também conta."""
     colunas = ["cod_imovel", "chave", "criterio", "situacao_anterior", "situacao_atual", "gerado_em_anterior",
                "gerado_em_atual", "evidencia_atual"]
     res, crit = lago.ler_ou_none("diag.resultado_imovel"), lago.ler_ou_none("diag.criterio")

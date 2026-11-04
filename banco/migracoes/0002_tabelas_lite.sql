@@ -3,7 +3,7 @@
 
 -- Perfil lite: cabe nos planos gratuitos do Supabase (500 MB) e do Neon (1 GB por projeto).
 -- Embargo do IBAMA entra sem geometria; ela vem na 0003, só no perfil completo.
--- data_hora vira timestamp sem fuso, em UTC.
+-- data_hora vira timestamp sem fuso, no horário de Brasília (America/Sao_Paulo).
 
 -- cad.area_producao
 CREATE TABLE cad.area_producao (

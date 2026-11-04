@@ -271,8 +271,11 @@ def _ler_json(arquivo, legado=None) -> dict | None:
 
 
 def _gravar_json(arquivo, dados: dict) -> None:
+    """Escrita atômica: uma queda no meio não deixa a publicação truncada (o pré-diagnóstico depende dela)."""
     arquivo.parent.mkdir(parents=True, exist_ok=True)
-    arquivo.write_text(json.dumps(dados, indent=2, ensure_ascii=False))
+    temporario = arquivo.with_name(f".{arquivo.name}.tmp")
+    temporario.write_text(json.dumps(dados, indent=2, ensure_ascii=False))
+    temporario.replace(arquivo)
 
 
 def arquivo_uf(uf: str):

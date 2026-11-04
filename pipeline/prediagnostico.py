@@ -96,8 +96,9 @@ def _dentro_do_car(geoms, car_geom, car: pd.DataFrame) -> pd.DataFrame:
 def embargos_do_imovel(car: pd.DataFrame, car_geom, embargos: pd.DataFrame, documento_hash: str | None) -> pd.DataFrame:
     """Embargos com polígono que toca o CAR, com coordenada dentro dele, ou em nome do documento."""
     colunas = ["id_embargo", "num_tad", "ser_tad", "data_embargo", "area_ha", "descricao_infracao", "municipio", "uf",
-               "geometria_wkt", "situacao", "data_desembargo"]
-    embargos = embargos.reindex(columns=list(dict.fromkeys([*embargos.columns, "situacao", "data_desembargo"])))
+               "geometria_wkt", "situacao", "data_desembargo", "carga_id"]
+    embargos = embargos.reindex(columns=list(dict.fromkeys([*embargos.columns, "situacao", "data_desembargo",
+                                                            "carga_id"])))
     embargos["situacao"] = embargos["situacao"].fillna("ativo")
     candidatos = embargos[embargos["uf"] == car["uf"].iloc[0]]
     com_geom = candidatos[candidatos["geometria_wkt"].notna()].reset_index(drop=True)
@@ -129,8 +130,9 @@ def alertas_do_imovel(car: pd.DataFrame, car_geom, alertas: pd.DataFrame, prodes
     candidatos = alertas[(alertas["uf"] == car["uf"].iloc[0]) & alertas["geometria_wkt"].notna()].reset_index(drop=True)
     geoms = vetor.tornar_validas(shapely.from_wkt(candidatos["geometria_wkt"].to_numpy()))
     pares = _dentro_do_car(geoms, car_geom, car)
+    candidatos = candidatos.reindex(columns=list(dict.fromkeys([*candidatos.columns, "carga_id"])))
     saida = candidatos.loc[pares.index, ["id_alerta", "classe", "data_imagem", "area_km2", "satelite",
-                                         "geometria_wkt"]].rename(columns={"classe": "classe_deter"}).join(pares)
+                                         "geometria_wkt", "carga_id"]].rename(columns={"classe": "classe_deter"}).join(pares)
     saida = saida.reset_index(drop=True)
     if saida.empty:
         return saida.assign(situacao_prodes=pd.Series(dtype="string"), anos_prodes=pd.Series(dtype="string"))
@@ -148,8 +150,9 @@ def prodes_do_imovel(car: pd.DataFrame, car_geom, prodes: pd.DataFrame) -> pd.Da
     depois = prodes[prodes["ano_prodes"] > int(config.DATA_CORTE_EUDR[:4])].reset_index(drop=True)
     geoms = shapely.from_wkt(depois["geometria_wkt"].to_numpy())
     pares = _dentro_do_car(geoms, car_geom, car)
+    depois = depois.reindex(columns=list(dict.fromkeys([*depois.columns, "carga_id"])))
     return depois.loc[pares.index, ["uuid", "bioma", "ano_prodes", "data_imagem", "area_km2",
-                                    "geometria_wkt"]].join(pares).reset_index(drop=True)
+                                    "geometria_wkt", "carga_id"]].join(pares).reset_index(drop=True)
 
 
 def _criterio_car(imovel: dict) -> dict:
@@ -392,7 +395,8 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
     prd = prodes_do_imovel(car, car_geom, prodes)
     crit_ls, ls = _criterio_lista_suja(lista_suja, documento_hash)
     evidencias = {"embargos": emb, "alertas": alt, "prodes": prd,
-                  "lista_suja": ls[["id_registro", "uf", "cnae", "data_inclusao", "data_decisao"]]}
+                  "lista_suja": ls.reindex(columns=["chave_registro", "id_registro", "uf", "cnae", "data_inclusao",
+                                                    "data_decisao", "carga_id"])}
     crit_protegidas = []
     for chave, (modulo, *_resto) in CAMADAS_PROTEGIDAS.items():
         fonte = (protegidas or {}).get(chave, (pd.DataFrame(columns=modulo.COLUNAS_SAIDA), None))
