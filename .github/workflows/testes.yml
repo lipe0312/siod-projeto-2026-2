@@ -1,7 +1,9 @@
 name: Testes
 
+# Push na main e PR para a main: um commit de PR roda uma vez só (pelo pull_request).
 on:
   push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -45,6 +47,8 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      # Credencial do contêiner efêmero do runner (a mesma de banco/docker-compose.yml), não um segredo.
+      # Banco real (Neon/Supabase) nunca entra aqui: URL só no .env ou em secrets.
       AGROVALID_TEST_URL: postgresql://agrovalid:agrovalid@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v4
