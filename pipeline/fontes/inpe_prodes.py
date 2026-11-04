@@ -1,10 +1,10 @@
 """Fonte PRODES do INPE (incremento anual de desmatamento), pelo WFS do TerraBrasilis. Duas formas de uso:
 
 - em lote (`executar`, chamado por `python -m pipeline --fontes prodes`, e `garantir_uf`, chamado pelo
-  pré-diagnóstico): os anos desde config.PRODES_DESDE dos biomas de cada UF ativa viram uma partição Parquet por UF,
-  data/processed/inpe_prodes/uf=XX/part.parquet, recortada pelo contorno da UF (ADR 0013). O lote começa com
-  config.PRODES_UFS_INICIAIS e ganha a UF de cada imóvel novo. A publicação é verificada a cada
-  config.PRODES_INTERVALO_VERIFICACAO_DIAS (ver `verificar_e_baixar`);
+  pré-diagnóstico): os anos desde config.PRODES_DESDE dos biomas de cada UF ativa viram uma partição por UF da tabela
+  ref.desmatamento_prodes do lago, data/lago/ref/desmatamento_prodes/uf=XX/part.parquet, recortada pelo contorno da UF
+  (ADR 0013 e 0017). O lote começa com config.PRODES_UFS_INICIAIS e ganha a UF de cada imóvel novo. A publicação é
+  verificada a cada config.PRODES_INTERVALO_VERIFICACAO_DIAS (ver `verificar_e_baixar`);
 - sob demanda (`consultar`): por bioma e retângulo (BBOX) ou UF (campo state), usado no caderno da Atividade 03.
 
 Um ano PRODES (e uma parte do retângulo) por requisição, com a resposta bruta gravada compactada em
@@ -35,6 +35,7 @@ import shapely
 from shapely.strtree import STRtree
 
 from pipeline import config, download, vetor, wfs
+from pipeline.armazenamento import contratos, historico, lago
 from pipeline.municipios import normalizar_nome
 from pipeline.validacao import Marcas, ResultadoFonte, Validacao
 
@@ -235,15 +236,49 @@ def consultar(bioma: str = "cerrado", limites: tuple | None = None, uf: str | No
 # ---------------------------------------------------------------------------------------------------------------
 
 PASTA_LOTE = config.DADOS_BRUTOS / "inpe_prodes" / "lote"
-PASTA_SAIDA = config.DADOS_PROCESSADOS / "inpe_prodes"
-ARQ_DESCARTADOS = config.DADOS_PROCESSADOS / "inpe_prodes_descartados.parquet"
-ARQ_PUBLICACAO = config.DADOS_PROCESSADOS / "inpe_prodes_publicacao.json"
+TABELA = "ref.desmatamento_prodes"
 COLUNAS_LOTE = COLUNAS_SAIDA[:4] + ["uf", "uf_fonte"] + COLUNAS_SAIDA[5:]
 
 
+def pasta_tabela():
+    return lago.pasta(TABELA)
+
+
+def pasta_pecas():
+    """Peças bioma x UF, temporárias (config.TRABALHO)."""
+    return config.TRABALHO / "inpe_prodes_pecas"
+
+
+# Estado operacional da fonte (publicação e manifestos): arquivos com "_" na pasta da tabela, fora das partições.
+def arquivo_publicacao():
+    return pasta_tabela() / "_publicacao.json"
+
+
+def _arquivo_manifesto_wfs():
+    return pasta_tabela() / "_manifesto_wfs.json"
+
+
+def _arquivo_manifesto_arquivos():
+    return pasta_tabela() / "_manifesto_arquivos.json"
+
+
+def _ler_json(arquivo, legado=None) -> dict | None:
+    """JSON de estado da fonte; `legado` é onde ele ficava antes do lago (só leitura, na transição)."""
+    if not arquivo.exists() and legado is not None and legado.exists():
+        log.warning("[inpe_prodes] %s ainda não está no lago; lido de %s (legado)", arquivo.name, _relativo(legado))
+        arquivo = legado
+    return json.loads(arquivo.read_text()) if arquivo.exists() else None
+
+
+def _gravar_json(arquivo, dados: dict) -> None:
+    arquivo.parent.mkdir(parents=True, exist_ok=True)
+    arquivo.write_text(json.dumps(dados, indent=2, ensure_ascii=False))
+
+
 def arquivo_uf(uf: str):
-    """Partição do lote de uma UF (Parquet particionado por UF: o pré-diagnóstico lê só a UF do imóvel)."""
-    return PASTA_SAIDA / f"uf={uf}" / "part.parquet"
+    """Partição de uma UF no lago (o pré-diagnóstico lê só a UF do imóvel). O sha256 dela é a chave de cache do
+    pré-diagnóstico; o lago só regrava a partição que mudou."""
+    return pasta_tabela() / f"uf={uf}" / "part.parquet"
 
 
 def _relativo(caminho) -> str:
@@ -314,8 +349,7 @@ def _ufs_ativas(anterior: dict | None) -> list[str]:
 
 
 def _ler_manifesto() -> dict | None:
-    arq = PASTA_LOTE / "manifesto.json"
-    return json.loads(arq.read_text()) if arq.exists() else None
+    return _ler_json(_arquivo_manifesto_wfs(), PASTA_LOTE / "manifesto.json")
 
 
 def _verificacao_em_dia(anterior: dict | None, hoje: pd.Timestamp) -> bool:
@@ -444,8 +478,7 @@ def verificar_e_baixar(hoje: pd.Timestamp, atualizar: bool = False, verificar: b
     manifesto["historico"].append({"verificado_em_utc": agora, "mudancas": manifesto["mudancas"],
                                    "ufs": ufs, "ultimo_ano_publicado": {b: i["ultimo_ano_publicado"]
                                                                         for b, i in manifesto["biomas"].items()}})
-    PASTA_LOTE.mkdir(parents=True, exist_ok=True)
-    (PASTA_LOTE / "manifesto.json").write_text(json.dumps(manifesto, indent=2, ensure_ascii=False))
+    _gravar_json(_arquivo_manifesto_wfs(), manifesto)
     return manifesto, not em_dia, a_baixar
 
 
@@ -467,8 +500,9 @@ def construir_uf(uf: str, manifesto: dict, hoje: pd.Timestamp | None = None) -> 
                                                                                          ResultadoFonte]:
     """Partição de uma UF: todas as respostas da UF, tratadas, e só os polígonos que tocam o contorno da UF.
 
-    `uf` é a UF do contorno que contém o ponto representativo do polígono (um polígono de divisa fica nas partições
-    das duas UFs, com a mesma `uf`); `uf_fonte` é o campo `state` do INPE, só para comparação.
+    `uf` é a UF da partição (um polígono de divisa entra nas duas UFs, uma linha em cada, como pede a chave
+    [uuid, uf] do contrato); `uf_fonte` é o campo `state` do INPE. O alerta UF_DIFERE_DO_CONTORNO compara `state`
+    com a UF do contorno que contém o ponto representativo do polígono.
     """
     from pipeline import territorio
 
@@ -488,8 +522,9 @@ def construir_uf(uf: str, manifesto: dict, hoje: pd.Timestamp | None = None) -> 
                     "descarte", "fica fora da partição da UF (é de UF vizinha)", int((~dentro).sum()), len(saida))
     saida, geoms = saida[dentro].reset_index(drop=True), geoms[dentro]
     saida = saida.rename(columns={"uf": "uf_fonte"})
-    saida["uf"] = territorio.uf_por_contorno(geoms)
-    difere = saida["uf_fonte"].notna() & (saida["uf_fonte"] != saida["uf"])
+    uf_ponto = pd.Series(territorio.uf_por_contorno(geoms), index=saida.index, dtype=object)
+    saida["uf"] = uf
+    difere = saida["uf_fonte"].notna() & (saida["uf_fonte"] != uf_ponto)
     parcial.validar("PRODES_UF_DIFERE_DO_CONTORNO", "Campo state diferente da UF do contorno (polígono de divisa ou "
                     "gravado com a UF vizinha)", "alerta", "vale a UF do contorno; state fica em uf_fonte", difere,
                     len(saida))
@@ -528,28 +563,53 @@ def _gravar_publicacao(manifesto: dict) -> dict:
                       for uf in manifesto["ufs"] if arquivo_uf(uf).exists()},
         "historico": manifesto["historico"],
     }
-    ARQ_PUBLICACAO.write_text(json.dumps(publicacao, indent=2, ensure_ascii=False))
+    _gravar_json(arquivo_publicacao(), publicacao)
     return publicacao
+
+
+def _gravar_uf(df: pd.DataFrame, resultado: ResultadoFonte) -> bool:
+    """Grava a partição de uma UF no lago (só se mudou) e soma o resumo no do resultado. Devolve se gravou."""
+    resumo = lago.gravar(TABELA, df, carga_id=resultado.carga_id)
+    total = resultado.saida.setdefault("tabelas", {}).setdefault(
+        TABELA, {"historico": "acrescimo", "inseridos": 0, "alterados": 0, "removidos": 0, "particoes_gravadas": []})
+    for k in ("inseridos", "alterados", "removidos"):
+        total[k] += resumo[k]
+    total["particoes_gravadas"] += resumo["particoes_gravadas"]
+    return bool(resumo["particoes_gravadas"])
+
+
+def _gravar_uf_vazia(uf: str) -> None:
+    """UF sem polígono no recorte do WFS: partição vazia, para a UF constar da publicação (o lago não grava DataFrame
+    vazio)."""
+    contrato = contratos.carregar(TABELA)
+    historico.gravar_parquet(pd.DataFrame(columns=[*contrato.nomes, *contrato.controle]), arquivo_uf(uf))
+
+
+def _fechar_tabela(resultado: ResultadoFonte) -> None:
+    resumo = resultado.saida.get("tabelas", {}).get(TABELA)
+    if resumo:
+        resultado.transformar(f"Gravado em {TABELA} (acrescimo, partição da UF substituída só quando muda): "
+                              f"inseridos {resumo['inseridos']}, alterados {resumo['alterados']}, "
+                              f"removidos {resumo['removidos']}, partições gravadas {len(resumo['particoes_gravadas'])}")
 
 
 def _gravar_particoes(ufs: list[str], manifesto: dict, resultado: ResultadoFonte,
                       hoje: pd.Timestamp | None) -> dict[str, int]:
+    """Constrói e grava a partição de cada UF; devolve as UFs cuja partição foi regravada, com o número de linhas."""
     parciais, descartes, produzidos = [], [], {}
     for uf in ufs:
         saida, descartados, parcial = construir_uf(uf, manifesto, hoje)
-        arquivo_uf(uf).parent.mkdir(parents=True, exist_ok=True)
-        saida.to_parquet(arquivo_uf(uf), index=False)
+        if saida.empty:
+            _gravar_uf_vazia(uf)
+            produzidos[uf] = 0
+        elif _gravar_uf(saida, resultado):
+            produzidos[uf] = len(saida)
         parciais.append(parcial)
         descartes.append(descartados)
-        produzidos[uf] = len(saida)
     _juntar(resultado, parciais)
     if descartes:
-        novos = pd.concat(descartes, ignore_index=True)
-        if ARQ_DESCARTADOS.exists():
-            velhos = pd.read_parquet(ARQ_DESCARTADOS)
-            novos = pd.concat([velhos[~velhos["uf_lote"].isin(ufs)] if "uf_lote" in velhos else velhos.iloc[0:0],
-                               novos], ignore_index=True)
-        novos.to_parquet(ARQ_DESCARTADOS, index=False)
+        lago.gravar_descartes(pd.concat(descartes, ignore_index=True), resultado, "uuid")
+    _fechar_tabela(resultado)
     return produzidos
 
 
@@ -578,7 +638,7 @@ def executar(hoje: pd.Timestamp, atualizar: bool = False, verificar: bool = Fals
     resultado.entrada = {
         "servico": config.URL_WFS_INPE.format(workspace="{bioma}"), "ufs": manifesto["ufs"],
         "ufs_biomas": manifesto["ufs_biomas"], "desde": manifesto["desde"],
-        "manifesto": _relativo(PASTA_LOTE / "manifesto.json"),
+        "manifesto": _relativo(_arquivo_manifesto_wfs()),
         "verificacao": "feita nesta execução" if verificado_agora else "reaproveitada (dentro do intervalo)",
         "verificado_em_utc": manifesto["verificado_em_utc"], "proxima_verificacao": manifesto["proxima_verificacao"],
         "ultimo_ano_publicado": {b: i["ultimo_ano_publicado"] for b, i in biomas.items()},
@@ -612,12 +672,12 @@ def executar(hoje: pd.Timestamp, atualizar: bool = False, verificar: bool = Fals
     publicacao = _gravar_publicacao(manifesto)
     totais = {uf: len(pd.read_parquet(arquivo_uf(uf), columns=["uuid"])) for uf in manifesto["ufs"]
               if arquivo_uf(uf).exists()}
-    resultado.saida = {
-        "pasta": _relativo(PASTA_SAIDA), "particoes_regravadas": produzidos, "registros_por_uf": totais,
-        "registros_produzidos": sum(totais.values()), "arquivo_descartados": _relativo(ARQ_DESCARTADOS),
-        "arquivo_publicacao": _relativo(ARQ_PUBLICACAO), "ultima_imagem": publicacao["ultima_imagem"],
+    resultado.saida.update({
+        "arquivo": _relativo(pasta_tabela()), "particoes_regravadas": produzidos, "registros_por_uf": totais,
+        "registros_produzidos": sum(totais.values()), "tabela_descartados": "meta.descarte",
+        "arquivo_publicacao": _relativo(arquivo_publicacao()), "ultima_imagem": publicacao["ultima_imagem"],
         "colunas": COLUNAS_LOTE,
-    }
+    })
     resultado.status = "ok"
     return resultado
 
@@ -628,8 +688,8 @@ def executar(hoje: pd.Timestamp, atualizar: bool = False, verificar: bool = Fals
 # ---------------------------------------------------------------------------------------------------------------
 
 PASTA_ARQUIVOS = config.DADOS_BRUTOS / "inpe_prodes" / "arquivo_bioma"
-# Peças bioma x UF: com versão nova de um bioma, só as peças dele são refeitas e as partições das UFs são juntadas de novo.
-PASTA_PECAS = config.DADOS_PROCESSADOS / "inpe_prodes_pecas"
+# Peças bioma x UF (pasta_pecas, em config.TRABALHO): com versão nova de um bioma, só as peças dele são refeitas e as
+# partições das UFs são juntadas de novo.
 _PADRAO_ARQUIVO = re.compile(r"/vector/yearly_deforestation_biome_(?P<bioma>[a-z_]+)_v(?P<versao>\d{8})\.zip$")
 CAMPOS_ARQUIVO = ["uuid", "state", "main_class", "class_name", "year", "image_date", "area_km", "satellite", "sensor",
                   "fid", "pub_date"]
@@ -715,8 +775,9 @@ def ler_arquivo(caminho, bioma: str, resultado: ResultadoFonte, desde: int | Non
 
 
 def pecas_por_uf(saida: pd.DataFrame, resultado: ResultadoFonte) -> dict[str, pd.DataFrame]:
-    """Polígonos tratados de um bioma divididos pelas UFs cujo contorno tocam (o de divisa entra nas duas). `uf` é a UF
-    do contorno que contém o ponto representativo; `uf_fonte`, o campo `state` do INPE."""
+    """Polígonos tratados de um bioma divididos pelas UFs cujo contorno tocam (o de divisa entra nas duas, uma linha em
+    cada). `uf` é a UF da peça; `uf_fonte`, o campo `state` do INPE. O alerta UF_DIFERE_DO_CONTORNO compara `state` com
+    a UF do contorno que contém o ponto representativo."""
     from pipeline import territorio
 
     nomes, _, arvore = territorio._ufs()
@@ -727,18 +788,20 @@ def pecas_por_uf(saida: pd.DataFrame, resultado: ResultadoFonte) -> dict[str, pd
     resultado.validar("PRODES_FORA_DE_TODAS_AS_UFS", "Polígono que não toca o contorno de nenhuma UF (IBGE)", "descarte",
                       "fica fora do lote", int(fora.sum()), len(saida))
     saida = saida.rename(columns={"uf": "uf_fonte"})
-    saida["uf"] = territorio.uf_por_contorno(geoms)
-    difere = saida["uf_fonte"].notna() & saida["uf"].notna() & (saida["uf_fonte"] != saida["uf"])
+    uf_ponto = pd.Series(territorio.uf_por_contorno(geoms), index=saida.index, dtype=object)
+    saida["uf"] = None
+    difere = saida["uf_fonte"].notna() & uf_ponto.notna() & (saida["uf_fonte"] != uf_ponto)
     resultado.validar("PRODES_UF_DIFERE_DO_CONTORNO", "Campo state diferente da UF do contorno (polígono de divisa ou "
                       "gravado com a UF vizinha)", "alerta", "vale a UF do contorno; state fica em uf_fonte", difere,
                       len(saida))
     saida["alertas"] = saida["alertas"].where(~difere, (saida["alertas"] + ";UF_DIFERE_DO_CONTORNO").str.lstrip(";"))
     saida = saida[COLUNAS_LOTE]
-    return {nomes[k]: saida.iloc[np.sort(i_geom[i_uf == k])].reset_index(drop=True) for k in np.unique(i_uf)}
+    return {nomes[k]: saida.iloc[np.sort(i_geom[i_uf == k])].assign(uf=nomes[k]).reset_index(drop=True)
+            for k in np.unique(i_uf)}
 
 
 def _peca(bioma: str, uf: str):
-    return PASTA_PECAS / bioma / f"uf={uf}.parquet"
+    return pasta_pecas() / bioma / f"uf={uf}.parquet"
 
 
 def processar_bioma(bioma: str, caminho, hoje: pd.Timestamp | None, parcial: ResultadoFonte) -> tuple[dict,
@@ -749,8 +812,8 @@ def processar_bioma(bioma: str, caminho, hoje: pd.Timestamp | None, parcial: Res
     saida, descartados = tratar(df, parcial, hoje)
     del df
     pecas = pecas_por_uf(saida, parcial)
-    shutil.rmtree(PASTA_PECAS / bioma, ignore_errors=True)
-    (PASTA_PECAS / bioma).mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(pasta_pecas() / bioma, ignore_errors=True)
+    (pasta_pecas() / bioma).mkdir(parents=True, exist_ok=True)
     for uf, peca in pecas.items():
         peca.to_parquet(_peca(bioma, uf), index=False)
     ultimo = int(saida["ano_prodes"].max()) if len(saida) else None
@@ -766,9 +829,10 @@ def processar_bioma(bioma: str, caminho, hoje: pd.Timestamp | None, parcial: Res
 
 def juntar_particoes(ufs: list[str], refeitos: list[str], resultado: ResultadoFonte | None = None) -> dict[str, int]:
     """Partição de cada UF: as linhas que já estavam nela, dos biomas que não foram refeitos, mais as peças novas dos
-    biomas refeitos. Assim a versão nova de um bioma não obriga a ler os outros de novo. O mesmo uuid em dois biomas
-    fica uma vez."""
+    biomas refeitos, gravadas no lago (que só regrava a partição que mudou). Assim a versão nova de um bioma não obriga
+    a ler os outros de novo. O mesmo uuid em dois biomas fica uma vez. Devolve as UFs regravadas, com as linhas."""
     produzidos, repetidos, total = {}, 0, 0
+    destino = resultado or ResultadoFonte("inpe_prodes", "arquivo do bioma")
     for uf in ufs:
         partes = []
         if arquivo_uf(uf).exists():
@@ -783,27 +847,17 @@ def juntar_particoes(ufs: list[str], refeitos: list[str], resultado: ResultadoFo
         dup = df["uuid"].duplicated()
         repetidos, total = repetidos + int(dup.sum()), total + len(df)
         df = df[~dup].sort_values(["bioma", "ano_prodes", "uuid"]).reset_index(drop=True)
-        arquivo_uf(uf).parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(arquivo_uf(uf), index=False)
-        produzidos[uf] = len(df)
+        if _gravar_uf(df, destino):
+            produzidos[uf] = len(df)
     if resultado is not None:
         resultado.validar("PRODES_UUID_EM_DOIS_BIOMAS", "uuid presente no arquivo de dois biomas", "alerta",
                           "fica uma vez na partição", repetidos, total)
+        _fechar_tabela(resultado)
     return produzidos
 
 
-def _gravar_descartados(novos: list[pd.DataFrame], refeitos: list[str]) -> None:
-    if not novos:
-        return
-    partes = novos
-    if ARQ_DESCARTADOS.exists():
-        velhos = pd.read_parquet(ARQ_DESCARTADOS)
-        partes = [velhos[~velhos["bioma"].isin(refeitos)] if "bioma" in velhos else velhos.iloc[0:0], *novos]
-    pd.concat(partes, ignore_index=True).to_parquet(ARQ_DESCARTADOS, index=False)
-
-
 def _publicacao_arquivos(manifesto: dict) -> dict:
-    """inpe_prodes_publicacao.json no mesmo formato do lote pelo WFS (o pré-diagnóstico e a página leem os dois)."""
+    """_publicacao.json no mesmo formato do lote pelo WFS (o pré-diagnóstico e a página leem os dois)."""
     biomas = manifesto["biomas"]
     particoes = {uf: {"arquivo": _relativo(arquivo_uf(uf)), "sha256": download.sha256(arquivo_uf(uf))}
                  for uf in sorted(config.UFS) if arquivo_uf(uf).exists()}
@@ -828,7 +882,7 @@ def _publicacao_arquivos(manifesto: dict) -> dict:
         "anos": {b: {a: {"anunciado": n} for a, n in i["anos"].items()} for b, i in biomas.items()},
         "particoes": particoes, "historico": manifesto["historico"],
     }
-    ARQ_PUBLICACAO.write_text(json.dumps(publicacao, indent=2, ensure_ascii=False))
+    _gravar_json(arquivo_publicacao(), publicacao)
     return publicacao
 
 
@@ -838,8 +892,8 @@ def executar_arquivos(hoje: pd.Timestamp, atualizar: bool = False, verificar: bo
     consulta o catálogo do TerraBrasilis; o bioma com versão nova é baixado e tratado de novo, e as partições das UFs
     que ele toca são juntadas de novo. Dentro do intervalo, não vai à rede."""
     resultado = ResultadoFonte("inpe_prodes", "arquivo (shapefile por bioma), lote das 27 UFs com verificação mensal")
-    arq_manifesto = PASTA_ARQUIVOS / "manifesto.json"
-    anterior = json.loads(arq_manifesto.read_text()) if arq_manifesto.exists() else None
+    arq_manifesto = _arquivo_manifesto_arquivos()
+    anterior = _ler_json(arq_manifesto, PASTA_ARQUIVOS / "manifesto.json")
     if anterior and anterior.get("desde") != config.PRODES_DESDE:
         anterior = None
     em_dia = (anterior is not None and not (atualizar or verificar)
@@ -913,12 +967,12 @@ def executar_arquivos(hoje: pd.Timestamp, atualizar: bool = False, verificar: bo
     antes_ufs = {b: set(i.get("ufs", [])) for b, i in ((anterior or {}).get("biomas") or {}).items()}
     ufs = sorted({u for b in refeitos for u in set(biomas[b]["ufs"]) | antes_ufs.get(b, set())} | set(faltam))
     produzidos = juntar_particoes(ufs, refeitos, resultado) if ufs else {}
-    shutil.rmtree(PASTA_PECAS, ignore_errors=True)
-    _gravar_descartados(descartes, refeitos)
+    shutil.rmtree(pasta_pecas(), ignore_errors=True)
+    if descartes:
+        lago.gravar_descartes(pd.concat(descartes, ignore_index=True), resultado, "uuid")
     if refeitos or not em_dia:
-        PASTA_ARQUIVOS.mkdir(parents=True, exist_ok=True)
-        arq_manifesto.write_text(json.dumps(manifesto, indent=2, ensure_ascii=False))
-    publicacao = _publicacao_arquivos(manifesto) if (produzidos or not ARQ_PUBLICACAO.exists() or not em_dia) \
+        _gravar_json(arq_manifesto, manifesto)
+    publicacao = _publicacao_arquivos(manifesto) if (produzidos or not arquivo_publicacao().exists() or not em_dia) \
         else ler_publicacao()
     resultado.entrada = {
         "catalogo": config.URL_CATALOGO_TERRABRASILIS, "desde": manifesto["desde"],
@@ -933,24 +987,25 @@ def executar_arquivos(hoje: pd.Timestamp, atualizar: bool = False, verificar: bo
     resultado.transformar("Peças bioma x UF pelo contorno do IBGE (o polígono de divisa entra nas duas UFs); a partição "
                           "da UF troca só as linhas dos biomas refeitos")
     totais = {uf: p["arquivo"] for uf, p in publicacao["particoes"].items()}
-    resultado.saida = {"pasta": _relativo(PASTA_SAIDA), "particoes_regravadas": produzidos, "ufs": sorted(totais),
-                       "registros_produzidos": sum(i["registros"] for i in biomas.values()),
-                       "arquivo_publicacao": _relativo(ARQ_PUBLICACAO), "arquivo_descartados": _relativo(ARQ_DESCARTADOS),
-                       "ultima_imagem": publicacao["ultima_imagem"], "colunas": COLUNAS_LOTE}
+    resultado.saida.update({"arquivo": _relativo(pasta_tabela()), "particoes_regravadas": produzidos,
+                            "ufs": sorted(totais), "registros_produzidos": sum(i["registros"] for i in biomas.values()),
+                            "arquivo_publicacao": _relativo(arquivo_publicacao()),
+                            "tabela_descartados": "meta.descarte", "ultima_imagem": publicacao["ultima_imagem"],
+                            "colunas": COLUNAS_LOTE})
     resultado.status = "ok"
     return resultado
 
 
 def ler_publicacao() -> dict | None:
-    """Situação do PRODES em lote (inpe_prodes_publicacao.json), ou None se o lote ainda não rodou no formato por UF."""
-    if not ARQ_PUBLICACAO.exists():
-        return None
-    publicacao = json.loads(ARQ_PUBLICACAO.read_text())
-    return publicacao if "particoes" in publicacao else None
+    """Situação do PRODES em lote (_publicacao.json na pasta da tabela), ou None se o lote ainda não rodou no formato
+    por UF. Enquanto o lago não tem a publicação, vale a de data/processed (legado)."""
+    publicacao = _ler_json(arquivo_publicacao(), config.DADOS_PROCESSADOS / "inpe_prodes_publicacao.json")
+    return publicacao if publicacao and "particoes" in publicacao else None
 
 
 def ler_uf(uf: str) -> pd.DataFrame:
-    return pd.read_parquet(arquivo_uf(uf))
+    """Partição de uma UF no estado vigente (colunas do contrato mais carga_id)."""
+    return lago.ler(TABELA, particao=uf)
 
 
 def classificar_alerta(fracao_posterior: float, fracao_anterior: float, data_alerta: pd.Timestamp,

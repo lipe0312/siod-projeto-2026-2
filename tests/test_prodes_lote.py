@@ -88,12 +88,11 @@ def servico(tmp_path, monkeypatch):
     monkeypatch.setattr(wfs, "consultar_geojson", s.consultar_geojson)
     monkeypatch.setattr(config, "RAIZ", tmp_path)
     monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "processed")
+    monkeypatch.setattr(config, "LAGO", tmp_path / "lago")
+    monkeypatch.setattr(config, "TRABALHO", tmp_path / "trabalho")
     monkeypatch.setattr(config, "PRODES_DESDE", 2024)
     monkeypatch.setattr(config, "PRODES_UFS_INICIAIS", ("MG",))
     monkeypatch.setattr(inpe_prodes, "PASTA_LOTE", tmp_path / "raw" / "lote")
-    monkeypatch.setattr(inpe_prodes, "PASTA_SAIDA", tmp_path / "processed" / "inpe_prodes")
-    for nome in ("ARQ_DESCARTADOS", "ARQ_PUBLICACAO"):
-        monkeypatch.setattr(inpe_prodes, nome, tmp_path / "processed" / getattr(inpe_prodes, nome).name)
     gravar_contornos(tmp_path, monkeypatch, pd.DataFrame({"uf": ["MG", "SP"], "cod_uf": ["31", "35"],
                                                          "geometria_wkt": [MG.wkt, SP.wkt]}),
                      pd.DataFrame({"bioma": ["cerrado", "mata_atlantica"], "nome": ["Cerrado", "Mata Atlântica"],

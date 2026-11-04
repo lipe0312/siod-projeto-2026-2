@@ -12,6 +12,7 @@ import requests
 import shapely
 
 from pipeline import config, download, vetor, wfs
+from pipeline.armazenamento import lago
 from pipeline.municipios import normalizar_nome, resolver_por_nome
 from pipeline.validacao import Marcas, ResultadoFonte
 
@@ -23,6 +24,10 @@ COLUNAS_SAIDA = [
     "id_alerta", "camada", "gid", "classe", "data_imagem", "mes_publicacao", "uf", "cod_municipio", "municipio",
     "area_km2", "satelite", "sensor", "geometria_wkt", "alertas",
 ]
+
+
+def _relativo(caminho) -> str:
+    return str(caminho.relative_to(config.RAIZ)) if caminho.is_relative_to(config.RAIZ) else str(caminho)
 
 
 def filtro_classes() -> str:
@@ -340,20 +345,17 @@ def executar(ref_municipios: pd.DataFrame, hoje: pd.Timestamp, desde: str = conf
                                                                                          "sha256", "tamanho_bytes")}
         tabela = pd.concat([tabela, tabela_arquivo(config.RAIZ / meta["arquivo"], nome, resultado)], ignore_index=True)
     saida, descartados = transformar_tabela(tabela, ref_municipios, desde, hoje, resultado)
-    config.DADOS_PROCESSADOS.mkdir(parents=True, exist_ok=True)
-    arq_saida = config.DADOS_PROCESSADOS / "inpe_deter_alertas.parquet"
-    arq_desc = config.DADOS_PROCESSADOS / "inpe_deter_alertas_descartados.parquet"
-    saida.to_parquet(arq_saida, index=False)
-    descartados.to_parquet(arq_desc, index=False)
-    resultado.saida = {
-        "arquivo": str(arq_saida.relative_to(config.RAIZ)),
+    lago.gravar("ref.alerta_deter", saida, resultado)
+    lago.gravar_descartes(descartados, resultado, ["id_alerta"])
+    resultado.saida.update({
+        "arquivo": _relativo(lago.pasta("ref.alerta_deter")),
         "registros_produzidos": len(saida),
         "registros_com_alerta": int((saida["alertas"] != "").sum()),
         "por_camada": saida["camada"].value_counts().to_dict(),
         "colunas": list(saida.columns),
-        "arquivo_descartados": str(arq_desc.relative_to(config.RAIZ)),
+        "tabela_descartados": "meta.descarte",
         "registros_descartados": len(descartados),
-    }
+    })
     resultado.status = "ok"
     return resultado
 

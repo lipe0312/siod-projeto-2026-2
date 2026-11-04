@@ -7,6 +7,8 @@ from pipeline import config
 def test_falha_da_referencia_registra_fontes_dependentes_como_erro(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "processed")
     monkeypatch.setattr(config, "LOGS", tmp_path / "logs")
+    monkeypatch.setattr(config, "LAGO", tmp_path / "lago")  # meta.carga e meta.validacao não vão para o lago real
+    monkeypatch.setattr(execucao, "ARQ_PROCEDENCIA", tmp_path / "processed" / "procedencia_fontes.json")
     monkeypatch.setenv(config.CHAVE_ENV, "chave-de-teste")
 
     def referencia_indisponivel(*args, **kwargs):

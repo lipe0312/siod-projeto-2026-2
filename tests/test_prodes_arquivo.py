@@ -4,6 +4,7 @@ contornos de UF e bioma de test_prodes_lote."""
 
 import datetime as dt
 import io
+import json
 import zipfile
 
 import pandas as pd
@@ -13,6 +14,7 @@ import shapely
 
 from conftest import ocorrencias
 from pipeline import config, download, ficha_html, prediagnostico
+from pipeline.armazenamento import lago
 from pipeline.fontes import inpe_prodes
 from pipeline.validacao import ErroDeValidacao, ResultadoFonte
 from test_prodes_lote import HOJE, Y, servico  # noqa: F401 (fixture)
@@ -82,7 +84,6 @@ def tb(servico, tmp_path, monkeypatch):  # noqa: F811
     t = TerraBrasilisFalso(tmp_path)
     monkeypatch.setattr(config, "UFS", frozenset({"MG", "SP"}))
     monkeypatch.setattr(inpe_prodes, "PASTA_ARQUIVOS", tmp_path / "raw" / "arquivo_bioma")
-    monkeypatch.setattr(inpe_prodes, "PASTA_PECAS", tmp_path / "processed" / "pecas")
     monkeypatch.setattr(inpe_prodes, "consultar_catalogo", lambda: inpe_prodes.catalogo(t.itens()))
     monkeypatch.setattr(download, "baixar", t.baixar)
     monkeypatch.setattr(inpe_prodes.config, "CAMADAS_PRODES",
@@ -158,8 +159,9 @@ def test_lote_pelo_arquivo_grava_as_ufs_com_o_poligono_de_divisa_nas_duas(tb):
     assert pub["ufs_biomas"] == {"MG": ["cerrado", "mata_atlantica"], "SP": ["cerrado", "mata_atlantica"]}
     assert pub["proxima_verificacao"] == "2026-11-29" and pub["arquivos"]["cerrado"]["versao"] == "2026-10-16"
     assert tb.baixados == ["cerrado", "mata_atlantica"]
-    descartados = pd.read_parquet(inpe_prodes.ARQ_DESCARTADOS)
-    assert descartados[["uuid", "bioma"]].values.tolist() == [["ce-5", "cerrado"]]
+    descartados = lago.ler("meta.descarte")
+    assert descartados[["registro_id", "motivo"]].values.tolist() == [["ce-5", "PRODES_CLASSE_FORA_DO_DOMINIO"]]
+    assert json.loads(descartados.loc[0, "dados_json"])["bioma"] == "cerrado"
 
 
 def test_arquivo_e_wfs_dao_a_mesma_particao(tb, servico):  # noqa: F811
@@ -196,7 +198,7 @@ def test_dentro_do_mes_nao_consulta_o_catalogo(tb):
 
 def test_versao_nova_refaz_so_o_bioma_que_mudou_e_registra_o_ano_novo(tb):
     inpe_prodes.executar_arquivos(HOJE)
-    assert not inpe_prodes.PASTA_PECAS.exists()  # as peças são temporárias
+    assert not inpe_prodes.pasta_pecas().exists()  # as peças são temporárias
     ma_antes = inpe_prodes.ler_uf("MG").query("bioma == 'mata_atlantica'").reset_index(drop=True)
     velho = inpe_prodes.PASTA_ARQUIVOS / "yearly_deforestation_biome_cerrado_v20261016.zip"
     assert velho.exists()
