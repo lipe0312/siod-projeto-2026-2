@@ -23,7 +23,7 @@ log = logging.getLogger("pipeline")
 
 
 class TabelaAusente(FileNotFoundError):
-    """A tabela ainda não foi gravada no lago ."""
+    """A tabela ainda não foi gravada no lago."""
 
 
 def pasta(tabela: str) -> Path:
