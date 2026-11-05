@@ -130,7 +130,8 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
         ids[i] = {"produtor_id": produtor_id, "imovel_id": imovel_id}
     sha = hashlib.sha256(Path(arquivo).read_bytes()).hexdigest() if Path(arquivo).exists() else None
     _gravar("cad.carteira", [{"carteira_id": carteira_id, "organizacao_id": organizacao_id,
-                              "arquivo_origem": vetor.nome_sem_documento(Path(arquivo).name), "sha256": sha, "importada_em": momento,
+                              "arquivo_origem": vetor.nome_sem_documento(Path(arquivo).name), "sha256": sha,
+                              "importada_em": momento,
                               "linhas": len(df), "linhas_com_problema": len(problemas)}], momento)
     for tabela, linhas in novos.items():
         _gravar(tabela, linhas, momento)

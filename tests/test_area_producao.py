@@ -2,6 +2,7 @@
 cad.area_producao. Sem rede: a consulta da carteira é falsa e as fixtures são sintéticas (tests/dados/area_producao)."""
 
 import json
+import logging
 import shutil
 from pathlib import Path
 
@@ -240,6 +241,38 @@ def test_documento_no_nome_do_arquivo_e_na_commodity_nao_sai_em_lugar_nenhum(tmp
     textos = [repr(areas), saida.to_csv(), carteira.html(saida, "c.csv"),
               *(p.read_text(encoding="utf-8") for p in (tmp_path / "saida" / "fichas").iterdir()),
               *(lago.ler(t).to_csv() for t in ("cad.area_producao", "cad.carteira", "cad.carteira_item"))]
+    for texto in textos:
+        for documento in ("12345678901", CPF_VALIDO, "11144477735"):
+            assert documento not in texto
+
+
+def test_main_com_documento_no_nome_da_planilha_nao_grava_em_lago_pasta_nem_log(tmp_path, monkeypatch, caplog):
+    from pipeline import config
+
+    pasta = tmp_path / "entrada"
+    pasta.mkdir()
+    shutil.copy(DADOS / "talhao.kml", pasta / "talhao_12345678901.kml")
+    arquivo = pasta / "carteira_12345678901.csv"
+    pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1", "area_producao": "talhao_12345678901.kml"}]).to_csv(
+        arquivo, index=False)
+    original = carteira.processar
+    monkeypatch.setattr(carteira, "processar", lambda *a, **k: original(*a, consultar=_consultar([]), **k))
+    try:
+        with caplog.at_level("INFO", logger="pipeline"):
+            assert carteira.main([str(arquivo), "--sem-baixar-prodes"]) == 0
+    finally:  # main configura os handlers do log "pipeline"; não deixa o arquivo de log aberto para os outros testes
+        for handler in logging.getLogger("pipeline").handlers:
+            handler.close()
+        logging.getLogger("pipeline").handlers.clear()
+
+    assert lago.ler("cad.organizacao")["nome"].tolist() == ["carteira_[documento omitido]"]
+    saidas = [p.relative_to(config.SAIDAS).as_posix() for p in config.SAIDAS.rglob("*")]
+    assert any(s.startswith("carteiras/carteira_[documento omitido]/") for s in saidas)
+    textos = [caplog.text, *saidas, *(p.read_text(encoding="utf-8") for p in config.LOGS.glob("*.log")),
+              *(p.read_text(encoding="utf-8") for p in config.SAIDAS.rglob("*") if p.is_file()),
+              *(p.as_posix() for p in config.LAGO.rglob("*")),
+              *(pd.read_parquet(p).to_csv() for p in config.LAGO.rglob("*.parquet"))]
+    assert "Carteira: 1 imóveis" in caplog.text and len(list(config.LAGO.rglob("*.parquet"))) > 5
     for texto in textos:
         for documento in ("12345678901", CPF_VALIDO, "11144477735"):
             assert documento not in texto

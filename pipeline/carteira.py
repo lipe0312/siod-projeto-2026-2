@@ -280,17 +280,20 @@ def main(argv=None) -> int:
     parser.add_argument("--sem-baixar-prodes", action="store_true")
     args = parser.parse_args(argv)
     relatorio.configurar_log(config.LOGS / f"carteira_{datetime.now():%Y%m%d_%H%M%S}.log")
-    pasta = args.saida or config.SAIDAS / "carteiras" / args.planilha.stem / f"{datetime.now():%Y-%m}"
+    # O nome da planilha vira pasta, organização, comando gravado e log: nenhum deles leva CPF/CNPJ do nome do arquivo.
+    nome = vetor.nome_sem_documento(args.planilha.stem)
+    pasta = args.saida or config.SAIDAS / "carteiras" / nome / f"{datetime.now():%Y-%m}"
     pasta.mkdir(parents=True, exist_ok=True)
     planilha = ler_planilha(args.planilha)
     # Cadastro (cad) e resultado (diag) no lago: é o que permite ver, no mês seguinte, o que mudou (ADR 0017).
-    organizacao_id = cadastro.organizacao(args.organizacao or args.planilha.stem)
+    organizacao_id = cadastro.organizacao(vetor.nome_sem_documento(args.organizacao) or nome)
     problemas = {i: m for i, linha in planilha.iterrows() if (m := problema(
         pd.Series({k: _valor(linha, k) for k in planilha.columns}, dtype=object)))}
     areas = areas_de_producao(planilha, args.planilha.parent)
     carteira_id, ids = cadastro.importar_carteira(planilha, organizacao_id, args.planilha, problemas, areas)
+    comando = " ".join(argv if argv is not None else sys.argv[1:])
     execucao = resultados.Execucao("carteira", organizacao_id, carteira_id,
-                                   "python -m pipeline.carteira " + " ".join(argv if argv is not None else sys.argv[1:]))
+                                   "python -m pipeline.carteira " + vetor.nome_sem_documento(comando))
     saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids, areas=areas)
     execucao.encerrar()
     # Só depois de encerrar(): a execução atual precisa estar no lago para ser a "atual" da comparação.
@@ -298,7 +301,7 @@ def main(argv=None) -> int:
     saida.to_csv(pasta / "carteira.csv", index=False)
     (pasta / "carteira.html").write_text(html(saida, vetor.nome_sem_documento(args.planilha.name), comparacao),
                                          encoding="utf-8")
-    log.info("Carteira: %d imóveis; %s", len(saida), pasta / "carteira.html")
+    log.info("Carteira: %d imóveis; %s", len(saida), vetor.nome_sem_documento(str(pasta / "carteira.html")))
     return 0
 
 
