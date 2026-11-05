@@ -208,12 +208,20 @@ NOME_BIOMA = {"amazonia": "Amazônia", "caatinga": "Caatinga", "cerrado": "Cerra
 
 
 def _criterio_desmatamento(alt: pd.DataFrame, prd: pd.DataFrame, falha: str | None = None,
-                           aviso: str | None = None) -> dict:
+                           aviso: str | None = None, area: dict | None = None) -> dict:
+    """`area`: a área de produção usada no cruzamento (_area_producao); sem ela, o cruzamento é com o imóvel."""
     nome, fonte = "Desmatamento após 31/12/2020 (EUDR)", "INPE DETER e PRODES"
+    no, dentro, poligono = "no imóvel", "dentro do imóvel", ""
+    if area and area.get("usada"):
+        no, dentro = "na área de produção", "dentro da área de produção"
+        poligono = f" · cruzado com a área de produção ({area['arquivo']}, {area['area_ha']:.1f} ha)"
+    elif area:
+        poligono = " · cruzado com o imóvel inteiro (CAR)"
+    aviso = "; ".join(a for a in ((area or {}).get("aviso"), aviso) if a) or None
     if falha:
         n = int(alt["classe"].isin(CLASSES_DENTRO).sum()) if len(alt) else 0
         return _criterio("desmatamento", nome, None, "inconclusivo",
-                         f"{falha}; {n} alerta(s) DETER dentro do imóvel sem como confirmar", ENCAMINHAMENTO[
+                         f"{falha}; {n} alerta(s) DETER {dentro} sem como confirmar{poligono}", ENCAMINHAMENTO[
                              "fonte_falhou"], fonte, aviso)
     a = alt[alt["classe"].isin(CLASSES_DENTRO)] if len(alt) else alt
     p = prd[prd["classe"].isin(CLASSES_DENTRO)] if len(prd) else prd
@@ -222,11 +230,11 @@ def _criterio_desmatamento(alt: pd.DataFrame, prd: pd.DataFrame, falha: str | No
     prodes_certo = p[p["ano_prodes"] > int(config.DATA_CORTE_EUDR[:4]) + 1] if len(p) else p
     partes = []
     if len(a):
-        partes.append(f"{len(a)} alerta(s) DETER ({a['inter_ha'].sum():.1f} ha no imóvel): "
+        partes.append(f"{len(a)} alerta(s) DETER ({a['inter_ha'].sum():.1f} ha {no}): "
                       + ", ".join(f"{n} {s}" for s, n in situacoes.items()))
     if len(p):
-        partes.append(f"{len(p)} polígono(s) PRODES após 2020 ({p['inter_ha'].sum():.1f} ha no imóvel)")
-    texto = "; ".join(partes) or "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel"
+        partes.append(f"{len(p)} polígono(s) PRODES após 2020 ({p['inter_ha'].sum():.1f} ha {no})")
+    texto = ("; ".join(partes) or f"Nenhum alerta DETER nem polígono PRODES após 2020 {dentro}") + poligono
     if confirmados or len(prodes_certo):
         return _criterio("desmatamento", nome, None, "pendência", texto, ENCAMINHAMENTO["desmatamento"], fonte, aviso)
     if len(a) or len(p):
@@ -234,6 +242,32 @@ def _criterio_desmatamento(alt: pd.DataFrame, prd: pd.DataFrame, falha: str | No
         return _criterio("desmatamento", nome, None, "indício", texto, ENCAMINHAMENTO["desmatamento_indicio"], fonte,
                          aviso)
     return _criterio("desmatamento", nome, None, "sem ocorrência", texto, "—", fonte, aviso)
+
+
+LIMIAR_AREA_FORA_DO_CAR = 0.05
+
+
+def _area_producao(car: pd.DataFrame, car_geom, area: dict | None) -> tuple[pd.DataFrame, object, dict | None]:
+    """Polígono do cruzamento de desmatamento: a área de produção (carteira.area_producao) se foi lida, senão o
+    imóvel. Devolve (car com a geometria trocada, a geometria, o resumo para a ficha com o aviso). Aviso se a área
+    está fora do imóvel do CAR ou com mais de 5% fora (área da diferença em projeção igual-área)."""
+    if not area:
+        return car, car_geom, None
+    resumo = {"arquivo": area.get("arquivo"), "crs": area.get("crs"), "usada": False, "area_ha": None,
+              "fracao_fora_do_car": None, "aviso": None}
+    if area.get("geometria") is None:
+        resumo["aviso"] = f"área de produção não lida: {area.get('motivo')}; o cruzamento foi com o imóvel inteiro"
+        return car, car_geom, resumo
+    geom = vetor.tornar_valida(area["geometria"])
+    total = shapely.area(sicar.projetar(geom))
+    fora = shapely.area(sicar.projetar(shapely.difference(geom, car_geom))) / total
+    resumo.update(usada=True, area_ha=total / 1e4, fracao_fora_do_car=round(float(fora), 4))
+    if not shapely.intersects(geom, car_geom):
+        resumo["aviso"] = "área de produção fora do imóvel do CAR: conferir o arquivo e o código do CAR"
+    elif fora > LIMIAR_AREA_FORA_DO_CAR:
+        resumo["aviso"] = (f"{fora:.0%} da área de produção fora do imóvel do CAR: conferir o arquivo ou retificar o "
+                           "CAR")
+    return car.assign(geometria_wkt=geom.wkt), geom, resumo
 
 
 def _criterio_lista_suja(lista_suja: pd.DataFrame, documento_hash: str | None) -> tuple[dict, pd.DataFrame]:
@@ -373,7 +407,8 @@ def resultado_geral(criterios: list[dict]) -> dict:
 def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFrame, lista_suja: pd.DataFrame,
                  prodes: pd.DataFrame, documento_hash: str | None = None,
                  ultimo_ano_prodes: int | None = None, protegidas: dict | None = None,
-                 falha_prodes: str | None = None, aviso_desmatamento: str | None = None) -> dict:
+                 falha_prodes: str | None = None, aviso_desmatamento: str | None = None,
+                 area_producao: dict | None = None) -> dict:
     """Ficha do imóvel `car` (DataFrame tratado do SICAR com uma linha). As fontes entram já tratadas.
 
     `ultimo_ano_prodes`: último ano PRODES publicado; separa alerta "não confirmado" de "aguardando consolidação".
@@ -381,6 +416,8 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
     argumento, as três ficam vazias (sem ocorrência).
     `falha_prodes`: motivo, se o PRODES não pôde ser obtido (o critério de desmatamento fica inconclusivo).
     `aviso_desmatamento`: período sem cobertura em bioma sem DETER (ver aviso_cobertura).
+    `area_producao`: área de produção da carteira (carteira.area_producao); o desmatamento passa a ser cruzado com
+    ela, e a ficha ganha a chave "area_producao" com o polígono usado e o aviso.
     """
     linha = car.iloc[0]
     car_geom = vetor.tornar_valida(shapely.from_wkt(linha["geometria_wkt"]))
@@ -391,8 +428,9 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
     imovel["status_texto"] = STATUS_CAR.get(imovel["status_imovel"], imovel["status_imovel"])
 
     emb = embargos_do_imovel(car, car_geom, embargos, documento_hash)
-    alt = alertas_do_imovel(car, car_geom, alertas, prodes, ultimo_ano_prodes)
-    prd = prodes_do_imovel(car, car_geom, prodes)
+    alvo, alvo_geom, area = _area_producao(car, car_geom, area_producao)
+    alt = alertas_do_imovel(alvo, alvo_geom, alertas, prodes, ultimo_ano_prodes)
+    prd = prodes_do_imovel(alvo, alvo_geom, prodes)
     crit_ls, ls = _criterio_lista_suja(lista_suja, documento_hash)
     evidencias = {"embargos": emb, "alertas": alt, "prodes": prd,
                   "lista_suja": ls.reindex(columns=["chave_registro", "id_registro", "uf", "cnae", "data_inclusao",
@@ -404,10 +442,10 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
         evidencias[chave] = achados if achados is not None else pd.DataFrame(columns=modulo.COLUNAS_SAIDA)
         crit_protegidas.append(criterio_protegido(chave, achados))
     criterios = [_criterio_car(imovel), _criterio_embargo(emb),
-                 _criterio_desmatamento(alt, prd, falha_prodes, aviso_desmatamento), crit_ls, *crit_protegidas,
-                 *_nao_verificados()]
+                 _criterio_desmatamento(alt, prd, falha_prodes, aviso_desmatamento, area), crit_ls,
+                 *crit_protegidas, *_nao_verificados()]
     return {"imovel": imovel, "resultado": resultado_geral(criterios), "criterios": criterios,
-            "evidencias": evidencias, "geometria_car": linha["geometria_wkt"]}
+            "evidencias": evidencias, "geometria_car": linha["geometria_wkt"], **({"area_producao": area} if area else {})}
 
 
 def ficha_inconclusiva(motivo: str, candidatos: list[str] | None = None) -> dict:
@@ -508,8 +546,10 @@ def obter_prodes(uf: str, limites: tuple, baixar: bool = True) -> tuple[pd.DataF
 
 
 def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float | None = None,
-             documento: str | None = None, atualizar: bool = False, baixar_prodes: bool = True) -> dict:
-    """Consulta o SICAR e o PRODES, lê os parquets do lote e devolve a ficha (com a procedência)."""
+             documento: str | None = None, atualizar: bool = False, baixar_prodes: bool = True,
+             area_producao: dict | None = None) -> dict:
+    """Consulta o SICAR e o PRODES, lê os parquets do lote e devolve a ficha (com a procedência). `area_producao`:
+    ver diagnosticar."""
     gerado_em = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     consulta = {"cod_imovel": cod_imovel, "lat": lat, "lon": lon, "documento_informado": bool(documento),
                 "gerado_em": gerado_em}
@@ -539,7 +579,9 @@ def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float
     biomas = territorio.biomas_da_geometria(car_geom)
     falha = None
     try:
-        prodes, publicacao, proc_prodes = obter_prodes(car.at[0, "uf"], car_geom.bounds, baixar_prodes)
+        area_geom = (area_producao or {}).get("geometria")
+        limites = (car_geom if area_geom is None else shapely.union(car_geom, area_geom)).bounds
+        prodes, publicacao, proc_prodes = obter_prodes(car.at[0, "uf"], limites, baixar_prodes)
         ultimo = ultimo_ano_do_imovel(biomas, publicacao["ultimo_ano_publicado"])
         aviso = aviso_cobertura(biomas, publicacao["ultima_imagem"])  # já é a da UF do imóvel (obter_prodes)
     except (requests.RequestException, ErroDeValidacao, RuntimeError) as e:
@@ -552,7 +594,7 @@ def executar(cod_imovel: str | None = None, lat: float | None = None, lon: float
     consulta["biomas"] = biomas
     protegidas = {chave: _camada_protegida(chave) for chave in CAMADAS_PROTEGIDAS}
     ficha = diagnosticar(car, lago.ler("ref.embargo_ibama"), lago.ler("ref.alerta_deter"), lago.ler("ref.lista_suja"),
-                         prodes, documento_hash, ultimo, protegidas, falha, aviso)
+                         prodes, documento_hash, ultimo, protegidas, falha, aviso, area_producao)
     return {"consulta": consulta, **ficha, "procedencia": _procedencia_lote() + proc_prodes + procedencia}
 
 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Talhão sintético (sem dado pessoal), dentro do CAR de teste de tests/test_prediagnostico.py, com um furo. -->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Talhão de teste</name>
+    <Placemark>
+      <name>Café</name>
+      <Point><coordinates>-46.986,-18.946,0</coordinates></Point>
+    </Placemark>
+    <Placemark>
+      <name>Talhão 1</name>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -46.988,-18.948,0 -46.984,-18.948,0 -46.984,-18.944,0 -46.988,-18.944,0 -46.988,-18.948,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+        <innerBoundaryIs>
+          <LinearRing>
+            <coordinates>-46.9865,-18.9465 -46.9855,-18.9465 -46.9855,-18.9455 -46.9865,-18.9455 -46.9865,-18.9465</coordinates>
+          </LinearRing>
+        </innerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

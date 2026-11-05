@@ -41,6 +41,7 @@ Uma planilha (XLSX ou CSV) com uma linha por imóvel. Modelo: [`docs/modelos/car
 | `ccir` | não | Critério 1 do AB+S (SNCR), que não tem consulta aberta | Critério 1 "não verificado" |
 | `codigo_sigef` | não | Critérios 2 e 8 (SIGEF), que exigem login gov.br | Critérios 2 e 8 "não verificado" |
 | `relatorio_ab_s` | não | UUID ou PDF do relatório AB+S, para conferir com o pipeline | Sem conferência |
+| `area_producao` | não | Caminho, relativo à pasta da planilha, de um KML ou GeoJSON com o polígono da área de produção (EUDR). O desmatamento (DETER e PRODES) é cruzado com ele, e a ficha diz qual polígono foi usado e avisa se a área está fora do CAR ou com mais de 5% fora | Desmatamento cruzado com o imóvel inteiro. Arquivo ilegível ou fora da pasta: aviso "área de produção não lida: <motivo>" na ficha |
 | outras (`nome_area`, `commodity`...) | não | Passam direto para a saída | — |
 
 A carteira confere cada linha antes de consultar qualquer serviço:
@@ -55,7 +56,7 @@ A linha com problema sai na lista como inconclusiva, com o motivo.
 * Consentimento por escrito (LGPD) para o uso do CPF e do CAR.
 * Recibo do CAR, CCIR e número da certificação SIGEF, se tiver.
 * O relatório AB+S. Pode ser emitido ali, com o login gov.br dele e o técnico ao lado. O técnico não guarda a senha (ADR 0012).
-* Para a EUDR, o polígono da área de produção (KML, GeoJSON ou shapefile), quando não for o imóvel inteiro.
+* Para a EUDR, o polígono da área de produção (KML ou GeoJSON; shapefile ainda não), quando não for o imóvel inteiro.
 
 ### Fontes públicas: nada a pedir
 
@@ -87,6 +88,6 @@ São atualizadas pela rotina mensal ([`agendamento/`](../agendamento/LEIA-ME.md)
 | 1 | **Primeiro relatório AB+S real** e matriz de concordância | Sem ele, não há medida de acerto, só regressão; é o maior risco do projeto (README) | Depende de um produtor voluntário |
 | 2 | ~~**Carteira com "o que mudou"**~~ (feito em 04/11/2026): comparar com a execução anterior de cada imóvel | É o que faz o técnico voltar todo mês, e a rotina mensal já existe | Pequeno |
 | 3 | **Piloto com uma cooperativa** (café de MG, já na demonstração): uma carteira real, medindo o tempo de triagem contra a consulta separada a cada base | É a hipótese do projeto ("reduzir o tempo de triagem") | Médio, depende de parceiro |
-| 4 | **Entrada do polígono da área de produção** (KML ou GeoJSON) e dossiê EUDR | A EUDR exige a geolocalização da área, não do imóvel | Médio |
+| 4 | **Entrada do polígono da área de produção** (KML ou GeoJSON; feito em 05/11/2026, coluna `area_producao`) e dossiê EUDR (a fazer) | A EUDR exige a geolocalização da área, não do imóvel | Médio |
 | 5 | **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal (feito em 04/11/2026, [ADR 0015](arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md), adendo) | Tirou a última fonte que dependia do WFS em partições mensais; o WFS ficou como queda quando o arquivo falha | Pequeno |
 | 6 | **API sobre o banco lite** | O banco já existe e é gerado dos contratos (ADR 0017); falta a API e ligar um Neon ou Supabase gratuito quando houver mais de um técnico | Médio |

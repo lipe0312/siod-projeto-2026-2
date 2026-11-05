@@ -1,7 +1,11 @@
-"""Leitura de shapefile dentro de um zip (CNUC do MMA, territórios quilombolas do IBGE) e validações de geometria
-comuns às camadas de sobreposição (terras indígenas, unidades de conservação, quilombolas)."""
+"""Leitura de shapefile dentro de um zip (CNUC do MMA, territórios quilombolas do IBGE), validações de geometria
+comuns às camadas de sobreposição (terras indígenas, unidades de conservação, quilombolas) e leitura do polígono da
+área de produção que o técnico traz (KML ou GeoJSON, ler_area_producao)."""
 
 import io
+import json
+import re
+import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
@@ -78,3 +82,146 @@ def eh_sirgas_2000(prj: str) -> bool:
     if texto.startswith("PROJCS"):  # projetado (ex.: SIRGAS 2000 / UTM): coordenada em metros, não em graus
         return False
     return SIRGAS_2000 in texto or 'GEOGCS["SIRGAS 2000"' in texto or 'AUTHORITY["EPSG","4674"]' in texto
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Área de produção (EUDR): KML ou GeoJSON trazido pelo técnico
+# ---------------------------------------------------------------------------------------------------------------
+
+class AreaIlegivel(ValueError):
+    """O arquivo da área de produção não pôde ser lido; a mensagem é o motivo, para a ficha."""
+
+
+TAMANHO_MAXIMO_AREA = 20 * 1024 * 1024  # um talhão em KML tem poucos KB; acima disso não é o arquivo certo
+# KML é sempre WGS 84; GeoJSON (RFC 7946) também, e o antigo (2008) podia declarar o CRS no membro "crs".
+CRS_WGS84 = {"4326", "CRS84"}
+CRS_SIRGAS = {"4674"}
+BRASIL = (-74.0, -34.0, -28.0, 6.0)  # mesma caixa da conferência de lat/lon da carteira
+# 11 dígitos ou mais seguidos, com ou sem pontuação de CPF/CNPJ entre eles (".", "-", "/", "_", espaço). Sem \b: em
+# "talhao_12345678901.kml" o "_" é caractere de palavra e o \b de documentos.FORMATO_CPF_CNPJ não casa.
+SEQUENCIA_DE_DOCUMENTO = re.compile(r"(?<!\d)\d(?:[.\-/_ ]?\d){10,}(?!\d)")
+OMITIDO_NO_NOME = "[documento omitido]"
+
+
+def nome_sem_documento(texto: str | None) -> str | None:
+    """Nome de arquivo (ou texto que cita um) sem CPF ou CNPJ: a sequência de 11 dígitos ou mais vira
+    "[documento omitido]". Vale para a planilha e para a área de produção, em toda saída (ficha, cad, carteira.csv)."""
+    return None if texto is None else SEQUENCIA_DE_DOCUMENTO.sub(OMITIDO_NO_NOME, str(texto))
+
+
+def _crs_geojson(dado: dict) -> str:
+    """'WGS 84' ou 'SIRGAS 2000'; AreaIlegivel para qualquer outro CRS declarado."""
+    crs = dado.get("crs")
+    if crs is None:
+        return "WGS 84"
+    props = (crs.get("properties") or {}) if isinstance(crs, dict) else {}
+    texto = str(props.get("name") or props.get("code") or "")
+    codigo = re.search(r"(CRS84|\d{4,5})\s*$", texto.upper())
+    codigo = codigo.group(1) if codigo else ""
+    if codigo in CRS_WGS84:
+        return "WGS 84"
+    if codigo in CRS_SIRGAS:
+        return "SIRGAS 2000"
+    raise AreaIlegivel(f"sistema de referência {texto or json.dumps(crs)[:80]} não aceito (use SIRGAS 2000 ou WGS 84)")
+
+
+def _poligonos_geojson(dado) -> list:
+    tipo = (dado or {}).get("type") if isinstance(dado, dict) else None
+    if tipo == "FeatureCollection":
+        return [g for f in dado.get("features") or [] for g in _poligonos_geojson(f)]
+    if tipo == "Feature":
+        return _poligonos_geojson(dado.get("geometry"))
+    if tipo == "GeometryCollection":
+        return [g for p in dado.get("geometries") or [] for g in _poligonos_geojson(p)]
+    if tipo in ("Polygon", "MultiPolygon"):
+        return [shapely.geometry.shape(dado)]
+    return []
+
+
+def _anel_kml(elemento) -> list[tuple[float, float]]:
+    coordenadas = next((e for e in elemento.iter() if e.tag.rsplit("}", 1)[-1] == "coordinates"), None)
+    if coordenadas is None or not (coordenadas.text or "").strip():
+        raise AreaIlegivel("KML com polígono sem coordenadas")
+    pontos = []
+    for trio in coordenadas.text.split():
+        partes = trio.split(",")
+        try:
+            pontos.append((float(partes[0]), float(partes[1])))
+        except (ValueError, IndexError):
+            raise AreaIlegivel("KML com coordenada que não é número") from None
+    if len(pontos) < 4:
+        raise AreaIlegivel(f"KML com anel de {len(pontos)} ponto(s); um polígono precisa de ao menos 4")
+    return pontos
+
+
+def _poligonos_kml(conteudo: bytes) -> list:
+    try:
+        raiz = ET.fromstring(conteudo)
+    except ET.ParseError as e:
+        raise AreaIlegivel(f"KML mal formado ({e})") from None
+    local = lambda e: e.tag.rsplit("}", 1)[-1]
+    poligonos = []
+    for pol in (e for e in raiz.iter() if local(e) == "Polygon"):
+        externo = [e for e in pol if local(e) == "outerBoundaryIs"]
+        if not externo:
+            raise AreaIlegivel("KML com polígono sem contorno externo (outerBoundaryIs)")
+        furos = [_anel_kml(e) for e in pol if local(e) == "innerBoundaryIs"]
+        poligonos.append(shapely.Polygon(_anel_kml(externo[0]), furos))
+    return poligonos
+
+
+def ler_area_producao(caminho: Path) -> tuple[shapely.MultiPolygon, str]:
+    """MultiPolygon em SIRGAS 2000 (EPSG 4674) e o CRS de origem, de um .kml, .geojson ou .json.
+
+    WGS 84 → SIRGAS 2000: a transformação oficial entre os dois é nula (diferença abaixo de 1 m), então as coordenadas
+    ficam como estão e passam a valer como 4674. Só polígonos entram (ponto e linha são ignorados); a geometria passa
+    por tornar_valida. Qualquer problema (inclusive erro de leitura do disco, do shapely ou aninhamento sem fim) vira
+    AreaIlegivel com o motivo, sem o nome do arquivo com documento: a carteira não cai por causa de um arquivo."""
+    try:
+        return _ler_area_producao(Path(caminho))
+    except AreaIlegivel:
+        raise
+    except OSError as e:
+        raise AreaIlegivel(f"arquivo não pôde ser aberto ({type(e).__name__})") from None
+    except RecursionError:
+        raise AreaIlegivel("arquivo com aninhamento profundo demais") from None
+    except (ValueError, TypeError, AttributeError, KeyError, IndexError, GEOSException) as e:
+        raise AreaIlegivel(f"geometria que não pôde ser lida ({type(e).__name__})") from None
+
+
+def _ler_area_producao(caminho: Path) -> tuple[shapely.MultiPolygon, str]:
+    extensao = caminho.suffix.lower()
+    nome = nome_sem_documento(caminho.name)
+    if extensao not in (".kml", ".geojson", ".json"):
+        raise AreaIlegivel(f"formato {extensao or 'sem extensão'} não aceito (use .kml, .geojson ou .json)")
+    if not caminho.is_file():
+        raise AreaIlegivel(f"arquivo {nome} não encontrado")
+    if caminho.stat().st_size > TAMANHO_MAXIMO_AREA:
+        raise AreaIlegivel(f"arquivo {nome} com mais de {TAMANHO_MAXIMO_AREA // 2**20} MB")
+    conteudo = caminho.read_bytes()
+    if extensao == ".kml":
+        poligonos, crs = _poligonos_kml(conteudo), "WGS 84"
+    else:
+        try:
+            dado = json.loads(conteudo.decode("utf-8-sig"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as e:
+            raise AreaIlegivel(f"GeoJSON mal formado ({type(e).__name__})") from None
+        crs = _crs_geojson(dado if isinstance(dado, dict) else {})
+        try:
+            poligonos = _poligonos_geojson(dado)
+        except (TypeError, ValueError, AttributeError, GEOSException) as e:
+            raise AreaIlegivel(f"GeoJSON com geometria inválida ({type(e).__name__})") from None
+    if not poligonos:
+        raise AreaIlegivel("nenhum Polygon ou MultiPolygon no arquivo")
+    try:
+        geom = tornar_valida(shapely.union_all([tornar_valida(shapely.force_2d(p)) for p in poligonos]))
+    except (GEOSException, ValueError) as e:
+        raise AreaIlegivel(f"polígono que não pôde ser corrigido ({type(e).__name__})") from None
+    partes = [g for g in getattr(geom, "geoms", [geom]) if g.geom_type in ("Polygon", "MultiPolygon")]
+    geom = shapely.union_all(partes) if partes else shapely.Polygon()
+    if geom.is_empty or geom.area == 0:
+        raise AreaIlegivel("polígono sem área")
+    x0, y0, x1, y1 = geom.bounds
+    if not (BRASIL[0] <= x0 and x1 <= BRASIL[2] and BRASIL[1] <= y0 and y1 <= BRASIL[3]):
+        raise AreaIlegivel("coordenadas fora do Brasil (em metros, ou com latitude e longitude trocadas?)")
+    return (geom if geom.geom_type == "MultiPolygon" else shapely.MultiPolygon([geom])), crs
