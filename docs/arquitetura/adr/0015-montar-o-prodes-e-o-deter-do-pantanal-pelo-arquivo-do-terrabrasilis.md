@@ -51,3 +51,38 @@ Regras (`inpe_prodes.executar_arquivos`, chamado por `python -m pipeline --fonte
 * Bad, because o endereço do catálogo e o nome dos arquivos não são uma API documentada. Se mudarem, a validação interrompe a fonte, e a saída é `--prodes-pelo-wfs`.
 * Bad, because o Pantanal não tem DETER antes de 08/2023. Entre a data de corte (31/12/2020) e 08/2023, vale só o PRODES.
 * Neutral, because Amazônia e Cerrado continuam no DETER pelo WFS, em partições mensais. O arquivo diário desses dois biomas é o candidato para o próximo passo.
+
+## Adendo de 04/11/2026: DETER da Amazônia e do Cerrado pelo arquivo, reconciliado com o lago
+
+O "próximo passo" acima foi feito (issue #4). `config.DETER_ARQUIVOS` passou a ter os três biomas, e o lote da Amazônia e do Cerrado vem do shapefile de `/file-delivery/download/deter-amz/shape` e `deter-cerrado-nb/shape` (HTTP 200, `application/zip`). O WFS em partições mensais ficou como **queda** e para a consulta sob demanda (`consultar_recorte`).
+
+| Medido em 04/11/2026 | Amazônia | Cerrado |
+|---|---|---|
+| Tamanho do zip | 236.294.275 B (225 MB) | 47.776.983 B (45,6 MB) |
+| Tempo de download | 11,7 a 16,9 s | 3,4 s (o servidor oscilou depois: leitura esgotada e falha de DNS) |
+| Linhas no arquivo | 466.704 | 135.790 |
+| Desmatamento desde 2021-01-01 | 150.215 | 89.927 |
+| Contagem do WFS no mesmo período (até 23/10/2026) | 150.215 (diferença 0) | 89.927 (diferença 0) |
+| Leitura e filtro do arquivo (sem rede) | 13,8 s | 6,5 s |
+| Casados com o lago / novos / sem par no lago | 150.215 / 0 / 0 | 89.927 / 0 / 0 |
+| Chaves ambíguas, todas resolvidas | 78 | 20 |
+
+**O arquivo não é o WFS.** O `FID` do arquivo não é o `gid` do WFS (por exemplo, `100000_hist` x `2043041_hist` no Cerrado), e a geometria vem em `Polygon` com precisão total, sem o arredondamento de 4 casas do WFS. Ler o arquivo mudaria os ~240 mil `id_alerta` (ADR 0004: gid + hash do conteúdo), duplicaria os alertas no cruzamento e quebraria `diag.evidencia`. A decisão do dono foi **reconciliar com o lago antes de gravar** (`inpe_deter.reconciliar`):
+
+1. **Par:** o alerta do arquivo que tem a mesma data da imagem, a mesma UF e a mesma área (arredondada a 6 casas, 1 m²) de um alerta vigente em `ref.alerta_deter` mantém o `id_alerta`, o `gid` e o mês de publicação do lago. O resto da linha (classe, geometria, código IBGE do município) vem do arquivo.
+2. **Sem par:** o alerta é novo. `gid` = `arq-` + FID do arquivo e `id_alerta` pela fórmula de sempre. O prefixo não colide com o gid do WFS. Na execução seguinte ele casa com o lago, então o id é estável.
+3. **Chave repetida** (mais de uma linha com a mesma data, UF e área, em um dos lados): resolvida um para um, nesta ordem: mesmo município (código ou nome), menor distância entre os centroides, menor gid do arquivo, menor `id_alerta` do lago. Cada caso entra em `DETER_<BIOMA>_AMBIGUO` (e `_AMBIGUO_SEM_PAR` se sobrar linha sem par). Nada é silencioso.
+4. **Queda:** se o download, a leitura ou a validação do arquivo falhar, o bioma vem do WFS nessa execução, com o motivo em `entrada.quedas_para_wfs` e na validação `DETER_<BIOMA>_ARQUIVO_FALHOU`. As linhas do WFS passam pela mesma reconciliação, mas só contra alerta do lago que nasceu do arquivo (gid com `arq-`), para não duplicar. Nunca se grava "sem ocorrência" por falta de dado. O Pantanal não tem WFS, então a falha dele continua interrompendo a fonte.
+5. **Download só quando muda:** o servidor não manda `Last-Modified`, `Content-Length` nem `ETag`; só o nome em `Content-Disposition`, que leva a data (`deter-amz-public-2026nov04.zip`). Um HEAD compara esse nome com o gravado no `.meta.json`; igual, não baixa. Diferente, baixa e compara o SHA-256 com o anterior (`mudou`).
+6. **Leitura filtrada:** classe fora do desmatamento (queimada, degradação, mineração, corte seletivo: 183.275 linhas na Amazônia) e data anterior a `DETER_DESDE_PADRAO` (133.214) são contadas e ignoradas antes de montar a geometria, sem ir para `meta.descarte`.
+7. **Validação arquivo x WFS e arquivo x lago** no mesmo período: `DETER_<BIOMA>_ARQUIVO_X_WFS` (uma requisição `resultType=hits`; WFS fora do ar vira `_INCONCLUSIVA`, sem derrubar a fonte), `_ARQUIVO_X_LAGO`, `_RECONCILIADO`, `_NOVO`, `_SO_NO_LAGO` e `_MUNICIPIO_DIFERENTE_NO_PAR`.
+
+Numa execução de teste com cópia do lago (pico de memória de 2,2 a 2,4 GB), o arquivo falhou em cada bioma uma vez (leitura esgotada, conexão interrompida e falha de DNS, logo depois que o servidor regerou o arquivo do dia). O bioma caiu para o WFS com o motivo registrado, sem duplicar alerta; o arquivo do outro bioma foi reconciliado normalmente. Ao voltar ao WFS, as linhas casadas voltam à geometria de 4 casas, e a próxima leitura do arquivo as atualiza de novo.
+
+Consequências:
+* Good, because o lote da Amazônia e do Cerrado deixa de depender do WFS (horas e erros 502) e a geometria nova tem precisão total.
+* Good, because os ids existentes se mantêm: nada se duplica e `diag.evidencia` continua válido.
+* Bad, because na primeira carga todas as linhas casadas aparecem como "alteradas" no histórico (geometria de precisão total, `Polygon` em vez de `MultiPolygon`).
+* Bad, because o par por data, UF e área é uma heurística; os casos em que o município diferia ou a chave se repetia ficam contados nas validações acima.
+* Neutral, because `mes_publicacao` fica nulo nos alertas novos do arquivo (ele não traz `publish_month`); nenhum código o usa.
+* Neutral, because o Pantanal também passou a ser baixado de novo quando a versão do arquivo muda (antes, só com `--atualizar`).
