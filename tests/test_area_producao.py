@@ -175,3 +175,71 @@ def test_sem_a_coluna_nada_muda(tmp_path):
     assert chamadas == ["MG-1"] and "aviso_area_producao" not in saida
     assert "area_producao" not in _ficha(None)
     assert _desmatamento(_ficha(None))["evidencia"] == "Nenhum alerta DETER nem polígono PRODES após 2020 dentro do imóvel"
+
+
+# --- revisão: documento no nome do arquivo e na commodity, exceções que não derrubam a carteira -----------------------
+
+KML_3_PONTOS = ('<kml xmlns="http://www.opengis.net/kml/2.2"><Placemark><Polygon><outerBoundaryIs><LinearRing>'
+                "<coordinates>-46.988,-18.948 -46.984,-18.948 -46.988,-18.948</coordinates>"
+                "</LinearRing></outerBoundaryIs></Polygon></Placemark></kml>")
+
+
+@pytest.mark.parametrize("nome, conteudo", [
+    ("tres_pontos.kml", KML_3_PONTOS),
+    ("tres_pontos.geojson", json.dumps({"type": "Polygon", "coordinates": [[[-46.98, -18.94], [-46.97, -18.94],
+                                                                             [-46.98, -18.94]]]})),
+    ("fundo.geojson", "[" * 100_000 + "]" * 100_000),
+])
+def test_anel_curto_e_aninhamento_profundo_viram_motivo(tmp_path, nome, conteudo):
+    (tmp_path / nome).write_text(conteudo, encoding="utf-8")
+    with pytest.raises(vetor.AreaIlegivel):
+        vetor.ler_area_producao(tmp_path / nome)
+    assert carteira.area_producao(nome, tmp_path)["motivo"]
+
+
+def test_erro_de_disco_vira_motivo(tmp_path, monkeypatch):
+    shutil.copy(DADOS / "talhao.kml", tmp_path / "talhao.kml")
+
+    def negado(self):
+        raise PermissionError("sem permissão")
+    monkeypatch.setattr(Path, "read_bytes", negado)
+    assert carteira.area_producao("talhao.kml", tmp_path)["motivo"] == "arquivo não pôde ser aberto (PermissionError)"
+
+
+def test_link_simbolico_para_fora_da_pasta_nao_e_seguido(tmp_path):
+    pasta = tmp_path / "planilha"
+    pasta.mkdir()
+    shutil.copy(DADOS / "talhao.kml", tmp_path / "fora.kml")
+    (pasta / "link.kml").symlink_to(tmp_path / "fora.kml")
+    assert "fora da pasta da planilha" in carteira.area_producao("link.kml", pasta)["motivo"]
+    assert "fora da pasta da planilha" in carteira.area_producao("sub/../../fora.kml", pasta)["motivo"]
+
+
+def test_documento_no_nome_do_arquivo_e_na_commodity_nao_sai_em_lugar_nenhum(tmp_path):
+    pasta = tmp_path / "planilha"
+    pasta.mkdir()
+    shutil.copy(DADOS / "talhao.kml", pasta / "talhao_12345678901.kml")
+    shutil.copy(DADOS / "talhoes.geojson", pasta / f"area-{CPF_VALIDO}.geojson")
+    arquivo = pasta / "carteira_12345678901.csv"
+    df = pd.DataFrame([
+        {"id_produtor": "P1", "cod_car": "MG-1", "commodity": f"café {CPF_VALIDO}",
+         "area_producao": "talhao_12345678901.kml"},
+        {"id_produtor": "P2", "cod_car": "MG-2", "commodity": "soja", "area_producao": f"area-{CPF_VALIDO}.geojson"},
+        {"id_produtor": "P3", "cod_car": "MG-3", "commodity": None, "area_producao": "falta_12345678901.kml"}])
+    df.to_csv(arquivo, index=False)
+    org = cadastro.organizacao("Coop Nome")
+    areas = carteira.areas_de_producao(df, pasta)
+    assert areas[0]["arquivo"] == "talhao_[documento omitido].kml" and areas[1]["motivo"] is None
+    assert areas[2]["motivo"] == "arquivo falta_[documento omitido].kml não encontrado"
+    cadastro.importar_carteira(df, org, arquivo, areas=areas)
+    gravadas = lago.ler("cad.area_producao").sort_values("commodity")
+    assert gravadas["commodity"].tolist() == ["[documento omitido]", "soja"]
+    assert gravadas["origem"].iloc[0] == ("planilha carteira_[documento omitido].csv: talhao_[documento omitido].kml "
+                                          "(WGS 84)")
+    saida = carteira.processar(df, tmp_path / "saida", consultar=_consultar([]), areas=areas)
+    textos = [repr(areas), saida.to_csv(), carteira.html(saida, "c.csv"),
+              *(p.read_text(encoding="utf-8") for p in (tmp_path / "saida" / "fichas").iterdir()),
+              *(lago.ler(t).to_csv() for t in ("cad.area_producao", "cad.carteira", "cad.carteira_item"))]
+    for texto in textos:
+        for documento in ("12345678901", CPF_VALIDO, "11144477735"):
+            assert documento not in texto

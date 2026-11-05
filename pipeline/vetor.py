@@ -97,6 +97,16 @@ TAMANHO_MAXIMO_AREA = 20 * 1024 * 1024  # um talhão em KML tem poucos KB; acima
 CRS_WGS84 = {"4326", "CRS84"}
 CRS_SIRGAS = {"4674"}
 BRASIL = (-74.0, -34.0, -28.0, 6.0)  # mesma caixa da conferência de lat/lon da carteira
+# 11 dígitos ou mais seguidos, com ou sem pontuação de CPF/CNPJ entre eles (".", "-", "/", "_", espaço). Sem \b: em
+# "talhao_12345678901.kml" o "_" é caractere de palavra e o \b de documentos.FORMATO_CPF_CNPJ não casa.
+SEQUENCIA_DE_DOCUMENTO = re.compile(r"(?<!\d)\d(?:[.\-/_ ]?\d){10,}(?!\d)")
+OMITIDO_NO_NOME = "[documento omitido]"
+
+
+def nome_sem_documento(texto: str | None) -> str | None:
+    """Nome de arquivo (ou texto que cita um) sem CPF ou CNPJ: a sequência de 11 dígitos ou mais vira
+    "[documento omitido]". Vale para a planilha e para a área de produção, em toda saída (ficha, cad, carteira.csv)."""
+    return None if texto is None else SEQUENCIA_DE_DOCUMENTO.sub(OMITIDO_NO_NOME, str(texto))
 
 
 def _crs_geojson(dado: dict) -> str:
@@ -138,7 +148,9 @@ def _anel_kml(elemento) -> list[tuple[float, float]]:
         try:
             pontos.append((float(partes[0]), float(partes[1])))
         except (ValueError, IndexError):
-            raise AreaIlegivel(f"KML com coordenada que não é número: {trio[:40]!r}") from None
+            raise AreaIlegivel("KML com coordenada que não é número") from None
+    if len(pontos) < 4:
+        raise AreaIlegivel(f"KML com anel de {len(pontos)} ponto(s); um polígono precisa de ao menos 4")
     return pontos
 
 
@@ -163,15 +175,29 @@ def ler_area_producao(caminho: Path) -> tuple[shapely.MultiPolygon, str]:
 
     WGS 84 → SIRGAS 2000: a transformação oficial entre os dois é nula (diferença abaixo de 1 m), então as coordenadas
     ficam como estão e passam a valer como 4674. Só polígonos entram (ponto e linha são ignorados); a geometria passa
-    por tornar_valida. Qualquer problema vira AreaIlegivel com o motivo."""
-    caminho = Path(caminho)
+    por tornar_valida. Qualquer problema (inclusive erro de leitura do disco, do shapely ou aninhamento sem fim) vira
+    AreaIlegivel com o motivo, sem o nome do arquivo com documento: a carteira não cai por causa de um arquivo."""
+    try:
+        return _ler_area_producao(Path(caminho))
+    except AreaIlegivel:
+        raise
+    except OSError as e:
+        raise AreaIlegivel(f"arquivo não pôde ser aberto ({type(e).__name__})") from None
+    except RecursionError:
+        raise AreaIlegivel("arquivo com aninhamento profundo demais") from None
+    except (ValueError, TypeError, AttributeError, KeyError, IndexError, GEOSException) as e:
+        raise AreaIlegivel(f"geometria que não pôde ser lida ({type(e).__name__})") from None
+
+
+def _ler_area_producao(caminho: Path) -> tuple[shapely.MultiPolygon, str]:
     extensao = caminho.suffix.lower()
+    nome = nome_sem_documento(caminho.name)
     if extensao not in (".kml", ".geojson", ".json"):
         raise AreaIlegivel(f"formato {extensao or 'sem extensão'} não aceito (use .kml, .geojson ou .json)")
     if not caminho.is_file():
-        raise AreaIlegivel(f"arquivo {caminho.name} não encontrado")
+        raise AreaIlegivel(f"arquivo {nome} não encontrado")
     if caminho.stat().st_size > TAMANHO_MAXIMO_AREA:
-        raise AreaIlegivel(f"arquivo {caminho.name} com mais de {TAMANHO_MAXIMO_AREA // 2**20} MB")
+        raise AreaIlegivel(f"arquivo {nome} com mais de {TAMANHO_MAXIMO_AREA // 2**20} MB")
     conteudo = caminho.read_bytes()
     if extensao == ".kml":
         poligonos, crs = _poligonos_kml(conteudo), "WGS 84"

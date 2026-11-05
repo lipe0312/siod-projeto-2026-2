@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from pipeline import vetor
 from pipeline.armazenamento import lago
 from pipeline.documentos import carregar_chave, pseudonimizar, sem_documento, somente_digitos, tipo_documento
 
@@ -114,19 +115,22 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
                 ja_gravadas.add((imovel_id, area["geometria"].wkt))
                 novos["cad.area_producao"].append({
                     "area_id": str(uuid.uuid4()), "organizacao_id": organizacao_id, "imovel_id": imovel_id,
-                    "commodity": _texto(linha.get("commodity")),
-                    "origem": f"planilha {Path(arquivo).name}: {area['arquivo']} ({area['crs']})",
+                    "commodity": sem_documento({"commodity": _texto(linha.get("commodity"))})["commodity"],
+                    "origem": vetor.nome_sem_documento(f"planilha {Path(arquivo).name}: {area['arquivo']} "
+                                                       f"({area['crs']})"),
                     "criado_em": momento, "geometria_wkt": area["geometria"].wkt})
         extras = sem_documento({k: _texto(v) for k, v in linha.items()
                                 if k not in ("documento", "lat", "lon", "id_produtor", "cod_car", *INFORMADOS)
                                 and _texto(v)})
+        if extras.get("area_producao"):
+            extras["area_producao"] = vetor.nome_sem_documento(extras["area_producao"])
         itens.append({"carteira_id": carteira_id, "organizacao_id": organizacao_id, "linha": int(i) + 2,
                       "produtor_id": produtor_id, "imovel_id": imovel_id, "problema_na_linha": problemas.get(i),
                       "extras_json": pd.Series(extras).to_json(force_ascii=False) if extras else None})
         ids[i] = {"produtor_id": produtor_id, "imovel_id": imovel_id}
     sha = hashlib.sha256(Path(arquivo).read_bytes()).hexdigest() if Path(arquivo).exists() else None
     _gravar("cad.carteira", [{"carteira_id": carteira_id, "organizacao_id": organizacao_id,
-                              "arquivo_origem": Path(arquivo).name, "sha256": sha, "importada_em": momento,
+                              "arquivo_origem": vetor.nome_sem_documento(Path(arquivo).name), "sha256": sha, "importada_em": momento,
                               "linhas": len(df), "linhas_com_problema": len(problemas)}], momento)
     for tabela, linhas in novos.items():
         _gravar(tabela, linhas, momento)

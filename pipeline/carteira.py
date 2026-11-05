@@ -83,10 +83,14 @@ def area_producao(valor: str | None, pasta_planilha: Path) -> dict | None:
     não foi lida, ou None)}. None se a célula está vazia. O caminho é relativo à pasta da planilha e não sai dela."""
     if not valor:
         return None
-    limpo = lambda texto: sem_documento({"t": texto})["t"]  # nome de arquivo com CPF não vai para a ficha
-    base = Path(pasta_planilha).resolve()
+    limpo = vetor.nome_sem_documento  # nome de arquivo com CPF não vai para a ficha, o cad nem a carteira.csv
     informado = Path(valor.replace("\\", "/")).expanduser()
-    caminho = (informado if informado.is_absolute() else base / informado).resolve()
+    try:  # resolve() segue o link simbólico: o que aponta para fora da pasta também fica de fora
+        base = Path(pasta_planilha).resolve()
+        caminho = (informado if informado.is_absolute() else base / informado).resolve()
+    except (OSError, RuntimeError) as e:
+        return {"geometria": None, "arquivo": limpo(informado.name), "crs": None,
+                "motivo": f"caminho que não pôde ser resolvido ({type(e).__name__})"}
     if not caminho.is_relative_to(base):
         return {"geometria": None, "arquivo": limpo(informado.name), "crs": None,
                 "motivo": "caminho fora da pasta da planilha (copie o arquivo para a pasta dela)"}
@@ -131,6 +135,8 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
         base = sem_documento({k: linha.get(k) for k in df.columns if k not in ("documento", "lat", "lon")},
                              preservar=("id_produtor", "cod_car", *INFORMADOS))
         base["documento_informado"] = "sim" if linha.get("documento") else "não"
+        if base.get("area_producao"):  # caminho do arquivo: sem CPF/CNPJ no nome (sem_documento não pega "_123...")
+            base["area_producao"] = vetor.nome_sem_documento(base["area_producao"])
         motivo = problema(linha)
         if motivo:
             linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": motivo, "_n_pendencias": 0})
@@ -290,7 +296,8 @@ def main(argv=None) -> int:
     # Só depois de encerrar(): a execução atual precisa estar no lago para ser a "atual" da comparação.
     saida, comparacao = comparar(saida, organizacao_id, execucao.id)
     saida.to_csv(pasta / "carteira.csv", index=False)
-    (pasta / "carteira.html").write_text(html(saida, args.planilha.name, comparacao), encoding="utf-8")
+    (pasta / "carteira.html").write_text(html(saida, vetor.nome_sem_documento(args.planilha.name), comparacao),
+                                         encoding="utf-8")
     log.info("Carteira: %d imóveis; %s", len(saida), pasta / "carteira.html")
     return 0
 
