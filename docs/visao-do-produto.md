@@ -88,5 +88,5 @@ São atualizadas pela rotina mensal ([`agendamento/`](../agendamento/LEIA-ME.md)
 | 2 | ~~**Carteira com "o que mudou"**~~ (feito em 04/11/2026): comparar com a execução anterior de cada imóvel | É o que faz o técnico voltar todo mês, e a rotina mensal já existe | Pequeno |
 | 3 | **Piloto com uma cooperativa** (café de MG, já na demonstração): uma carteira real, medindo o tempo de triagem contra a consulta separada a cada base | É a hipótese do projeto ("reduzir o tempo de triagem") | Médio, depende de parceiro |
 | 4 | **Entrada do polígono da área de produção** (KML ou GeoJSON) e dossiê EUDR | A EUDR exige a geolocalização da área, não do imóvel | Médio |
-| 5 | **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal | Tira a última fonte que depende do WFS em partições mensais | Pequeno |
+| 5 | **DETER da Amazônia e do Cerrado pelo arquivo diário**, como o Pantanal (feito em 04/11/2026, [ADR 0015](arquitetura/adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md), adendo) | Tirou a última fonte que dependia do WFS em partições mensais; o WFS ficou como queda quando o arquivo falha | Pequeno |
 | 6 | **API sobre o banco lite** | O banco já existe e é gerado dos contratos (ADR 0017); falta a API e ligar um Neon ou Supabase gratuito quando houver mais de um técnico | Médio |

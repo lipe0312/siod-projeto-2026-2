@@ -320,7 +320,7 @@ Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite 
 | [`pipeline/cadastro.py`](pipeline/cadastro.py), [`pipeline/resultados.py`](pipeline/resultados.py) | Cadastro da carteira (`cad`) e resultado do pré-diagnóstico com as mudanças entre execuções (`diag`) | Persistência |
 | [`banco/`](banco/LEIA-ME.md) | Migrações do PostGIS, segurança por organização e Docker local | Persistência |
 | [`pipeline/fontes/ibama_embargos.py`](pipeline/fontes/ibama_embargos.py) | Fonte tabular: embargos do IBAMA (CSV) | 02 |
-| [`pipeline/fontes/inpe_deter.py`](pipeline/fontes/inpe_deter.py) | Fonte API: alertas de desmatamento do INPE (WFS/GeoJSON) | 02 |
+| [`pipeline/fontes/inpe_deter.py`](pipeline/fontes/inpe_deter.py) | Alertas de desmatamento do INPE: arquivo de cada bioma do TerraBrasilis (Amazônia, Cerrado, Pantanal) reconciliado com o lago; WFS (GeoJSON) na queda | 02, 04 |
 | [`pipeline/fontes/mte_lista_suja.py`](pipeline/fontes/mte_lista_suja.py) | Fonte documento: Lista Suja do Ministério do Trabalho (PDF) | 02 |
 | [`pipeline/wfs.py`](pipeline/wfs.py) | Requisição, contagem e filtros espaciais (ordem dos eixos) comuns aos serviços WFS | 03 |
 | [`pipeline/fontes/sicar.py`](pipeline/fontes/sicar.py) | Fonte sob demanda: CAR pelo WFS do SICAR, por município, retângulo ou ponto | 03 |
@@ -334,6 +334,7 @@ Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite 
 | [`pipeline/ficha_html.py`](pipeline/ficha_html.py) | Ficha do pré-diagnóstico em HTML, com o mapa do imóvel em SVG | 04 |
 | [`tests/test_ibama_embargos.py`](tests/test_ibama_embargos.py) | Validações da fonte IBAMA | 02 |
 | [`tests/test_inpe_deter.py`](tests/test_inpe_deter.py) | Validações da fonte DETER, incluindo identificador e completude das partições | 02 |
+| [`tests/test_inpe_deter_arquivo.py`](tests/test_inpe_deter_arquivo.py) | DETER pelo arquivo: leitura filtrada, reconciliação com o lago (casado, novo, ambíguo), queda para o WFS, download só quando a versão muda | 04 |
 | [`tests/test_mte_lista_suja.py`](tests/test_mte_lista_suja.py) | Segmentação e validações da Lista Suja | 02 |
 | [`tests/test_municipios.py`](tests/test_municipios.py) | Referência do IBGE e resolução por nome | 02 |
 | [`tests/test_documentos.py`](tests/test_documentos.py) | CPF/CNPJ e pseudonimização | 02 |
