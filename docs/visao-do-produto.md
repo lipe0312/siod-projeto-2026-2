@@ -22,7 +22,7 @@ A pergunta que o sistema responde é: **quais produtores da minha carteira atend
 | **Ficha do imóvel** | Para cada critério: situação, evidência (mapa, polígonos, datas, área no imóvel), encaminhamento, fonte e data do dado e SHA-256 de cada arquivo | **Pronta** (Atividade 04) |
 | **Mudanças desde o último mês** | Imóveis cujo resultado mudou depois da rotina mensal (PRODES novo, DETER novo, embargo novo, Lista Suja nova), com o critério que mudou | Sim (04/11/2026): a carteira compara cada imóvel com a execução anterior da mesma organização (`resultados.mudancas`, visão `diag.mudanca` no banco); colunas `mudou` e `o_que_mudou` no CSV e "N imóveis mudaram desde <data>" no topo do HTML |
 | **Resultado oficial do AB+S ao lado** | Quando o produtor traz o relatório AB+S, cada critério mostra o resultado do pipeline e o oficial. A matriz de concordância mede o acerto | A fazer: depende do primeiro relatório real (ADR 0012) |
-| **Dossiê para o comprador (EUDR)** | Polígono da área de produção, ausência de desmatamento após 31/12/2020 com a fonte e a data de cada imagem, e o que não foi verificado | A fazer: os dados já estão na ficha; falta o formato que o comprador pede |
+| **Dossiê para o comprador (EUDR)** | Polígono da área de produção, ausência de desmatamento após 31/12/2020 com a fonte e a data de cada imagem, e o que não foi verificado | A fazer (#6): os dados já estão na ficha; falta o formato que o comprador pede e mostrar o desmatamento do resto do imóvel em separado ([ADR 0018](arquitetura/adr/0018-cruzar-o-desmatamento-na-area-declarada-e-a-legalidade-no-imovel-inteiro.md)) |
 
 O sistema nunca diz "conforme". Diz o que encontrou, onde e quando; o que não tem fonte aparece como "não verificado".
 
@@ -56,7 +56,7 @@ A linha com problema sai na lista como inconclusiva, com o motivo.
 * Consentimento por escrito (LGPD) para o uso do CPF e do CAR.
 * Recibo do CAR, CCIR e número da certificação SIGEF, se tiver.
 * O relatório AB+S. Pode ser emitido ali, com o login gov.br dele e o técnico ao lado. O técnico não guarda a senha (ADR 0012).
-* Para a EUDR, o polígono da área de produção (KML ou GeoJSON; shapefile ainda não), quando não for o imóvel inteiro.
+* Para a EUDR, o polígono da área de produção (KML ou GeoJSON; shapefile ainda não), quando não for o imóvel inteiro. Declare só onde a commodity foi produzida, nunca a fazenda inteira por precaução, e um polígono por parcela; até 4 ha pode ser um ponto. Como demarcar e o que comprova: [`eudr-area-de-producao.md`](eudr-area-de-producao.md).
 
 ### Fontes públicas: nada a pedir
 

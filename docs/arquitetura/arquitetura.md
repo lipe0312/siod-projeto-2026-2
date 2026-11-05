@@ -164,6 +164,8 @@ A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, boolean
 - [0014 — Verificar terras indígenas, quilombolas e unidades de conservação por sobreposição](adr/0014-verificar-terras-indigenas-quilombolas-e-unidades-de-conservacao-por-sobreposicao.md)
 - [0015 — Montar o PRODES e o DETER do Pantanal pelo arquivo do TerraBrasilis](adr/0015-montar-o-prodes-e-o-deter-do-pantanal-pelo-arquivo-do-terrabrasilis.md)
 - [0016 — Usar a base quilombola do INCRA republicada pelo CMR/FUNAI](adr/0016-usar-a-base-quilombola-do-incra-republicada-pelo-cmr-funai.md)
+- [0017 — Separar o dado em cinco esquemas, guardar o histórico no lago e carregar um perfil lite](adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md)
+- [0018 — Cruzar o desmatamento na área declarada e a legalidade no imóvel inteiro](adr/0018-cruzar-o-desmatamento-na-area-declarada-e-a-legalidade-no-imovel-inteiro.md)
 
 ## Onde entra a inteligência
 
