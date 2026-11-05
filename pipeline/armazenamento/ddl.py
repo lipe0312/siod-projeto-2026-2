@@ -2,7 +2,7 @@
 
     0002_tabelas_lite.sql      tabelas do perfil lite (geometria só se o perfil dela permitir)
     0003_tabelas_completo.sql  tabelas do perfil completo e as geometrias de perfil completo das tabelas lite
-    0004_seguranca_por_linha.sql  RLS de cad e diag, papel agrovalid_app
+    0004_seguranca_por_linha.sql  RLS de cad e diag, papéis agrovalid_app e agrovalid_leitura, autenticação da chave de API
     0005_visoes.sql            <tabela>_vigente e diag.mudanca
 
 A 0001 (extensões e esquemas) é escrita à mão. Tabelas com perfil `fora` nunca entram.
@@ -26,13 +26,16 @@ MIGRACOES = config.RAIZ / "banco" / "migracoes"
 SRID = 4674
 COLUNA_GEOMETRIA = "geometria"
 PAPEL_APP = "agrovalid_app"
+PAPEL_LEITURA = "agrovalid_leitura"
+ESQUEMAS_LEITURA = ("meta", "cad", "diag")
+TABELA_CHAVE = "cad.chave_api"
 ESQUEMAS = ("meta", "geo", "ref", "cad", "diag")
 TIPOS_SQL = {"texto": "text", "inteiro": "bigint", "decimal": "double precision", "logico": "boolean",
              "data_hora": "timestamp", "data": "date", "json": "jsonb", "geometria": f"geometry(Geometry, {SRID})"}
 TIPOS_CONTROLE = {"carga_id": "text", "valido_de": "timestamp", "valido_ate": "timestamp", "hash_linha": "text",
                   "consultado_em": "timestamp"}
 # Colunas com índice btree, quando existirem na tabela.
-INDICES_BTREE = ("documento_hash", "cod_imovel", "cod_car", "organizacao_id", "carga_id")
+INDICES_BTREE = ("documento_hash", "cod_imovel", "cod_car", "organizacao_id", "carga_id", "hash_sha256")
 # Parte da chave primária que vem das colunas de controle.
 CHAVE_CONTROLE = {"validade": ("valido_de",), "por_consulta": ("consultado_em",)}
 
@@ -235,6 +238,49 @@ GRANT INSERT ON ALL TABLES IN SCHEMA cad, diag TO {PAPEL_APP};
 -- Tabelas e visões criadas depois (a 0003, a 0005) herdam as mesmas permissões.
 ALTER DEFAULT PRIVILEGES IN SCHEMA {', '.join(ESQUEMAS)} GRANT SELECT ON TABLES TO {PAPEL_APP};
 ALTER DEFAULT PRIVILEGES IN SCHEMA cad, diag GRANT INSERT ON TABLES TO {PAPEL_APP};"""))
+    partes.append(_bloco("papel da API de leitura (ADR 0019): só SELECT, sem BYPASSRLS", f"""\
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{PAPEL_LEITURA}') THEN
+        CREATE ROLE {PAPEL_LEITURA} NOLOGIN NOBYPASSRLS;
+    END IF;
+END
+$$;
+
+-- A API entra como esse papel por requisição: SET LOCAL ROLE {PAPEL_LEITURA}, dentro da transação.
+GRANT {PAPEL_LEITURA} TO CURRENT_USER;
+
+GRANT USAGE ON SCHEMA {', '.join(ESQUEMAS_LEITURA)} TO {PAPEL_LEITURA};
+GRANT SELECT ON ALL TABLES IN SCHEMA {', '.join(ESQUEMAS_LEITURA)} TO {PAPEL_LEITURA};
+ALTER DEFAULT PRIVILEGES IN SCHEMA {', '.join(ESQUEMAS_LEITURA)} GRANT SELECT ON TABLES TO {PAPEL_LEITURA};"""))
+    partes.append(_bloco(f"{TABELA_CHAVE}: nenhum papel da aplicação lê o hash; só a função abaixo o confere", f"""\
+REVOKE ALL ON {TABELA_CHAVE} FROM {PAPEL_APP}, {PAPEL_LEITURA};
+
+-- Devolve a organização da chave válida (não revogada, não expirada, escopo leitura) e marca o último uso.
+-- SECURITY DEFINER: roda como o dono da tabela, que não passa pela segurança por linha; search_path fixo.
+CREATE OR REPLACE FUNCTION cad.autenticar_chave_api(p_hash text)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, pg_temp
+AS $fn$
+DECLARE
+    agora timestamp := now() AT TIME ZONE 'America/Sao_Paulo';
+    org text;
+BEGIN
+    UPDATE {TABELA_CHAVE}
+       SET ultimo_uso_em = agora
+     WHERE hash_sha256 = p_hash
+       AND escopo = 'leitura'
+       AND revogada_em IS NULL
+       AND expira_em > agora
+    RETURNING organizacao_id INTO org;
+    RETURN org;
+END
+$fn$;
+
+REVOKE ALL ON FUNCTION cad.autenticar_chave_api(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION cad.autenticar_chave_api(text) TO {PAPEL_LEITURA};"""))
     partes += [_bloco(c.tabela, politicas(c)) for c in ativas]
     return "\n".join(partes)
 
