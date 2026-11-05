@@ -49,9 +49,8 @@ def novo_banco():
 
 @pytest.fixture
 def lago_sintetico(tmp_path, monkeypatch):
-    """Lago vazio em tmp_path e sem o legado: só existe o que o teste gravar."""
+    """Lago vazio em tmp_path: só existe o que o teste gravar."""
     monkeypatch.setattr(config, "LAGO", tmp_path / "lago")
-    monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "processed")
 
 
 def linhas(tabela: str, *sobrescritas: dict) -> pd.DataFrame:

@@ -5,7 +5,6 @@ chave: [terrai_codigo]
 historico: fotografia
 perfil_banco: lite
 geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
-legado: funai_terras_indigenas.parquet
 colunas:
   - {nome: terrai_codigo,    tipo: texto, nulo: false}
   - {nome: nome,             tipo: texto}

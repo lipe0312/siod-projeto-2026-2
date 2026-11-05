@@ -5,7 +5,6 @@ chave: [id_alerta]
 historico: acrescimo
 perfil_banco: completo
 geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674}
-legado: inpe_deter_alertas.parquet
 colunas:
   - {nome: id_alerta,      tipo: texto, nulo: false}
   - {nome: camada,         tipo: texto}

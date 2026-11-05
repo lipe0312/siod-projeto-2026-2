@@ -5,7 +5,6 @@ chave: [bioma]
 historico: fotografia
 perfil_banco: lite
 geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
-legado: inpe_biomas.parquet
 colunas:
   - {nome: bioma,         tipo: texto, nulo: false}
   - {nome: nome,          tipo: texto}

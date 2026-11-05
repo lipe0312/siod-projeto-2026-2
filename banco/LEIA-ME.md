@@ -42,7 +42,7 @@ Perfis: o **lite** leva `meta`, `geo`, `cad`, `diag`, as camadas pequenas e o em
 Convenções do banco:
 - A coluna de geometria vira `geometria geometry(Geometry, 4674)`. O tipo declarado no contrato (MultiPolygon etc.) está no `COMMENT` da coluna, porque os dados reais misturam Polygon e MultiPolygon. Vai como EWKT (`SRID=4674;...`).
 - `data_hora` vira `timestamp` sem fuso, no horário de Brasília (o pipeline grava a hora local). Valor com fuso é convertido para America/Sao_Paulo antes de carregar.
-- Enquanto uma fonte não grava no lago, o carregador lê o legado de `data/processed/` (via `lago.ler`), que não tem as colunas de controle: `carga_id` vira `legado` e `valido_de`/`consultado_em` recebem o momento da carga. Linhas do legado com chave nula ou repetida são deixadas de fora, com aviso.
+- O carregador lê só o lago. Tabela que ainda não está no lago é pulada com aviso; tabela sem alguma coluna do contrato interrompe a carga (`ErroDeCarga`).
 
 ## Ligar no Neon ou no Supabase
 

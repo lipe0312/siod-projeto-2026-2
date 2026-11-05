@@ -7,7 +7,6 @@ particao: uf
 substituir_particao: true
 perfil_banco: completo
 geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674}
-legado: inpe_prodes
 colunas:
   - {nome: uuid,            tipo: texto, nulo: false}
   - {nome: bioma,           tipo: texto}

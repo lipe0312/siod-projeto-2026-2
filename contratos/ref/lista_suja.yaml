@@ -5,7 +5,6 @@ chave: [chave_registro]
 historico: validade
 acompanhar: [uf, cnae, trabalhadores_envolvidos, data_decisao, data_inclusao, data_inclusao_ultima]
 perfil_banco: lite
-legado: mte_lista_suja.parquet
 colunas:
   - {nome: chave_registro,            tipo: texto, nulo: false}
   - {nome: id_registro,               tipo: inteiro}
