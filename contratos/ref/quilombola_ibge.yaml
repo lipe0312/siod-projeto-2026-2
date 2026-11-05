@@ -5,7 +5,6 @@ chave: [cod_tq]
 historico: fotografia
 perfil_banco: completo
 geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
-legado: ibge_territorios_quilombolas.parquet
 colunas:
   - {nome: cod_tq,          tipo: texto, nulo: false}
   - {nome: nome,            tipo: texto}

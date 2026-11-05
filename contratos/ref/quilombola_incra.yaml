@@ -5,7 +5,6 @@ chave: [id_incra]
 historico: fotografia
 perfil_banco: completo
 geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
-legado: incra_quilombolas.parquet
 colunas:
   - {nome: id_incra,         tipo: texto, nulo: false}
   - {nome: nome,             tipo: texto}

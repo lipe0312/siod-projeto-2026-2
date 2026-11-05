@@ -35,7 +35,6 @@ Os contratos não dependem de Python. Qualquer ferramenta que leia YAML (dbt, um
 | `substituir_particao` | `true` | Em `acrescimo`: a partição gravada é a verdade inteira dela (PRODES por UF) |
 | `perfil_banco` | `lite`, `completo`, `fora` | `lite` cabe no plano gratuito do Supabase e do Neon; `completo` é o resto; `fora` nunca vai ao banco |
 | `geometria` | `{coluna, tipo, srid, perfil_banco}` | A geometria pode exigir um perfil maior que a tabela (o embargo vai ao lite sem geometria) |
-| `legado` | arquivo em `data/processed/` | Leitura de transição, enquanto a fonte não grava no lago |
 | `colunas` | `{nome, tipo, nulo}` | Tipos: `texto`, `inteiro`, `decimal`, `logico`, `data_hora`, `data`, `json`, `geometria` |
 
 ## Histórico

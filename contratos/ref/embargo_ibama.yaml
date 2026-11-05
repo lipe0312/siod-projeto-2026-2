@@ -6,7 +6,6 @@ historico: validade
 acompanhar: [situacao, data_desembargo, area_ha, documento_hash, geometria_wkt]
 perfil_banco: lite
 geometria: {coluna: geometria_wkt, tipo: Geometry, srid: 4674, perfil_banco: completo}
-legado: ibama_embargos.parquet
 colunas:
   - {nome: id_embargo,            tipo: texto, nulo: false}
   - {nome: num_tad,               tipo: texto}

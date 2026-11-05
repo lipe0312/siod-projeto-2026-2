@@ -262,11 +262,11 @@ def _arquivo_manifesto_arquivos():
     return pasta_tabela() / "_manifesto_arquivos.json"
 
 
-def _ler_json(arquivo, legado=None) -> dict | None:
-    """JSON de estado da fonte; `legado` é onde ele ficava antes do lago (só leitura, na transição)."""
-    if not arquivo.exists() and legado is not None and legado.exists():
-        log.warning("[inpe_prodes] %s ainda não está no lago; lido de %s (legado)", arquivo.name, _relativo(legado))
-        arquivo = legado
+def _ler_json(arquivo, anterior=None) -> dict | None:
+    """JSON de estado da fonte na pasta da tabela no lago; `anterior` é o manifesto do lugar antigo em data/raw."""
+    if not arquivo.exists() and anterior is not None and anterior.exists():
+        log.warning("[inpe_prodes] %s ainda não está no lago; lido de %s", arquivo.name, _relativo(anterior))
+        arquivo = anterior
     return json.loads(arquivo.read_text()) if arquivo.exists() else None
 
 
@@ -1001,8 +1001,8 @@ def executar_arquivos(hoje: pd.Timestamp, atualizar: bool = False, verificar: bo
 
 def ler_publicacao() -> dict | None:
     """Situação do PRODES em lote (_publicacao.json na pasta da tabela), ou None se o lote ainda não rodou no formato
-    por UF. Enquanto o lago não tem a publicação, vale a de data/processed (legado)."""
-    publicacao = _ler_json(arquivo_publicacao(), config.DADOS_PROCESSADOS / "inpe_prodes_publicacao.json")
+    por UF."""
+    publicacao = _ler_json(arquivo_publicacao())
     return publicacao if publicacao and "particoes" in publicacao else None
 
 

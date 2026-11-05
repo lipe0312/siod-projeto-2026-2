@@ -112,19 +112,6 @@ def test_uf_sem_poligono_no_wfs_fica_na_publicacao_com_particao_vazia(servico): 
     assert list(inpe_prodes.ler_uf("SP").columns[:3]) == ["uuid", "bioma", "ano_prodes"]
 
 
-def test_enquanto_o_lago_nao_tem_o_prodes_vale_o_legado(tb, tmp_path, monkeypatch):  # noqa: F811
-    inpe_prodes.executar_arquivos(HOJE)
-    pub = json.loads(inpe_prodes.arquivo_publicacao().read_text())
-    # Lago novo e vazio; o que estava em data/processed continua legível.
-    processed = tmp_path / "processed"
-    (processed / "inpe_prodes" / "uf=MG").mkdir(parents=True)
-    inpe_prodes.ler_uf("MG").drop(columns="carga_id").to_parquet(processed / "inpe_prodes" / "uf=MG" / "part.parquet")
-    (processed / "inpe_prodes_publicacao.json").write_text(json.dumps(pub))
-    monkeypatch.setattr(config, "LAGO", tmp_path / "lago_novo")
-    assert inpe_prodes.ler_publicacao()["particoes"]["MG"]["sha256"] == pub["particoes"]["MG"]["sha256"]
-    assert len(inpe_prodes.ler_uf("MG")) == 4
-
-
 def test_primeira_gravacao_no_lago_a_partir_do_bruto_local_nao_baixa_nada(tb, tmp_path, monkeypatch):  # noqa: F811
     inpe_prodes.executar_arquivos(HOJE)
     # Lago novo, bruto já baixado e manifesto do lugar antigo (raw/arquivo_bioma): a verificação ainda vale e o lote

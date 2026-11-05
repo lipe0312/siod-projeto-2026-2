@@ -5,8 +5,7 @@
     lago.ler("ref.desmatamento_prodes", particao="MG")
     lago.ler("ref.embargo_ibama", vigente=False)      # todas as versões
 
-Transição: enquanto uma fonte não grava no lago, `ler` cai no arquivo antigo de data/processed/ indicado em `legado`
-no contrato (com aviso no log). Sem nenhum dos dois, levanta TabelaAusente.
+Tabela que ainda não está no lago levanta TabelaAusente (rode `python -m pipeline` para gravá-la).
 """
 
 import json
@@ -24,7 +23,7 @@ log = logging.getLogger("pipeline")
 
 
 class TabelaAusente(FileNotFoundError):
-    """A tabela ainda não foi gravada no lago (nem existe o arquivo legado)."""
+    """A tabela ainda não foi gravada no lago ."""
 
 
 def pasta(tabela: str) -> Path:
@@ -84,35 +83,13 @@ def existe(tabela: str) -> bool:
     return p.exists() and any(p.rglob("*.parquet"))
 
 
-def _ler_legado(contrato: contratos.Contrato, particao=None, colunas=None) -> pd.DataFrame | None:
-    if not contrato.legado:
-        return None
-    caminho = config.DADOS_PROCESSADOS / contrato.legado
-    if caminho.is_dir():
-        if particao is not None:
-            arquivos = [caminho / f"{contrato.particao}={particao}" / "part.parquet"]
-        else:
-            arquivos = sorted(caminho.glob(f"{contrato.particao}=*/part.parquet"))
-        arquivos = [a for a in arquivos if a.exists()]
-        if not arquivos:
-            return None
-        df = pd.concat([pd.read_parquet(a, columns=colunas) for a in arquivos], ignore_index=True)
-    elif caminho.exists():
-        df = pd.read_parquet(caminho, columns=colunas)
-    else:
-        return None
-    log.warning("[lago] %s ainda não está no lago; lido de %s (legado)", contrato.tabela, relativo(caminho))
-    return df
-
-
 def ler(tabela: str, vigente: bool = True, particao=None, colunas: list[str] | None = None) -> pd.DataFrame:
     """Estado vigente da tabela (ou o histórico, com vigente=False). `particao` lê só uma partição (ex.: a UF)."""
     contrato = contratos.carregar(tabela)
     df = historico.ler(pasta(tabela), contrato, vigente, particao, colunas)
     if df is None:
-        df = _ler_legado(contrato, particao, colunas)
-    if df is None:
-        raise TabelaAusente(f"{tabela} não está no lago ({relativo(pasta(tabela))})")
+        raise TabelaAusente(f"{tabela} não está no lago ({relativo(pasta(tabela))}); rode `python -m pipeline` "
+                            "para gravá-la")
     return df
 
 

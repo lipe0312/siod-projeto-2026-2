@@ -46,7 +46,6 @@ class Contrato:
     particao: str | None = None
     substituir_particao: bool = False
     geometria: dict | None = None
-    legado: str | None = None
 
     @property
     def esquema(self) -> str:
@@ -75,8 +74,7 @@ def _ler(arquivo: Path) -> Contrato:
     contrato = Contrato(tabela=tabela, descricao=d.get("descricao", ""), fonte=d["fonte"], chave=tuple(d["chave"]),
                         historico=d["historico"], perfil_banco=d["perfil_banco"], colunas=colunas,
                         acompanhar=tuple(d.get("acompanhar", ())), particao=d.get("particao"),
-                        substituir_particao=bool(d.get("substituir_particao", False)), geometria=d.get("geometria"),
-                        legado=d.get("legado"))
+                        substituir_particao=bool(d.get("substituir_particao", False)), geometria=d.get("geometria"))
     problemas = [f"tipo '{c.tipo}' da coluna {c.nome}" for c in colunas if c.tipo not in TIPOS]
     problemas += [f"histórico '{contrato.historico}'"] if contrato.historico not in HISTORICOS else []
     problemas += [f"perfil '{contrato.perfil_banco}'"] if contrato.perfil_banco not in PERFIS else []

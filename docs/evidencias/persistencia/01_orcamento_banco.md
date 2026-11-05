@@ -83,6 +83,6 @@ Medido em 2026-11-04 00:12 UTC num PostGIS 17-3.5 local (`banco/docker-compose.y
 
 ## Observações
 
-- "Não carregada": a tabela ainda não está no lago ou o legado não tem as colunas do contrato (`ref.lista_suja` espera `chave_registro`, que a fonte passa a gravar ao migrar para o lago). Ocupa só o espaço vazio (índices e catálogo).
+- "Não carregada": a tabela ainda não está no lago. Ocupa só o espaço vazio (índices e catálogo).
 - `cad`, `diag`, `meta` e `geo.imovel_car` ainda não têm dados reais. Com uma carteira real, o lite cresce pouco: o peso está nas geometrias das camadas públicas.
-- O completo inclui o PRODES do Brasil inteiro, lido do legado `data/processed/inpe_prodes/`.
+- O completo inclui o PRODES do Brasil inteiro, lido do lago.

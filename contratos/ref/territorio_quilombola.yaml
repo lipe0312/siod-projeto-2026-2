@@ -5,7 +5,6 @@ chave: [codigo]
 historico: fotografia
 perfil_banco: lite
 geometria: {coluna: geometria_wkt, tipo: MultiPolygon, srid: 4674}
-legado: quilombolas.parquet
 colunas:
   - {nome: codigo,          tipo: texto, nulo: false}
   - {nome: nome,            tipo: texto}

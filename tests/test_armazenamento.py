@@ -1,7 +1,9 @@
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import pytest
+import yaml
 
 from pipeline import config
 from pipeline.armazenamento import cargas, contratos, historico, lago
@@ -112,14 +114,12 @@ def test_por_consulta_so_acrescenta_versao_diferente(tmp_path):
     assert len(historico.ler(tmp_path, c, vigente=False)) == 2
 
 
-def test_lago_grava_anota_no_resultado_e_le_o_legado(tmp_path, monkeypatch):
+def test_lago_grava_anota_no_resultado_e_sem_o_lago_levanta_tabela_ausente(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "LAGO", tmp_path / "lago")
-    monkeypatch.setattr(config, "DADOS_PROCESSADOS", tmp_path / "processed")
-    (tmp_path / "processed").mkdir()
     municipios = pd.DataFrame({"cod_municipio": ["2927408"], "municipio": ["Salvador"], "uf": ["BA"],
                                "chave": ["salvador|BA"]})
-    municipios.to_parquet(tmp_path / "processed" / "ibge_municipios.parquet", index=False)
-    assert lago.ler("geo.municipio")["municipio"].tolist() == ["Salvador"]  # legado
+    with pytest.raises(lago.TabelaAusente, match="python -m pipeline"):
+        lago.ler("geo.municipio")
 
     r = ResultadoFonte("ibge_municipios", "API (JSON)", carga_id="ibge_municipios:20261103T100000")
     lago.gravar("geo.municipio", municipios.assign(municipio="Salvador (BA)"), r)
@@ -146,3 +146,10 @@ def test_cargas_e_descartes_vao_para_meta(tmp_path, monkeypatch):
     assert lago.ler("meta.validacao")["codigo"].tolist() == ["IBAMA_TESTE"]
     assert sorted(lago.ler("meta.descarte")["registro_id"]) == ["X-1", "linha:1"]
     assert cargas.registrar_catalogo()["novo"] and not cargas.registrar_catalogo()["novo"]
+
+
+def test_nenhum_contrato_tem_o_campo_legado():
+    assert not hasattr(contratos.Contrato, "legado")
+    arquivos = sorted((Path(config.RAIZ) / "contratos").glob("*/*.yaml"))
+    assert arquivos
+    assert [a.name for a in arquivos if "legado" in yaml.safe_load(a.read_text(encoding="utf-8"))] == []

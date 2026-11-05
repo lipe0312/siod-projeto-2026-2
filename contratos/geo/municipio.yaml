@@ -4,7 +4,6 @@ fonte: ibge_municipios
 chave: [cod_municipio]
 historico: fotografia
 perfil_banco: lite
-legado: ibge_municipios.parquet
 colunas:
   - {nome: cod_municipio, tipo: texto, nulo: false}
   - {nome: municipio,     tipo: texto}
