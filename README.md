@@ -60,6 +60,8 @@ Os documentos trazem os números medidos, o que cada verificação encontrou e o
 
 Versão 1 em [`docs/arquitetura/arquitetura.md`](docs/arquitetura/arquitetura.md): fontes de dados e pipeline definidos, demais camadas previstas. As decisões com alternativas estão em [`docs/arquitetura/adr/`](docs/arquitetura/adr/).
 
+A arquitetura-alvo do produto (camadas isoladas, API, front, autenticação, borda, ambientes e roteiro, com trade-offs) está em [`docs/arquitetura/evolucao/`](docs/arquitetura/evolucao/README.md). O módulo LGPD (papéis, bases legais, direitos do titular, incidentes e modelos de termos) está em [`docs/lgpd/`](docs/lgpd/README.md). Toda issue nova segue o [checklist de issue](docs/arquitetura/evolucao/checklist-de-issue.md).
+
 ## Próximos passos
 
 Detalhe e decisões em [`docs/atividade-04-prediagnostico.md`](docs/atividade-04-prediagnostico.md), seções 8 e 9.

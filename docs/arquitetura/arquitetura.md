@@ -76,11 +76,13 @@ Linha tracejada = camada prevista. Borda verde = fatia vertical.
 | Fontes de dados | Bases públicas que indicam pendência socioambiental (embargo, desmatamento, trabalho análogo ao de escravo) e a referência de municípios | **Definida** |
 | Pipeline | Transformar cada fonte bruta em tabela validada, tipada e sem dados pessoais | **Implementado** (`pipeline/`) |
 | Persistência | Guardar ocorrências e avaliações com histórico e permitir consulta espacial | **Definida** (03/11/2026): lago Parquet em cinco esquemas (`meta`, `geo`, `ref`, `cad`, `diag`), com histórico por tipo de fonte e contrato por tabela; banco PostGIS opcional, gerado dos contratos, com perfil lite (208,8 MB) que cabe no plano gratuito do Supabase e do Neon ([ADR 0011](adr/0011-persistir-em-parquet-por-uf-e-adiar-o-postgis.md) e [ADR 0017](adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md)) |
-| API / serviço | Responder, por produtor, quais pendências existem e com qual evidência | Prevista — Aula 05 |
-| Interface | Painel para o técnico priorizar produtores | Prevista — Aulas 06 e 07 |
-| Usuários e permissões | Cada técnico vê apenas os produtores que atende | Prevista — Aula 08 |
+| API / serviço | Responder, por produtor, quais pendências existem e com qual evidência | **Em andamento** (#10): FastAPI só leitura, RLS por organização, chave por organização ([ADR 0020](adr/0020-servir-a-api-de-leitura-com-fastapi-sobre-o-banco.md), [ADR 0021](adr/0021-autenticar-com-chave-por-organizacao-agora-e-provedor-de-identidade-com-bff-depois.md)) |
+| Interface | Painel para o técnico priorizar produtores | Proposta: SvelteKit estático + API como BFF, sem segredo no navegador ([ADR 0022](adr/0022-construir-o-front-estatico-com-sveltekit-sem-segredo-no-navegador.md)). Hoje: `carteira.html` estático |
+| Usuários e permissões | Cada técnico vê apenas os produtores que atende | Proposta: Supabase Auth em São Paulo via BFF, cookie `httpOnly`, MFA para administrador; isolamento pela RLS ([ADR 0021](adr/0021-autenticar-com-chave-por-organizacao-agora-e-provedor-de-identidade-com-bff-depois.md)) |
 | Inteligência | Regra de cruzamento como linha de base. ML ou LLM entram só se a regra se mostrar insuficiente na avaliação | Regra implementada em `pipeline/prediagnostico.py` (Atividade 04), sem gabarito independente; ML e LLM previstos para as Aulas 09 a 11 |
 | Operação e observabilidade | Execução agendada, monitoramento e implantação | Parcial: log e relatório por execução; verificação mensal do PRODES pelo `crontab` (ADR 0011). O restante está previsto para as Aulas 12 a 14 |
+
+A evolução para produto (API, front, autenticação, borda, ambientes, LGPD), com opções e trade-offs, está em [`evolucao/`](evolucao/README.md), com o módulo LGPD em [`../lgpd/`](../lgpd/README.md).
 
 ## Fontes de dados
 
@@ -166,6 +168,14 @@ A saída é Parquet porque preserva tipos (datas, inteiros com ausentes, boolean
 - [0016 — Usar a base quilombola do INCRA republicada pelo CMR/FUNAI](adr/0016-usar-a-base-quilombola-do-incra-republicada-pelo-cmr-funai.md)
 - [0017 — Separar o dado em cinco esquemas, guardar o histórico no lago e carregar um perfil lite](adr/0017-separar-o-dado-em-cinco-esquemas-guardar-historico-no-lago-e-carregar-um-perfil-lite.md)
 - [0018 — Cruzar o desmatamento na área declarada e a legalidade no imóvel inteiro](adr/0018-cruzar-o-desmatamento-na-area-declarada-e-a-legalidade-no-imovel-inteiro.md)
+- [0019 — Separar o produto em camadas isoladas num monólito modular](adr/0019-separar-o-produto-em-camadas-isoladas-num-monolito-modular.md)
+- [0020 — Servir a API de leitura com FastAPI sobre o banco](adr/0020-servir-a-api-de-leitura-com-fastapi-sobre-o-banco.md)
+- [0021 — Autenticar com chave por organização agora e provedor de identidade com BFF depois](adr/0021-autenticar-com-chave-por-organizacao-agora-e-provedor-de-identidade-com-bff-depois.md)
+- [0022 — Construir o front estático com SvelteKit, sem segredo no navegador](adr/0022-construir-o-front-estatico-com-sveltekit-sem-segredo-no-navegador.md)
+- [0023 — Proteger a borda com Cloudflare e limitar por identidade](adr/0023-proteger-a-borda-com-cloudflare-e-limitar-por-identidade.md)
+- [0024 — Entregar por três ambientes, com histórico linear e deploy pelo CI](adr/0024-entregar-por-tres-ambientes-com-historico-linear-e-deploy-pelo-ci.md)
+- [0025 — Tratar a LGPD por desenho, com dado pessoal no Brasil](adr/0025-tratar-a-lgpd-por-desenho-com-dado-pessoal-no-brasil.md)
+- [0026 — Limitar o que agentes de IA alcançam no desenvolvimento e no produto](adr/0026-limitar-o-que-agentes-de-ia-alcancam-no-desenvolvimento-e-no-produto.md)
 
 ## Onde entra a inteligência
 
