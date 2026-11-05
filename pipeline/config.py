@@ -38,17 +38,36 @@ CAMADAS_DETER = {
     "cerrado": {"workspace": "deter-cerrado-nb", "tipo": "deter-cerrado-nb:deter_cerrado"},
 }
 CLASSES_DESMATAMENTO = ("DESMATAMENTO_CR", "DESMATAMENTO_VEG")
-# DETER do Pantanal (desde 08/2023): só na área de download do TerraBrasilis, em shapefile atualizado todo dia; o WFS
-# não tem a camada. As classes de supressão equivalem às de desmatamento da Amazônia e do Cerrado (corte raso e com
-# vegetação); queimada e mineração ficam fora, como lá (ADR 0015).
+# DETER em arquivo, na área de download do TerraBrasilis (shapefile do bioma inteiro, regerado todo dia às 06h). O
+# Pantanal só existe aqui (o WFS não tem a camada). Amazônia e Cerrado também vêm daqui (ADR 0015): o WFS (CAMADAS_DETER)
+# fica como queda quando o arquivo falha e para a consulta sob demanda. Campos de cada bioma:
+#   classes: classe do arquivo, em minúsculas -> classe do WFS. As de supressão equivalem às de desmatamento (corte raso
+#     e com vegetação); queimada, mineração e degradação ficam fora, como no WFS.
+#   campos: colunas do DBF (o Pantanal usa outros nomes e não traz município nem UF).
+#   so_desmatamento: o arquivo traz também as outras classes (a maioria das linhas); elas são contadas e ignoradas na
+#     leitura, em vez de irem para meta.descarte.
+#   reconciliar: o arquivo não traz o gid do WFS; o alerta que já está em ref.alerta_deter mantém o id_alerta e o gid
+#     (inpe_deter.reconciliar) e o sem par ganha gid = prefixo_gid + FID do arquivo.
+_CLASSES_WFS = {"desmatamento_cr": "DESMATAMENTO_CR", "desmatamento_veg": "DESMATAMENTO_VEG"}
+_CAMPOS_WFS = {"id": "FID", "classe": "CLASSNAME", "area": "AREAMUNKM", "municipio": "MUNICIPALI",
+               "cod_municipio": "GEOCODIBGE", "uf": "UF"}
 DETER_ARQUIVOS = {
     "pantanal": {"url": "https://terrabrasilis.dpi.inpe.br/file-delivery/download/deter-pantanal/shape",
                  "arquivo": "deter-pantanal-public.zip", "base_shapefile": "deter-public",
+                 "campos": {"id": "UUID", "classe": "CLASS_NAME", "area": "AREA_KM"},
                  "classes": {"supressão com solo exposto": "DESMATAMENTO_CR",
                              "supressão com vegetação": "DESMATAMENTO_VEG"}},
+    "amazonia": {"url": "https://terrabrasilis.dpi.inpe.br/file-delivery/download/deter-amz/shape",
+                 "arquivo": "deter-amz-public.zip", "base_shapefile": "deter-public", "campos": _CAMPOS_WFS,
+                 "classes": _CLASSES_WFS, "so_desmatamento": True, "reconciliar": True, "prefixo_gid": "arq-"},
+    "cerrado": {"url": "https://terrabrasilis.dpi.inpe.br/file-delivery/download/deter-cerrado-nb/shape",
+                "arquivo": "deter-cerrado-nb-public.zip", "base_shapefile": "deter-public", "campos": _CAMPOS_WFS,
+                "classes": _CLASSES_WFS, "so_desmatamento": True, "reconciliar": True, "prefixo_gid": "arq-"},
 }
 BIOMAS_COM_DETER = frozenset(CAMADAS_DETER) | frozenset(DETER_ARQUIVOS)
 DETER_DESDE_PADRAO = "2021-01-01"
+# Reconciliação arquivo x lago: mesma data, UF e área até 1e-6 km² (1 m²; a área é arredondada a 6 casas).
+DETER_AREA_CASAS = 6
 # Cada mês é pedido em uma única requisição; o maior mês observado tem menos de 9 mil alertas.
 DETER_LIMITE_POR_REQUISICAO = 50000
 CRS_ESPERADO_DETER = "EPSG::4674"  # SIRGAS 2000
