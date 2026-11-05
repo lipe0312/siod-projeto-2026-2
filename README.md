@@ -243,7 +243,10 @@ python -m pipeline.prediagnostico --demo                                   # 17 
 python -m pipeline.prediagnostico --demo --sem-baixar-prodes               # sem baixar UF nova: imóvel de UF fora do lote sai inconclusivo
 python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
 python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada; a UF vem do contorno
+python -m pipeline.prediagnostico --car MG-3148103-... --dossie-eudr --commodity café --area-producao talhoes/area.kml
 ```
+
+`--dossie-eudr` escreve, em `data/saidas/prediagnostico/dossie_eudr/<CAR>/`, o pacote para o comprador: `dossie.geojson` (só a área de produção, em WGS 84 com 7 casas decimais, um polígono por parcela, marcado "declarado pelo produtor"; sem `--area-producao`, o imóvel inteiro, dito no arquivo), `dossie.md` e `dossie.json` (commodity, área em ha, DETER e PRODES depois de 31/12/2020 com a data da imagem e o SHA-256 do arquivo de origem, em duas linhas quando há área de produção: na área declarada e no resto do imóvel; embargos, sobreposições, prazos da EUDR e "o que não foi verificado"). O arquivo da área é um KML ou GeoJSON, como na coluna `area_producao` da carteira. A ficha ganha a linha "Desmatamento no resto do imóvel" (indício, nunca pendência) sempre que há área de produção.
 
 O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado em claro. Prints e fichas da demonstração estão em [`docs/evidencias/atividade-04/prediagnostico/`](docs/evidencias/atividade-04/prediagnostico/).
 
@@ -334,6 +337,7 @@ Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite 
 | [`pipeline/cruzamento.py`](pipeline/cruzamento.py) | Atribuição de embargo ou alerta a um CAR (principal, parcial, tangente) | 03 |
 | [`pipeline/prediagnostico.py`](pipeline/prediagnostico.py) | Pré-diagnóstico de um imóvel: critérios, situação, evidência, encaminhamento e procedência | 04 |
 | [`pipeline/ficha_html.py`](pipeline/ficha_html.py) | Ficha do pré-diagnóstico em HTML, com o mapa do imóvel em SVG | 04 |
+| [`pipeline/dossie_eudr.py`](pipeline/dossie_eudr.py) | Dossiê EUDR do imóvel para o comprador: GeoJSON da área declarada, texto e JSON com fonte, data e SHA-256 | 04 |
 | [`tests/test_ibama_embargos.py`](tests/test_ibama_embargos.py) | Validações da fonte IBAMA | 02 |
 | [`tests/test_inpe_deter.py`](tests/test_inpe_deter.py) | Validações da fonte DETER, incluindo identificador e completude das partições | 02 |
 | [`tests/test_inpe_deter_arquivo.py`](tests/test_inpe_deter_arquivo.py) | DETER pelo arquivo: leitura filtrada, reconciliação com o lago (casado, novo, ambíguo), queda para o WFS, download só quando a versão muda | 04 |
@@ -344,6 +348,7 @@ Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite 
 | [`tests/test_execucao.py`](tests/test_execucao.py) | Comportamento quando a referência do IBGE está indisponível | 02 |
 | [`tests/test_sicar.py`](tests/test_sicar.py), [`test_inpe_prodes.py`](tests/test_inpe_prodes.py), [`test_ab_s.py`](tests/test_ab_s.py), [`test_cruzamento.py`](tests/test_cruzamento.py) | Validações das fontes sob demanda, ordem dos eixos, regra de confirmação do PRODES e de atribuição ao CAR | 03 |
 | [`tests/test_prediagnostico.py`](tests/test_prediagnostico.py) | Pré-diagnóstico: situação de cada critério, divisa não atribuída, PRODES por ano, inconclusivo, documento nunca em claro, avaliação esperado x obtido | 04 |
+| [`tests/test_dossie_eudr.py`](tests/test_dossie_eudr.py) | Dossiê EUDR: duas linhas de desmatamento, GeoJSON (casas decimais, um polígono por parcela, ponto até 4 ha), SHA-256 de origem, "o que não foi verificado", sem "conforme" nem CPF | 04 |
 | [`tests/test_territorio.py`](tests/test_territorio.py), [`tests/test_fontes_sobreposicao.py`](tests/test_fontes_sobreposicao.py) | UF pelo contorno, SICAR fora de MG; validações das três fontes novas e situação de cada sobreposição, fonte ausente, bioma sem DETER | 04 |
 | [`tests/test_prodes_lote.py`](tests/test_prodes_lote.py) | PRODES em lote por UF com serviço falso: partição pelo contorno, polígono de divisa nas duas UFs, UF que entra com o imóvel, retomada, divisão do retângulo, verificação mensal | 04 |
 | [`docs/atividade-03-investigacao.md`](docs/atividade-03-investigacao.md), [`docs/atividade-03/`](docs/atividade-03/) | Investigação do CAR, do PRODES e do AB+S | 03 |

@@ -59,10 +59,12 @@ No Brasil não existe cadastro oficial de "área de produção". O CAR e o SIGEF
 
 | Onde | Antes (#5) | Depois |
 |---|---|---|
-| Ficha com `area_producao` | DETER e PRODES cruzados só com a área de produção. O desmatamento no resto do imóvel **sumia da ficha** | Duas linhas: "desmatamento na área declarada" (reprova pela EUDR) e "desmatamento no resto do imóvel" (risco de legalidade e de mistura). Escopo da #6 |
+| Ficha com `area_producao` | DETER e PRODES cruzados só com a área de produção. O desmatamento no resto do imóvel **sumia da ficha** | Duas linhas (feito na #6): "desmatamento na área declarada" (reprova pela EUDR) e "desmatamento no resto do imóvel" (risco de legalidade e de mistura; indício, nunca pendência) |
 | Embargo, terra indígena, quilombola, unidade de conservação, Lista Suja | Cruzados com o CAR inteiro | Sem mudança: já é o certo, porque são critérios de legalidade |
-| Dossiê EUDR (#6) | A fazer | Declara só a área de produção; diz quando usou o imóvel inteiro; marca o polígono como "declarado pelo produtor", nunca "comprovado"; leva o desmatamento do resto do imóvel em "o que não foi verificado" ou em risco |
+| Dossiê EUDR (#6) | A fazer | Feito (`--dossie-eudr`, `pipeline/dossie_eudr.py`): declara só a área de produção; diz quando usou o imóvel inteiro; marca o polígono como "declarado pelo produtor", nunca "comprovado"; leva o desmatamento do resto do imóvel em seção própria, com fonte, data e SHA-256 |
 | Orientação ao técnico | "polígono da área de produção, quando não for o imóvel inteiro" | Não declarar a fazenda inteira por precaução; um polígono por parcela; parcela até 4 ha pode ser ponto |
+
+**Pendente no dossiê:** o link e a data de consulta da especificação GeoJSON do sistema de informação da EUDR. O dossiê cita o FAQ acima (regras de formato) e manda "conferir a especificação vigente"; quando alguém consultar a especificação, registre aqui o link e a data e troque o texto em `pipeline/dossie_eudr.py` (`ESPECIFICACAO_GEOJSON`).
 
 **Fica para depois** (ainda sem issue):
 - Conferir se o volume vendido cabe na área declarada (item 3.3).
