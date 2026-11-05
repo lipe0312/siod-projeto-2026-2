@@ -49,7 +49,13 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.fixture(autouse=True)
 def lago_temporario(tmp_path, monkeypatch):
-    """Nenhum teste grava no lago real (data/lago): cada um tem o seu, vazio."""
+    """Nenhum teste lê ou grava em data/ (lago, chave de pseudonimização, brutos, saídas): cada um tem o seu, vazio.
+
+    Assim a suíte passa também no GitHub Actions, onde data/ não existe."""
     from pipeline import config
 
     monkeypatch.setattr(config, "LAGO", tmp_path / "lago")
+    monkeypatch.setattr(config, "CHAVE_ARQUIVO", tmp_path / "chave_pseudonimizacao")
+    monkeypatch.setenv(config.CHAVE_ENV, "chave-de-teste-ci")  # nunca a chave real (env ou data/)
+    for nome in ("DADOS_BRUTOS", "DADOS_PROCESSADOS", "LOGS", "TRABALHO", "SAIDAS"):
+        monkeypatch.setattr(config, nome, tmp_path / nome.lower())
