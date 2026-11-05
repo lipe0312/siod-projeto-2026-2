@@ -187,7 +187,8 @@ def test_casado_novo_e_ambiguo_mantem_id_e_gid_do_lago(mundo, ref_municipios):
     assert ocorrencias(r, "DETER_AMAZONIA_MUNICIPIO_DIFERENTE_NO_PAR") == 0
     assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_LAGO") == 1  # 5 no arquivo, 4 no lago no período
     assert r.entrada["camadas"]["amazonia"]["diferenca_arquivo_menos_wfs"] == 1
-    assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS") == 1
+    assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS") == 0  # 1 de diferença, dentro do limite de 50
+    assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS_DIFERENCA") == 1
 
 
 def test_segunda_execucao_com_o_mesmo_arquivo_nao_muda_nada(mundo, ref_municipios):
@@ -200,7 +201,7 @@ def test_segunda_execucao_com_o_mesmo_arquivo_nao_muda_nada(mundo, ref_municipio
     assert resumo["inseridos"] == 0 and resumo["alterados"] == 0
     assert ids_por_gid() == ids  # o id do alerta novo (arq-a5) é estável: ele casa com o lago na execução seguinte
     assert r.entrada["reconciliacao"]["amazonia_arquivo"]["novos"] == 0
-    assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS") == 0
+    assert ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS_DIFERENCA") == 0
 
 
 def test_chave_ambigua_sem_par_suficiente_vira_alerta_novo(mundo, ref_municipios):
@@ -214,13 +215,25 @@ def test_chave_ambigua_sem_par_suficiente_vira_alerta_novo(mundo, ref_municipios
     assert ocorrencias(r, "DETER_AMAZONIA_AMBIGUO") == 2 and ocorrencias(r, "DETER_AMAZONIA_AMBIGUO_SEM_PAR") == 1
 
 
+def lago_de_dez():
+    return [wfs_feature(f"{20 + i}_hist", data=f"2022-03-{i + 1:02d}", area=round(0.1 + i / 10, 1), deslocamento=i / 10)
+            for i in range(10)]
+
+
+def arquivo_de_dez(sem=()):
+    return [linha(f"b{i}", f"2022-03-{i + 1:02d}", round(0.1 + i / 10, 1), deslocamento=i / 10)
+            for i in range(10) if i not in sem]
+
+
 def test_alerta_do_lago_que_sumiu_do_arquivo_fica_e_e_contado(mundo, ref_municipios):
-    mundo.wfs = wfs_padrao()
+    mundo.wfs = lago_de_dez()
     semear_lago_pelo_wfs(mundo, ref_municipios)
-    mundo.arquivo, mundo.contagem_wfs = [linha("a1", "2022-03-01", 0.1), linha("a5", "2022-04-01", 0.5)], 4
+    mundo.arquivo = arquivo_de_dez(sem=(3,)) + [linha("n1", "2022-04-01", 0.55, deslocamento=0.9)]
+    mundo.contagem_wfs = 10
     r = inpe_deter.executar(ref_municipios, HOJE)
-    assert len(lago.ler("ref.alerta_deter")) == 5  # 4 do WFS + 1 novo: nada some do lago
-    assert ocorrencias(r, "DETER_AMAZONIA_SO_NO_LAGO") == 3
+    assert r.entrada["quedas_para_wfs"] == {}
+    assert len(lago.ler("ref.alerta_deter")) == 11  # 10 do WFS + 1 novo: nada some do lago
+    assert ocorrencias(r, "DETER_AMAZONIA_SO_NO_LAGO") == 1
 
 
 def test_municipio_diferente_no_par_e_registrado(mundo, ref_municipios):
@@ -256,11 +269,11 @@ def test_arquivo_ilegivel_cai_para_o_wfs_e_grava_o_que_o_wfs_trouxe(mundo, ref_m
     assert not any(v.codigo.startswith("DETER_AMAZONIA_ARQUIVO_X") for v in r.validacoes)  # nada do arquivo ficou registrado
 
 
-def test_wfs_fora_do_ar_deixa_a_comparacao_inconclusiva_sem_derrubar_a_fonte(mundo, ref_municipios):
+def test_wfs_fora_do_ar_deixa_a_comparacao_nao_feita_sem_derrubar_a_fonte(mundo, ref_municipios):
     mundo.arquivo, mundo.contagem_wfs = arquivo_padrao(), None
     r = inpe_deter.executar(ref_municipios, HOJE)
-    assert r.status == "ok" and ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS_INCONCLUSIVA") == 1
-    assert r.entrada["camadas"]["amazonia"]["wfs"].startswith("inconclusiva: ConnectionError")
+    assert r.status == "ok" and ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS_NAO_FEITA") == 1
+    assert r.entrada["camadas"]["amazonia"]["wfs"].startswith("comparação não feita: ConnectionError")
     assert len(lago.ler("ref.alerta_deter")) == 5 and mundo.wfs_baixados == 0
 
 
@@ -286,3 +299,175 @@ def test_sem_versao_no_cabecalho_baixa(mundo):
     inpe_deter.baixar_arquivo("amazonia")
     inpe_deter.baixar_arquivo("amazonia")
     assert mundo.downloads == 2
+
+
+# --- freios: arquivo vazio depois do filtro, cobertura parcial, pareamento colapsado -------------------------------------
+
+def test_arquivo_sem_desmatamento_depois_do_filtro_cai_para_o_wfs(mundo, ref_municipios):
+    mundo.wfs = wfs_padrao()
+    mundo.arquivo = [linha("q1", classe="CICATRIZ_DE_QUEIMADA"), linha("a7", "2020-05-05", 0.9)]  # classe ou data fora
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "DETER_AMAZONIA_ARQUIVO_SEM_DESMATAMENTO" in r.entrada["quedas_para_wfs"]["amazonia"]
+    assert len(lago.ler("ref.alerta_deter")) == 4 and set(lago.ler("ref.alerta_deter")["gid"]) >= {"10_hist"}  # veio do WFS
+
+
+def test_classe_renomeada_no_arquivo_tambem_cai_para_o_wfs(mundo, ref_municipios):
+    mundo.wfs = wfs_padrao()
+    mundo.arquivo = [linha("a1", classe="DESMATAMENTO_RASO")]
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "ARQUIVO_SEM_DESMATAMENTO" in r.entrada["quedas_para_wfs"]["amazonia"]
+
+
+def test_cobertura_parcial_acima_do_limite_cai_para_o_wfs(mundo, ref_municipios):
+    mundo.wfs, mundo.arquivo = wfs_padrao(), arquivo_padrao()
+    mundo.contagem_wfs = 5 + 51  # diferença de 51 > max(2% de 56, 50)
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "DETER_AMAZONIA_ARQUIVO_X_WFS" in r.entrada["quedas_para_wfs"]["amazonia"]
+    assert set(lago.ler("ref.alerta_deter")["gid"]) == {"10_hist", "11_hist", "12_hist", "13_hist"}  # nada do arquivo
+
+
+def test_divergencia_no_limite_ainda_segue_com_o_arquivo(mundo, ref_municipios):
+    mundo.arquivo, mundo.contagem_wfs = arquivo_padrao(), 5 + 50
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert r.entrada["quedas_para_wfs"] == {} and ocorrencias(r, "DETER_AMAZONIA_ARQUIVO_X_WFS") == 0
+    assert r.entrada["camadas"]["amazonia"]["limite_divergencia"] == 50
+
+
+def test_limite_de_divergencia_cresce_com_a_contagem_do_wfs(mundo, ref_municipios, monkeypatch):
+    mundo.wfs, mundo.arquivo, mundo.contagem_wfs = wfs_padrao(), arquivo_padrao(), 5 + 60
+    monkeypatch.setattr(config, "DETER_DIVERGENCIA_WFS_PCT", 0.5)  # 50% de 65 = 33 < 50: vale o mínimo de 50
+    assert inpe_deter.executar(ref_municipios, HOJE).entrada["quedas_para_wfs"] != {}
+    monkeypatch.setattr(config, "DETER_DIVERGENCIA_WFS_MIN", 10)  # agora vale 50% de 65 = 33 e 60 > 33
+    mundo.versao = "deter-amz-public-2026nov05.zip"
+    assert inpe_deter.executar(ref_municipios, HOJE).entrada["quedas_para_wfs"] != {}
+    mundo.contagem_wfs = 5 + 10  # limite = max(50% de 15, 10) = 10; diferença 10: dentro
+    mundo.versao = "deter-amz-public-2026nov06.zip"
+    assert inpe_deter.executar(ref_municipios, HOJE).entrada["quedas_para_wfs"] == {}
+
+
+def test_wfs_inconclusivo_nao_diz_que_confere(mundo, ref_municipios):
+    mundo.arquivo, mundo.contagem_wfs = arquivo_padrao(), None
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    codigos = [v.codigo for v in r.validacoes]
+    assert "DETER_AMAZONIA_ARQUIVO_X_WFS_NAO_FEITA" in codigos and "DETER_AMAZONIA_ARQUIVO_X_WFS" not in codigos
+    assert "cobertura do arquivo não conferida" in next(v.descricao for v in r.validacoes if v.codigo.endswith("_NAO_FEITA"))
+
+
+def test_pareamento_colapsado_nao_grava_o_arquivo_e_cai_para_o_wfs(mundo, ref_municipios):
+    mundo.wfs = lago_de_dez()
+    semear_lago_pelo_wfs(mundo, ref_municipios)
+    antes = ids_por_gid()
+    mundo.arquivo = [linha(f"c{i}", f"2022-03-{i + 1:02d}", round(0.1 + i / 10 + 0.001, 3), deslocamento=i / 10)
+                     for i in range(10)]  # a área mudou na 3ª casa: nenhum alerta acha par
+    mundo.contagem_wfs = 10
+    mundo.versao = "deter-amz-public-2026nov05.zip"
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "DETER_AMAZONIA_PAREAMENTO_COLAPSADO" in r.entrada["quedas_para_wfs"]["amazonia"]
+    assert "0.0%" in r.entrada["quedas_para_wfs"]["amazonia"] or "0,0%" in r.entrada["quedas_para_wfs"]["amazonia"]
+    assert ids_por_gid() == antes and not any(g.startswith("arq-") for g in ids_por_gid())  # nenhuma duplicata
+
+
+def test_pareamento_no_piso_passa_e_abaixo_do_piso_cai(mundo, ref_municipios):
+    mundo.wfs = lago_de_dez()
+    semear_lago_pelo_wfs(mundo, ref_municipios)
+    mundo.contagem_wfs = 10
+    mundo.arquivo = arquivo_de_dez(sem=(3,))  # 9 de 10 = 90%: no piso, passa
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert r.entrada["quedas_para_wfs"] == {} and r.entrada["camadas"]["amazonia"]["fracao_do_lago_com_par"] == 0.9
+    mundo.arquivo = arquivo_de_dez(sem=(3, 4))  # 8 de 10 = 80%: abaixo do piso
+    mundo.versao = "deter-amz-public-2026nov05.zip"
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "PAREAMENTO_COLAPSADO" in r.entrada["quedas_para_wfs"]["amazonia"]
+
+
+def test_lago_sem_alerta_do_bioma_nao_aciona_o_freio_de_pareamento(mundo, ref_municipios):
+    mundo.arquivo, mundo.contagem_wfs = arquivo_padrao(), 5
+    r = inpe_deter.executar(ref_municipios, HOJE)  # primeira carga: o lago está vazio
+    assert r.entrada["quedas_para_wfs"] == {} and "fracao_do_lago_com_par" not in r.entrada["camadas"]["amazonia"]
+    assert len(lago.ler("ref.alerta_deter")) == 5
+
+
+def test_dbf_com_area_de_menos_casas_que_a_tolerancia_cai_para_o_wfs(mundo, ref_municipios, monkeypatch):
+    mundo.wfs, mundo.arquivo = wfs_padrao(), arquivo_padrao()
+    monkeypatch.setattr(config, "DETER_AREA_CASAS", 11)  # o DBF sintético declara 10 casas
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert "DETER_AMAZONIA_AREA_PRECISAO" in r.entrada["quedas_para_wfs"]["amazonia"]
+
+
+# --- ida e volta arquivo -> WFS -> arquivo -------------------------------------------------------------------------------
+
+def test_ida_e_volta_arquivo_wfs_arquivo_nao_cria_id_novo_nem_cresce_o_lago(mundo, ref_municipios):
+    mundo.wfs, mundo.arquivo, mundo.contagem_wfs = wfs_padrao(), arquivo_padrao(), 5
+    semear_lago_pelo_wfs(mundo, ref_municipios)
+    inpe_deter.executar(ref_municipios, HOJE)  # arquivo: o a5 nasce com gid arq-a5
+    ids, n = ids_por_gid(), len(lago.ler("ref.alerta_deter"))
+    assert n == 5
+
+    mundo.arquivo_quebrado, mundo.versao = True, "deter-amz-public-2026nov05.zip"  # queda para o WFS
+    mundo.wfs = wfs_padrao() + [wfs_feature("14_hist", data="2022-04-01", area=0.5, deslocamento=0.8)]
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert r.entrada["quedas_para_wfs"] and ids_por_gid() == ids and len(lago.ler("ref.alerta_deter")) == n
+
+    mundo.arquivo_quebrado, mundo.versao = False, "deter-amz-public-2026nov06.zip"  # volta ao arquivo
+    r = inpe_deter.executar(ref_municipios, HOJE)
+    assert r.entrada["quedas_para_wfs"] == {} and r.entrada["reconciliacao"]["amazonia_arquivo"]["novos"] == 0
+    assert ids_por_gid() == ids and len(lago.ler("ref.alerta_deter")) == n
+    # estável: repetir o arquivo não altera mais nada
+    mundo.versao = "deter-amz-public-2026nov07.zip"
+    resumo = inpe_deter.executar(ref_municipios, HOJE).saida["tabelas"]["ref.alerta_deter"]
+    assert resumo["inseridos"] == 0 and resumo["alterados"] == 0
+
+
+# --- .meta.json e zip ------------------------------------------------------------------------------------------------------
+
+def test_meta_corrompido_vale_como_sem_versao_e_baixa_de_novo(mundo, tmp_path):
+    mundo.arquivo = [linha("a1")]
+    inpe_deter.baixar_arquivo("amazonia")
+    meta = tmp_path / "raw/inpe_deter/amazonia/deter-amz-public.meta.json"
+    meta.write_text('{"url": "http://x", "versao": "deter-amz-pub')  # gravação interrompida
+    refeito = inpe_deter.baixar_arquivo("amazonia")
+    assert mundo.downloads == 2 and refeito["baixado_agora"]
+    assert json.loads(meta.read_text())["versao"] == "deter-amz-public-2026nov04.zip"
+
+
+def test_meta_corrompido_no_pantanal_nao_derruba_a_leitura(mundo, tmp_path, monkeypatch):
+    monkeypatch.setitem(config.DETER_ARQUIVOS, "pantanal", {**config.DETER_ARQUIVOS["amazonia"], "arquivo": "p.zip"})
+    mundo.arquivo = [linha("a1")]
+    pasta = tmp_path / "raw/inpe_deter/pantanal"
+    pasta.mkdir(parents=True)
+    (pasta / "p.zip").write_bytes(b"x")
+    (pasta / "p.meta.json").write_text("{nao e json")
+    assert inpe_deter.baixar_arquivo("pantanal")["baixado_agora"]
+    assert download.ler_json(pasta / "p.meta.json")["versao"]
+
+
+def test_meta_e_gravado_por_troca_atomica(tmp_path, monkeypatch):
+    destino = tmp_path / "m.meta.json"
+    destino.write_text('{"antigo": 1}')
+    chamadas = []
+    real = download.os.replace
+    monkeypatch.setattr(download.os, "replace", lambda a, b: (chamadas.append((a.name, b.name)), real(a, b))[1])
+    download.gravar_json(destino, {"novo": 2})
+    assert chamadas == [("m.meta.json.tmp", "m.meta.json")] and json.loads(destino.read_text()) == {"novo": 2}
+    assert not (tmp_path / "m.meta.json.tmp").exists()
+
+
+def test_versao_so_e_gravada_depois_de_o_zip_validar(mundo, tmp_path, monkeypatch):
+    def baixar_zip_ruim(url, temporario):
+        temporario.write_bytes(b"isto nao e um zip")
+        return {"Content-Type": "application/zip", "Last-Modified": None, "Content-Length": None}
+
+    monkeypatch.setattr(download, "_baixar_uma_vez", baixar_zip_ruim)
+    with pytest.raises(zipfile.BadZipFile):
+        inpe_deter.baixar_arquivo("amazonia")
+    assert "versao" not in download.ler_json(tmp_path / "raw/inpe_deter/amazonia/deter-amz-public.meta.json")
+    # zip válido, mas sem o shapefile: também não grava a versão
+    def baixar_zip_vazio(url, temporario):
+        with zipfile.ZipFile(temporario, "w") as z:
+            z.writestr("leia-me.txt", "nada")
+        return {"Content-Type": "application/zip", "Last-Modified": None, "Content-Length": None}
+
+    monkeypatch.setattr(download, "_baixar_uma_vez", baixar_zip_vazio)
+    with pytest.raises(ValueError, match="falta o arquivo .shp"):
+        inpe_deter.baixar_arquivo("amazonia")
+    assert "versao" not in download.ler_json(tmp_path / "raw/inpe_deter/amazonia/deter-amz-public.meta.json")

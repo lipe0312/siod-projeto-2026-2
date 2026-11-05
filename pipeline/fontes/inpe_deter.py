@@ -171,7 +171,7 @@ def baixar_arquivo(nome: str, atualizar: bool = False) -> dict:
     info = config.DETER_ARQUIVOS[nome]
     destino = config.DADOS_BRUTOS / "inpe_deter" / nome / info["arquivo"]
     meta_arq = destino.with_suffix(".meta.json")
-    anterior = json.loads(meta_arq.read_text()) if meta_arq.exists() else {}
+    anterior = download.ler_json(meta_arq)  # ilegível = sem versão gravada: baixa de novo
     versao = _versao_remota(info["url"])
     inicio = time.perf_counter()
     if not atualizar and destino.exists() and versao and anterior.get("versao") == versao:
@@ -183,21 +183,28 @@ def baixar_arquivo(nome: str, atualizar: bool = False) -> dict:
         meta.update(baixado_agora=True, mudou=anterior.get("sha256") != meta["sha256"])
         log.info("[inpe_deter] %s: baixado %.1f MB em %.1f s (%s)", nome, meta["tamanho_bytes"] / 1e6,
                  time.perf_counter() - inicio, "conteúdo novo" if meta["mudou"] else "mesmo conteúdo da versão anterior")
+    _abrir_zip(destino, info)  # a versão só é gravada depois de o zip abrir e ter o shapefile
     meta["versao"] = versao
     meta["segundos"] = round(time.perf_counter() - inicio, 1)
-    meta_arq.write_text(json.dumps({k: v for k, v in meta.items() if k not in ("arquivo", "baixado_agora", "mudou",
-                                                                                "segundos")}, indent=2, ensure_ascii=False))
+    download.gravar_json(meta_arq, {k: v for k, v in meta.items() if k not in ("arquivo", "baixado_agora", "mudou",
+                                                                                "segundos")})
     return meta
 
 
-def _ler_arquivo(caminho, info: dict, nome: str, desde: str | None, resultado: ResultadoFonte):
-    """Registros (só as colunas usadas), geometrias 2D e .prj do shapefile do zip. Lê o DBF inteiro, mas só monta a
-    geometria do que fica: a classe ignorada (`so_desmatamento`) e a data antes de `desde` são contadas e saem aqui."""
+def _abrir_zip(caminho, info: dict) -> tuple[zipfile.ZipFile, dict]:
+    """Abre o zip e acha o .shp, .shx e .dbf do shapefile; levanta se o zip estiver truncado ou sem eles."""
     z = zipfile.ZipFile(caminho)
     nomes = {n.rsplit(".", 1)[-1].lower(): n for n in z.namelist() if n.rsplit(".", 1)[0].endswith(info["base_shapefile"])}
     faltam = [e for e in ("shp", "shx", "dbf") if e not in nomes]
     if faltam:
         raise ValueError(f"{Path(caminho).name}: falta o arquivo .{', .'.join(faltam)} no zip")
+    return z, nomes
+
+
+def _ler_arquivo(caminho, info: dict, nome: str, desde: str | None, resultado: ResultadoFonte):
+    """Registros (só as colunas usadas), geometrias 2D e .prj do shapefile do zip. Lê o DBF inteiro, mas só monta a
+    geometria do que fica: a classe ignorada (`so_desmatamento`) e a data antes de `desde` são contadas e saem aqui."""
+    z, nomes = _abrir_zip(caminho, info)
     campos = info["campos"]
     colunas = list(dict.fromkeys([*campos.values(), "VIEW_DATE", "SENSOR", "SATELLITE"]))
     with tempfile.TemporaryDirectory() as tmp:
@@ -207,6 +214,12 @@ def _ler_arquivo(caminho, info: dict, nome: str, desde: str | None, resultado: R
         with shapefile.Reader(str(Path(tmp) / "a"), encoding="utf-8", encodingErrors="replace") as leitor:
             resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_INCOMPLETO", "Registros do DBF diferentes das formas do SHX",
                               "erro", "interrompe a fonte", int(leitor.numRecords != leitor.numShapes), 1)
+            if info.get("reconciliar"):
+                casas = next((f.decimal for f in leitor.fields if f.name == campos["area"]), 0)
+                resultado.validar(f"DETER_{nome.upper()}_AREA_PRECISAO", f"Campo {campos['area']} do DBF com menos de "
+                                  f"{config.DETER_AREA_CASAS} casas decimais ({casas}): a área não serve de chave de par",
+                                  "erro", "interrompe a fonte (o bioma cai para o WFS)",
+                                  int(casas < config.DETER_AREA_CASAS), 1)
             df = pd.DataFrame([r.as_dict() for r in leitor.iterRecords(fields=colunas)])
             classe = df[campos["classe"]].astype("string").str.strip()
             traduzida = classe.str.lower().map(info["classes"])
@@ -267,6 +280,10 @@ def tabela_arquivo(caminho, nome: str, resultado: ResultadoFonte, desde: str | N
         "geom_invalida": presentes & ~shapely.is_valid(geoms.astype(object)),
         "geometria_wkt": [shapely.to_wkt(g, rounding_precision=6, trim=True) if ok else None
                           for g, ok in zip(geoms, presentes)]})
+    resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_SEM_DESMATAMENTO", "Arquivo sem nenhum alerta de desmatamento "
+                      f"depois do filtro de classe e de data ({contagem['no_arquivo']} linhas lidas): classe renomeada, "
+                      "arquivo antigo ou truncado", "erro", "interrompe a fonte (Amazônia e Cerrado caem para o WFS)",
+                      int(not tabela["classe"].isin(config.CLASSES_DESMATAMENTO).any()), 1)
     resultado.entrada.setdefault("camadas", {})[nome] = {"arquivo": _relativo(Path(caminho)), **contagem}
     resultado.transformar(f"DETER {nome}: shapefile da área de download; UF "
                           + ("e município do próprio arquivo" if "uf" in campos else "pelo contorno do IBGE")
@@ -541,8 +558,9 @@ def contagem_wfs(nome: str, desde: str, ate: str) -> int:
 
 
 def _comparar_com_wfs(nome: str, tabela: pd.DataFrame, desde: str, resultado: ResultadoFonte) -> None:
-    """Contagem do arquivo x contagem do WFS no mesmo período. WFS fora do ar não derruba a fonte: a comparação fica
-    registrada como inconclusiva, com o motivo."""
+    """Contagem do arquivo x contagem do WFS no mesmo período. Divergência acima do limite (config.DETER_DIVERGENCIA_WFS_*)
+    é erro: o arquivo é recusado e o bioma cai para o WFS. WFS fora do ar não derruba a fonte, mas a validação diz que
+    a comparação não foi feita (a cobertura do arquivo não foi conferida)."""
     ate = pd.to_datetime(tabela["view_date"]).max()
     n_arquivo = int(tabela["classe"].isin(config.CLASSES_DESMATAMENTO).sum())
     resumo = resultado.entrada["camadas"][nome]
@@ -550,23 +568,52 @@ def _comparar_com_wfs(nome: str, tabela: pd.DataFrame, desde: str, resultado: Re
     try:
         n_wfs = contagem_wfs(nome, desde, f"{ate:%Y-%m-%d}")
     except Exception as e:  # rede, serviço fora do ar, resposta sem contagem
-        resumo["wfs"] = f"inconclusiva: {type(e).__name__}: {e}"
-        resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_X_WFS_INCONCLUSIVA", "Contagem do WFS indisponível; a comparação "
-                          f"com o arquivo não foi feita ({type(e).__name__})", "alerta", "segue sem a comparação", 1, 1)
+        resumo["wfs"] = f"comparação não feita: {type(e).__name__}: {e}"
+        resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_X_WFS_NAO_FEITA", "Contagem do WFS indisponível: comparação "
+                          f"não feita, cobertura do arquivo não conferida ({type(e).__name__})", "alerta",
+                          "segue com o arquivo sem a conferência", 1, 1)
         return
-    resumo.update(desmatamento_no_wfs=n_wfs, diferenca_arquivo_menos_wfs=n_arquivo - n_wfs)
-    resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_X_WFS", f"Alertas de desmatamento do arquivo ({n_arquivo}) diferentes "
-                      f"dos do WFS ({n_wfs}) de {desde} a {ate:%Y-%m-%d}", "alerta", "registra a diferença; o WFS é "
-                      "atualizado em outro ritmo que o arquivo", abs(n_arquivo - n_wfs), max(n_wfs, 1))
+    diferenca = abs(n_arquivo - n_wfs)
+    limite = max(int(np.ceil(config.DETER_DIVERGENCIA_WFS_PCT * n_wfs)), config.DETER_DIVERGENCIA_WFS_MIN)
+    resumo.update(desmatamento_no_wfs=n_wfs, diferenca_arquivo_menos_wfs=n_arquivo - n_wfs, limite_divergencia=limite)
+    resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_X_WFS", f"Alertas de desmatamento do arquivo ({n_arquivo}) e do WFS "
+                      f"({n_wfs}) de {desde} a {ate:%Y-%m-%d} divergem em {diferenca}, acima do limite de {limite} "
+                      f"({config.DETER_DIVERGENCIA_WFS_PCT:.0%} ou {config.DETER_DIVERGENCIA_WFS_MIN}, o maior)", "erro",
+                      "interrompe a fonte (o bioma cai para o WFS)", int(diferenca > limite), max(n_wfs, 1))
+    resultado.validar(f"DETER_{nome.upper()}_ARQUIVO_X_WFS_DIFERENCA", f"Arquivo ({n_arquivo}) diferente do WFS ({n_wfs}) "
+                      f"no período", "alerta", "registra a diferença; dentro do limite", diferenca, max(n_wfs, 1))
 
 
-def _do_arquivo(nome: str, desde: str, atualizar: bool, resultado: ResultadoFonte) -> pd.DataFrame:
+def _conferir_pareamento(nome: str, tabela: pd.DataFrame, desde: str, vigente: pd.DataFrame | None,
+                         resultado: ResultadoFonte) -> None:
+    """Freio da reconciliação: se o lago já tem alertas do bioma no período do arquivo, pelo menos
+    config.DETER_CASADOS_MINIMO deles tem de achar par no arquivo; senão é erro (o arquivo não é gravado e o bioma cai
+    para o WFS). Com o lago vazio no período (primeira carga) não há o que parear."""
+    if vigente is None or not config.DETER_ARQUIVOS[nome].get("reconciliar"):
+        return
+    ate = pd.to_datetime(tabela["view_date"]).max()
+    candidatos = vigente[(vigente["camada"] == nome) & (vigente["data_imagem"] >= pd.Timestamp(desde))
+                         & (vigente["data_imagem"] <= ate)]
+    if candidatos.empty:
+        return
+    pares, _, _ = _parear(tabela, candidatos)
+    fracao = len(pares) / len(candidatos)
+    resultado.entrada["camadas"][nome]["fracao_do_lago_com_par"] = round(fracao, 4)
+    resultado.validar(f"DETER_{nome.upper()}_PAREAMENTO_COLAPSADO", f"Só {fracao:.1%} dos {len(candidatos)} alertas do lago "
+                      f"no período acharam par no arquivo (mínimo {config.DETER_CASADOS_MINIMO:.0%})", "erro",
+                      "interrompe a fonte (o arquivo não é gravado e o bioma cai para o WFS)",
+                      int(fracao < config.DETER_CASADOS_MINIMO), 1)
+
+
+def _do_arquivo(nome: str, desde: str, atualizar: bool, resultado: ResultadoFonte,
+                vigente: pd.DataFrame | None = None) -> pd.DataFrame:
     meta = baixar_arquivo(nome, atualizar)
     resultado.entrada.setdefault("arquivos", {})[nome] = {k: meta.get(k) for k in (
         "url", "versao", "baixado_agora", "mudou", "baixado_em_utc", "sha256", "tamanho_bytes", "segundos")}
     tabela = tabela_arquivo(config.RAIZ / meta["arquivo"], nome, resultado, desde)
-    if nome in config.CAMADAS_DETER and not tabela.empty:
+    if nome in config.CAMADAS_DETER:
         _comparar_com_wfs(nome, tabela, desde, resultado)
+        _conferir_pareamento(nome, tabela, desde, vigente, resultado)
     return tabela
 
 
@@ -576,11 +623,12 @@ def executar(ref_municipios: pd.DataFrame, hoje: pd.Timestamp, desde: str = conf
     resultado.entrada = {"servico_wfs": config.URL_WFS_INPE.format(workspace="{camada}"),
                          "filtro": f"view_date>='{desde}' AND {filtro_classes()}", "manifestos": {}, "arquivos": {},
                          "quedas_para_wfs": {}}
+    vigente = lago.ler_ou_none("ref.alerta_deter")
     tabelas, no_arquivo = [], set()
     for nome in config.DETER_ARQUIVOS:
         antes = (len(resultado.validacoes), len(resultado.transformacoes), dict(resultado.entrada.get("camadas", {})))
         try:
-            tabelas.append(_do_arquivo(nome, desde, atualizar, resultado))
+            tabelas.append(_do_arquivo(nome, desde, atualizar, resultado, vigente))
             no_arquivo.add(nome)
         except Exception as e:
             if nome not in config.CAMADAS_DETER:  # o Pantanal não tem WFS: não há para onde cair
@@ -613,7 +661,6 @@ def executar(ref_municipios: pd.DataFrame, hoje: pd.Timestamp, desde: str = conf
     tabelas = [t for t in tabelas if not t.empty]
     tabela = pd.concat(tabelas, ignore_index=True) if tabelas else pd.DataFrame()
     resultado.entrada["registros_recebidos"] = len(tabela)
-    vigente = lago.ler_ou_none("ref.alerta_deter")
     saida, descartados = transformar_tabela(tabela, ref_municipios, desde, hoje, resultado, vigente)
     lago.gravar("ref.alerta_deter", saida, resultado)
     lago.gravar_descartes(descartados, resultado, ["id_alerta"])

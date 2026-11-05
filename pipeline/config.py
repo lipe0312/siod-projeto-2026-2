@@ -68,6 +68,16 @@ BIOMAS_COM_DETER = frozenset(CAMADAS_DETER) | frozenset(DETER_ARQUIVOS)
 DETER_DESDE_PADRAO = "2021-01-01"
 # Reconciliação arquivo x lago: mesma data, UF e área até 1e-6 km² (1 m²; a área é arredondada a 6 casas).
 DETER_AREA_CASAS = 6
+# O DBF declara AREAMUNKM com 10 casas (os valores vêm com a precisão do double, como no WFS); a leitura recusa o
+# arquivo se o campo declarar menos casas do que a tolerância acima.
+# Freios do arquivo da Amazônia e do Cerrado (se disparar, o bioma cai para o WFS com o motivo):
+#  - cobertura: a contagem de desmatamento do arquivo e a do WFS no mesmo período não podem divergir mais do que o
+#    maior entre 2% da contagem do WFS e 50 alertas (a diferença observada em 04/11/2026 foi 0 nos dois biomas);
+#  - pareamento: pelo menos 90% dos alertas do lago no período têm de achar par no arquivo (se o lago já tem alertas do
+#    bioma). Abaixo disso a chave data + UF + área deixou de servir, e gravar daria um alerta duplicado por linha.
+DETER_DIVERGENCIA_WFS_PCT = 0.02
+DETER_DIVERGENCIA_WFS_MIN = 50
+DETER_CASADOS_MINIMO = 0.90
 # Cada mês é pedido em uma única requisição; o maior mês observado tem menos de 9 mil alertas.
 DETER_LIMITE_POR_REQUISICAO = 50000
 CRS_ESPERADO_DETER = "EPSG::4674"  # SIRGAS 2000

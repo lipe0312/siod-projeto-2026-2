@@ -4,6 +4,7 @@ import gzip
 import hashlib
 import json
 import logging
+import os
 import ssl
 import time
 from datetime import datetime, timezone
@@ -111,6 +112,22 @@ def consultar(url: str, destino: Path, parametros: dict | None = None, sessao: r
     return conteudo, meta
 
 
+def gravar_json(caminho: Path, dados: dict) -> None:
+    """Grava o JSON em um arquivo temporário e troca de uma vez (os.replace): quem lê nunca vê um arquivo pela metade."""
+    temporario = caminho.with_name(caminho.name + ".tmp")
+    temporario.write_text(json.dumps(dados, indent=2, ensure_ascii=False))
+    os.replace(temporario, caminho)
+
+
+def ler_json(caminho: Path) -> dict:
+    """JSON de metadados; arquivo ausente, ilegível ou corrompido vale como vazio (quem lê rebaixa em vez de falhar)."""
+    try:
+        dados = json.loads(caminho.read_text())
+    except (OSError, ValueError):
+        return {}
+    return dados if isinstance(dados, dict) else {}
+
+
 def baixar(url: str, destino: Path, atualizar: bool = False) -> dict:
     """Baixa `url` para `destino` se ainda não existir (ou se `atualizar`) e devolve a procedência."""
     meta_caminho = destino.with_suffix(".meta.json")
@@ -132,9 +149,9 @@ def baixar(url: str, destino: Path, atualizar: bool = False) -> dict:
         meta = {"url": url, "baixado_em_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "cabecalho_http": cabecalho}
     else:
-        meta = json.loads(meta_caminho.read_text()) if meta_caminho.exists() else {"url": url}
+        meta = ler_json(meta_caminho) or {"url": url}
         log.info("Reutilizando arquivo já baixado: %s", destino.relative_to(config.RAIZ))
     meta["sha256"] = sha256(destino)
     meta["tamanho_bytes"] = destino.stat().st_size
-    meta_caminho.write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    gravar_json(meta_caminho, meta)
     return {"arquivo": str(destino.relative_to(config.RAIZ)), **meta}
