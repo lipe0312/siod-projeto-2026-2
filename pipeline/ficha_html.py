@@ -278,7 +278,8 @@ def como_se_formou(ficha: dict) -> str:
         if not c:
             continue
         cls = COR_SITUACAO[c["situacao"]]
-        aviso = '<small class="cobertura">⚠ sem cobertura recente</small>' if c.get("aviso") else ""
+        rotulo = "sem cobertura recente" if "sem cobertura" in (c.get("aviso") or "") else "ver aviso"
+        aviso = f'<small class="cobertura">⚠ {rotulo}</small>' if c.get("aviso") else ""
         passos.append(f'<div class="passo {cls}"><span class="ico">{SIMBOLO[c["situacao"]]}</span>'
                       f'<b>{NOME_CURTO[chave]}</b><small>{escape(c["situacao"])} · {escape(_curto(c["evidencia"]))}'
                       f'</small>{aviso}</div>')

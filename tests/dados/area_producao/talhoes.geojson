@@ -1,0 +1,12 @@
+{
+  "type": "FeatureCollection",
+  "name": "talhoes sinteticos de teste (sem dado pessoal)",
+  "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::4674"}},
+  "features": [
+    {"type": "Feature", "properties": {"talhao": "A"},
+     "geometry": {"type": "MultiPolygon", "coordinates": [
+       [[[-46.988, -18.948], [-46.986, -18.948], [-46.986, -18.946], [-46.988, -18.946], [-46.988, -18.948]]],
+       [[[-46.984, -18.944], [-46.982, -18.944], [-46.982, -18.942], [-46.984, -18.942], [-46.984, -18.944]]]
+     ]}}
+  ]
+}

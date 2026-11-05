@@ -55,12 +55,14 @@ def _coordenada(valor) -> float | None:
 
 
 def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
-                      problemas: dict[int, str] | None = None) -> tuple[str, dict[int, dict]]:
-    """Grava a planilha em cad (carteira, itens, produtores, imóveis, documentos trazidos). Devolve o carteira_id e,
-    por índice da linha, {"produtor_id", "imovel_id"}. `problemas`: motivo de recusa por índice (linha sem
-    localização etc.), que fica no item da carteira."""
+                      problemas: dict[int, str] | None = None,
+                      areas: dict[int, dict] | None = None) -> tuple[str, dict[int, dict]]:
+    """Grava a planilha em cad (carteira, itens, produtores, imóveis, documentos trazidos, área de produção). Devolve
+    o carteira_id e, por índice da linha, {"produtor_id", "imovel_id"}. `problemas`: motivo de recusa por índice
+    (linha sem localização etc.), que fica no item da carteira. `areas`: área de produção lida por índice
+    (carteira.areas_de_producao); só a que foi lida entra, e a mesma área do mesmo imóvel não se repete."""
     momento = datetime.now()
-    problemas = problemas or {}
+    problemas, areas = problemas or {}, areas or {}
     chave = carregar_chave()
     org = lambda tabela: (lambda d: d[d["organizacao_id"] == organizacao_id] if d is not None else None)(
         lago.ler_ou_none(tabela))
@@ -70,7 +72,10 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
     por_car = {} if imoveis_ant is None else dict(zip(imoveis_ant["cod_car"].dropna(),
                                                       imoveis_ant.loc[imoveis_ant["cod_car"].notna(), "imovel_id"]))
     carteira_id = str(uuid.uuid4())
-    novos = {"cad.produtor": [], "cad.imovel": [], "cad.produtor_imovel": [], "cad.documento_trazido": []}
+    areas_ant = org("cad.area_producao") if areas else None
+    ja_gravadas = set() if areas_ant is None else set(zip(areas_ant["imovel_id"], areas_ant["geometria_wkt"]))
+    novos = {"cad.produtor": [], "cad.imovel": [], "cad.produtor_imovel": [], "cad.documento_trazido": [],
+             "cad.area_producao": []}
     itens, ids = [], {}
     for i, linha in df.iterrows():
         id_produtor, cod_car = _texto(linha.get("id_produtor")), _texto(linha.get("cod_car"))
@@ -104,6 +109,14 @@ def importar_carteira(df: pd.DataFrame, organizacao_id: str, arquivo: Path,
                     novos["cad.documento_trazido"].append({
                         "documento_id": str(uuid.uuid4()), "organizacao_id": organizacao_id, "imovel_id": imovel_id,
                         "tipo": tipo, "valor": _texto(linha.get(tipo)), "informado_em": momento})
+            area = areas.get(i) or {}
+            if area.get("geometria") is not None and (imovel_id, area["geometria"].wkt) not in ja_gravadas:
+                ja_gravadas.add((imovel_id, area["geometria"].wkt))
+                novos["cad.area_producao"].append({
+                    "area_id": str(uuid.uuid4()), "organizacao_id": organizacao_id, "imovel_id": imovel_id,
+                    "commodity": _texto(linha.get("commodity")),
+                    "origem": f"planilha {Path(arquivo).name}: {area['arquivo']} ({area['crs']})",
+                    "criado_em": momento, "geometria_wkt": area["geometria"].wkt})
         extras = sem_documento({k: _texto(v) for k, v in linha.items()
                                 if k not in ("documento", "lat", "lon", "id_produtor", "cod_car", *INFORMADOS)
                                 and _texto(v)})

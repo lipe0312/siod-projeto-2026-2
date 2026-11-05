@@ -10,6 +10,9 @@ Colunas da planilha (CSV ou XLSX; modelo em docs/modelos/carteira_modelo.csv):
   "não verificado" e o embargo é procurado só no polígono;
 - `ccir`, `codigo_sigef`, `relatorio_ab_s` (opcionais): o que o produtor trouxe para os critérios 1, 2 e 8 e para a
   conferência com o AB+S (ADR 0012). Entram na saída como "informado", ainda sem conferência automática;
+- `area_producao` (opcional): caminho de um KML ou GeoJSON com o polígono da área de produção (EUDR), relativo à
+  pasta da planilha. O desmatamento (DETER e PRODES) passa a ser cruzado com ele, e não com o imóvel inteiro; arquivo
+  ilegível ou fora da pasta da planilha vira aviso na ficha e o cruzamento volta a ser com o imóvel do CAR;
 - as demais colunas (nome da área, commodity...) passam direto para a saída.
 
 Saída: carteira.csv e carteira.html na pasta, e as fichas (HTML, MD, JSON) de cada imóvel. A ordem é
@@ -27,7 +30,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline import cadastro, config, prediagnostico, relatorio, resultados
+from pipeline import cadastro, config, prediagnostico, relatorio, resultados, vetor
 from pipeline.documentos import cnpj_valido, cpf_valido, sem_documento
 
 log = logging.getLogger("pipeline")
@@ -75,6 +78,33 @@ def problema(linha: pd.Series) -> str | None:
     return None
 
 
+def area_producao(valor: str | None, pasta_planilha: Path) -> dict | None:
+    """Área de produção de uma linha: {"geometria" (MultiPolygon 4674 ou None), "arquivo", "crs", "motivo" (por que
+    não foi lida, ou None)}. None se a célula está vazia. O caminho é relativo à pasta da planilha e não sai dela."""
+    if not valor:
+        return None
+    limpo = lambda texto: sem_documento({"t": texto})["t"]  # nome de arquivo com CPF não vai para a ficha
+    base = Path(pasta_planilha).resolve()
+    informado = Path(valor.replace("\\", "/")).expanduser()
+    caminho = (informado if informado.is_absolute() else base / informado).resolve()
+    if not caminho.is_relative_to(base):
+        return {"geometria": None, "arquivo": limpo(informado.name), "crs": None,
+                "motivo": "caminho fora da pasta da planilha (copie o arquivo para a pasta dela)"}
+    arquivo = limpo(caminho.relative_to(base).as_posix())
+    try:
+        geometria, crs = vetor.ler_area_producao(caminho)
+    except vetor.AreaIlegivel as e:
+        return {"geometria": None, "arquivo": arquivo, "crs": None, "motivo": limpo(str(e))}
+    return {"geometria": geometria, "arquivo": arquivo, "crs": crs, "motivo": None}
+
+
+def areas_de_producao(df: pd.DataFrame, pasta_planilha: Path) -> dict[int, dict]:
+    """Área de produção por índice da linha (só as linhas com a coluna `area_producao` preenchida)."""
+    if "area_producao" not in df:
+        return {}
+    return {i: a for i, linha in df.iterrows() if (a := area_producao(_valor(linha, "area_producao"), pasta_planilha))}
+
+
 def resumir(ficha: dict) -> dict:
     """Uma linha da carteira a partir da ficha."""
     criterios = ficha["criterios"]
@@ -91,9 +121,10 @@ def resumir(ficha: dict) -> dict:
 
 
 def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar,
-              execucao=None, ids: dict | None = None) -> pd.DataFrame:
+              execucao=None, ids: dict | None = None, areas: dict | None = None) -> pd.DataFrame:
     """Uma linha por imóvel, em ordem de prioridade. Com `execucao` (resultados.Execucao), cada ficha vai também para
-    o esquema diag, ligada ao imóvel do cadastro (`ids`, de cadastro.importar_carteira)."""
+    o esquema diag, ligada ao imóvel do cadastro (`ids`, de cadastro.importar_carteira). `areas`: área de produção
+    por índice da linha (areas_de_producao)."""
     linhas = []
     for i, linha in df.iterrows():
         linha = pd.Series({k: _valor(linha, k) for k in df.columns}, dtype=object)
@@ -107,8 +138,10 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
         lat = lon = None
         if not linha.get("cod_car"):
             lat, lon = (float(str(linha[c]).replace(",", ".")) for c in ("lat", "lon"))
+        area = (areas or {}).get(i)
         try:
-            ficha = consultar(linha.get("cod_car"), lat, lon, linha.get("documento"), baixar_prodes=baixar_prodes)
+            ficha = consultar(linha.get("cod_car"), lat, lon, linha.get("documento"), baixar_prodes=baixar_prodes,
+                              **({"area_producao": area} if area else {}))
         except Exception as e:  # serviço fora do ar etc.: a linha fica inconclusiva e a carteira segue
             log.exception("[carteira] linha %s (%s) falhou", i + 2, linha.get("id_produtor"))
             linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": f"{type(e).__name__}: {e}"[:200],
@@ -117,6 +150,8 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
         resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
                                             ficha_arquivo=f"fichas/{caminhos['html'].name}") if execucao else None
+        if area:
+            base["aviso_area_producao"] = (ficha.get("area_producao") or {}).get("aviso")
         linhas.append({**base, **resumir(ficha), "ficha": f"fichas/{caminhos['html'].name}",
                        "_resultado_id": resultado_id,
                        "problema_na_linha": None if ficha["imovel"].get("cod_imovel") else
@@ -246,10 +281,11 @@ def main(argv=None) -> int:
     organizacao_id = cadastro.organizacao(args.organizacao or args.planilha.stem)
     problemas = {i: m for i, linha in planilha.iterrows() if (m := problema(
         pd.Series({k: _valor(linha, k) for k in planilha.columns}, dtype=object)))}
-    carteira_id, ids = cadastro.importar_carteira(planilha, organizacao_id, args.planilha, problemas)
+    areas = areas_de_producao(planilha, args.planilha.parent)
+    carteira_id, ids = cadastro.importar_carteira(planilha, organizacao_id, args.planilha, problemas, areas)
     execucao = resultados.Execucao("carteira", organizacao_id, carteira_id,
                                    "python -m pipeline.carteira " + " ".join(argv if argv is not None else sys.argv[1:]))
-    saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids)
+    saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids, areas=areas)
     execucao.encerrar()
     # Só depois de encerrar(): a execução atual precisa estar no lago para ser a "atual" da comparação.
     saida, comparacao = comparar(saida, organizacao_id, execucao.id)
