@@ -195,9 +195,11 @@ def origem_prodes(bioma, carga_id, cargas) -> dict:
     return base
 
 
-def bases_consultadas(ficha: dict, cargas, raiz: Path, ultima_imagem_deter) -> list[dict]:
+def bases_consultadas(ficha: dict, cargas, raiz: Path, ultima_imagem_deter: dict | None) -> list[dict]:
     """O que foi consultado, com data e SHA-256, mesmo quando nada foi encontrado (a frase "sem alerta" precisa de
-    fonte e data ao lado)."""
+    fonte e data ao lado). `ultima_imagem_deter`: {bioma: data da última imagem DETER daquele bioma}. Falta de carga,
+    de data ou de SHA-256 vira a lista `faltando` da base (ADR 0013: sem fonte e data, o resultado é inconclusivo)."""
+    ultima_imagem_deter = ultima_imagem_deter or {}
     biomas = (ficha.get("consulta") or {}).get("biomas") or []
     saida = []
     carga = _ultima_carga(cargas, "inpe_deter")
@@ -209,8 +211,16 @@ def bases_consultadas(ficha: dict, cargas, raiz: Path, ultima_imagem_deter) -> l
             continue
         arq = (entrada.get("arquivos") or {}).get(b)
         manifesto = _manifesto(entrada, b, raiz)
-        saida.append({"fonte": "INPE DETER", "bioma": b, "carga_id": carga, "carga_em": carga_em,
-                      "ultima_imagem_na_base": _br(ultima_imagem_deter) if ultima_imagem_deter is not None else None,
+        ultima = ultima_imagem_deter.get(b)
+        faltando = []
+        if not carga_em:
+            faltando.append("carga do DETER não registrada em meta.carga (sem data da base)")
+        if ultima is None or pd.isna(ultima):
+            faltando.append(f"última imagem DETER do bioma {b} desconhecida")
+        if not (arq or {}).get("sha256") and not (manifesto or {}).get("particoes"):
+            faltando.append("SHA-256 do arquivo de origem do DETER não localizado")
+        saida.append({"fonte": "INPE DETER", "bioma": b, "carga_id": carga, "carga_em": carga_em, "faltando": faltando,
+                      "ultima_imagem_na_base": None if ultima is None or pd.isna(ultima) else _br(ultima),
                       "url": (arq or {}).get("url") or (manifesto or {}).get("url"),
                       "sha256": (arq or {}).get("sha256"),
                       "arquivo": ((arq["url"].rsplit("/", 1)[-1] if arq else None)
@@ -223,15 +233,34 @@ def bases_consultadas(ficha: dict, cargas, raiz: Path, ultima_imagem_deter) -> l
     pr = (ficha.get("consulta") or {}).get("prodes") or {}
     for b in sorted(biomas):
         arq = (entrada.get("arquivos") or {}).get(b) or {}
-        saida.append({"fonte": "INPE PRODES", "bioma": b, "carga_id": carga, "carga_em": carga_em,
+        faltando = []
+        if not carga_em:
+            faltando.append("carga do PRODES não registrada em meta.carga (sem data da base)")
+        if not arq.get("sha256"):
+            faltando.append(f"SHA-256 do arquivo do PRODES do bioma {b} não localizado")
+        if not pr.get("ultimo_ano_do_imovel"):
+            faltando.append("último ano PRODES publicado desconhecido")
+        saida.append({"fonte": "INPE PRODES", "bioma": b, "carga_id": carga, "carga_em": carga_em, "faltando": faltando,
                       "publicado_ate": pr.get("ultimo_ano_do_imovel"), "verificado_em": pr.get("verificado_em"),
                       "url": arq.get("url"), "versao": arq.get("versao"), "sha256": arq.get("sha256")})
     return saida
 
 
-def _ultima_imagem_deter():
-    df = lago.ler_ou_none("ref.alerta_deter", colunas=["data_imagem"])
-    return None if df is None or df.empty else df["data_imagem"].max()
+def _ultima_imagem_deter() -> dict:
+    """{bioma (camada): data da última imagem DETER dele}; um bioma sem alerta na base não aparece."""
+    df = lago.ler_ou_none("ref.alerta_deter", colunas=["camada", "data_imagem"])
+    if df is None or df.empty:
+        return {}
+    return {k: v for k, v in df.groupby("camada")["data_imagem"].max().items() if pd.notna(v)}
+
+
+def _lacunas(bases: list[dict], escopo: str | None) -> list[str]:
+    """Motivos pelos quais o resultado de desmatamento não tem fonte, data ou SHA-256 completos."""
+    if not escopo:
+        return []
+    if not bases:
+        return ["bioma do imóvel não identificado: nenhuma base DETER ou PRODES pôde ser ligada ao imóvel"]
+    return [f"{b['fonte']} ({b['bioma']}): {m}" for b in bases for m in b.get("faltando", [])]
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -334,6 +363,8 @@ def nao_verificado(ficha: dict, escopo: str | None, commodity: str | None, bases
     for b in bases:
         if b.get("situacao") == "sem DETER neste bioma":
             itens.append(f"Bioma {b['bioma']} sem DETER: depois da última imagem do PRODES nenhuma fonte cobre o imóvel.")
+    for motivo in _lacunas(bases, escopo):
+        itens.append(f"Fonte sem registro completo, desmatamento inconclusivo: {motivo}.")
     sem_sha = sum(1 for bloco in blocos.values() for x in (*bloco["alertas_deter"], *bloco["poligonos_prodes"])
                   if x["conta_no_criterio"] and x["origem"]["sha256"] is None)
     if sem_sha:
@@ -375,6 +406,11 @@ def montar(ficha: dict, commodity: str | None = None, cargas: pd.DataFrame | Non
             "no resto do imóvel, fora da área declarada (risco de legalidade e de mistura)", False,
             por_chave["desmatamento_resto"], ev.get("alertas_resto"), ev.get("prodes_resto"), cargas, raiz)
     bases = bases_consultadas(ficha, cargas, raiz, ultima_imagem_deter) if escopo else []
+    lacunas = _lacunas(bases, escopo)
+    for bloco in blocos.values():
+        bloco["lacunas_de_fonte"] = lacunas
+        if lacunas and bloco["situacao"] == "sem ocorrência":  # ADR 0013: sem fonte e data, nunca "sem ocorrência"
+            bloco["situacao_da_ficha"], bloco["situacao"] = bloco["situacao"], "inconclusivo"
     return {
         "dossie": "EUDR", "gerado_em": (agora or datetime.now()).strftime("%Y-%m-%d %H:%M:%S"),
         "ficha_gerada_em": (ficha.get("consulta") or {}).get("gerado_em"),
@@ -399,7 +435,7 @@ def montar(ficha: dict, commodity: str | None = None, cargas: pd.DataFrame | Non
                           "no Brasil."},
         "desmatamento_apos_31_12_2020": {
             "data_de_corte": "31/12/2020", "blocos": blocos, "bases_consultadas": bases,
-            "ultima_imagem_deter_na_base": _br(ultima_imagem_deter) if ultima_imagem_deter is not None else None},
+            "ultima_imagem_deter_por_bioma": {k: _br(v) for k, v in (ultima_imagem_deter or {}).items()}},
         "embargos": {"situacao": por_chave.get("embargo", {}).get("situacao"),
                      "evidencia": por_chave.get("embargo", {}).get("evidencia"), "registros": _embargos(ev)},
         "sobreposicoes": {"criterios": {c["criterio"]: {"situacao": c["situacao"], "evidencia": c["evidencia"]}
@@ -426,22 +462,26 @@ def _linha_origem(o: dict) -> str:
 def _fonte_e_data(bases: list[dict]) -> str:
     """Fonte e data que ficam ao lado de cada resultado de desmatamento (detalhe e SHA-256 em "Bases consultadas")."""
     partes = []
-    for fonte in ("INPE DETER", "INPE PRODES"):
-        b = next((x for x in bases if x["fonte"] == fonte and not x.get("situacao")), None)
-        if not b:
+    for b in bases:
+        if b.get("situacao"):  # bioma sem DETER
             continue
-        data = f"base carregada em {b['carga_em'] or 'data desconhecida'}"
+        data = f"base carregada em {b['carga_em'] or 'data não registrada'}"
         if b.get("ultima_imagem_na_base"):
             data += f", imagens até {b['ultima_imagem_na_base']}"
         if b.get("publicado_ate"):
             data += f", publicado até {b['publicado_ate']}, verificado em {_br(b.get('verificado_em'))}"
-        partes.append(f"{fonte} ({data})")
+        if b.get("faltando"):
+            data += "; INCOMPLETO: " + ", ".join(b["faltando"])
+        partes.append(f"{b['fonte']} {b['bioma']} ({data})")
     return "Fontes e datas: " + ("; ".join(partes) if partes else "nenhuma base consultada") + "."
 
 
 def _md_bloco(titulo: str, b: dict, bases: list[dict]) -> list[str]:
     md = [f"### {titulo}", "", f"**Situação nas bases consultadas: {b['situacao']}.** {b['evidencia']}",
           "", _fonte_e_data(bases), ""]
+    if b.get("lacunas_de_fonte"):
+        md += ["**Sem fonte, data ou SHA-256 completos: o resultado fica inconclusivo, não “sem ocorrência”.** "
+               + "; ".join(b["lacunas_de_fonte"]) + ".", ""]
     if b.get("aviso"):
         md += [f"Aviso: {b['aviso']}", ""]
     contados = [a for a in b["alertas_deter"] if a["conta_no_criterio"]]
@@ -508,7 +548,7 @@ def para_markdown(d: dict) -> str:
             if b.get("situacao"):
                 md.append(f"| {b['fonte']} | {b['bioma']} | — | {b['situacao']} |")
                 continue
-            data = f"base carregada em {b['carga_em'] or 'data desconhecida'}"
+            data = f"base carregada em {b['carga_em'] or 'data não registrada'}"
             if b.get("ultima_imagem_na_base"):
                 data += f"; imagens até {b['ultima_imagem_na_base']}"
             if b.get("publicado_ate"):

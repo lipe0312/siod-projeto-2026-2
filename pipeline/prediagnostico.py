@@ -20,6 +20,7 @@ import argparse
 import functools
 import json
 import logging
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -734,6 +735,7 @@ def main(argv=None) -> int:
         from pipeline import dossie_eudr
 
         nome = ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}"
+        nome = re.sub(r"[^A-Za-z0-9_-]+", "_", str(nome)).strip("_") or "imovel"  # sem "/" nem ".." no caminho
         pasta = config.PREDIAGNOSTICO / "dossie_eudr" / nome
         dossie_eudr.escrever(ficha, pasta, args.commodity)
         log.info("Dossiê EUDR: %s", pasta)

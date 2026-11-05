@@ -17,6 +17,7 @@ from test_prediagnostico import CAR, X0, Y0, alertas, car, embargos, lista_suja,
 SHA_DETER = "d" * 64
 SHA_PRODES = "e" * 64
 SHA_ZIP_DETER_PANTANAL = "f" * 64
+ULTIMA = {"cerrado": pd.Timestamp("2026-10-28"), "amazonia": pd.Timestamp("2026-11-01")}
 CARGA_DETER, CARGA_PRODES = "inpe_deter:20261103T210437", "inpe_prodes:20261103T210506"
 
 
@@ -60,7 +61,7 @@ def _area(arquivo="talhao.kml"):
 
 def _gerar(tmp_path, ficha, **kwargs):
     return dossie_eudr.escrever(ficha, tmp_path / "dossie", cargas=_cargas(tmp_path), raiz=tmp_path,
-                                ultima_imagem_deter=pd.Timestamp("2026-10-28"), **kwargs)
+                                ultima_imagem_deter=ULTIMA, **kwargs)
 
 
 def _textos(caminhos):
@@ -191,8 +192,8 @@ def test_sem_ocorrencia_so_aparece_com_fonte_e_data_e_nunca_como_conforme(tmp_pa
     textos = _textos(_gerar(tmp_path, ficha, commodity="café"))
     md = textos["md"].lower()
     assert "sem ocorrência" in md and "nenhum alerta deter nem polígono prodes" in md
-    assert ("Fontes e datas: INPE DETER (base carregada em 03/11/2026, imagens até 28/10/2026); "
-            "INPE PRODES (base carregada em 03/11/2026, publicado até 2025, verificado em 02/11/2026)") in textos["md"]
+    assert ("Fontes e datas: INPE DETER cerrado (base carregada em 03/11/2026, imagens até 28/10/2026); "
+            "INPE PRODES cerrado (base carregada em 03/11/2026, publicado até 2025, verificado em 02/11/2026)") in textos["md"]
     secao = textos["md"].split("### Bases consultadas")[1].split("## 3.")[0]
     assert "03/11/2026" in secao and "28/10/2026" in secao and SHA_PRODES in secao
     for proibido in ("conforme", "livre de desmatamento", "desmatamento zero", "zero desmatamento"):
@@ -217,7 +218,7 @@ def test_nao_verificado_sempre_presente_com_criterios_1_2_8_e_bioma_sem_deter(tm
 def test_sha256_que_a_carga_nao_registra_vai_para_o_nao_verificado(tmp_path):
     ficha = _ficha(_area(), ("na_area", NO_TALHAO, "2024-06-10"))
     caminhos = dossie_eudr.escrever(ficha, tmp_path / "d", cargas=pd.DataFrame(columns=_cargas(tmp_path).columns),
-                                    raiz=tmp_path, ultima_imagem_deter=pd.Timestamp("2026-10-28"))
+                                    raiz=tmp_path, ultima_imagem_deter=ULTIMA)
     secao = caminhos["md"].read_text(encoding="utf-8").split("## 4.")[1].split("## 5.")[0]
     assert "SHA-256 do arquivo de origem não localizado em 1 evidência" in secao
 
@@ -258,15 +259,101 @@ def test_linha_de_comando_gera_a_pasta_com_area_e_commodity(tmp_path, monkeypatc
         return {"consulta": ficha.pop("consulta"), **ficha}
 
     monkeypatch.setattr(prediagnostico, "executar", executar)
-    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: pd.Timestamp("2026-10-28"))
+    cargas = _cargas(tmp_path)  # sem isto o dossiê leria meta.carga do lago
+    monkeypatch.setattr(config, "RAIZ", tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda tabela, **k: cargas if tabela == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    escrever_ficha = prediagnostico.escrever  # o padrão de `pasta` é fixado na importação: aponta para a pasta do teste
+    monkeypatch.setattr(prediagnostico, "escrever", lambda ficha: escrever_ficha(ficha, tmp_path / "fichas"))
     shutil_kml = tmp_path / "entrada" / "talhao.kml"
     shutil_kml.parent.mkdir()
     shutil_kml.write_bytes((DADOS / "talhao.kml").read_bytes())
     assert prediagnostico.main(["--car", "MG-1", "--dossie-eudr", "--area-producao", str(shutil_kml),
                                 "--commodity", "café"]) == 0
     pasta = tmp_path / "prediagnostico" / "dossie_eudr" / "MG-1"
+    dossie = json.loads((pasta / "dossie.json").read_text(encoding="utf-8"))
+    assert dossie["desmatamento_apos_31_12_2020"]["blocos"]["desmatamento"]["situacao"] == "sem ocorrência"
     assert sorted(p.name for p in pasta.iterdir()) == ["dossie.geojson", "dossie.json", "dossie.md"]
     assert usadas[0]["geometria"] is not None and usadas[0]["arquivo"] == "talhao.kml"
     assert json.loads((pasta / "dossie.json").read_text(encoding="utf-8"))["commodity"] == "café"
     with pytest.raises(SystemExit):
         prediagnostico.main(["--demo", "--dossie-eudr"])
+
+
+def test_cli_nao_sai_da_pasta_do_dossie_com_codigo_de_imovel_estranho(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "PREDIAGNOSTICO", tmp_path / "prediagnostico")
+    cargas = _cargas(tmp_path)
+    monkeypatch.setattr(config, "RAIZ", tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda tabela, **k: cargas if tabela == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    monkeypatch.setattr(prediagnostico, "escrever", lambda ficha: {"html": Path("ficha.html")})  # só o dossiê importa
+
+    def executar(cod, lat, lon, documento, atualizar, baixar, area_producao=None):
+        ficha = _ficha(None)
+        ficha["imovel"] = {**ficha["imovel"], "cod_imovel": "../../fora/MG-1"}
+        return {"consulta": ficha.pop("consulta"), **ficha}
+
+    monkeypatch.setattr(prediagnostico, "executar", executar)
+    prediagnostico.main(["--car", "x", "--dossie-eudr"])
+    raiz = tmp_path / "prediagnostico" / "dossie_eudr"
+    assert [p.name for p in raiz.iterdir()] == ["fora_MG-1"] and not (tmp_path / "fora").exists()
+
+
+# --- fonte, data e SHA-256 incompletos: inconclusivo, nunca "sem ocorrência" (ADR 0013) -----------------------------
+
+def test_ultima_imagem_deter_e_a_do_bioma_do_imovel_e_nao_a_de_toda_a_base(tmp_path, monkeypatch):
+    base = pd.DataFrame({"camada": ["cerrado", "cerrado", "amazonia"],
+                         "data_imagem": pd.to_datetime(["2026-01-10", "2026-01-31", "2026-10-30"])})
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda tabela, **k: base)
+    ultima = dossie_eudr._ultima_imagem_deter()
+    assert ultima == {"cerrado": pd.Timestamp("2026-01-31"), "amazonia": pd.Timestamp("2026-10-30")}
+    ficha = _ficha(_area())  # imóvel só no Cerrado
+    caminhos = dossie_eudr.escrever(ficha, tmp_path / "d", cargas=_cargas(tmp_path), raiz=tmp_path,
+                                    ultima_imagem_deter=ultima)
+    md = caminhos["md"].read_text(encoding="utf-8")
+    assert "imagens até 31/01/2026" in md and "30/10/2026" not in md
+    deter = next(b for b in json.loads(caminhos["json"].read_text(encoding="utf-8"))[
+        "desmatamento_apos_31_12_2020"]["bases_consultadas"] if b["fonte"] == "INPE DETER")
+    assert deter["ultima_imagem_na_base"] == "31/01/2026"
+
+
+@pytest.mark.parametrize("cargas, esperado", [
+    (None, "carga do DETER não registrada em meta.carga"),
+    (pd.DataFrame(columns=["carga_id", "fonte", "status", "iniciada_em", "entrada_json"]),
+     "carga do PRODES não registrada em meta.carga"),
+])
+def test_sem_carga_o_zero_achados_vira_inconclusivo_com_motivo_e_entra_no_nao_verificado(tmp_path, cargas, esperado):
+    ficha = _ficha(_area())
+    caminhos = dossie_eudr.escrever(ficha, tmp_path / "d", cargas=cargas if cargas is not None else
+                                    pd.DataFrame(columns=["carga_id", "fonte", "status", "iniciada_em", "entrada_json"]),
+                                    raiz=tmp_path, ultima_imagem_deter=ULTIMA)
+    dossie = json.loads(caminhos["json"].read_text(encoding="utf-8"))
+    md = caminhos["md"].read_text(encoding="utf-8")
+    for bloco in dossie["desmatamento_apos_31_12_2020"]["blocos"].values():
+        assert bloco["situacao"] == "inconclusivo" and bloco["situacao_da_ficha"] == "sem ocorrência"
+        assert any(esperado in m for m in bloco["lacunas_de_fonte"])
+    assert "**Situação nas bases consultadas: inconclusivo.**" in md and "sem ocorrência.** Nenhum alerta" not in md
+    assert "data desconhecida" not in md
+    secao = md.split("## 4.")[1].split("## 5.")[0]
+    assert "desmatamento inconclusivo" in secao and esperado in secao
+    assert "SHA-256 do arquivo de origem do DETER não localizado" in secao
+
+
+def test_sem_ultima_imagem_do_bioma_o_deter_fica_incompleto(tmp_path):
+    ficha = _ficha(_area())
+    caminhos = dossie_eudr.escrever(ficha, tmp_path / "d", cargas=_cargas(tmp_path), raiz=tmp_path,
+                                    ultima_imagem_deter={"amazonia": pd.Timestamp("2026-11-01")})
+    bloco = json.loads(caminhos["json"].read_text(encoding="utf-8"))["desmatamento_apos_31_12_2020"]["blocos"][
+        "desmatamento"]
+    assert bloco["situacao"] == "inconclusivo"
+    assert "última imagem DETER do bioma cerrado desconhecida" in " ".join(bloco["lacunas_de_fonte"])
+
+
+def test_achado_confirmado_continua_pendencia_mesmo_com_fonte_incompleta(tmp_path):
+    ficha = _ficha(_area(), ("na_area", NO_TALHAO, "2024-06-10"), poligonos_prodes=[("p", NO_TALHAO, 2023, "2023-08-01")])
+    caminhos = dossie_eudr.escrever(ficha, tmp_path / "d", cargas=pd.DataFrame(
+        columns=["carga_id", "fonte", "status", "iniciada_em", "entrada_json"]), raiz=tmp_path,
+        ultima_imagem_deter=ULTIMA)
+    bloco = json.loads(caminhos["json"].read_text(encoding="utf-8"))["desmatamento_apos_31_12_2020"]["blocos"][
+        "desmatamento"]
+    assert bloco["situacao"] == "pendência" and bloco["lacunas_de_fonte"]
