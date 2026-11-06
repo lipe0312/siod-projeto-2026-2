@@ -22,6 +22,8 @@ Os contratos não dependem de Python. Qualquer ferramenta que leia YAML (dbt, um
 
 `ref` e `geo` nunca apontam para `cad`. A ligação entre o dado público e o cliente fica em `diag.evidencia`.
 
+`cad.chave_api` (chave de API por organização, ADR 0021) é a única tabela que vive só no banco. A API e o `python -m api.chaves` a mantêm, e o lago nunca a recebe: a carga pula tabela ausente do lago, então recarregar o banco não apaga as chaves. Ela guarda só o SHA-256 da chave e nenhum dado de pessoa.
+
 ## Campos do contrato
 
 | Campo | Valores | Para quê |
