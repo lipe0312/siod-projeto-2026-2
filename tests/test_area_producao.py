@@ -158,7 +158,7 @@ def test_carteira_grava_a_area_em_cad_e_arquivo_ilegivel_nao_derruba(tmp_path):
     saida = carteira.processar(df, tmp_path / "saida", consultar=_consultar(chamadas), areas=areas)
     assert len(saida) == 4 and chamadas[3] is None and saida["problema_na_linha"].isna().all()
     por_produtor = saida.set_index("id_produtor")
-    assert por_produtor.at["P1", "resultado"] == "sem pendência nas fontes verificadas"  # alerta fora do talhão
+    assert por_produtor.at["P1", "resultado"] == "com indício"  # alerta fora do talhão: indício do resto do imóvel
     assert por_produtor.at["P3", "aviso_area_producao"].startswith("área de produção não lida: KML mal formado")
     assert pd.isna(por_produtor.at["P4", "aviso_area_producao"])
     textos = [p.read_text(encoding="utf-8") for p in (tmp_path / "saida" / "fichas").iterdir()]

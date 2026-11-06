@@ -206,19 +206,40 @@ def _td(v, n=False) -> str:
     return f'<td class="n">{v}</td>' if n else f"<td>{v}</td>"
 
 
+def _linhas_alertas(df: pd.DataFrame, letra: str = "A") -> list[list[str]]:
+    return [[_td(f"<b>{letra}{i}</b>"), _td(_data(r.data_imagem)), _td(escape(str(r.classe_deter))),
+             _td(_num(r.inter_ha), True), _td(_num(r.fracao_objeto * 100, 0) + "%", True), _td(escape(str(r.classe))),
+             _td(escape(str(r.situacao_prodes)) + (f" ({escape(r.anos_prodes)})" if r.anos_prodes else ""))]
+            for i, r in enumerate(df.itertuples(), 1)]
+
+
+def _linhas_prodes(df: pd.DataFrame, letra: str = "P") -> list[list[str]]:
+    return [[_td(f"<b>{letra}{i}</b>"), _td(str(r.ano_prodes)), _td(_data(r.data_imagem)), _td(escape(str(r.bioma))),
+             _td(_num(r.inter_ha), True), _td(_num(r.fracao_objeto * 100, 0) + "%", True), _td(escape(str(r.classe)))]
+            for i, r in enumerate(df.itertuples(), 1)]
+
+
+def _evidencias_resto(ev: dict) -> str:
+    """Desmatamento depois de 31/12/2020 fora da área de produção declarada (ADR 0018): risco, nunca oculto."""
+    if "alertas_resto" not in ev:
+        return ""
+    return f"""<section class="card"><h2>Desmatamento no resto do imóvel (fora da área de produção declarada)</h2>
+<p class="mut">Não decide o critério EUDR da parcela declarada, mas conta para a legalidade e para o risco de mistura.
+Alertas DETER aparecem como AR e polígonos PRODES como PR.</p>{_tabela(
+        ["#", "Data da imagem", "Classe DETER", "ha no resto", "% do alerta", "Classe", "PRODES"],
+        _linhas_alertas(ev["alertas_resto"], "AR"), "Nenhum alerta DETER toca o resto do imóvel.")}{_tabela(
+        ["#", "Ano PRODES", "Data da imagem", "Bioma", "ha no resto", "% do polígono", "Classe"],
+        _linhas_prodes(ev["prodes_resto"], "PR"), "Nenhum polígono PRODES de 2021 em diante toca o resto do imóvel.")}
+</section>"""
+
+
 def _evidencias(ev: dict) -> str:
     emb = [[_td(f"<b>E{i}</b>"), _td("TAD " + escape(f"{r.num_tad}-{r.ser_tad}" if pd.notna(r.ser_tad) else str(r.num_tad))), _td(_data(r.data_embargo)),
             _td(escape(str(r.como))), _td(escape(str(r.classe))),
             _td(_num(r.fracao_objeto * 100, 0) + "%" if pd.notna(r.fracao_objeto) else "—", True),
             _td(escape(str(r.descricao_infracao)) if pd.notna(r.descricao_infracao) else "—")]
            for i, r in enumerate(ev["embargos"].itertuples(), 1)]
-    alt = [[_td(f"<b>A{i}</b>"), _td(_data(r.data_imagem)), _td(escape(str(r.classe_deter))),
-            _td(_num(r.inter_ha), True), _td(_num(r.fracao_objeto * 100, 0) + "%", True), _td(escape(str(r.classe))),
-            _td(escape(str(r.situacao_prodes)) + (f" ({escape(r.anos_prodes)})" if r.anos_prodes else ""))]
-           for i, r in enumerate(ev["alertas"].itertuples(), 1)]
-    prd = [[_td(f"<b>P{i}</b>"), _td(str(r.ano_prodes)), _td(_data(r.data_imagem)), _td(escape(str(r.bioma))),
-            _td(_num(r.inter_ha), True), _td(_num(r.fracao_objeto * 100, 0) + "%", True), _td(escape(str(r.classe)))]
-           for i, r in enumerate(ev["prodes"].itertuples(), 1)]
+    alt, prd = _linhas_alertas(ev["alertas"]), _linhas_prodes(ev["prodes"])
     return f"""
 <section class="card"><h2>Embargos do IBAMA</h2>{_tabela(
         ["#", "Termo", "Data", "Encontrado por", "Classe", "% no imóvel", "Infração"], emb,
@@ -231,7 +252,7 @@ def _evidencias(ev: dict) -> str:
         "Nenhum polígono PRODES de 2021 em diante toca o imóvel.")}
 <p class="mut">O ano PRODES 2021 vai de 01/08/2020 a 31/07/2021 e começa antes da data de corte: sozinho, conta como
 indício. De 2022 em diante, o desmatamento é posterior a 31/12/2020.</p></section>
-{_evidencias_protegidas(ev)}"""
+{_evidencias_resto(ev)}{_evidencias_protegidas(ev)}"""
 
 
 def _onde(r) -> list[str]:

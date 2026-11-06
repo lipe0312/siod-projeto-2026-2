@@ -29,6 +29,8 @@ EVIDENCIAS = {
     "embargos": ("embargo", "ref.embargo_ibama", "id_embargo"),
     "alertas": ("desmatamento", "ref.alerta_deter", "id_alerta"),
     "prodes": ("desmatamento", "ref.desmatamento_prodes", "uuid"),
+    "alertas_resto": ("desmatamento_resto", "ref.alerta_deter", "id_alerta"),
+    "prodes_resto": ("desmatamento_resto", "ref.desmatamento_prodes", "uuid"),
     "lista_suja": ("lista_suja", "ref.lista_suja", "chave_registro"),
     "terra_indigena": ("terra_indigena", "ref.terra_indigena", "terrai_codigo"),
     "quilombola": ("quilombola", "ref.territorio_quilombola", "codigo"),

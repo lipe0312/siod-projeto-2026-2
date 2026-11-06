@@ -20,6 +20,7 @@ import argparse
 import functools
 import json
 import logging
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -53,6 +54,9 @@ ENCAMINHAMENTO = {
                     "31/12/2020 não atende à EUDR para a produção que sai dela.",
     "desmatamento_indicio": "Conferir em imagem de satélite e com o produtor; o alerta ainda não foi confirmado pelo "
                             "PRODES.",
+    "desmatamento_resto": "Fora da área declarada: conferir se a supressão teve autorização (ASV), porque desmatamento "
+                          "ilegal no imóvel também afeta a legalidade da produção (EUDR, art. 2(40)), e se a mesma "
+                          "commodity é produzida ali (risco de mistura, art. 10(2)(j)).",
     "lista_suja": "O crédito rural é vedado enquanto o empregador constar no Cadastro (MCR, Seção 2-9). Conferir a "
                   "situação no MTE.",
     "nao_verificado": "Conferir no relatório do AgroBrasil+Sustentável do produtor.",
@@ -130,8 +134,8 @@ def alertas_do_imovel(car: pd.DataFrame, car_geom, alertas: pd.DataFrame, prodes
     candidatos = alertas[(alertas["uf"] == car["uf"].iloc[0]) & alertas["geometria_wkt"].notna()].reset_index(drop=True)
     geoms = vetor.tornar_validas(shapely.from_wkt(candidatos["geometria_wkt"].to_numpy()))
     pares = _dentro_do_car(geoms, car_geom, car)
-    candidatos = candidatos.reindex(columns=list(dict.fromkeys([*candidatos.columns, "carga_id"])))
-    saida = candidatos.loc[pares.index, ["id_alerta", "classe", "data_imagem", "area_km2", "satelite",
+    candidatos = candidatos.reindex(columns=list(dict.fromkeys([*candidatos.columns, "carga_id", "camada"])))
+    saida = candidatos.loc[pares.index, ["id_alerta", "camada", "classe", "data_imagem", "area_km2", "satelite",
                                          "geometria_wkt", "carga_id"]].rename(columns={"classe": "classe_deter"}).join(pares)
     saida = saida.reset_index(drop=True)
     if saida.empty:
@@ -208,19 +212,27 @@ NOME_BIOMA = {"amazonia": "Amazônia", "caatinga": "Caatinga", "cerrado": "Cerra
 
 
 def _criterio_desmatamento(alt: pd.DataFrame, prd: pd.DataFrame, falha: str | None = None,
-                           aviso: str | None = None, area: dict | None = None) -> dict:
-    """`area`: a área de produção usada no cruzamento (_area_producao); sem ela, o cruzamento é com o imóvel."""
+                           aviso: str | None = None, area: dict | None = None, resto: bool = False) -> dict:
+    """`area`: a área de produção usada no cruzamento (_area_producao); sem ela, o cruzamento é com o imóvel.
+    `resto`: o critério do resto do imóvel (fora da área declarada, ADR 0018): risco de legalidade e de mistura,
+    nunca pendência (indício, enquanto não houver dado de autorização de supressão)."""
     nome, fonte = "Desmatamento após 31/12/2020 (EUDR)", "INPE DETER e PRODES"
     no, dentro, poligono = "no imóvel", "dentro do imóvel", ""
-    if area and area.get("usada"):
+    if resto:
+        nome, no, dentro = ("Desmatamento após 31/12/2020 no resto do imóvel (risco de legalidade e de mistura)",
+                            "no resto do imóvel", "dentro do resto do imóvel")
+        poligono = f" · fora da área de produção declarada ({area['resto_ha']:.1f} ha)"
+        area = None
+    elif area and area.get("usada"):
         no, dentro = "na área de produção", "dentro da área de produção"
         poligono = f" · cruzado com a área de produção ({area['arquivo']}, {area['area_ha']:.1f} ha)"
     elif area:
         poligono = " · cruzado com o imóvel inteiro (CAR)"
     aviso = "; ".join(a for a in ((area or {}).get("aviso"), aviso) if a) or None
+    chave = "desmatamento_resto" if resto else "desmatamento"
     if falha:
         n = int(alt["classe"].isin(CLASSES_DENTRO).sum()) if len(alt) else 0
-        return _criterio("desmatamento", nome, None, "inconclusivo",
+        return _criterio(chave, nome, None, "inconclusivo",
                          f"{falha}; {n} alerta(s) DETER {dentro} sem como confirmar{poligono}", ENCAMINHAMENTO[
                              "fonte_falhou"], fonte, aviso)
     a = alt[alt["classe"].isin(CLASSES_DENTRO)] if len(alt) else alt
@@ -235,16 +247,18 @@ def _criterio_desmatamento(alt: pd.DataFrame, prd: pd.DataFrame, falha: str | No
     if len(p):
         partes.append(f"{len(p)} polígono(s) PRODES após 2020 ({p['inter_ha'].sum():.1f} ha {no})")
     texto = ("; ".join(partes) or f"Nenhum alerta DETER nem polígono PRODES após 2020 {dentro}") + poligono
+    if resto and (confirmados or len(prodes_certo) or len(a) or len(p)):
+        return _criterio(chave, nome, None, "indício", texto, ENCAMINHAMENTO["desmatamento_resto"], fonte, aviso)
     if confirmados or len(prodes_certo):
-        return _criterio("desmatamento", nome, None, "pendência", texto, ENCAMINHAMENTO["desmatamento"], fonte, aviso)
+        return _criterio(chave, nome, None, "pendência", texto, ENCAMINHAMENTO["desmatamento"], fonte, aviso)
     if len(a) or len(p):
         # Alerta sem confirmação, ou PRODES 2021 (o ano PRODES 2021 começa em 01/08/2020, antes da data de corte).
-        return _criterio("desmatamento", nome, None, "indício", texto, ENCAMINHAMENTO["desmatamento_indicio"], fonte,
-                         aviso)
-    return _criterio("desmatamento", nome, None, "sem ocorrência", texto, "—", fonte, aviso)
+        return _criterio(chave, nome, None, "indício", texto, ENCAMINHAMENTO["desmatamento_indicio"], fonte, aviso)
+    return _criterio(chave, nome, None, "sem ocorrência", texto, "—", fonte, aviso)
 
 
 LIMIAR_AREA_FORA_DO_CAR = 0.05
+LIMIAR_RESTO_HA = 0.1  # abaixo disso, a área declarada cobre o imóvel (a sobra é diferença de desenho)
 
 
 def _area_producao(car: pd.DataFrame, car_geom, area: dict | None) -> tuple[pd.DataFrame, object, dict | None]:
@@ -431,8 +445,18 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
     alvo, alvo_geom, area = _area_producao(car, car_geom, area_producao)
     alt = alertas_do_imovel(alvo, alvo_geom, alertas, prodes, ultimo_ano_prodes)
     prd = prodes_do_imovel(alvo, alvo_geom, prodes)
+    alt_resto = prd_resto = crit_resto = None
+    if area and area["usada"]:  # desmatamento no resto do imóvel: risco de legalidade e de mistura (ADR 0018)
+        resto = vetor.tornar_valida(shapely.difference(car_geom, alvo_geom))
+        area["resto_ha"] = round(float(shapely.area(sicar.projetar(resto)) / 1e4), 2)
+        if area["resto_ha"] >= LIMIAR_RESTO_HA:
+            alvo_resto = car.assign(geometria_wkt=resto.wkt)
+            alt_resto = alertas_do_imovel(alvo_resto, resto, alertas, prodes, ultimo_ano_prodes)
+            prd_resto = prodes_do_imovel(alvo_resto, resto, prodes)
+            crit_resto = _criterio_desmatamento(alt_resto, prd_resto, falha_prodes, aviso_desmatamento, area, resto=True)
     crit_ls, ls = _criterio_lista_suja(lista_suja, documento_hash)
     evidencias = {"embargos": emb, "alertas": alt, "prodes": prd,
+                  **({"alertas_resto": alt_resto, "prodes_resto": prd_resto} if crit_resto else {}),
                   "lista_suja": ls.reindex(columns=["chave_registro", "id_registro", "uf", "cnae", "data_inclusao",
                                                     "data_decisao", "carga_id"])}
     crit_protegidas = []
@@ -442,10 +466,12 @@ def diagnosticar(car: pd.DataFrame, embargos: pd.DataFrame, alertas: pd.DataFram
         evidencias[chave] = achados if achados is not None else pd.DataFrame(columns=modulo.COLUNAS_SAIDA)
         crit_protegidas.append(criterio_protegido(chave, achados))
     criterios = [_criterio_car(imovel), _criterio_embargo(emb),
-                 _criterio_desmatamento(alt, prd, falha_prodes, aviso_desmatamento, area), crit_ls,
-                 *crit_protegidas, *_nao_verificados()]
+                 _criterio_desmatamento(alt, prd, falha_prodes, aviso_desmatamento, area),
+                 *([crit_resto] if crit_resto else []), crit_ls, *crit_protegidas, *_nao_verificados()]
     return {"imovel": imovel, "resultado": resultado_geral(criterios), "criterios": criterios,
-            "evidencias": evidencias, "geometria_car": linha["geometria_wkt"], **({"area_producao": area} if area else {})}
+            "evidencias": evidencias, "geometria_car": linha["geometria_wkt"],
+            **({"area_producao": area, "geometria_area_producao": alvo_geom.wkt if area["usada"] else None}
+               if area else {})}
 
 
 def ficha_inconclusiva(motivo: str, candidatos: list[str] | None = None) -> dict:
@@ -671,6 +697,12 @@ def main(argv=None) -> int:
     alvo.add_argument("--ponto", nargs=2, type=float, metavar=("LAT", "LON"), help="coordenada da sede")
     alvo.add_argument("--demo", action="store_true", help="gera as fichas dos CARs de demonstração")
     parser.add_argument("--documento", help="CPF ou CNPJ do proprietário (pseudonimizado, nunca gravado)")
+    parser.add_argument("--area-producao", metavar="ARQUIVO",
+                        help="KML ou GeoJSON com o polígono da área de produção (EUDR); o desmatamento é cruzado com "
+                             "ele e, separado, com o resto do imóvel")
+    parser.add_argument("--dossie-eudr", action="store_true",
+                        help="gera a pasta do dossiê EUDR (dossie.geojson, dossie.md, dossie.json) do imóvel")
+    parser.add_argument("--commodity", help="produto que sai da área, para o dossiê EUDR (ex.: café, soja)")
     parser.add_argument("--atualizar", action="store_true", help="consulta de novo o SICAR")
     parser.add_argument("--sem-baixar-prodes", action="store_true",
                         help="não inclui UF nova no lote do PRODES (o desmatamento de imóvel fora do lote fica "
@@ -679,10 +711,19 @@ def main(argv=None) -> int:
     relatorio.configurar_log(config.LOGS / f"prediagnostico_{datetime.now():%Y%m%d_%H%M%S}.log")
 
     if args.demo:
+        if args.dossie_eudr or args.area_producao:
+            parser.error("--dossie-eudr e --area-producao valem para um imóvel (--car ou --ponto), não para --demo")
         log.info("Demonstração: %s", demonstracao(args.atualizar, not args.sem_baixar_prodes))
         return 0
     lat, lon = args.ponto or (None, None)
-    ficha = executar(args.car, lat, lon, args.documento, args.atualizar, not args.sem_baixar_prodes)
+    area = None
+    if args.area_producao:
+        from pipeline import carteira  # aqui e não no topo: a carteira importa este módulo
+
+        arquivo = Path(args.area_producao).expanduser()
+        area = carteira.area_producao(arquivo.name, arquivo.parent)
+    ficha = executar(args.car, lat, lon, args.documento, args.atualizar, not args.sem_baixar_prodes,
+                     area_producao=area)
     caminhos = escrever(ficha)
     from pipeline import resultados
 
@@ -690,6 +731,14 @@ def main(argv=None) -> int:
     execucao.acrescentar(ficha, ficha_arquivo=caminhos["html"].name)
     execucao.encerrar()
     log.info("Resultado: %s. Ficha: %s", ficha["resultado"]["situacao"], caminhos["html"])
+    if args.dossie_eudr:
+        from pipeline import dossie_eudr
+
+        nome = ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}"
+        nome = re.sub(r"[^A-Za-z0-9_-]+", "_", str(nome)).strip("_") or "imovel"  # sem "/" nem ".." no caminho
+        pasta = config.PREDIAGNOSTICO / "dossie_eudr" / nome
+        dossie_eudr.escrever(ficha, pasta, args.commodity)
+        log.info("Dossiê EUDR: %s", pasta)
     return 0
 
 
