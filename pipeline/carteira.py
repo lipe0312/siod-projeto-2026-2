@@ -148,9 +148,16 @@ def _dossie_do_imovel(ficha: dict, base: dict, i, area: dict | None, pasta: Path
         return dossie_eudr.linha_indice(cod, base.get("commodity"), relativa, execucao_id, caminhos,
                                         area_ilegivel=ilegivel)
     except Exception as e:
-        log.exception("[carteira] dossiê EUDR da linha %s falhou", i + 2)
+        log.error("[carteira] dossiê EUDR da linha %s falhou: %s", i + 2, _erro(e))
         return dossie_eudr.linha_indice(cod, base.get("commodity"), None, execucao_id, area_ilegivel=ilegivel,
-                                        motivo=f"dossiê não gerado: {type(e).__name__}: {e}")
+                                        motivo=f"dossiê não gerado: {_erro(e)}")
+
+
+def _erro(e: Exception) -> str:
+    """Mensagem de exceção sem CPF/CNPJ, para log, carteira.csv e índice (a exceção pode ecoar a planilha). Sem
+    traceback no log pelo mesmo motivo."""
+    from pipeline import dossie_eudr
+    return dossie_eudr._limpo(f"{type(e).__name__}: {e}")
 
 
 def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar,
@@ -183,11 +190,11 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
             ficha = consultar(linha.get("cod_car"), lat, lon, linha.get("documento"), baixar_prodes=baixar_prodes,
                               **({"area_producao": area} if area else {}))
         except Exception as e:  # serviço fora do ar etc.: a linha fica inconclusiva e a carteira segue
-            log.exception("[carteira] linha %s (%s) falhou", i + 2, linha.get("id_produtor"))
-            linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": f"{type(e).__name__}: {e}"[:200],
+            log.error("[carteira] linha %s (%s) falhou: %s", i + 2, linha.get("id_produtor"), _erro(e))
+            linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": _erro(e)[:200],
                            "_n_pendencias": 0})
             if dossie_eudr:
-                indice.append(_linha_indice_falha(base, execucao_id, f"{type(e).__name__}: {e}"))
+                indice.append(_linha_indice_falha(base, execucao_id, _erro(e)))
             continue
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
         resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
