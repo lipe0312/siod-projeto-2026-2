@@ -12,7 +12,7 @@ from collections.abc import Iterator
 from typing import Annotated
 
 import psycopg
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -42,7 +42,8 @@ def hash_da_chave(cfg: Annotated[config.Configuracao, Depends(configuracao)],
                   credencial: Annotated[HTTPAuthorizationCredentials | None, Depends(_portador)]) -> str:
     """SHA-256 da chave do cabeçalho. Chave de outro ambiente ou fora do formato nem chega ao banco."""
     chave = credencial.credentials if credencial else ""
-    if chaves.ambiente_da_chave(chave) != cfg.ambiente:
+    ambiente = chaves.ambiente_da_chave(chave)
+    if cfg.ambiente is None or ambiente is None or ambiente != cfg.ambiente:
         raise banco.ChaveInvalida()
     return chaves.hash_da_chave(chave)
 
@@ -70,10 +71,13 @@ def ficha(chave: Hash, conn: Conexao, resultado_id: Annotated[str, Path(pattern=
         return _ou_404(consultas.ficha(conn, resultado_id), "ficha não encontrada")
 
 
-@v1.get("/mudancas", response_model=modelos.Mudancas, summary="O que mudou entre as duas últimas execuções")
-def mudancas(chave: Hash, conn: Conexao):
+@v1.get("/mudancas", response_model=modelos.Mudancas,
+        summary="O que mudou na última execução da organização (ou na execução pedida)")
+def mudancas(chave: Hash, conn: Conexao,
+             execucao_id: Annotated[str | None, Query(min_length=1, max_length=64)] = None):
     with banco.sessao(conn, chave):
-        return _ou_404(consultas.mudancas(conn), "nenhuma execução da organização")
+        return _ou_404(consultas.mudancas(conn, execucao_id), "execução não encontrada" if execucao_id
+                       else "nenhuma execução da organização")
 
 
 def _erro(request: Request, status: int, mensagem: str, **cabecalhos) -> JSONResponse:
@@ -83,6 +87,8 @@ def _erro(request: Request, status: int, mensagem: str, **cabecalhos) -> JSONRes
 
 def criar_app(cfg: config.Configuracao | None = None) -> FastAPI:
     cfg = cfg or config.carregar()
+    if cfg.ambiente is None:
+        log.warning("[api] %s ausente: /docs desligado e nenhuma chave aceita", config.VARIAVEL_AMBIENTE)
     local = cfg.local
     app = FastAPI(title="AgroValid: API de leitura", version="1",
                   docs_url="/docs" if local else None, redoc_url=None, openapi_url="/openapi.json" if local else None)

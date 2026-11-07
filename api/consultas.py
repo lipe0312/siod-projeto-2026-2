@@ -22,6 +22,11 @@ SELECT execucao_id, tipo, iniciada_em, terminada_em, versao_codigo
 FROM diag.execucao
 WHERE execucao_id = %s"""
 
+_EXECUCAO_DA_ORG = f"""
+SELECT execucao_id, tipo, iniciada_em, terminada_em, versao_codigo
+FROM diag.execucao
+WHERE execucao_id = %s AND organizacao_id = {ORG}"""
+
 _FONTES = """
 SELECT ec.fonte, ec.carga_id, c.iniciada_em AS data, c.status
 FROM diag.execucao_carga ec
@@ -65,7 +70,7 @@ SELECT m.cod_imovel, m.chave, m.criterio, m.situacao_anterior, m.situacao_atual,
        m.resultado_anterior_id, m.resultado_atual_id, r.execucao_id AS execucao_atual_id
 FROM diag.mudanca m
 JOIN diag.resultado_imovel r ON r.resultado_id = m.resultado_atual_id
-WHERE m.organizacao_id = {ORG}
+WHERE m.organizacao_id = {ORG} AND r.execucao_id = %s
 ORDER BY m.data_atual DESC, m.cod_imovel, m.chave"""
 
 
@@ -102,9 +107,14 @@ def ficha(conn: psycopg.Connection, resultado_id: str) -> dict | None:
             "evidencias": _todas(conn, _EVIDENCIAS, (resultado_id,))}
 
 
-def mudancas(conn: psycopg.Connection) -> dict | None:
-    """Critérios que mudaram entre as duas últimas execuções de cada imóvel, com a execução mais recente."""
-    execucao = _uma(conn, _EXECUCAO)
+def mudancas(conn: psycopg.Connection, execucao_id: str | None = None) -> dict | None:
+    """Critérios que mudaram na execução pedida (padrão: a última da organização), frente ao resultado anterior.
+
+    A visão `diag.mudanca` compara só os dois resultados mais recentes de cada imóvel: para uma execução antiga cujos
+    imóveis já têm resultado mais novo, a lista vem vazia. Execução de outra organização ou inexistente dá None (404).
+    """
+    execucao = _uma(conn, _EXECUCAO_DA_ORG, (execucao_id,)) if execucao_id else _uma(conn, _EXECUCAO)
     if execucao is None:
         return None
-    return {**_com_fontes(conn, execucao), "mudancas": _todas(conn, _MUDANCAS)}
+    return {**_com_fontes(conn, execucao),
+            "mudancas": _todas(conn, _MUDANCAS, (execucao["execucao_id"],))}

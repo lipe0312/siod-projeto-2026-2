@@ -27,7 +27,7 @@ from api import config
 VALIDADE_DIAS = 90
 ESCOPO = "leitura"
 BRASILIA = ZoneInfo("America/Sao_Paulo")
-_FORMATO = re.compile(r"^agv_(" + "|".join(config.AMBIENTES) + r")_[A-Za-z0-9_-]{43}$")
+_FORMATO = re.compile(r"agv_(" + "|".join(config.AMBIENTES) + r")_[A-Za-z0-9_-]{43}")
 
 
 def agora() -> datetime:
@@ -43,7 +43,7 @@ def gerar(ambiente: str) -> str:
 
 def ambiente_da_chave(chave: str) -> str | None:
     """Ambiente do prefixo, ou None se a chave não tem o formato esperado."""
-    achado = _FORMATO.match(chave or "")
+    achado = _FORMATO.fullmatch(chave or "")
     return achado.group(1) if achado else None
 
 
@@ -97,6 +97,9 @@ def principal(argv: list[str] | None = None) -> int:
     cfg = config.carregar()
     if not cfg.url_banco:
         print(f"defina {config.VARIAVEL_URL}", file=sys.stderr)
+        return 2
+    if args.acao == "criar" and cfg.ambiente is None:
+        print(f"defina {config.VARIAVEL_AMBIENTE} (local, homologacao ou producao)", file=sys.stderr)
         return 2
     with psycopg.connect(cfg.url_banco, autocommit=True) as conn:
         if args.acao == "criar":

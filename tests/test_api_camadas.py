@@ -60,7 +60,8 @@ def test_chave_tem_prefixo_do_ambiente_e_so_o_hash_sai_dela():
     assert re.fullmatch(r"[0-9a-f]{64}", h) and chave not in h
     assert chaves.identificador(chave) == chave[:len("agv_local_") + 6]
     assert chaves.ambiente_da_chave(chaves.gerar("producao")) == "producao"
-    for ruim in ("", "agv_local_curta", "xyz_local_" + "a" * 43, "agv_teste_" + "a" * 43, chave + "!"):
+    for ruim in ("", "agv_local_curta", "xyz_local_" + "a" * 43, "agv_teste_" + "a" * 43, chave + "!",
+                 chave + "\n"):  # `$` aceitaria a quebra de linha no fim; fullmatch não
         assert chaves.ambiente_da_chave(ruim) is None
     with pytest.raises(ValueError):
         chaves.gerar("teste")
@@ -72,7 +73,13 @@ def test_ambiente_desconhecido_e_recusado(monkeypatch):
         config.carregar()
 
 
-def _cliente(ambiente: str = "local", conexao=None) -> TestClient:
+def test_ambiente_ausente_falha_fechado(monkeypatch):
+    monkeypatch.delenv(config.VARIAVEL_AMBIENTE, raising=False)
+    cfg = config.carregar()
+    assert cfg.ambiente is None and not cfg.local
+
+
+def _cliente(ambiente: str | None = "local", conexao=None) -> TestClient:
     app = api_app.criar_app(config.Configuracao(url_banco=None, ambiente=ambiente))
     if conexao:
         app.dependency_overrides[api_app.conexao] = conexao
@@ -82,7 +89,7 @@ def _cliente(ambiente: str = "local", conexao=None) -> TestClient:
 def test_docs_so_no_ambiente_local():
     assert _cliente("local").get("/docs").status_code == 200
     assert _cliente("local").get("/openapi.json").status_code == 200
-    for ambiente in ("homologacao", "producao"):
+    for ambiente in ("homologacao", "producao", None):
         cliente = _cliente(ambiente)
         assert cliente.get("/docs").status_code == 404
         assert cliente.get("/openapi.json").status_code == 404
@@ -111,6 +118,17 @@ def test_sem_chave_ou_chave_de_outro_ambiente_da_401_sem_tocar_no_banco():
         r = cliente.get("/v1/carteira", headers=cabecalho)
         assert r.status_code == 401
         assert r.json()["erro"] == "chave de API ausente ou inválida" and r.json()["request_id"]
+
+
+def test_sem_ambiente_declarado_nenhuma_chave_entra():
+    def nunca():
+        raise AssertionError("não deveria abrir conexão")
+        yield  # pragma: no cover
+
+    cliente = _cliente(None, nunca)
+    for ambiente in config.AMBIENTES:
+        r = cliente.get("/v1/carteira", headers={"Authorization": f"Bearer {chaves.gerar(ambiente)}"})
+        assert r.status_code == 401
 
 
 def _falha():

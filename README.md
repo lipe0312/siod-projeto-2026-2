@@ -289,6 +289,7 @@ O banco é **opcional**: uma cópia do lago, refeita a qualquer momento ([`banco
 ```bash
 docker compose -f banco/docker-compose.yml up -d --wait
 export AGROVALID_DATABASE_URL=postgresql://agrovalid:agrovalid@localhost:5433/agrovalid
+export AGROVALID_AMBIENTE=local                            # sem ela: /docs desligado e nenhuma chave aceita
 python -m pipeline.armazenamento.banco --perfil lite --migrar
 ```
 
@@ -311,12 +312,12 @@ curl -H "Authorization: Bearer agv_local_…" http://127.0.0.1:8000/v1/carteira
 | `GET /saude` | `{"banco": "ok"}`, ou 503 se o banco não responde (sem chave) |
 | `GET /v1/carteira` | Última execução da organização: imóveis por prioridade, com situação e contagens |
 | `GET /v1/fichas/{resultado_id}` | Critérios e evidências de um imóvel (de `diag.criterio` e `diag.evidencia`, não do HTML) |
-| `GET /v1/mudancas` | Critério cuja situação mudou entre as duas últimas execuções de cada imóvel |
+| `GET /v1/mudancas` | Critério cuja situação mudou na última execução da organização, frente ao resultado anterior de cada imóvel; `?execucao_id=` escolhe outra execução da organização |
 
 - Toda resposta traz `execucao` (com `execucao_id`) e `fontes` (`fonte`, `carga_id`, `data`). Nenhuma traz documento nem `documento_hash`.
 - A organização vem só da chave. Cada requisição abre uma transação, faz `SET LOCAL ROLE agrovalid_leitura` (só `SELECT`, sem `BYPASSRLS`) e define `app.organizacao_id` só nessa transação.
 - Chave revogada, expirada (90 dias) ou de outro ambiente devolve 401. Revogue com `python -m api.chaves revogar --chave-id <uuid>` e veja o último uso com `python -m api.chaves listar --organizacao <id>`.
-- `/docs` só existe com `AGROVALID_AMBIENTE=local` (o padrão).
+- Defina `AGROVALID_AMBIENTE` (`local`, `homologacao` ou `producao`). Sem ela a API falha fechada: `/docs` desligado e toda chave recusada (401); `/docs` só existe com `AGROVALID_AMBIENTE=local`.
 
 ### Problemas comuns
 

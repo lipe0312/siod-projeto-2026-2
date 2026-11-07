@@ -202,6 +202,28 @@ def test_mudancas_da_organizacao(url, chaves_das_orgs):
     _sem_documento(r.text)
 
 
+def test_mudancas_filtra_pela_execucao(url, chaves_das_orgs):
+    with psycopg.connect(url) as conn:
+        # Ordenado por início, o dict fica com a última execução de cada organização.
+        execucoes = dict(conn.execute("SELECT organizacao_id, execucao_id FROM diag.execucao "
+                                      "ORDER BY iniciada_em").fetchall())
+        antigas = {org: ex for org, ex in conn.execute(
+            "SELECT DISTINCT ON (organizacao_id) organizacao_id, execucao_id FROM diag.execucao "
+            "ORDER BY organizacao_id, iniciada_em").fetchall()}
+    cliente = _cliente(url)
+    auth = _auth(chaves_das_orgs[OUTRA])
+    # A execução antiga não tem mudança (é a "anterior"): lista vazia, com a execução e as fontes dela.
+    r = cliente.get("/v1/mudancas", params={"execucao_id": antigas[OUTRA]}, headers=auth)
+    assert r.status_code == 200, r.text
+    assert r.json()["mudancas"] == [] and r.json()["execucao"]["execucao_id"] == antigas[OUTRA]
+    r = cliente.get("/v1/mudancas", params={"execucao_id": execucoes[OUTRA]}, headers=auth)
+    assert [m["chave"] for m in r.json()["mudancas"]] == ["desmatamento"]
+    # Execução de outra organização (mesmo a demonstração) ou inexistente: 404.
+    for outra in (execucoes[DEMO], antigas[DEMO], str(uuid.uuid4())):
+        r = cliente.get("/v1/mudancas", params={"execucao_id": outra}, headers=auth)
+        assert r.status_code == 404 and r.json()["erro"] == "execução não encontrada"
+
+
 def test_organizacao_sem_execucao_recebe_404(url):
     with psycopg.connect(url, autocommit=True) as conn:
         chave, _ = chaves.criar(conn, str(uuid.uuid4()), "local")
