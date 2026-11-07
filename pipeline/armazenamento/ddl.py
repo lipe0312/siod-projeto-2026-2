@@ -35,7 +35,7 @@ TIPOS_SQL = {"texto": "text", "inteiro": "bigint", "decimal": "double precision"
 TIPOS_CONTROLE = {"carga_id": "text", "valido_de": "timestamp", "valido_ate": "timestamp", "hash_linha": "text",
                   "consultado_em": "timestamp"}
 # Colunas com índice btree, quando existirem na tabela.
-INDICES_BTREE = ("documento_hash", "cod_imovel", "cod_car", "organizacao_id", "carga_id", "hash_sha256")
+INDICES_BTREE = ("documento_hash", "cod_imovel", "cod_car", "organizacao_id", "carga_id")
 # Parte da chave primária que vem das colunas de controle.
 CHAVE_CONTROLE = {"validade": ("valido_de",), "por_consulta": ("consultado_em",)}
 
@@ -93,6 +93,10 @@ def _indice(c: Contrato, coluna: str, metodo: str = "btree") -> str:
     return f"CREATE INDEX ix_{c.esquema}_{c.nome}_{coluna} ON {c.tabela}{usando} ({coluna});"
 
 
+def _indice_unico(c: Contrato, coluna: str) -> str:
+    return f"CREATE UNIQUE INDEX ux_{c.esquema}_{c.nome}_{coluna} ON {c.tabela} ({coluna});"
+
+
 def _comentario_geometria(c: Contrato) -> str:
     g = c.geometria
     return (f"COMMENT ON COLUMN {c.tabela}.{COLUNA_GEOMETRIA} IS "
@@ -125,6 +129,7 @@ def criar_tabela(c: Contrato) -> str:
     if COLUNA_GEOMETRIA in nomes:
         sql += [_comentario_geometria(c), _indice(c, COLUNA_GEOMETRIA, "gist")]
     sql += [_indice(c, n) for n in INDICES_BTREE if n in nomes]
+    sql += [_indice_unico(c, n) for n in c.unico]
     return "\n".join(sql)
 
 
@@ -261,6 +266,7 @@ REVOKE ALL ON {TABELA_CHAVE} FROM {PAPEL_APP}, {PAPEL_LEITURA};
 CREATE OR REPLACE FUNCTION cad.autenticar_chave_api(p_hash text)
 RETURNS text
 LANGUAGE plpgsql
+STRICT
 SECURITY DEFINER
 SET search_path = pg_catalog, pg_temp
 AS $fn$

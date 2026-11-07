@@ -64,7 +64,7 @@ CREATE TABLE cad.chave_api (
 );
 COMMENT ON TABLE cad.chave_api IS 'Chave de API de uma organização (ADR 0021): só o SHA-256 da chave, escopo só leitura, validade de 90 dias, revogação e último uso. Vive só no banco (a API a mantém); nunca vai ao lago [histórico: registro]';
 CREATE INDEX ix_cad_chave_api_organizacao_id ON cad.chave_api (organizacao_id);
-CREATE INDEX ix_cad_chave_api_hash_sha256 ON cad.chave_api (hash_sha256);
+CREATE UNIQUE INDEX ux_cad_chave_api_hash_sha256 ON cad.chave_api (hash_sha256);
 
 -- cad.consentimento
 CREATE TABLE cad.consentimento (

@@ -33,6 +33,7 @@ Os contratos não dependem de Python. Qualquer ferramenta que leia YAML (dbt, um
 | `chave` | lista de colunas | Identifica o registro; não aceita repetição nem nulo |
 | `historico` | `fotografia`, `validade`, `acrescimo`, `por_consulta`, `registro` | Como as versões são guardadas (abaixo) |
 | `acompanhar` | lista de colunas | Só em `validade`: abre uma versão nova quando uma delas muda |
+| `unico` | lista de colunas | Cada coluna ganha um índice UNIQUE no banco (ex.: `hash_sha256` da chave de API) |
 | `particao` | coluna | Subpasta `coluna=valor/` no lago (ex.: `uf`, `ano_mes`) |
 | `substituir_particao` | `true` | Em `acrescimo`: a partição gravada é a verdade inteira dela (PRODES por UF) |
 | `perfil_banco` | `lite`, `completo`, `fora` | `lite` cabe no plano gratuito do Supabase e do Neon; `completo` é o resto; `fora` nunca vai ao banco |

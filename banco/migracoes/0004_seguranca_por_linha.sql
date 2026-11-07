@@ -50,6 +50,7 @@ REVOKE ALL ON cad.chave_api FROM agrovalid_app, agrovalid_leitura;
 CREATE OR REPLACE FUNCTION cad.autenticar_chave_api(p_hash text)
 RETURNS text
 LANGUAGE plpgsql
+STRICT
 SECURITY DEFINER
 SET search_path = pg_catalog, pg_temp
 AS $fn$
