@@ -312,7 +312,7 @@ curl -H "Authorization: Bearer agv_local_…" http://127.0.0.1:8000/v1/carteira
 | `GET /saude` | `{"banco": "ok"}`, ou 503 se o banco não responde (sem chave) |
 | `GET /v1/carteira` | Última execução da organização: imóveis por prioridade, com situação e contagens |
 | `GET /v1/fichas/{resultado_id}` | Critérios e evidências de um imóvel (de `diag.criterio` e `diag.evidencia`, não do HTML) |
-| `GET /v1/mudancas` | Critério cuja situação mudou na última execução da organização, frente ao resultado anterior de cada imóvel; `?execucao_id=` escolhe outra execução da organização |
+| `GET /v1/mudancas` | Critério cuja situação mudou na última execução da organização, frente ao resultado anterior de cada imóvel; `?execucao_id=` escolhe outra execução da organização. Execução antiga pode voltar vazia: a comparação é só entre os dois resultados mais recentes de cada imóvel, e lista vazia não quer dizer "nada mudou" |
 
 - Toda resposta traz `execucao` (com `execucao_id`) e `fontes` (`fonte`, `carga_id`, `data`). Nenhuma traz documento nem `documento_hash`.
 - A organização vem só da chave. Cada requisição abre uma transação, faz `SET LOCAL ROLE agrovalid_leitura` (só `SELECT`, sem `BYPASSRLS`) e define `app.organizacao_id` só nessa transação.
