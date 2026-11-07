@@ -610,3 +610,49 @@ def escrever(ficha: dict, pasta: Path, commodity: str | None = None, cargas: pd.
     else:
         log.warning("Dossiê EUDR sem polígono: imóvel não localizado")
     return caminhos
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Lote (carteira)
+# ---------------------------------------------------------------------------------------------------------------
+
+COLUNAS_INDICE = ["cod_car", "commodity", "escopo", "desmatamento_area_declarada", "desmatamento_resto_do_imovel",
+                  "pasta", "execucao_id", "motivo"]
+NAO_SE_APLICA = "não se aplica"
+
+
+def nome_pasta(cod_imovel, alternativa: str = "imovel") -> str:
+    """Nome de pasta do imóvel: o código do CAR sem "/" nem ".." (ou `alternativa` se não sobrar nada)."""
+    return re.sub(r"[^A-Za-z0-9_-]+", "_", str(cod_imovel or alternativa)).strip("_") or "imovel"
+
+
+def linha_indice(cod_car, commodity, pasta: str | None, execucao_id, caminhos: dict[str, Path] | None = None,
+                 motivo: str | None = None) -> dict:
+    """Uma linha do indice.csv. Com `caminhos` (o retorno de escrever), a situação vem do dossie.json já gravado, que
+    é onde a regra da fonte incompleta (ADR 0013) foi aplicada; sem ele, o imóvel não teve dossiê e fica inconclusivo
+    com o `motivo`. Sem CPF/CNPJ nem documento_hash: só o CAR e o que a planilha chama de commodity."""
+    linha = {"cod_car": cod_car, "commodity": commodity, "escopo": None, "desmatamento_area_declarada": "inconclusivo",
+             "desmatamento_resto_do_imovel": "inconclusivo", "pasta": pasta, "execucao_id": execucao_id,
+             "motivo": motivo}
+    if not caminhos:
+        return linha
+    d = json.loads(caminhos["json"].read_text(encoding="utf-8"))
+    blocos = d["desmatamento_apos_31_12_2020"]["blocos"]
+    escopo = d["geolocalizacao"]["escopo"]
+    linha["escopo"] = {"area_de_producao": "área de produção", "imovel_inteiro": "imóvel inteiro"}.get(escopo)
+    if "desmatamento" in blocos:
+        linha["desmatamento_area_declarada"] = blocos["desmatamento"]["situacao"]
+    elif not motivo:
+        linha["motivo"] = "imóvel não localizado" if not escopo else "critério de desmatamento ausente na ficha"
+    linha["desmatamento_resto_do_imovel"] = (blocos["desmatamento_resto"]["situacao"] if "desmatamento_resto" in blocos
+                                             else NAO_SE_APLICA)
+    return linha
+
+
+def escrever_indice(linhas: list[dict], pasta: Path) -> Path:
+    """Grava `indice.csv` em `pasta` (uma linha por imóvel)."""
+    pasta = Path(pasta)
+    pasta.mkdir(parents=True, exist_ok=True)
+    caminho = pasta / "indice.csv"
+    pd.DataFrame(linhas, columns=COLUNAS_INDICE).to_csv(caminho, index=False)
+    return caminho

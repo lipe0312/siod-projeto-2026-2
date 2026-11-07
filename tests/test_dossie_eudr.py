@@ -357,3 +357,84 @@ def test_achado_confirmado_continua_pendencia_mesmo_com_fonte_incompleta(tmp_pat
     bloco = json.loads(caminhos["json"].read_text(encoding="utf-8"))["desmatamento_apos_31_12_2020"]["blocos"][
         "desmatamento"]
     assert bloco["situacao"] == "pendência" and bloco["lacunas_de_fonte"]
+
+
+# --- carteira: o dossiê de todos os imóveis de uma vez (#20) -----------------------------------------------------------
+
+def _carteira_sintetica(tmp_path, monkeypatch, consultar_extra=None):
+    """Planilha de 3 imóveis: A com área de produção, B sem área, C que o SICAR não encontra."""
+    from pipeline import carteira
+
+    cargas = _cargas(tmp_path)
+    monkeypatch.setattr(config, "RAIZ", tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda tabela, **k: cargas if tabela == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    entrada = tmp_path / "entrada"
+    entrada.mkdir()
+    (entrada / "talhao.kml").write_bytes((DADOS / "talhao.kml").read_bytes())
+    df = pd.DataFrame([
+        {"id_produtor": "P1", "cod_car": "MG-1", "commodity": "café", "area_producao": "talhao.kml",
+         "documento": CPF_VALIDO},
+        {"id_produtor": "P2", "cod_car": "MG-2", "commodity": "soja", "area_producao": None},
+        {"id_produtor": "P3", "cod_car": "MG-404/../x", "commodity": "milho", "area_producao": None}])
+
+    def consultar(cod, lat, lon, documento, baixar_prodes=True, area_producao=None):
+        if consultar_extra:
+            consultar_extra(cod)
+        if cod.startswith("MG-404"):
+            return {"consulta": {"gerado_em": "2026-11-05 10:00:00", "documento_informado": False},
+                    **prediagnostico.ficha_inconclusiva("CAR não localizado no SICAR"), "procedencia": []}
+        ficha = _ficha(area_producao, ("na_area", NO_TALHAO, "2024-06-10"))
+        ficha["imovel"] = {**ficha["imovel"], "cod_imovel": cod}
+        return {"consulta": ficha.pop("consulta"), **ficha}
+
+    areas = carteira.areas_de_producao(df, entrada)
+    execucao = resultados.Execucao("carteira", "demonstracao")
+    saida = carteira.processar(df, tmp_path / "saida", consultar=consultar, execucao=execucao, areas=areas,
+                               dossie_eudr=True)
+    return saida, execucao, tmp_path / "saida" / "dossie_eudr"
+
+
+def test_carteira_gera_o_dossie_de_cada_imovel_e_o_indice(tmp_path, monkeypatch, lago_temporario):
+    _, execucao, raiz = _carteira_sintetica(tmp_path, monkeypatch)
+    indice = pd.read_csv(raiz / "indice.csv", dtype=str, keep_default_na=False).set_index("cod_car")
+    assert list(indice.columns) == dossie_eudr.COLUNAS_INDICE[1:] and len(indice) == 3
+    assert sorted(p.name for p in (raiz / "MG-1").iterdir()) == ["dossie.geojson", "dossie.json", "dossie.md"]
+    a, b = indice.loc["MG-1"], indice.loc["MG-2"]
+    assert a.escopo == "área de produção" and b.escopo == "imóvel inteiro" and a.commodity == "café"
+    assert a.desmatamento_area_declarada == "indício" and a.pasta == "dossie_eudr/MG-1"
+    assert a.desmatamento_resto_do_imovel != dossie_eudr.NAO_SE_APLICA  # a área é menor que o imóvel
+    assert b.desmatamento_resto_do_imovel == dossie_eudr.NAO_SE_APLICA
+    assert (raiz / "MG-1" / "dossie.json").read_text(encoding="utf-8").count("área de produção informada") >= 1
+    assert "imóvel inteiro" in (raiz / "MG-2" / "dossie.md").read_text(encoding="utf-8")
+    assert set(indice.execucao_id) == {execucao.id}
+
+
+def test_imovel_com_falha_vira_linha_inconclusiva_com_motivo_e_nao_para_os_outros(tmp_path, monkeypatch, lago_temporario):
+    saida, _, raiz = _carteira_sintetica(tmp_path, monkeypatch)
+    indice = pd.read_csv(raiz / "indice.csv", dtype=str, keep_default_na=False)
+    falha = indice[indice.cod_car.str.startswith("MG-404")].iloc[0]
+    assert falha.desmatamento_area_declarada == "inconclusivo" and "não localizado" in falha.motivo
+    assert (raiz.parent / falha.pasta / "dossie.md").exists() and ".." not in falha.pasta  # nome sanitizado, como na #6
+    assert len(saida) == 3 and (raiz / "MG-2" / "dossie.json").exists()
+
+
+def test_excecao_na_consulta_e_linha_sem_cod_car_entram_no_indice_sem_derrubar_o_lote(tmp_path, monkeypatch,
+                                                                                      lago_temporario):
+    def explode(cod):
+        if cod == "MG-2":
+            raise TimeoutError("SICAR fora do ar")
+
+    _, _, raiz = _carteira_sintetica(tmp_path, monkeypatch, explode)
+    indice = pd.read_csv(raiz / "indice.csv", dtype=str, keep_default_na=False).set_index("cod_car")
+    assert "TimeoutError" in indice.loc["MG-2"].motivo and indice.loc["MG-2"].pasta == ""
+    assert indice.loc["MG-2"].desmatamento_area_declarada == "inconclusivo"
+    assert indice.loc["MG-1"].desmatamento_area_declarada == "indício"
+
+
+def test_indice_e_dossies_do_lote_sem_cpf_nem_documento_hash(tmp_path, monkeypatch, lago_temporario):
+    _, _, raiz = _carteira_sintetica(tmp_path, monkeypatch)
+    for arquivo in raiz.rglob("*"):
+        if arquivo.is_file():
+            texto = arquivo.read_text(encoding="utf-8")
+            assert CPF_VALIDO not in texto and "11144477735" not in texto and "documento_hash" not in texto
