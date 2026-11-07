@@ -292,10 +292,35 @@ O banco é **opcional**: uma cópia do lago, refeita a qualquer momento ([`banco
 ```bash
 docker compose -f banco/docker-compose.yml up -d --wait
 export AGROVALID_DATABASE_URL=postgresql://agrovalid:agrovalid@localhost:5433/agrovalid
+export AGROVALID_AMBIENTE=local                            # sem ela: /docs desligado e nenhuma chave aceita
 python -m pipeline.armazenamento.banco --perfil lite --migrar
 ```
 
 Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite no fim.
+
+### 8. API de leitura (local)
+
+A carteira, a ficha e as mudanças de uma cooperativa, lidas do banco por HTTP ([ADR 0020](docs/arquitetura/adr/0020-servir-a-api-de-leitura-com-fastapi-sobre-o-banco.md), [ADR 0021](docs/arquitetura/adr/0021-autenticar-com-chave-por-organizacao-agora-e-provedor-de-identidade-com-bff-depois.md)). O pacote `api/` só lê o banco: não importa `pipeline/` nem abre o lago. Por enquanto roda só na máquina. Para expor, é preciso antes a #9 e o `sec-predeploy`.
+
+```bash
+# banco com o perfil lite carregado (seção 7); um banco migrado antes de 05/11/2026 precisa ser recriado (0002 e 0004 mudaram)
+export AGROVALID_DATABASE_URL=postgresql://agrovalid:agrovalid@localhost:5433/agrovalid
+python -m api.chaves criar --organizacao demonstracao      # mostra a chave agv_local_… uma única vez
+uvicorn api.app:app --host 127.0.0.1 --port 8000
+curl -H "Authorization: Bearer agv_local_…" http://127.0.0.1:8000/v1/carteira
+```
+
+| Rota | O que devolve |
+|---|---|
+| `GET /saude` | `{"banco": "ok"}`, ou 503 se o banco não responde (sem chave) |
+| `GET /v1/carteira` | Última execução da organização: imóveis por prioridade, com situação e contagens |
+| `GET /v1/fichas/{resultado_id}` | Critérios e evidências de um imóvel (de `diag.criterio` e `diag.evidencia`, não do HTML) |
+| `GET /v1/mudancas` | Critério cuja situação mudou na última execução da organização, frente ao resultado anterior de cada imóvel; `?execucao_id=` escolhe outra execução da organização. Execução antiga pode voltar vazia: a comparação é só entre os dois resultados mais recentes de cada imóvel, e lista vazia não quer dizer "nada mudou" |
+
+- Toda resposta traz `execucao` (com `execucao_id`) e `fontes` (`fonte`, `carga_id`, `data`). Nenhuma traz documento nem `documento_hash`.
+- A organização vem só da chave. Cada requisição abre uma transação, faz `SET LOCAL ROLE agrovalid_leitura` (só `SELECT`, sem `BYPASSRLS`) e define `app.organizacao_id` só nessa transação.
+- Chave revogada, expirada (90 dias) ou de outro ambiente devolve 401. Revogue com `python -m api.chaves revogar --chave-id <uuid>` e veja o último uso com `python -m api.chaves listar --organizacao <id>`.
+- Defina `AGROVALID_AMBIENTE` (`local`, `homologacao` ou `producao`). Sem ela a API falha fechada: `/docs` desligado e toda chave recusada (401); `/docs` só existe com `AGROVALID_AMBIENTE=local`.
 
 ### Problemas comuns
 
@@ -324,6 +349,7 @@ Com `AGROVALID_DATABASE_URL` no `.env`, a rotina mensal recarrega o perfil lite 
 | [`pipeline/armazenamento/`](pipeline/armazenamento/) | Lago com histórico (`lago`, `historico`, `contratos`, `cargas`), DDL gerado e carga no banco (`ddl`, `banco`) | Persistência |
 | [`pipeline/cadastro.py`](pipeline/cadastro.py), [`pipeline/resultados.py`](pipeline/resultados.py) | Cadastro da carteira (`cad`) e resultado do pré-diagnóstico com as mudanças entre execuções (`diag`) | Persistência |
 | [`banco/`](banco/LEIA-ME.md) | Migrações do PostGIS, segurança por organização e Docker local | Persistência |
+| [`api/`](api/) | API de leitura (FastAPI): carteira, ficha e mudanças por organização, com chave de API (`api.chaves`) | API |
 | [`pipeline/fontes/ibama_embargos.py`](pipeline/fontes/ibama_embargos.py) | Fonte tabular: embargos do IBAMA (CSV) | 02 |
 | [`pipeline/fontes/inpe_deter.py`](pipeline/fontes/inpe_deter.py) | Alertas de desmatamento do INPE: arquivo de cada bioma do TerraBrasilis (Amazônia, Cerrado, Pantanal) reconciliado com o lago; WFS (GeoJSON) na queda | 02, 04 |
 | [`pipeline/fontes/mte_lista_suja.py`](pipeline/fontes/mte_lista_suja.py) | Fonte documento: Lista Suja do Ministério do Trabalho (PDF) | 02 |

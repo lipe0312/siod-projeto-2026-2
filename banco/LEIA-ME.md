@@ -8,7 +8,7 @@ O banco é uma cópia do lago Parquet, refeita a qualquer momento (ADR [0011](..
 | `migracoes/0001_extensoes_e_esquemas.sql` | PostGIS, os cinco esquemas (`meta`, `geo`, `ref`, `cad`, `diag`) e a tabela `meta.migracao`. Escrita à mão |
 | `migracoes/0002_tabelas_lite.sql` | Tabelas do perfil lite. **Gerada** |
 | `migracoes/0003_tabelas_completo.sql` | Tabelas do perfil completo e as geometrias que o lite não leva. **Gerada**; só se aplica no perfil completo |
-| `migracoes/0004_seguranca_por_linha.sql` | Papel `agrovalid_app` e segurança por linha em `cad` e `diag`. **Gerada** |
+| `migracoes/0004_seguranca_por_linha.sql` | Papéis `agrovalid_app` e `agrovalid_leitura`, a função `cad.autenticar_chave_api` e a segurança por linha em `cad` e `diag`. **Gerada** |
 | `migracoes/0005_visoes.sql` | `<tabela>_vigente` e `diag.mudanca`. **Gerada** |
 
 As migrações 0002 a 0005 são geradas por `python -m pipeline.armazenamento.ddl`. O teste `tests/test_banco_ddl.py` falha se um contrato mudou e elas não foram regeradas.
@@ -83,6 +83,23 @@ SELECT * FROM cad.imovel;   -- só os imóveis dessa organização
 - `diag.mudanca` usa `security_invoker`: quem consulta só vê as mudanças da própria organização.
 - O dono (quem migra e carrega) não é afetado: não há `FORCE ROW LEVEL SECURITY`.
 - No Supabase, o JWT da API preenche a variável depois.
+
+### Papel da API de leitura e chave de API
+
+A API (`api/`) entra por requisição como `agrovalid_leitura`: sem login, sem `BYPASSRLS`, só `SELECT` em `meta`, `cad` e `diag` (nem `ref` nem `geo`). Tudo é `LOCAL`, dentro da transação da requisição, para não vazar entre requisições que reusam a conexão:
+
+```sql
+BEGIN;
+SET LOCAL ROLE agrovalid_leitura;
+SELECT cad.autenticar_chave_api('<sha256 da chave>');          -- organização da chave, ou NULL
+SELECT set_config('app.organizacao_id', '<organização>', true); -- true = SET LOCAL
+-- consultas
+COMMIT;
+```
+
+- `cad.chave_api` guarda só o SHA-256 da chave. Nenhum papel da aplicação lê essa tabela (`REVOKE ALL`).
+- `cad.autenticar_chave_api` (`SECURITY DEFINER`, `search_path` fixo) é a única porta: confere o escopo, a revogação e a validade e marca `ultimo_uso_em` no horário de Brasília. Só `agrovalid_leitura` pode executá-la.
+- Em `diag`, a linha da demonstração é visível a todos. Por isso a API também filtra `organizacao_id` em cada consulta.
 
 ## Testes
 

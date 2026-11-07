@@ -1,0 +1,17 @@
+tabela: cad.chave_api
+descricao: "Chave de API de uma organização (ADR 0021): só o SHA-256 da chave, escopo só leitura, validade de 90 dias, revogação e último uso. Vive só no banco (a API a mantém); nunca vai ao lago"
+fonte: cadastro
+chave: [chave_id]
+unico: [hash_sha256]
+historico: registro
+perfil_banco: lite
+colunas:
+  - {nome: chave_id,       tipo: texto,     nulo: false}
+  - {nome: organizacao_id, tipo: texto,     nulo: false}
+  - {nome: identificador,  tipo: texto,     nulo: false}
+  - {nome: hash_sha256,    tipo: texto,     nulo: false}
+  - {nome: escopo,         tipo: texto,     nulo: false}
+  - {nome: criada_em,      tipo: data_hora, nulo: false}
+  - {nome: expira_em,      tipo: data_hora, nulo: false}
+  - {nome: revogada_em,    tipo: data_hora}
+  - {nome: ultimo_uso_em,  tipo: data_hora}

@@ -26,6 +26,52 @@ GRANT INSERT ON ALL TABLES IN SCHEMA cad, diag TO agrovalid_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA meta, geo, ref, cad, diag GRANT SELECT ON TABLES TO agrovalid_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA cad, diag GRANT INSERT ON TABLES TO agrovalid_app;
 
+-- papel da API de leitura (ADR 0019): só SELECT, sem BYPASSRLS
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'agrovalid_leitura') THEN
+        CREATE ROLE agrovalid_leitura NOLOGIN NOBYPASSRLS;
+    END IF;
+END
+$$;
+
+-- A API entra como esse papel por requisição: SET LOCAL ROLE agrovalid_leitura, dentro da transação.
+GRANT agrovalid_leitura TO CURRENT_USER;
+
+GRANT USAGE ON SCHEMA meta, cad, diag TO agrovalid_leitura;
+GRANT SELECT ON ALL TABLES IN SCHEMA meta, cad, diag TO agrovalid_leitura;
+ALTER DEFAULT PRIVILEGES IN SCHEMA meta, cad, diag GRANT SELECT ON TABLES TO agrovalid_leitura;
+
+-- cad.chave_api: nenhum papel da aplicação lê o hash; só a função abaixo o confere
+REVOKE ALL ON cad.chave_api FROM agrovalid_app, agrovalid_leitura;
+
+-- Devolve a organização da chave válida (não revogada, não expirada, escopo leitura) e marca o último uso.
+-- SECURITY DEFINER: roda como o dono da tabela, que não passa pela segurança por linha; search_path fixo.
+CREATE OR REPLACE FUNCTION cad.autenticar_chave_api(p_hash text)
+RETURNS text
+LANGUAGE plpgsql
+STRICT
+SECURITY DEFINER
+SET search_path = pg_catalog, pg_temp
+AS $fn$
+DECLARE
+    agora timestamp := now() AT TIME ZONE 'America/Sao_Paulo';
+    org text;
+BEGIN
+    UPDATE cad.chave_api
+       SET ultimo_uso_em = agora
+     WHERE hash_sha256 = p_hash
+       AND escopo = 'leitura'
+       AND revogada_em IS NULL
+       AND expira_em > agora
+    RETURNING organizacao_id INTO org;
+    RETURN org;
+END
+$fn$;
+
+REVOKE ALL ON FUNCTION cad.autenticar_chave_api(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION cad.autenticar_chave_api(text) TO agrovalid_leitura;
+
 -- cad.area_producao
 ALTER TABLE cad.area_producao ENABLE ROW LEVEL SECURITY;
 CREATE POLICY area_producao_leitura ON cad.area_producao FOR SELECT
@@ -45,6 +91,13 @@ ALTER TABLE cad.carteira_item ENABLE ROW LEVEL SECURITY;
 CREATE POLICY carteira_item_leitura ON cad.carteira_item FOR SELECT
     USING (organizacao_id = current_setting('app.organizacao_id', true));
 CREATE POLICY carteira_item_insercao ON cad.carteira_item FOR INSERT
+    WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
+
+-- cad.chave_api
+ALTER TABLE cad.chave_api ENABLE ROW LEVEL SECURITY;
+CREATE POLICY chave_api_leitura ON cad.chave_api FOR SELECT
+    USING (organizacao_id = current_setting('app.organizacao_id', true));
+CREATE POLICY chave_api_insercao ON cad.chave_api FOR INSERT
     WITH CHECK (organizacao_id = current_setting('app.organizacao_id', true));
 
 -- cad.consentimento

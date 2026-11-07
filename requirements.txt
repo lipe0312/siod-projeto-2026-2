@@ -1,4 +1,5 @@
 agrobr[pdf]==1.1.0
+fastapi==0.162.0
 ipykernel==7.3.0
 matplotlib==3.11.2
 nest_asyncio==1.6.0
@@ -12,3 +13,4 @@ pytest==9.1.1
 PyYAML==6.0.3
 requests==2.34.2
 shapely==2.1.2
+uvicorn==0.54.0

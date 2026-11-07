@@ -49,6 +49,23 @@ CREATE TABLE cad.carteira_item (
 COMMENT ON TABLE cad.carteira_item IS 'Cada linha da planilha importada, com o problema encontrado na conferência [histórico: registro]';
 CREATE INDEX ix_cad_carteira_item_organizacao_id ON cad.carteira_item (organizacao_id);
 
+-- cad.chave_api
+CREATE TABLE cad.chave_api (
+    chave_id                  text NOT NULL,
+    organizacao_id            text NOT NULL,
+    identificador             text NOT NULL,
+    hash_sha256               text NOT NULL,
+    escopo                    text NOT NULL,
+    criada_em                 timestamp NOT NULL,
+    expira_em                 timestamp NOT NULL,
+    revogada_em               timestamp,
+    ultimo_uso_em             timestamp,
+    PRIMARY KEY (chave_id)
+);
+COMMENT ON TABLE cad.chave_api IS 'Chave de API de uma organização (ADR 0021): só o SHA-256 da chave, escopo só leitura, validade de 90 dias, revogação e último uso. Vive só no banco (a API a mantém); nunca vai ao lago [histórico: registro]';
+CREATE INDEX ix_cad_chave_api_organizacao_id ON cad.chave_api (organizacao_id);
+CREATE UNIQUE INDEX ux_cad_chave_api_hash_sha256 ON cad.chave_api (hash_sha256);
+
 -- cad.consentimento
 CREATE TABLE cad.consentimento (
     consentimento_id          text NOT NULL,

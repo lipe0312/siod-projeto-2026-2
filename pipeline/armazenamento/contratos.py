@@ -46,6 +46,7 @@ class Contrato:
     particao: str | None = None
     substituir_particao: bool = False
     geometria: dict | None = None
+    unico: tuple[str, ...] = ()
 
     @property
     def esquema(self) -> str:
@@ -74,11 +75,12 @@ def _ler(arquivo: Path) -> Contrato:
     contrato = Contrato(tabela=tabela, descricao=d.get("descricao", ""), fonte=d["fonte"], chave=tuple(d["chave"]),
                         historico=d["historico"], perfil_banco=d["perfil_banco"], colunas=colunas,
                         acompanhar=tuple(d.get("acompanhar", ())), particao=d.get("particao"),
-                        substituir_particao=bool(d.get("substituir_particao", False)), geometria=d.get("geometria"))
+                        substituir_particao=bool(d.get("substituir_particao", False)), geometria=d.get("geometria"),
+                        unico=tuple(d.get("unico", ())))
     problemas = [f"tipo '{c.tipo}' da coluna {c.nome}" for c in colunas if c.tipo not in TIPOS]
     problemas += [f"histórico '{contrato.historico}'"] if contrato.historico not in HISTORICOS else []
     problemas += [f"perfil '{contrato.perfil_banco}'"] if contrato.perfil_banco not in PERFIS else []
-    referidas = [*contrato.chave, *contrato.acompanhar, *([contrato.particao] if contrato.particao else [])]
+    referidas = [*contrato.chave, *contrato.acompanhar, *contrato.unico, *([contrato.particao] if contrato.particao else [])]
     problemas += [f"coluna '{n}' citada e não declarada" for n in referidas if n not in contrato.nomes]
     problemas += [f"chave '{n}' aceita nulo" for n in contrato.chave
                   if next(c for c in colunas if c.nome == n).nulo] if not problemas else []

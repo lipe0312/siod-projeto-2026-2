@@ -12,10 +12,12 @@ Rascunho de 05/11/2026 (art. 37 da LGPD). Toda issue que trate dado pessoal novo
 | Log de acesso e segurança | `request_id`, organização, rota, status, IP (só na borda e no log de segurança) | Usuário | Controladora | Legítimo interesse (segurança) e art. 15 do Marco Civil da Internet (6 meses de registro de acesso a aplicação) | Nuvem, Brasil; borda: Cloudflare | 6 meses |
 | Proteção contra robôs | Sinais do navegador avaliados pelo Turnstile | Visitante | Controladora | Legítimo interesse (segurança) | Cloudflare (transferência internacional) | Conforme a Cloudflare |
 | Dados públicos com nome de pessoa | Lista Suja (empregador), embargos do IBAMA (autuado) | Pessoas listadas | Controladora | Dado tornado público pelo órgão (art. 7º, §3º e §4º), com finalidade compatível: verificação socioambiental | `ref`/`geo`, documento só como hash | Enquanto a fonte publicar; versões antigas pelo prazo de rastreabilidade |
+| Leitura pela API (`/v1/fichas`) | `registro_id` da evidência; na Lista Suja é o SHA-256 (32 dígitos) de `documento_hash` + estabelecimento + ano da ação fiscal + sequencial (`chave_registro` em `pipeline/fontes/mte_lista_suja.py`). Não reverte ao CPF/CNPJ sem a chave do HMAC, mas é identificador estável do empregador listado: dado pseudonimizado, ainda pessoal (art. 13, §4º) | Pessoas listadas | Operadora (para a cooperativa) | A do pré-diagnóstico: dado público com finalidade compatível (art. 7º, §3º e §4º) | `diag.evidencia`, Brasil; sai só para a chave da própria organização (RLS) | Igual ao pré-diagnóstico |
 
 Pontos em aberto:
 - A base legal do CPF (consentimento ou legítimo interesse) é decisão com a cooperativa e com o jurídico. Consentimento pode ser revogado, e o sistema precisa apagar o hash quando for.
 - Fazer o teste de legítimo interesse (LIA) para os dados públicos e para o log de segurança.
+- `registro_id` da Lista Suja na API: se a chave do HMAC vazar, o identificador liga a evidência ao documento. Avaliar trocar por um id por organização antes do piloto (ADR 0025).
 - Confirmar se a AgroValid se enquadra como agente de pequeno porte (Resolução CD/ANPD nº 2/2022). O pré-diagnóstico pode ser tratamento de alto risco por afetar crédito, o que limita a dispensa.
 
 ## Suboperadores e transferência internacional
