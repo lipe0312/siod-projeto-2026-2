@@ -188,8 +188,10 @@ def mapa(ficha: dict, largura: int = 640) -> str:
     passo = next(v for v in (50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000) if v >= alvo * 0.5)
     barra = passo * escala
     rotulo_escala = f"{passo // 1000} km" if passo >= 1000 else f"{passo} m"
+    rotulo_aria = ("Mapa do imóvel com a área de produção declarada pelo produtor e as evidências encontradas"
+                   if ficha.get("geometria_area_producao") else "Mapa do imóvel com as evidências encontradas")
     return f"""<svg class="mapa" viewBox="0 0 {largura} {altura:.0f}" role="img"
-aria-label="Mapa do imóvel com as evidências encontradas">
+aria-label="{rotulo_aria}">
 <defs><pattern id="hach" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
 <rect width="7" height="7" fill="var(--emb)" fill-opacity=".18"/><line x1="0" y1="0" x2="0" y2="7" stroke="var(--emb)"
 stroke-width="2.5"/></pattern><clipPath id="vista"><rect width="{largura}" height="{altura:.0f}"/></clipPath></defs>
@@ -421,18 +423,18 @@ def legenda_area(ficha: dict) -> str:
     if not area:
         return '<span class="mut">área de produção não informada</span>'
     if not ficha.get("geometria_area_producao"):
-        return (f'<span class="mut">área de produção não lida ({escape(str(area.get("aviso") or "arquivo ilegível"))}): '
-                'o mapa e o cruzamento são do imóvel inteiro</span>')
+        return f'<span class="mut">{escape(str(area.get("aviso") or "área de produção não lida"))}</span>'
     det, prd = _periodo(ficha, ("alertas", "alertas_resto")), _periodo(ficha, ("prodes", "prodes_resto"))
     fonte = lambda nome, per: f" · {nome}{', ' + per if per else ''}"  # noqa: E731
     return ('<span><i style="border:2px dashed var(--tx);background:var(--carf)"></i>Área de produção (declarada pelo '
             'produtor)</span>'
-            f'<span><i style="background:var(--alt)"></i>DETER dentro da área (A){escape(fonte("INPE", det))}</span>'
+            f'<span><i style="background:var(--alt)"></i>DETER que toca a área (A){escape(fonte("INPE", det))}</span>'
             f'<span><i style="border:2px dotted var(--alt)"></i>DETER no resto do imóvel (AR){escape(fonte("INPE", det))}'
             '</span>'
-            f'<span><i style="background:var(--prd)"></i>PRODES dentro da área (P){escape(fonte("INPE", prd))}</span>'
+            f'<span><i style="background:var(--prd)"></i>PRODES que toca a área (P){escape(fonte("INPE", prd))}</span>'
             f'<span><i style="border:2px dotted var(--prd)"></i>PRODES no resto do imóvel (PR)'
-            f'{escape(fonte("INPE", prd))}</span>')
+            f'{escape(fonte("INPE", prd))}</span>'
+            + (f'<span class="cobertura">⚠ {escape(area["aviso"])}</span>' if area.get("aviso") else ""))
 
 
 def renderizar(ficha: dict) -> str:
@@ -463,10 +465,10 @@ def renderizar(ficha: dict) -> str:
             ("Bioma", escape(", ".join(NOME_BIOMA.get(b, b) for b in ficha["consulta"].get("biomas", [])) or "—")),
             *([("PRODES publicado até", f'{pr["ultimo_ano_do_imovel"]} <small class="mut">({escape(pr["origem"])}, '
                 f'{_data(pr["verificado_em"])})</small>')] if pr and pr.get("ultimo_ano_do_imovel") else [])])
+        com_area = bool(ficha.get("geometria_area_producao"))
         topo = f"""<section class="card grid"><div><h2>Mapa do imóvel</h2>{mapa(ficha)}
 <div class="legenda"><span><i style="border:2px solid var(--car);background:var(--carf)"></i>perímetro do CAR</span>
-<span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span><span><i style="background:var(--alt)"></i>alerta
-DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span><span><i
+<span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span>{"" if com_area else '<span><i style="background:var(--alt)"></i>alerta DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span>'}<span><i
 style="border:2px dashed var(--ti)"></i>terra indígena (T)</span><span><i style="border:2px dashed var(--tq)"></i>quilombola
 (Q)</span><span><i style="border:2px dashed var(--uc)"></i>unidade de conservação (U)</span><span class="mut">mais
 claro: na divisa, não atribuído</span>{legenda_area(ficha)}</div></div>
