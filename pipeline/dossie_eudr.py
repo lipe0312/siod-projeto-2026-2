@@ -23,7 +23,7 @@ import pandas as pd
 import shapely
 from shapely.geometry.polygon import orient
 
-from pipeline import config, vetor
+from pipeline import config, documentos, vetor
 from pipeline.armazenamento import lago
 from pipeline.fontes import sicar
 
@@ -626,33 +626,66 @@ def nome_pasta(cod_imovel, alternativa: str = "imovel") -> str:
     return re.sub(r"[^A-Za-z0-9_-]+", "_", str(cod_imovel or alternativa)).strip("_") or "imovel"
 
 
+def _limpo(texto):
+    """Texto de célula do índice sem CPF/CNPJ (sequência de dígitos ou formato com pontos e traço)."""
+    if texto is None:
+        return None
+    # limpa antes de cortar: cortar primeiro pode deixar um pedaço de documento que a regex não reconhece
+    return documentos.FORMATO_CPF_CNPJ.sub(documentos.OMITIDO, vetor.nome_sem_documento(str(texto)))[:300]
+
+
+def _junta(*motivos) -> str | None:
+    return "; ".join(m for m in motivos if m) or None
+
+
 def linha_indice(cod_car, commodity, pasta: str | None, execucao_id, caminhos: dict[str, Path] | None = None,
-                 motivo: str | None = None) -> dict:
+                 motivo: str | None = None, area_ilegivel: str | None = None) -> dict:
     """Uma linha do indice.csv. Com `caminhos` (o retorno de escrever), a situação vem do dossie.json já gravado, que
     é onde a regra da fonte incompleta (ADR 0013) foi aplicada; sem ele, o imóvel não teve dossiê e fica inconclusivo
-    com o `motivo`. Sem CPF/CNPJ nem documento_hash: só o CAR e o que a planilha chama de commodity."""
+    com o `motivo`. `area_ilegivel`: o motivo de a área declarada não ter sido lida; o dossiê cruzou o imóvel inteiro,
+    então a situação "na área declarada" é inconclusiva (não a do imóvel inteiro). Todo texto passa por _limpo: sem
+    CPF/CNPJ nem documento_hash."""
     linha = {"cod_car": cod_car, "commodity": commodity, "escopo": None, "desmatamento_area_declarada": "inconclusivo",
              "desmatamento_resto_do_imovel": "inconclusivo", "pasta": pasta, "execucao_id": execucao_id,
              "motivo": motivo}
-    if not caminhos:
-        return linha
-    d = json.loads(caminhos["json"].read_text(encoding="utf-8"))
-    blocos = d["desmatamento_apos_31_12_2020"]["blocos"]
-    escopo = d["geolocalizacao"]["escopo"]
-    linha["escopo"] = {"area_de_producao": "área de produção", "imovel_inteiro": "imóvel inteiro"}.get(escopo)
-    if "desmatamento" in blocos:
-        linha["desmatamento_area_declarada"] = blocos["desmatamento"]["situacao"]
-    elif not motivo:
-        linha["motivo"] = "imóvel não localizado" if not escopo else "critério de desmatamento ausente na ficha"
-    linha["desmatamento_resto_do_imovel"] = (blocos["desmatamento_resto"]["situacao"] if "desmatamento_resto" in blocos
-                                             else NAO_SE_APLICA)
+    if caminhos:
+        d = json.loads(caminhos["json"].read_text(encoding="utf-8"))
+        blocos = d["desmatamento_apos_31_12_2020"]["blocos"]
+        escopo = d["geolocalizacao"]["escopo"]
+        linha["escopo"] = {"area_de_producao": "área de produção", "imovel_inteiro": "imóvel inteiro"}.get(escopo)
+        resto = blocos.get("desmatamento_resto")
+        linha["desmatamento_resto_do_imovel"] = resto["situacao"] if resto else NAO_SE_APLICA
+        bloco = blocos.get("desmatamento")
+        if bloco is None:
+            linha["motivo"] = _junta(motivo, "imóvel não localizado" if not escopo else
+                                     "critério de desmatamento ausente na ficha")
+        elif area_ilegivel:
+            linha["desmatamento_resto_do_imovel"] = "inconclusivo"
+            linha["motivo"] = _junta(motivo, f"área de produção não lida: {area_ilegivel}",
+                                     "o desmatamento foi cruzado com o imóvel inteiro, não com a área declarada")
+        else:
+            linha["desmatamento_area_declarada"] = bloco["situacao"]
+            for nome, b in (("área declarada", bloco), ("resto do imóvel", resto)):
+                if b and b["situacao"] == "inconclusivo":  # ADR 0013: inconclusivo sempre com motivo
+                    linha["motivo"] = _junta(linha["motivo"], f"{nome}: " + (
+                        "; ".join(b.get("lacunas_de_fonte") or []) or b.get("evidencia") or "fonte incompleta"))
+    elif area_ilegivel:
+        linha["motivo"] = _junta(motivo, f"área de produção não lida: {area_ilegivel}")
+    for chave in ("cod_car", "commodity", "motivo"):
+        linha[chave] = _limpo(linha[chave])
     return linha
 
 
+def _neutra(valor):
+    """Célula que começa com = + - @ vira texto no Excel: prefixo '."""
+    return "'" + valor if isinstance(valor, str) and valor[:1] in ("=", "+", "-", "@") else valor
+
+
 def escrever_indice(linhas: list[dict], pasta: Path) -> Path:
-    """Grava `indice.csv` em `pasta` (uma linha por imóvel)."""
+    """Grava `indice.csv` em `pasta` (uma linha por imóvel; células com fórmula neutralizadas)."""
     pasta = Path(pasta)
     pasta.mkdir(parents=True, exist_ok=True)
     caminho = pasta / "indice.csv"
-    pd.DataFrame(linhas, columns=COLUNAS_INDICE).to_csv(caminho, index=False)
+    df = pd.DataFrame(linhas, columns=COLUNAS_INDICE)
+    df.apply(lambda coluna: coluna.map(_neutra)).to_csv(caminho, index=False)
     return caminho

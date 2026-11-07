@@ -138,18 +138,19 @@ def _dossie_do_imovel(ficha: dict, base: dict, i, area: dict | None, pasta: Path
 
     cod = ficha["imovel"].get("cod_imovel") or base.get("cod_car")
     nome = dossie_eudr.nome_pasta(cod, f"linha_{i + 2}")
-    if nome in usadas:  # o mesmo CAR duas vezes na planilha: a segunda pasta leva o número da linha
+    if nome.lower() in usadas:  # o mesmo CAR duas vezes na planilha: a segunda pasta leva o número da linha
         nome = f"{nome}_linha_{i + 2}"
-    usadas.add(nome)
+    usadas.add(nome.lower())
     relativa = f"dossie_eudr/{nome}"
-    motivo = f"área de produção não lida: {area['motivo']}" if area and area.get("motivo") else None
+    ilegivel = (area or {}).get("motivo")
     try:
         caminhos = dossie_eudr.escrever(ficha, pasta / relativa, base.get("commodity"))
-        return dossie_eudr.linha_indice(cod, base.get("commodity"), relativa, execucao_id, caminhos, motivo)
+        return dossie_eudr.linha_indice(cod, base.get("commodity"), relativa, execucao_id, caminhos,
+                                        area_ilegivel=ilegivel)
     except Exception as e:
         log.exception("[carteira] dossiê EUDR da linha %s falhou", i + 2)
-        return dossie_eudr.linha_indice(cod, base.get("commodity"), None, execucao_id,
-                                        motivo=f"dossiê não gerado: {type(e).__name__}: {e}"[:200])
+        return dossie_eudr.linha_indice(cod, base.get("commodity"), None, execucao_id, area_ilegivel=ilegivel,
+                                        motivo=f"dossiê não gerado: {type(e).__name__}: {e}")
 
 
 def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar,
@@ -186,7 +187,7 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
             linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": f"{type(e).__name__}: {e}"[:200],
                            "_n_pendencias": 0})
             if dossie_eudr:
-                indice.append(_linha_indice_falha(base, execucao_id, f"{type(e).__name__}: {e}"[:200]))
+                indice.append(_linha_indice_falha(base, execucao_id, f"{type(e).__name__}: {e}"))
             continue
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
         resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
@@ -202,7 +203,10 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
     if dossie_eudr:
         from pipeline import dossie_eudr as dossie
 
-        dossie.escrever_indice(indice, pasta / "dossie_eudr")
+        try:
+            dossie.escrever_indice(indice, pasta / "dossie_eudr")
+        except Exception:  # o índice é um extra: a carteira (csv, html, fichas) sai mesmo assim
+            log.exception("[carteira] indice.csv do dossiê EUDR não foi gravado")
     saida = pd.DataFrame(linhas)
     for coluna in [c for c in COLUNAS_SAIDA if c != "prioridade"]:
         if coluna not in saida:

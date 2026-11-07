@@ -438,3 +438,102 @@ def test_indice_e_dossies_do_lote_sem_cpf_nem_documento_hash(tmp_path, monkeypat
         if arquivo.is_file():
             texto = arquivo.read_text(encoding="utf-8")
             assert CPF_VALIDO not in texto and "11144477735" not in texto and "documento_hash" not in texto
+
+
+# --- correções da revisão da #20 ---------------------------------------------------------------------------------------
+
+def _indice(raiz):
+    return pd.read_csv(raiz / "indice.csv", dtype=str, keep_default_na=False)
+
+
+def test_motivo_do_indice_nunca_leva_cpf_da_excecao_nem_do_nome_do_arquivo_da_area(tmp_path, monkeypatch,
+                                                                                 lago_temporario):
+    from pipeline import carteira
+
+    def explode(cod):
+        if cod == "MG-2":
+            raise RuntimeError(f"falhou para {CPF_VALIDO}")
+
+    cargas = _cargas(tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda t, **k: cargas if t == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    df = pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1", "area_producao": None},
+                       {"id_produtor": "P2", "cod_car": "MG-2", "area_producao": None}])
+    areas = {0: {"geometria": None, "arquivo": "x", "crs": None, "motivo": f"arquivo {CPF_VALIDO}.kml ilegível"}}
+
+    def consultar(cod, lat, lon, doc, baixar_prodes=True, area_producao=None):
+        explode(cod)
+        ficha = _ficha(None)
+        ficha["imovel"] = {**ficha["imovel"], "cod_imovel": cod}
+        return {"consulta": ficha.pop("consulta"), **ficha}
+
+    carteira.processar(df, tmp_path / "s", consultar=consultar, areas=areas, dossie_eudr=True)
+    texto = (tmp_path / "s" / "dossie_eudr" / "indice.csv").read_text(encoding="utf-8")
+    assert "RuntimeError" in texto and "ilegível" in texto
+    assert CPF_VALIDO not in texto and "11144477735" not in texto and "111.444.777" not in texto
+
+
+def test_area_ilegivel_deixa_a_area_declarada_inconclusiva_com_motivo(tmp_path, monkeypatch, lago_temporario):
+    from pipeline import carteira
+
+    cargas = _cargas(tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda t, **k: cargas if t == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    df = pd.DataFrame([{"id_produtor": "P1", "cod_car": "MG-1", "area_producao": "ruim.kml"}])
+    areas = {0: {"geometria": None, "arquivo": "ruim.kml", "crs": None, "motivo": "KML sem polígono"}}
+
+    def consultar(cod, lat, lon, doc, baixar_prodes=True, area_producao=None):
+        assert area_producao is not None  # a carteira repassa a área; a ficha cai para o imóvel inteiro
+        ficha = _ficha(None, ("na_area", NO_TALHAO, "2024-06-10"))
+        return {"consulta": ficha.pop("consulta"), **ficha}
+
+    carteira.processar(df, tmp_path / "s", consultar=consultar, areas=areas, dossie_eudr=True)
+    linha = _indice(tmp_path / "s" / "dossie_eudr").iloc[0]
+    assert linha.desmatamento_area_declarada == "inconclusivo" and linha.escopo == "imóvel inteiro"
+    assert "KML sem polígono" in linha.motivo and "imóvel inteiro" in linha.motivo
+
+
+def test_situacao_inconclusiva_do_bloco_sai_com_motivo(tmp_path):
+    caminhos = dossie_eudr.escrever(
+        _ficha(None), tmp_path / "d", cargas=pd.DataFrame(
+            columns=["carga_id", "fonte", "status", "iniciada_em", "entrada_json"]), raiz=tmp_path,
+        ultima_imagem_deter=ULTIMA)
+    bloco = json.loads(caminhos["json"].read_text(encoding="utf-8"))["desmatamento_apos_31_12_2020"]["blocos"]
+    assert bloco["desmatamento"]["situacao"] == "inconclusivo"
+    linha = dossie_eudr.linha_indice("MG-1", None, "d", "x", caminhos)
+    assert linha["desmatamento_area_declarada"] == "inconclusivo" and linha["motivo"]
+
+
+def test_celula_com_formula_e_neutralizada_e_falha_do_indice_nao_derruba_a_carteira(tmp_path, monkeypatch):
+    from pipeline import carteira
+
+    linha = dossie_eudr.linha_indice("MG-1", "=HYPERLINK(1)", None, "x", motivo="@x")
+    caminho = dossie_eudr.escrever_indice([linha, {**linha, "commodity": "-1+2", "motivo": "+3"}], tmp_path / "i")
+    texto = caminho.read_text(encoding="utf-8")
+    assert "'=HYPERLINK" in texto and "'-1+2" in texto and "'@x" in texto and "'+3" in texto
+    monkeypatch.setattr(dossie_eudr, "escrever_indice", lambda *a: (_ for _ in ()).throw(OSError("disco cheio")))
+    df = pd.DataFrame([{"id_produtor": "P", "cod_car": None}])
+    assert len(carteira.processar(df, tmp_path / "s", consultar=lambda *a, **k: None, dossie_eudr=True)) == 1
+
+
+def test_car_repetido_e_nome_de_pasta_estranho_nao_colidem_nem_saem_da_pasta(tmp_path, monkeypatch, lago_temporario):
+    from pipeline import carteira
+
+    cargas = _cargas(tmp_path)
+    monkeypatch.setattr(dossie_eudr.lago, "ler_ou_none", lambda t, **k: cargas if t == "meta.carga" else None)
+    monkeypatch.setattr(dossie_eudr, "_ultima_imagem_deter", lambda: ULTIMA)
+    df = pd.DataFrame([{"id_produtor": f"P{n}", "cod_car": c} for n, c in
+                       enumerate(["MG-1", "mg-1", "MG-1", "..", "../.."], 1)])
+
+    def consultar(cod, lat, lon, doc, baixar_prodes=True, area_producao=None):
+        ficha = _ficha(None)
+        ficha["imovel"] = {**ficha["imovel"], "cod_imovel": cod}
+        return {"consulta": ficha.pop("consulta"), **ficha}
+
+    carteira.processar(df, tmp_path / "s", consultar=consultar, dossie_eudr=True)
+    raiz = tmp_path / "s" / "dossie_eudr"
+    pastas = _indice(raiz).pasta.tolist()
+    assert len({p.lower() for p in pastas}) == 5 and all(".." not in p for p in pastas)
+    assert pastas[0] == "dossie_eudr/MG-1" and pastas[1].endswith("_linha_3") and pastas[2].endswith("_linha_4")
+    assert all((tmp_path / "s" / p / "dossie.json").exists() for p in pastas)
+    assert dossie_eudr.nome_pasta("..") == "imovel" and dossie_eudr.nome_pasta("") == "imovel"
