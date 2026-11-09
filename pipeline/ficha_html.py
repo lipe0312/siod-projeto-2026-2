@@ -158,7 +158,13 @@ def mapa(ficha: dict, largura: int = 640) -> str:
             rotulos.append(f'<g{fraco}><rect x="{px - 13:.1f}" y="{py - 10:.1f}" width="26" height="20" rx="4" '
                            f'fill="var(--card)" stroke="{cor}" stroke-width="2"/><text x="{px:.1f}" y="{py + 4:.1f}" '
                            f'text-anchor="middle" font-size="11" font-weight="700" fill="{cor}">{letra}{i}</text></g>')
-    estilos = [("prodes", "P", "var(--prd)", "var(--prd)", 'stroke-dasharray="5 3" fill-opacity=".22"'),
+    if ficha.get("geometria_area_producao"):  # declarada pelo produtor: contorno escuro, sob os alertas
+        camadas.append(f'<path d="{desenhar(ficha["geometria_area_producao"])}" fill="var(--car)" fill-opacity=".14" '
+                       f'stroke="var(--tx)" stroke-width="3" stroke-dasharray="12 5" fill-rule="evenodd"/>')
+    resto = 'stroke-dasharray="2 3" fill-opacity=".10"'  # fora da área de produção: tracejado fino e quase vazado
+    estilos = [("prodes_resto", "PR", "var(--prd)", "var(--prd)", resto),
+               ("alertas_resto", "AR", "var(--alt)", "var(--alt)", resto),
+               ("prodes", "P", "var(--prd)", "var(--prd)", 'stroke-dasharray="5 3" fill-opacity=".22"'),
                ("alertas", "A", "var(--alt)", "var(--alt)", 'fill-opacity=".35"'),
                ("embargos", "E", "var(--emb)", "url(#hach)", "")]
     for chave, letra, cor, preenchimento, extra in estilos:
@@ -172,7 +178,9 @@ def mapa(ficha: dict, largura: int = 640) -> str:
                            f'fill-rule="evenodd" {extra}{fraco}/>')
             p = sicar.projetar(shapely.from_wkt(wkt)).representative_point()
             x, y = transformar(p.x, p.y)
-            rotulos.append(f'<g><circle cx="{x:.1f}" cy="{y:.1f}" r="10" fill="var(--card)" stroke="{cor}" '
+            forma = (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="10"' if len(letra) == 1 else
+                     f'<rect x="{x - 13:.1f}" y="{y - 10:.1f}" width="26" height="20" rx="4"')
+            rotulos.append(f'<g>{forma} fill="var(--card)" stroke="{cor}" '
                            f'stroke-width="2"/><text x="{x:.1f}" y="{y + 4:.1f}" text-anchor="middle" font-size="11" '
                            f'font-weight="700" fill="{cor}">{letra}{i}</text></g>')
     # Barra de escala: 10% da largura, arredondada para um valor redondo em metros.
@@ -180,8 +188,10 @@ def mapa(ficha: dict, largura: int = 640) -> str:
     passo = next(v for v in (50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000) if v >= alvo * 0.5)
     barra = passo * escala
     rotulo_escala = f"{passo // 1000} km" if passo >= 1000 else f"{passo} m"
+    rotulo_aria = ("Mapa do imóvel com a área de produção declarada pelo produtor e as evidências encontradas"
+                   if ficha.get("geometria_area_producao") else "Mapa do imóvel com as evidências encontradas")
     return f"""<svg class="mapa" viewBox="0 0 {largura} {altura:.0f}" role="img"
-aria-label="Mapa do imóvel com as evidências encontradas">
+aria-label="{rotulo_aria}">
 <defs><pattern id="hach" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
 <rect width="7" height="7" fill="var(--emb)" fill-opacity=".18"/><line x1="0" y1="0" x2="0" y2="7" stroke="var(--emb)"
 stroke-width="2.5"/></pattern><clipPath id="vista"><rect width="{largura}" height="{altura:.0f}"/></clipPath></defs>
@@ -397,6 +407,36 @@ var(--prd) 0 2px,transparent 2px 6px);opacity:.5"></i>alerta ainda sem PRODES pu
 </section>"""
 
 
+def _periodo(ficha: dict, chaves: tuple[str, ...], coluna: str = "data_imagem") -> str:
+    """Intervalo das datas das imagens das evidências desenhadas; vazio se não há nenhuma."""
+    datas = pd.concat([ficha["evidencias"].get(c, pd.DataFrame()).get(coluna, pd.Series(dtype="datetime64[ns]"))
+                       for c in chaves]).dropna()
+    if datas.empty:
+        return ""
+    ini, fim = _data(datas.min()), _data(datas.max())
+    return f"imagens de {ini}" if ini == fim else f"imagens de {ini} a {fim}"
+
+
+def legenda_area(ficha: dict) -> str:
+    """Itens da legenda do mapa sobre a área de produção, sempre como declarada pelo produtor (nunca comprovada)."""
+    area = ficha.get("area_producao")
+    if not area:
+        return '<span class="mut">área de produção não informada</span>'
+    if not ficha.get("geometria_area_producao"):
+        return f'<span class="mut">{escape(str(area.get("aviso") or "área de produção não lida"))}</span>'
+    det, prd = _periodo(ficha, ("alertas", "alertas_resto")), _periodo(ficha, ("prodes", "prodes_resto"))
+    fonte = lambda nome, per: f" · {nome}{', ' + per if per else ''}"  # noqa: E731
+    return ('<span><i style="border:2px dashed var(--tx);background:var(--carf)"></i>Área de produção (declarada pelo '
+            'produtor)</span>'
+            f'<span><i style="background:var(--alt)"></i>DETER que toca a área (A){escape(fonte("INPE", det))}</span>'
+            f'<span><i style="border:2px dotted var(--alt)"></i>DETER no resto do imóvel (AR){escape(fonte("INPE", det))}'
+            '</span>'
+            f'<span><i style="background:var(--prd)"></i>PRODES que toca a área (P){escape(fonte("INPE", prd))}</span>'
+            f'<span><i style="border:2px dotted var(--prd)"></i>PRODES no resto do imóvel (PR)'
+            f'{escape(fonte("INPE", prd))}</span>'
+            + (f'<span class="cobertura">⚠ {escape(area["aviso"])}</span>' if area.get("aviso") else ""))
+
+
 def renderizar(ficha: dict) -> str:
     im, res = ficha["imovel"], ficha["resultado"]
     cod = im.get("cod_imovel") or ficha["consulta"].get("cod_imovel") or "imóvel não localizado"
@@ -425,13 +465,13 @@ def renderizar(ficha: dict) -> str:
             ("Bioma", escape(", ".join(NOME_BIOMA.get(b, b) for b in ficha["consulta"].get("biomas", [])) or "—")),
             *([("PRODES publicado até", f'{pr["ultimo_ano_do_imovel"]} <small class="mut">({escape(pr["origem"])}, '
                 f'{_data(pr["verificado_em"])})</small>')] if pr and pr.get("ultimo_ano_do_imovel") else [])])
+        com_area = bool(ficha.get("geometria_area_producao"))
         topo = f"""<section class="card grid"><div><h2>Mapa do imóvel</h2>{mapa(ficha)}
 <div class="legenda"><span><i style="border:2px solid var(--car);background:var(--carf)"></i>perímetro do CAR</span>
-<span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span><span><i style="background:var(--alt)"></i>alerta
-DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span><span><i
+<span><i style="background:var(--emb)"></i>embargo IBAMA (E)</span>{"" if com_area else '<span><i style="background:var(--alt)"></i>alerta DETER (A)</span><span><i style="background:var(--prd)"></i>PRODES após 2020 (P)</span>'}<span><i
 style="border:2px dashed var(--ti)"></i>terra indígena (T)</span><span><i style="border:2px dashed var(--tq)"></i>quilombola
 (Q)</span><span><i style="border:2px dashed var(--uc)"></i>unidade de conservação (U)</span><span class="mut">mais
-claro: na divisa, não atribuído</span></div></div>
+claro: na divisa, não atribuído</span>{legenda_area(ficha)}</div></div>
 <div><h2>Como ler esta ficha</h2><dl class="como">{como_ler}</dl></div></section>"""
         evidencias = _evidencias(ficha["evidencias"])
         topo += linha_do_tempo(ficha)

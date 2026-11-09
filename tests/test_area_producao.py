@@ -276,3 +276,53 @@ def test_main_com_documento_no_nome_da_planilha_nao_grava_em_lago_pasta_nem_log(
     for texto in textos:
         for documento in ("12345678901", CPF_VALIDO, "11144477735"):
             assert documento not in texto
+
+
+# --- mapa da ficha HTML ---------------------------------------------------------------------------------------------
+
+def _html(area, *alerta):
+    from pipeline import ficha_html
+    ficha = _ficha(area, *alerta)
+    ficha["procedencia"] = []
+    ficha["consulta"] = {"gerado_em": "2026-11-05 10:00:00", "biomas": ["cerrado"], "documento_informado": False}
+    return ficha_html.renderizar(ficha)
+
+
+def _legenda(html):
+    return html.split('<div class="legenda">')[1].split("</div>")[0]
+
+
+def test_mapa_desenha_a_area_declarada_e_distingue_alerta_dentro_e_no_resto():
+    talhao, _ = vetor.ler_area_producao(DADOS / "talhao.kml")
+    html = _html(_area(talhao), ("na_area", NO_TALHAO, "2024-06-10"), ("no_resto", SO_NO_CAR, "2024-06-12"))
+    legenda = _legenda(html)
+    assert "Área de produção (declarada pelo produtor)" in legenda and 'stroke-dasharray="12 5"' in html
+    assert "DETER que toca a área (A)" in legenda and "DETER no resto do imóvel (AR)" in legenda
+    assert legenda.count("(A)") == 1 and legenda.count("(P)") == 1  # sem A/P genéricos repetidos
+    assert "INPE, imagens de 10/06/2024 a 12/06/2024" in legenda
+    assert ">A1<" in html and ">AR1<" in html and 'stroke-dasharray="2 3"' in html  # estilos distintos
+    assert "área de produção declarada pelo produtor e as evidências" in html  # aria-label
+    assert "comprovada" not in html and "não informada" not in legenda
+    assert CPF_VALIDO not in html
+
+
+def test_mapa_com_area_parcialmente_fora_do_car_mostra_o_aviso_na_legenda():
+    fora = shapely.box(X0 + 0.004, Y0 + 0.004, X0 + 0.02, Y0 + 0.02)
+    html = _html(_area(fora))
+    assert "fora do imóvel do CAR" in _legenda(html)
+
+
+def test_mapa_sem_area_fica_como_antes_e_diz_nao_informada():
+    html = _html(None, ("a", SO_NO_CAR, "2024-06-12"))
+    legenda = _legenda(html)
+    assert "área de produção não informada" in legenda and 'stroke-dasharray="12 5"' not in html
+    assert "alerta DETER (A)" in legenda and "Área de produção (declarada" not in html and ">A1<" in html
+    assert CPF_VALIDO not in html
+
+
+def test_mapa_com_area_ilegivel_mostra_so_o_aviso_do_resumo():
+    html = _html({"geometria": None, "arquivo": "x.kml", "crs": None, "motivo": "KML mal formado"})
+    legenda = _legenda(html)
+    assert legenda.count("área de produção não lida") == 1 and "KML mal formado" in legenda
+    assert "o cruzamento foi com o imóvel inteiro" in legenda and 'stroke-dasharray="12 5"' not in html
+    assert CPF_VALIDO not in html
