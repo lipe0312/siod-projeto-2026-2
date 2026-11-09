@@ -1,7 +1,7 @@
 """Carteira: a planilha de uma cooperativa ou de um técnico (uma linha por imóvel) vira a lista de atendimento em
 ordem de prioridade, com uma ficha de pré-diagnóstico por imóvel.
 
-    python -m pipeline.carteira minha_carteira.xlsx [--saida pasta] [--sem-baixar-prodes]
+    python -m pipeline.carteira minha_carteira.xlsx [--saida pasta] [--sem-baixar-prodes] [--dossie-eudr]
 
 Colunas da planilha (CSV ou XLSX; modelo em docs/modelos/carteira_modelo.csv):
 - `id_produtor` (obrigatória): identificador da própria cooperativa, nunca o CPF;
@@ -15,7 +15,9 @@ Colunas da planilha (CSV ou XLSX; modelo em docs/modelos/carteira_modelo.csv):
   ilegível ou fora da pasta da planilha vira aviso na ficha e o cruzamento volta a ser com o imóvel do CAR;
 - as demais colunas (nome da área, commodity...) passam direto para a saída.
 
-Saída: carteira.csv e carteira.html na pasta, e as fichas (HTML, MD, JSON) de cada imóvel. A ordem é
+Saída: carteira.csv e carteira.html na pasta, e as fichas (HTML, MD, JSON) de cada imóvel. Com `--dossie-eudr`, também
+`dossie_eudr/<CAR>/` (dossie.geojson, .md e .json, como no pré-diagnóstico de um imóvel; a coluna `commodity` da planilha
+vira a commodity do dossiê) e `dossie_eudr/indice.csv`, uma linha por imóvel; o que falhou vira linha "inconclusivo". A ordem é
 pendência > inconclusivo > indício > sem pendência; dentro de cada grupo, mais pendências primeiro, depois maior área.
 As colunas `mudou` e `o_que_mudou` comparam cada imóvel com a execução anterior da mesma organização
 (resultados.mudancas); sem cod_imovel ou sem execução anterior, a linha fica "sem comparação".
@@ -124,12 +126,49 @@ def resumir(ficha: dict) -> dict:
             "_n_pendencias": len(pend)}
 
 
+def _linha_indice_falha(base: dict, execucao_id, motivo: str) -> dict:
+    from pipeline import dossie_eudr
+
+    return dossie_eudr.linha_indice(base.get("cod_car"), base.get("commodity"), None, execucao_id, motivo=motivo)
+
+
+def _dossie_do_imovel(ficha: dict, base: dict, i, area: dict | None, pasta: Path, execucao_id, usadas: set) -> dict:
+    """Grava a pasta do dossiê EUDR do imóvel e devolve a linha do índice; falha ao gravar não derruba a carteira."""
+    from pipeline import dossie_eudr
+
+    cod = ficha["imovel"].get("cod_imovel") or base.get("cod_car")
+    nome = dossie_eudr.nome_pasta(cod, f"linha_{i + 2}")
+    if nome.lower() in usadas:  # o mesmo CAR duas vezes na planilha: a segunda pasta leva o número da linha
+        nome = f"{nome}_linha_{i + 2}"
+    usadas.add(nome.lower())
+    relativa = f"dossie_eudr/{nome}"
+    ilegivel = (area or {}).get("motivo")
+    try:
+        caminhos = dossie_eudr.escrever(ficha, pasta / relativa, base.get("commodity"))
+        return dossie_eudr.linha_indice(cod, base.get("commodity"), relativa, execucao_id, caminhos,
+                                        area_ilegivel=ilegivel)
+    except Exception as e:
+        log.error("[carteira] dossiê EUDR da linha %s falhou: %s", i + 2, _erro(e))
+        return dossie_eudr.linha_indice(cod, base.get("commodity"), None, execucao_id, area_ilegivel=ilegivel,
+                                        motivo=f"dossiê não gerado: {_erro(e)}")
+
+
+def _erro(e: Exception) -> str:
+    """Mensagem de exceção sem CPF/CNPJ, para log, carteira.csv e índice (a exceção pode ecoar a planilha). Sem
+    traceback no log pelo mesmo motivo."""
+    from pipeline import dossie_eudr
+    return dossie_eudr._limpo(f"{type(e).__name__}: {e}")
+
+
 def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consultar=prediagnostico.executar,
-              execucao=None, ids: dict | None = None, areas: dict | None = None) -> pd.DataFrame:
+              execucao=None, ids: dict | None = None, areas: dict | None = None,
+              dossie_eudr: bool = False) -> pd.DataFrame:
     """Uma linha por imóvel, em ordem de prioridade. Com `execucao` (resultados.Execucao), cada ficha vai também para
     o esquema diag, ligada ao imóvel do cadastro (`ids`, de cadastro.importar_carteira). `areas`: área de produção
-    por índice da linha (areas_de_producao)."""
-    linhas = []
+    por índice da linha (areas_de_producao). `dossie_eudr`: grava `dossie_eudr/<CAR>/` e o `indice.csv` na pasta."""
+    linhas, indice = [], []
+    execucao_id = execucao.id if execucao else None
+    usadas: set[str] = set()
     for i, linha in df.iterrows():
         linha = pd.Series({k: _valor(linha, k) for k in df.columns}, dtype=object)
         base = sem_documento({k: linha.get(k) for k in df.columns if k not in ("documento", "lat", "lon")},
@@ -140,6 +179,8 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
         motivo = problema(linha)
         if motivo:
             linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": motivo, "_n_pendencias": 0})
+            if dossie_eudr:
+                indice.append(_linha_indice_falha(base, execucao_id, motivo))
             continue
         lat = lon = None
         if not linha.get("cod_car"):
@@ -149,19 +190,30 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
             ficha = consultar(linha.get("cod_car"), lat, lon, linha.get("documento"), baixar_prodes=baixar_prodes,
                               **({"area_producao": area} if area else {}))
         except Exception as e:  # serviço fora do ar etc.: a linha fica inconclusiva e a carteira segue
-            log.exception("[carteira] linha %s (%s) falhou", i + 2, linha.get("id_produtor"))
-            linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": f"{type(e).__name__}: {e}"[:200],
+            log.error("[carteira] linha %s (%s) falhou: %s", i + 2, linha.get("id_produtor"), _erro(e))
+            linhas.append({**base, "resultado": "inconclusivo", "problema_na_linha": _erro(e)[:200],
                            "_n_pendencias": 0})
+            if dossie_eudr:
+                indice.append(_linha_indice_falha(base, execucao_id, _erro(e)))
             continue
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
         resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
                                             ficha_arquivo=f"fichas/{caminhos['html'].name}") if execucao else None
         if area:
             base["aviso_area_producao"] = (ficha.get("area_producao") or {}).get("aviso")
+        if dossie_eudr:
+            indice.append(_dossie_do_imovel(ficha, base, i, area, pasta, execucao_id, usadas))
         linhas.append({**base, **resumir(ficha), "ficha": f"fichas/{caminhos['html'].name}",
                        "_resultado_id": resultado_id,
                        "problema_na_linha": None if ficha["imovel"].get("cod_imovel") else
                        ficha["criterios"][0]["evidencia"]})
+    if dossie_eudr:
+        from pipeline import dossie_eudr as dossie
+
+        try:
+            dossie.escrever_indice(indice, pasta / "dossie_eudr")
+        except Exception:  # o índice é um extra: a carteira (csv, html, fichas) sai mesmo assim
+            log.exception("[carteira] indice.csv do dossiê EUDR não foi gravado")
     saida = pd.DataFrame(linhas)
     for coluna in [c for c in COLUNAS_SAIDA if c != "prioridade"]:
         if coluna not in saida:
@@ -278,6 +330,8 @@ def main(argv=None) -> int:
     parser.add_argument("--saida", type=Path, help="pasta de saída (padrão: data/saidas/carteiras/<nome>/<AAAA-MM>)")
     parser.add_argument("--organizacao", help="nome da cooperativa ou empresa no cadastro (padrão: nome da planilha)")
     parser.add_argument("--sem-baixar-prodes", action="store_true")
+    parser.add_argument("--dossie-eudr", action="store_true",
+                        help="gera o dossiê EUDR de cada imóvel em dossie_eudr/<CAR>/ e o indice.csv")
     args = parser.parse_args(argv)
     relatorio.configurar_log(config.LOGS / f"carteira_{datetime.now():%Y%m%d_%H%M%S}.log")
     # O nome da planilha vira pasta, organização, comando gravado e log: nenhum deles leva CPF/CNPJ do nome do arquivo.
@@ -294,7 +348,8 @@ def main(argv=None) -> int:
     comando = " ".join(argv if argv is not None else sys.argv[1:])
     execucao = resultados.Execucao("carteira", organizacao_id, carteira_id,
                                    "python -m pipeline.carteira " + vetor.nome_sem_documento(comando))
-    saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids, areas=areas)
+    saida = processar(planilha, pasta, not args.sem_baixar_prodes, execucao=execucao, ids=ids, areas=areas,
+                     dossie_eudr=args.dossie_eudr)
     execucao.encerrar()
     # Só depois de encerrar(): a execução atual precisa estar no lago para ser a "atual" da comparação.
     saida, comparacao = comparar(saida, organizacao_id, execucao.id)
