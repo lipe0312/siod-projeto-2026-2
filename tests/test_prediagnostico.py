@@ -251,6 +251,33 @@ def test_camadas_simplificam_so_quando_passam_de_1_mb(monkeypatch):
     assert prediagnostico.camadas_geojson(ficha) == inteiro  # abaixo do limite, a geometria não é mexida
 
 
+def test_camada_sem_fonte_ou_sem_poligono_vai_para_nao_verificadas_e_nao_vira_sem_ocorrencia(tmp_path):
+    ficha = diagnosticar(emb=embargos(("sem_poligono", None, (Y0 + 0.005, X0 + 0.005), None)))
+    ficha["criterios"] = [dict(c, situacao="inconclusivo", evidencia="Fonte não carregada (ref.terra_indigena)")
+                          if c["chave"] == "terra_indigena" else c for c in ficha["criterios"]]
+    ficha["evidencias"].pop("prodes")  # camada ausente da ficha
+    colecao = json.loads(prediagnostico.camadas_geojson({"consulta": {}, **ficha}))
+    nao = colecao["camadas_nao_verificadas"]
+    assert {"camada": "terra_indigena", "motivo": "Fonte não carregada (ref.terra_indigena)"} in nao
+    assert any(n["camada"] == "prodes" and "ausente" in n["motivo"] for n in nao)
+    assert any(n["camada"] == "embargo" and n["rotulo"] == "E1" and "sem polígono" in n["motivo"] for n in nao)
+    ok = json.loads(prediagnostico.camadas_geojson({"consulta": {}, **diagnosticar()}))
+    assert ok["camadas_nao_verificadas"] == []  # tudo verificado e vazio: lista vazia, campo sempre presente
+
+
+def test_geometria_invalida_nas_camadas_nao_derruba_a_ficha(tmp_path, caplog, monkeypatch):
+    def quebrar(ficha, tolerancia):
+        raise shapely.errors.GEOSException("ParseException: POLYGON((0 0, WKT-RUIM")
+
+    monkeypatch.setattr(prediagnostico, "_feicoes_camadas", quebrar)
+    ficha = _ficha_para_escrever(alt=alertas(("a1", DENTRO, "2025-08-28")))
+    with caplog.at_level("WARNING"):
+        caminhos = prediagnostico.escrever(ficha, tmp_path)
+    assert set(caminhos) == {"json", "md", "html"} and all(c.exists() for c in caminhos.values())
+    assert not list(tmp_path.glob("*.geojson")) and "WKT-RUIM" not in caplog.text
+    assert "Camadas da ficha não gravadas" in caplog.text
+
+
 def test_nome_do_arquivo_sanitizado_nunca_sai_da_pasta_de_saida(tmp_path):
     saida = tmp_path / "saida"
     ficha = _ficha_para_escrever("../../fora/MG-1", alt=alertas(("a1", DENTRO, "2025-08-28")))

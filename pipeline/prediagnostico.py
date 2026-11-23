@@ -694,8 +694,16 @@ def _feicao(geom, camada, rotulo, situacao, data_imagem, fonte, ha, tolerancia) 
                            "fonte": fonte, "ha": None if nulo(ha) is None else round(float(ha), 2)}}
 
 
-def _feicoes_camadas(ficha: dict, tolerancia: float) -> list[dict]:
-    """Feições na ordem do mapa (CAR embaixo). O rótulo vem da posição da linha na evidência, como na ficha."""
+# Critério da ficha que decide cada camada: critério inconclusivo = a camada vazia não significa "sem ocorrência".
+CRITERIO_DA_CAMADA = {"terra_indigena": "terra_indigena", "quilombola": "quilombola",
+                      "unidade_conservacao": "unidade_conservacao", "embargos": "embargo", "alertas": "desmatamento",
+                      "prodes": "desmatamento"}
+
+
+def _feicoes_camadas(ficha: dict, tolerancia: float) -> tuple[list[dict], list[dict]]:
+    """(feições, camadas não verificadas). Feições na ordem do mapa (CAR embaixo); o rótulo vem da posição da linha
+    na evidência, como na ficha. Camada sem fonte, sem coluna de geometria ou de critério inconclusivo, e embargo sem
+    polígono, vão para as não verificadas (ADR 0013): quem lê o arquivo nunca toma a ausência por "sem ocorrência"."""
     car_geom = vetor.tornar_valida(shapely.from_wkt(ficha["geometria_car"]))
     x0, y0, x1, y1 = car_geom.bounds
     margem = MARGEM_RECORTE * max(x1 - x0, y1 - y0)
@@ -708,13 +716,24 @@ def _feicoes_camadas(ficha: dict, tolerancia: float) -> list[dict]:
         feicoes.append(_feicao(shapely.from_wkt(ficha["geometria_area_producao"]), "area_de_producao",
                                "Área de produção", "declarada pelo produtor", None, "Produtor (arquivo da carteira)",
                                area.get("area_ha"), tolerancia))
+    nao_verificadas = []
+    criterios = {c["chave"]: c for c in ficha["criterios"]}
     for chave, letra, camada, fonte, col_data, col_situacao in CAMADAS_DA_FICHA:
         df = ficha["evidencias"].get(chave)
+        criterio = criterios.get(CRITERIO_DA_CAMADA.get(chave))
+        if criterio and criterio["situacao"] == "inconclusivo":
+            nao_verificadas.append({"camada": camada, "motivo": criterio["evidencia"]})
         if df is None or "geometria_wkt" not in df:
+            if not chave.endswith("_resto"):  # o "resto" só existe com área de produção
+                nao_verificadas.append({"camada": camada, "motivo": "camada ausente da ficha: fonte não carregada "
+                                                                    "ou sem geometria"})
             continue
         for i, r in enumerate(df.to_dict("records"), 1):
             wkt = r.get("geometria_wkt")
             if not isinstance(wkt, str):  # embargo achado pela coordenada ou pelo documento: sem polígono
+                nao_verificadas.append({"camada": camada, "rotulo": f"{letra}{i}",
+                                        "motivo": f"{r.get('como') or 'achado'} sem polígono: existe na ficha, mas "
+                                                  "não há geometria para desenhar"})
                 continue
             geom = vetor.tornar_valida(shapely.from_wkt(wkt))
             if chave in ("terra_indigena", "quilombola", "unidade_conservacao") and geom.geom_type not in (
@@ -726,20 +745,22 @@ def _feicoes_camadas(ficha: dict, tolerancia: float) -> list[dict]:
             feicoes.append(_feicao(geom, camada, f"{letra}{i}", situacao, r.get(col_data) if col_data else None,
                                    r.get("base") or fonte if chave == "quilombola" else fonte, r.get("inter_ha"),
                                    tolerancia))
-    return [f for f in feicoes if f]
+    return [f for f in feicoes if f], nao_verificadas
 
 
 def camadas_geojson(ficha: dict) -> str | None:
     """FeatureCollection (EPSG:4326, 6 casas) com o CAR, a área de produção e as evidências da ficha, com o mesmo
-    rótulo da tabela (A1, P1, E1, T1, Q1, U1). None se o imóvel não foi localizado. Se passar de
+    rótulo da tabela (A1, P1, E1, T1, Q1, U1) e, no campo de topo `camadas_nao_verificadas` ([{camada, motivo}]), o que
+    não pôde ser desenhado. None se o imóvel não foi localizado. Se passar de
     LIMITE_CAMADAS_BYTES, simplifica a geometria com tolerância crescente (TOLERANCIAS_CAMADAS); a simplificação
     serve só ao mapa, não muda o cruzamento nem a ficha."""
     if not ficha.get("geometria_car"):
         return None
     for tolerancia in TOLERANCIAS_CAMADAS:
+        feicoes, nao_verificadas = _feicoes_camadas(ficha, tolerancia)
         texto = json.dumps({"type": "FeatureCollection", "name": "camadas_da_ficha",
                             "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}},
-                            "features": _feicoes_camadas(ficha, tolerancia)},
+                            "camadas_nao_verificadas": nao_verificadas, "features": feicoes},
                            ensure_ascii=False, separators=(",", ":"))
         if len(texto.encode("utf-8")) <= LIMITE_CAMADAS_BYTES:
             break
@@ -758,7 +779,11 @@ def escrever(ficha: dict, pasta: Path = config.PREDIAGNOSTICO, commodity: str | 
     pasta.mkdir(parents=True, exist_ok=True)
     nome = dossie_eudr.nome_pasta(ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}")
     caminhos = {ext: pasta / f"{nome}.{ext}" for ext in ("json", "md", "html")}
-    camadas = camadas_geojson(ficha)
+    try:
+        camadas = camadas_geojson(ficha)
+    except Exception as e:  # noqa: BLE001 - geometria ruim não derruba a ficha; só o tipo no log (sem o WKT)
+        log.warning("Camadas da ficha não gravadas (%s)", type(e).__name__)
+        camadas = None
     if camadas:
         caminhos["camadas"] = pasta / f"{nome}.camadas.geojson"
     for caminho in caminhos.values():  # defesa extra: o caminho final tem de ficar dentro de `pasta`
