@@ -250,6 +250,8 @@ python -m pipeline.prediagnostico --car MG-3148103-... --dossie-eudr --commodity
 
 O documento é pseudonimizado com a mesma chave do pipeline e nunca é gravado em claro. Prints e fichas da demonstração estão em [`docs/evidencias/atividade-04/prediagnostico/`](docs/evidencias/atividade-04/prediagnostico/).
 
+**Sem terminal, pelo console local** ([ADR 0027](docs/arquitetura/adr/0027-console-local-do-operador.md)): `python -m console` (porta por `--porta`) e abra `http://127.0.0.1:8765`. Digite o CAR (ou a coordenada), complete com documento, área de produção e commodity se quiser, e clique em "Cruzar agora": as fontes aparecem uma por linha e a ficha vai para `data/saidas/console/`. Só escuta em 127.0.0.1.
+
 ### 6. PRODES em lote por UF, conferido todo mês
 
 O PRODES sai uma vez por ano, sem data fixa. O lote guarda os anos desde 2019 dos biomas de cada UF, numa partição por UF: `data/lago/ref/desmatamento_prodes/uf=XX/part.parquet`. Ele começa com MG (`config.PRODES_UFS_INICIAIS`) e ganha a UF de cada imóvel consultado. A UF de cada polígono vem do contorno do IBGE, não do campo `state` do INPE: o polígono de divisa entra nas duas UFs.
