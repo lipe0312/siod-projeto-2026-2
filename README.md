@@ -234,7 +234,7 @@ Do ponto de vista do produtor: para um CAR, junta
 - a Lista Suja;
 - a sobreposição com terras indígenas (FUNAI), territórios quilombolas (IBGE) e unidades de conservação (CNUC).
 
-Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com evidência, encaminhamento e procedência. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/saidas/prediagnostico/`, e o resultado, critério a critério, no esquema `diag` do lago (seção 7).
+Cada critério sai como pendência, indício, sem ocorrência, não verificado ou inconclusivo, com evidência, encaminhamento e procedência. A saída é uma ficha em HTML (com mapa), Markdown e JSON em `data/saidas/prediagnostico/`, mais `<CAR>.camadas.geojson` ao lado dela (GeoJSON em WGS 84 com o CAR, a área de produção, os alertas DETER, os polígonos PRODES, os embargos e as áreas protegidas recortadas ao entorno do imóvel, cada um com o mesmo rótulo da ficha: A1, P1, E1, T1, Q1, U1; até 1 MB; o nome do arquivo passa pela mesma sanitização do dossiê), e o resultado, critério a critério, no esquema `diag` do lago (seção 7).
 
 Antes, rode `python -m pipeline` com todas as fontes. O PRODES de uma UF é baixado na primeira vez que um imóvel dela é consultado (seção 6). Nessa primeira vez a consulta demora: o TerraBrasilis responde 502 com frequência, e o pipeline repete e divide o pedido.
 
