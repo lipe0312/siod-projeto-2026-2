@@ -5,7 +5,7 @@ from html import escape
 import pandas as pd
 import shapely
 
-from pipeline import config, vetor
+from pipeline import config, plano_de_acao, vetor
 from pipeline.fontes import sicar
 
 COR_SITUACAO = {"pendência": "pend", "indício": "ind", "sem ocorrência": "ok", "não verificado": "nv",
@@ -94,6 +94,17 @@ font-weight:800;font-size:13px}
 .anos{display:flex;gap:4px;flex-wrap:wrap}.anos span{font-size:12px;padding:2px 7px;border-radius:6px;
 background:var(--nvb);color:var(--nv)}.anos span.pub{background:var(--okb);color:var(--ok)}
 .anos span.novo{outline:2px solid var(--ok)}
+.acao{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-top:12px}
+.acao h3{font:600 16px/1.3 Georgia,serif;margin:0}.acao .topo{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.impacto{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid currentColor;font-weight:600}
+.impacto.sim{color:var(--pend)}.impacto.talvez{color:var(--ind)}.impacto.nao{color:var(--mut);font-weight:400}
+ol.trilho{list-style:none;margin:12px 0 6px;padding:0 0 0 18px;border-left:2px solid var(--bd)}
+ol.trilho li{position:relative;padding:0 0 10px 12px}
+ol.trilho li::before{content:attr(data-n);position:absolute;left:-31px;top:0;width:22px;height:22px;border-radius:50%;
+background:var(--card);border:2px solid var(--bd);font-size:12px;font-weight:700;text-align:center;line-height:18px}
+.quem{display:inline-block;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);
+margin-right:6px;font-weight:700}
+.acao .pe{font-size:12.5px;color:var(--mut);border-top:1px solid var(--bd);padding-top:8px;margin-top:4px}
 """
 
 
@@ -437,7 +448,48 @@ def legenda_area(ficha: dict) -> str:
             + (f'<span class="cobertura">⚠ {escape(area["aviso"])}</span>' if area.get("aviso") else ""))
 
 
-def renderizar(ficha: dict) -> str:
+def _impacto(rotulo: str, valor: str) -> str:
+    classe = {"sim": "sim", "talvez": "talvez"}.get(valor, "nao")
+    texto = rotulo if valor == "sim" else f"{rotulo}: {valor}"
+    return f'<span class="impacto {classe}">{escape(texto)}</span>'
+
+
+def _link(texto: str | None, link: str | None) -> str:
+    link = plano_de_acao.link_seguro(link)  # só http/https
+    texto = escape(texto or link or "")
+    return f'<a href="{escape(link)}" rel="noopener">{texto}</a>' if link else texto
+
+
+def plano_e_o_que_falta(blocos: dict) -> str:
+    """Dois blocos separados: o plano (um cartão por pendência/indício, passos num trilho vertical com quem age) e o
+    que falta para fechar o diagnóstico (entrada, o que destrava, quem traz, onde obter)."""
+    cartoes = []
+    for c in blocos["plano_de_acao"]:
+        passos = "".join(
+            f'<li data-n="{p["ordem"]}"><span class="quem">{escape(p["quem"])}</span>{escape(p["acao"])}'
+            + (f' <span class="mut">({_link(p["orgao"], p["link"])})</span>' if p["orgao"] or p["link"] else "")
+            + "</li>" for p in c["passos"])
+        pe = [f"Fonte: {escape(c['fonte'])}, {escape(str(c['data_evidencia'] or '—'))}"]
+        if c["orgao"]:
+            pe.append(f"Órgão: {_link(c['orgao'], c['link'])} (link conferido em {_data(c['link_conferido_em'])})")
+        if c["prazo_ou_condicao"]:
+            pe.insert(0, f"Prazo ou condição: {escape(c['prazo_ou_condicao'])}")
+        cartoes.append(f"""<article class="acao"><div class="topo">{_badge(c["situacao"])}<h3>{escape(c["criterio"])}</h3>
+{_impacto("crédito", c["bloqueia"]["credito"])}{_impacto("EUDR", c["bloqueia"]["eudr"])}</div>
+<p style="margin:8px 0 0">{escape(c["por_que"])}</p><ol class="trilho">{passos}</ol>
+<div class="pe">{" · ".join(pe)}</div></article>""")
+    plano = "".join(cartoes) or ('<p class="mut">Nenhuma pendência nem indício nas fontes verificadas. Isso não é '
+                                 'atestado de conformidade: veja o que falta abaixo.</p>')
+    faltas = [[_td(escape(i["entrada"])), _td(escape(i["destrava"])), _td(escape(i["quem"])),
+               _td(_link(i["onde"], i["link"]))] for i in blocos["o_que_falta"]]
+    return f"""<section class="card"><h2>Plano de ação</h2><p class="mut">Primeiro o que bloqueia crédito rural e venda
+sob a EUDR; depois o que bloqueia um dos dois; por último os indícios a conferir.</p>{plano}</section>
+<section class="card"><h2>O que falta para fechar o diagnóstico</h2><p class="mut">Critério não verificado ou
+inconclusivo não é &ldquo;sem ocorrência&rdquo;: estas entradas destravam a verificação.</p>{_tabela(
+        ["Entrada que falta", "Destrava", "Quem traz", "Onde obter"], faltas, "Nenhuma entrada faltando.")}</section>"""
+
+
+def renderizar(ficha: dict, commodity: str | None = None) -> str:
     im, res = ficha["imovel"], ficha["resultado"]
     cod = im.get("cod_imovel") or ficha["consulta"].get("cod_imovel") or "imóvel não localizado"
     chips = "".join(f'<span class="badge {COR_SITUACAO[s]}">{n} {escape(s)}</span>'
@@ -492,6 +544,7 @@ claro: na divisa, não atribuído</span>{legenda_area(ficha)}</div></div>
 {"informado (pseudonimizado)" if ficha["consulta"]["documento_informado"] else "não informado"}</div></div></div>
 <div class="chips">{chips}</div><div class="fatos">{fatos}</div></section>
 {como_se_formou(ficha)}
+{plano_e_o_que_falta(plano_de_acao.montar(ficha, commodity))}
 {topo}
 <section class="card"><h2>Critérios</h2>{_tabela(["Critério", "Situação", "Evidência", "Encaminhamento", "Fonte"],
                                                   criterios, "")}</section>
