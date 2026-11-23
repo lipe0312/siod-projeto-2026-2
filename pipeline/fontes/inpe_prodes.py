@@ -25,7 +25,6 @@ import math
 import re
 import shutil
 import zipfile
-from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -355,6 +354,12 @@ def _ler_manifesto() -> dict | None:
     return _ler_json(_arquivo_manifesto_wfs(), PASTA_LOTE / "manifesto.json")
 
 
+def _carimbo(hoje: pd.Timestamp) -> str:
+    """Instante da verificação, tirado do `hoje` injetado (nas rotinas, Timestamp.today()), e não do relógio do
+    sistema: a comparação de _verificacao_em_dia usa a mesma referência, então o teste não depende da data real."""
+    return hoje.isoformat(timespec="seconds")
+
+
 def _verificacao_em_dia(anterior: dict | None, hoje: pd.Timestamp) -> bool:
     if not anterior or anterior.get("desde") != config.PRODES_DESDE or "verificado_em_utc" not in anterior:
         return False
@@ -436,7 +441,7 @@ def verificar_e_baixar(hoje: pd.Timestamp, atualizar: bool = False, verificar: b
                  anterior["verificado_em_utc"][:10], config.PRODES_INTERVALO_VERIFICACAO_DIAS)
         return anterior, False, []
 
-    agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    agora = _carimbo(hoje)
     manifesto = {"desde": config.PRODES_DESDE, "ufs": ufs, "ufs_biomas": dict((anterior or {}).get("ufs_biomas", {})),
                  "biomas": {}, "mudancas": [], "historico": (anterior or {}).get("historico", [])}
     if em_dia:
@@ -902,7 +907,7 @@ def executar_arquivos(hoje: pd.Timestamp, atualizar: bool = False, verificar: bo
     em_dia = (anterior is not None and not (atualizar or verificar)
               and (hoje.normalize() - pd.Timestamp(anterior["verificado_em_utc"][:10])).days
               < config.PRODES_INTERVALO_VERIFICACAO_DIAS)
-    agora = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    agora = _carimbo(hoje)
     mudancas, refeitos, parciais, descartes = [], [], [], []
 
     def processar(bioma: str, item: dict, destino) -> dict:
