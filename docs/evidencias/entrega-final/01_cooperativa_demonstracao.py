@@ -141,7 +141,7 @@ def gerar_talhoes(planilha: pd.DataFrame, consultar) -> list[str]:
         try:
             ficha = consultar(cod, documento=None, baixar_prodes=False)
         except Exception as e:  # sem cache: o caso fica inconclusivo adiante e o KML não muda
-            avisos.append(f"{id_produtor}: talhão não regerado ({e})")
+            avisos.append(f"{id_produtor}: talhão não regerado ({carteira._erro(e)})")
             continue
         car = shapely.from_wkt(ficha["geometria_car"])
         alvos = _alvos(ficha, car)
