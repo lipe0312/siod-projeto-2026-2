@@ -134,3 +134,23 @@ def test_carteira_de_demonstracao_real():
     with (DEMO_REAL / "carteira.csv").open(encoding="utf-8") as f:
         assert r.text.count("<tr data-grupo=") == sum(1 for _ in csv.DictReader(f))
     assert "conforme" not in r.text.lower() and not re.search(r"\d{3}\.\d{3}\.\d{3}-\d{2}", r.text)
+
+
+def test_ficha_sem_contagem_ou_data_invalida_degrada_sem_500_e_sem_verde():
+    pasta = gravar_carteira(config.SAIDAS / "console")
+    sem = json.loads((pasta / "fichas" / f"{NOME_SEM}.json").read_text(encoding="utf-8"))
+    sem["resultado"] = {"situacao": "sem pendência nas fontes verificadas"}  # sem contagem
+    sem["procedencia"] = [{"fonte": "IBAMA, áreas embargadas (CSV)", "data": "2026-13-45"}]
+    (pasta / "fichas" / f"{NOME_SEM}.json").write_text(json.dumps(sem), encoding="utf-8")
+    pend = json.loads((pasta / "fichas" / f"{NOME_PEND}.json").read_text(encoding="utf-8"))
+    pend["resultado"]["contagem"] = {"não verificado": "três"}  # não numérica
+    (pasta / "fichas" / f"{NOME_PEND}.json").write_text(json.dumps(pend), encoding="utf-8")
+    r = cliente().get("/carteira")
+    assert r.status_code == 200
+    t = r.text
+    linha_sem = t[t.index("CVC-06"):].split("</tr>")[0]
+    assert "st-sem" not in linha_sem and "verificação não informada" in linha_sem
+    assert 'class="cont st-sem"' not in t
+    assert t[t.index("CVC-05"):].split("</tr>")[0].count("verificação não informada") == 1
+    assert "ficha não gravada" in t[t.index("CVC-99"):].split("</tr>")[0]
+    assert tela._idade("2026-13-45", date(2026, 11, 23)) == ""

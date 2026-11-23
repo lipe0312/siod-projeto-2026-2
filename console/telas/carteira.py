@@ -55,9 +55,16 @@ def _ler_ficha(pasta: Path, relativo: str) -> tuple[str | None, dict | None]:
     return nome, ficha if isinstance(ficha, dict) and isinstance(ficha.get("resultado"), dict) else None
 
 
-def _faltam(ficha: dict | None) -> int:
-    cont = ((ficha or {}).get("resultado") or {}).get("contagem") or {}
-    return int(cont.get("não verificado", 0)) + int(cont.get("inconclusivo", 0))
+def _faltam(ficha: dict | None) -> int | None:
+    """Critérios sem verificação; None (tratado como "não verificado", nunca verde) se a ficha não traz a contagem
+    ou ela não é numérica."""
+    cont = ((ficha or {}).get("resultado") or {}).get("contagem")
+    if not isinstance(cont, dict):
+        return None
+    try:
+        return int(cont.get("não verificado", 0)) + int(cont.get("inconclusivo", 0))
+    except (TypeError, ValueError):
+        return None
 
 
 def _primeiro_passo(linha: dict, ficha: dict | None) -> str:
@@ -105,7 +112,10 @@ def _idade(texto: str, hoje: date) -> str:
     m = re.search(r"\d{4}-\d{2}-\d{2}", texto or "")
     if not m:
         return ""
-    dias = (hoje - date.fromisoformat(m[0])).days
+    try:
+        dias = (hoje - date.fromisoformat(m[0])).days
+    except ValueError:
+        return ""
     return "hoje" if dias <= 0 else "ontem" if dias == 1 else f"há {dias} dias"
 
 
@@ -179,7 +189,9 @@ def _o_que_apareceu(r: dict) -> str:
         motivo = r.get("problema_na_linha") or "a ficha não foi gerada"
         partes.append(f"<b>Inconclusivo:</b> {_t(motivo)}")
     if not partes:
-        partes.append("Nada encontrado nas fontes verificadas.")
+        partes.append("ficha não gravada" if r["nome"] is None
+                      else "Nada encontrado nas fontes verificadas." if r["situacao"].startswith("sem pendência")
+                      else "ver a ficha")
     if r.get("mudou") == "sim":
         partes.append(f'<span class="mudou">↻ mudou: {_t(_datas_br(r.get("o_que_mudou")))}</span>')
     return "<br>".join(partes)
@@ -188,7 +200,8 @@ def _o_que_apareceu(r: dict) -> str:
 def _contas(r: dict) -> str:
     if r["nome"] is None:
         return '<span class="mu">sem ficha</span>'
-    faltam = (f"{_plural(r['faltam'], 'critério falta', 'critérios faltam')}" if r["faltam"]
+    faltam = ("verificação não informada na ficha" if r["faltam"] is None
+              else _plural(r["faltam"], "critério falta", "critérios faltam") if r["faltam"]
               else "nenhum critério falta")
     return f"{_plural(r['a_tratar'], 'item a tratar', 'itens a tratar')}<br><span class=\"mu\">{faltam}</span>"
 
@@ -196,7 +209,7 @@ def _contas(r: dict) -> str:
 def _linha(r: dict) -> str:
     gado = "gado" in (r.get("commodity") or "").lower()
     commodity = "cafe" if "café" in (r.get("commodity") or "").lower() else "gado" if gado else "outra"
-    falta = "sim" if (r["faltam"] or r["nome"] is None or r["situacao"] == "inconclusivo") else "nao"
+    falta = "sim" if (r["faltam"] or r["faltam"] is None or r["nome"] is None or r["situacao"] == "inconclusivo") else "nao"
     busca = f"{r.get('id_produtor') or ''} {r.get('nome_area') or ''}".lower()
     grupo = next((g[1] for g in GRUPOS if g[0] == r["situacao"]), "inco")
     local = " · ".join(x for x in (r.get("municipio"), r.get("uf")) if x)
