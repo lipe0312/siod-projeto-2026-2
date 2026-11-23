@@ -219,6 +219,8 @@ def criar_app(executar: Callable[..., dict] | None = None, hosts: list[str] | No
             return JSONResponse({"erro": "pedido mal formado"}, status_code=400)
         except consulta.EntradaInvalida as e:
             return JSONResponse({"erro": str(e)}, status_code=422)
+        except consulta.ChaveIndisponivel as e:
+            return JSONResponse({"erro": str(e)}, status_code=500)
         try:
             ident = app.state.consultas.iniciar(entrada)
         except RuntimeError as e:

@@ -24,6 +24,7 @@ from test_prediagnostico import alertas, car, embargos, hash_doc, lista_suja, pr
 DADOS = Path(__file__).parent / "dados" / "area_producao"
 COD = "MG-3148103-" + "A" * 32
 DIGITOS = CPF_VALIDO.replace(".", "").replace("-", "")
+LOTE = [{"fonte": "INPE DETER (WFS, em lote)", "como": "lote", "data": "2026-11-20", "sha256": "x", "arquivo": "x"}]
 
 
 class Falso:
@@ -43,10 +44,10 @@ class Falso:
         consulta_ = {"cod_imovel": cod_imovel, "lat": lat, "lon": lon, "documento_informado": bool(documento),
                      "gerado_em": "2026-11-23 10:00:00", "prodes": {"ultimo_ano_do_imovel": 2025, "origem": "lote", "verificado_em": "2026-11-20"}}
         if self.ficha:
-            return {"consulta": consulta_, **self.ficha, "procedencia": []}
+            return {"consulta": consulta_, **self.ficha, "procedencia": LOTE}
         ficha = prediagnostico.diagnosticar(car(), embargos(), alertas(), lista_suja(CPF_VALIDO_2), prodes(),
                                             hash_doc(documento) if documento else None, ultimo_ano_prodes=2025)
-        return {"consulta": consulta_, **ficha, "procedencia": []}
+        return {"consulta": consulta_, **ficha, "procedencia": LOTE}
 
 
 def cliente(executar=None) -> TestClient:
@@ -214,3 +215,86 @@ def test_ficha_fora_da_pasta_nao_e_servida(arquivo):
 
 def test_consulta_desconhecida():
     assert cliente().get("/api/consultas/" + "0" * 32).status_code == 404
+
+
+def _estado_final(c: TestClient, ident: str) -> dict:
+    limite = time.monotonic() + 10
+    while (e := c.get(f"/api/consultas/{ident}").json())["estado"] == "rodando":
+        assert time.monotonic() < limite
+        time.sleep(0.02)
+    return e
+
+
+def test_falha_depois_do_executar_nao_trava_a_consulta_seguinte(monkeypatch):
+    c = cliente()
+
+    def quebra(ficha):
+        raise KeyError("etapa")
+
+    monkeypatch.setattr(consulta, "etapas", quebra)
+    primeira = _estado_final(c, c.post("/api/consultas", json={"car": COD}).json()["id"])
+    assert primeira["estado"] == "erro" and "Tente de novo" in primeira["erro"]
+    monkeypatch.undo()
+    assert cruzar(c, {"car": COD})["estado"] == "pronto"
+
+
+def test_excecao_do_executar_libera_a_proxima_e_nao_vaza_o_cpf(caplog, tmp_path):
+    caplog.set_level(logging.DEBUG)
+    falso = Falso(erro=RuntimeError(f"falhou para {CPF_VALIDO} / {DIGITOS}"))
+    c = cliente(falso)
+    estado = cruzar(c, {"car": COD, "documento": CPF_VALIDO})
+    assert estado["situacao"] == "inconclusivo" and "[documento omitido]" in estado["motivo"]
+    falso.erro = None
+    assert cruzar(c, {"car": COD})["estado"] == "pronto"
+    textos = [json.dumps(estado), caplog.text, c.get(f"/fichas/{estado['ficha']}").text]
+    for texto in textos:
+        assert DIGITOS not in texto and CPF_VALIDO not in texto
+    for arquivo in tmp_path.rglob("*"):
+        if arquivo.is_file():
+            assert DIGITOS.encode() not in arquivo.read_bytes() and CPF_VALIDO.encode() not in arquivo.read_bytes()
+
+
+def test_dois_inconclusivos_no_mesmo_dia_viram_dois_arquivos():
+    c = cliente(Falso(erro=requests.ConnectionError("sem rota")))
+    a, b = cruzar(c, {"car": COD}), cruzar(c, {"car": COD})
+    assert a["ficha"] != b["ficha"]
+    pasta = config.SAIDAS / "console"
+    assert (pasta / a["ficha"]).is_file() and (pasta / b["ficha"]).is_file()
+    assert (pasta / a["ficha_json"]).is_file() and (pasta / b["ficha_json"]).is_file()
+    assert sorted(lago.ler("diag.resultado_imovel")["ficha"]) == sorted([a["ficha"], b["ficha"]])
+
+
+def test_aviso_de_cobertura_nao_vira_nenhum_alerta_ok():
+    ficha = prediagnostico.diagnosticar(car(), embargos(), alertas(), lista_suja(), prodes(), None,
+                                        ultimo_ano_prodes=2025,
+                                        aviso_desmatamento="Cerrado sem DETER: sem cobertura de 31/07/2025 até hoje")
+    etapas = {e["nome"]: e for e in consulta.etapas({"consulta": {"prodes": {}}, **ficha, "procedencia": LOTE})}
+    for nome in ("PRODES da UF", "DETER"):
+        assert etapas[nome]["estado"] == "inco" and "sem cobertura" in etapas[nome]["texto"]
+    sem_lote = {e["nome"]: e for e in consulta.etapas({"consulta": {"prodes": {}}, **ficha, "procedencia": []})}
+    assert sem_lote["DETER"]["estado"] == "inco" and "não carregado" in sem_lote["DETER"]["texto"]
+
+
+def test_area_protegida_nao_verificada_nao_fica_ok():
+    ficha = prediagnostico.diagnosticar(car(), embargos(), alertas(), lista_suja(), prodes(), None,
+                                        ultimo_ano_prodes=2025)
+    for c in ficha["criterios"]:
+        if c["chave"] == "quilombola":
+            c["situacao"] = "não verificado"
+    etapas = {e["nome"]: e for e in consulta.etapas({"consulta": {}, **ficha, "procedencia": LOTE})}
+    assert etapas["Áreas protegidas"]["estado"] == "inco"
+
+
+def test_area_que_nao_e_objeto_e_recusada():
+    r = cliente().post("/api/consultas", json={"car": COD, "area": "talhao.kml"})
+    assert r.status_code == 422 and "área de produção" in r.json()["erro"]
+
+
+def test_chave_ilegivel_da_erro_claro(monkeypatch):
+    def sem_chave():
+        raise PermissionError("negado")
+
+    monkeypatch.setattr(consulta, "carregar_chave", sem_chave)
+    r = cliente().post("/api/consultas", json={"car": COD, "documento": CPF_VALIDO})
+    assert r.status_code == 500 and "chave de pseudonimização" in r.json()["erro"]
+    assert DIGITOS not in r.text and CPF_VALIDO not in r.text
