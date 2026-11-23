@@ -196,6 +196,8 @@ def processar(df: pd.DataFrame, pasta: Path, baixar_prodes: bool = True, consult
             if dossie_eudr:
                 indice.append(_linha_indice_falha(base, execucao_id, _erro(e)))
             continue
+        if base.get("commodity"):  # o plano de ação da ficha lê daqui (item do gado); base já passou por sem_documento
+            ficha["consulta"]["commodity"] = base["commodity"]
         caminhos = prediagnostico.escrever(ficha, pasta / "fichas")
         resultado_id = execucao.acrescentar(ficha, imovel_id=(ids or {}).get(i, {}).get("imovel_id"),
                                             ficha_arquivo=f"fichas/{caminhos['html'].name}") if execucao else None

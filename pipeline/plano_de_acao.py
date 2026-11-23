@@ -9,14 +9,19 @@ nenhum critério.
 - `o_que_falta`: para cada critério "não verificado" ou "inconclusivo", a entrada que destrava, quem traz e onde se
   obtém. "Não verificado" e "inconclusivo" nunca viram cartão de pendência (ADR 0013).
 
-Normas citadas: MCR, Seção 2-9 (Res. CMN 5.193/2024) para o crédito rural; EUDR, Regulamento (UE) 2023/1115, art. 3
-(livre de desmatamento e produzido de acordo com a legislação), art. 2(13) (desmatamento), art. 2(40) (legislação
-relevante do país de produção) e art. 10(2)(j) (risco de mistura).
+Normas citadas: MCR, Seção 2-9 (Res. CMN 5.193/2024) para o crédito rural; EUDR, Regulamento (UE) 2023/1115, art. 3(a)
+(livre de desmatamento) e 3(b) (produzido de acordo com a legislação), art. 2(13) (definição de "livre de
+desmatamento", corte em 31/12/2020), art. 2(40), alíneas (a) a (h) (legislação relevante do país de produção: (a) uso
+da terra, (b) proteção ambiental, (d) direitos de terceiros, (e) direitos trabalhistas, (f) direitos humanos, (g)
+consentimento livre, prévio e informado) e art. 10(2)(j) (risco de mistura). Numeração conferida em 23/11/2026 no
+texto do EUR-Lex (eli/reg/2023/1115/oj/eng) e no FAQ da Comissão (5ª versão).
 
 Links oficiais conferidos à mão em 23/11/2026 (resposta HTTP 200 na data; ver `CONFERIDO_EM`).
 """
 
 from __future__ import annotations
+
+import re
 
 CONFERIDO_EM = "2026-11-23"
 
@@ -53,15 +58,22 @@ ORGAO_PADRAO = ("órgão ambiental estadual", SICAR)
 
 # --- Normas ----------------------------------------------------------------------------------------------------------
 NORMA_MCR = "MCR, Seção 2-9 (Res. CMN 5.193/2024)"
-NORMA_EUDR_DESMATAMENTO = "EUDR (Reg. (UE) 2023/1115), art. 3 e art. 2(13): livre de desmatamento após 31/12/2020"
-NORMA_EUDR_LEGALIDADE = "EUDR (Reg. (UE) 2023/1115), art. 3 e art. 2(40): produzido de acordo com a legislação relevante"
+NORMA_EUDR_DESMATAMENTO = "EUDR (Reg. (UE) 2023/1115), art. 3(a) e art. 2(13): livre de desmatamento após 31/12/2020"
+
+
+def _legalidade(alineas: str, tema: str) -> str:
+    """Legalidade da EUDR: art. 3(b) e as alíneas do art. 2(40) que tratam do tema."""
+    return (f"EUDR (Reg. (UE) 2023/1115), art. 3(b) e art. 2(40)({alineas}): produzido de acordo com a legislação "
+            f"relevante do país de produção ({tema})")
+
+
 NORMA_EUDR_MISTURA = "EUDR (Reg. (UE) 2023/1115), art. 10(2)(j): risco de mistura com produto de origem desconhecida"
 NORMA_ABS = "AgroBrasil+Sustentável (MAPA)"
 
 SIM, NAO, TALVEZ = "sim", "não", "talvez"
 PENDENTES = ("pendência", "indício")
 FALTANTES = ("não verificado", "inconclusivo")
-TERMOS_GADO = ("gado", "bovin", "boi", "carne", "pecuári", "cattle", "bezerr", "novilh")
+GADO = re.compile(r"\b(gado|bois?|bovin\w*|carnes?|pecu[aá]ri\w*|cattle|bezerr\w*|novilh\w*)\b")
 
 
 def orgao_estadual(uf: str | None) -> dict:
@@ -86,7 +98,8 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
     est = orgao_estadual(uf)
     if tipo == "car_irregular":
         return dict(por_que=f"CAR cancelado ou suspenso: o crédito rural é vedado ({NORMA_MCR}); o CAR em situação "
-                            f"irregular também pesa na legalidade da produção ({NORMA_EUDR_LEGALIDADE}).",
+                            "irregular também pesa na legalidade da produção "
+                            f"({_legalidade('a) e (b', 'uso da terra e proteção ambiental')}).",
                     bloqueia={"credito": SIM, "eudr": TALVEZ}, **est, prazo_ou_condicao=None,
                     passos=[_passo("técnico", enc, est["orgao"], est["link"]),
                             _passo("produtor", "Abrir a central do proprietário no SICAR, ver o motivo do "
@@ -94,9 +107,8 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
                                                "pedidos.", "SICAR", SICAR),
                             _passo("órgão", "Analisar a retificação e reativar o CAR.", est["orgao"], est["link"])])
     if tipo == "car_pendente":
-        return dict(por_que="CAR com pendência ou notificação no SICAR: ainda não impede o crédito, mas notificação "
-                            "sem resposta pode levar à suspensão do CAR, que o veda "
-                            f"({NORMA_MCR}).",
+        return dict(por_que="CAR com pendência ou notificação no SICAR: responder às notificações no prazo indicado "
+                            f"pelo órgão. O crédito rural é vedado com CAR cancelado ou suspenso ({NORMA_MCR}).",
                     bloqueia={"credito": TALVEZ, "eudr": TALVEZ}, **est, prazo_ou_condicao=None,
                     passos=[_passo("produtor", enc, "SICAR", SICAR),
                             _passo("técnico", "Conferir com o produtor o teor de cada notificação e os documentos "
@@ -105,7 +117,7 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
     if tipo == "embargo":
         return dict(por_que=f"Embargo ativo do IBAMA dentro do imóvel: o crédito rural é vedado ({NORMA_MCR}); a "
                             "produção de área embargada não atende à legislação ambiental "
-                            f"({NORMA_EUDR_LEGALIDADE}).",
+                            f"({_legalidade('b', 'proteção ambiental')}).",
                     bloqueia={"credito": SIM, "eudr": SIM}, orgao="IBAMA", link=IBAMA,
                     prazo_ou_condicao="O desembargo depende da regularização da área.",
                     passos=[_passo("técnico", enc, "IBAMA", IBAMA),
@@ -136,7 +148,7 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
                                                "(ASV).", est["orgao"], est["link"])])
     if tipo == "desmatamento_resto":
         return dict(por_que="Desmatamento fora da área de produção declarada: desmatamento ilegal no imóvel afeta a "
-                            f"legalidade da produção ({NORMA_EUDR_LEGALIDADE}) e há risco de mistura "
+                            f"legalidade da produção ({_legalidade('b', 'proteção ambiental')}) e há risco de mistura "
                             f"({NORMA_EUDR_MISTURA}).",
                     bloqueia={"credito": NAO, "eudr": TALVEZ}, **est, prazo_ou_condicao=None,
                     passos=[_passo("técnico", enc),
@@ -145,7 +157,7 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
     if tipo == "lista_suja":
         return dict(por_que=f"Empregador no Cadastro de Empregadores (trabalho análogo ao de escravo): o crédito rural "
                             f"é vedado enquanto constar ({NORMA_MCR}); a legislação trabalhista e de direitos humanos "
-                            f"entra na legalidade da EUDR ({NORMA_EUDR_LEGALIDADE}).",
+                            f"entra na legalidade da EUDR ({_legalidade('e) e (f', 'direitos trabalhistas e direitos humanos')}).",
                     bloqueia={"credito": SIM, "eudr": TALVEZ}, orgao="MTE", link=MTE,
                     prazo_ou_condicao="Vale enquanto o nome constar no Cadastro.",
                     passos=[_passo("técnico", enc, "MTE", MTE),
@@ -155,7 +167,8 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
         pend = tipo == "terra_indigena"
         return dict(por_que=("Sobreposição com terra indígena: impede a qualificação no " if pend else
                              "Terra indígena em estudo sobre o imóvel: pode impedir a qualificação no ")
-                            + f"{NORMA_ABS} e pesa na legalidade da produção ({NORMA_EUDR_LEGALIDADE}).",
+                            + f"{NORMA_ABS} e pesa na legalidade da produção "
+                            f"({_legalidade('d) e (g', 'direitos de terceiros e consentimento livre, prévio e informado')}).",
                     bloqueia={"credito": TALVEZ, "eudr": TALVEZ}, orgao="FUNAI", link=FUNAI, prazo_ou_condicao=None,
                     passos=[_passo("técnico", enc, "FUNAI", FUNAI),
                             _passo("produtor", "Se a sobreposição for erro de desenho, retificar o CAR.", "SICAR",
@@ -164,7 +177,8 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
         pend = tipo == "quilombola"
         return dict(por_que=("Sobreposição com território quilombola delimitado: impede a qualificação no " if pend else
                              "Território quilombola em estudo ou sem fase: pode impedir a qualificação no ")
-                            + f"{NORMA_ABS} e pesa na legalidade da produção ({NORMA_EUDR_LEGALIDADE}).",
+                            + f"{NORMA_ABS} e pesa na legalidade da produção "
+                            f"({_legalidade('a) e (d', 'uso da terra e direitos de terceiros')}).",
                     bloqueia={"credito": TALVEZ, "eudr": TALVEZ}, orgao="INCRA", link=INCRA_QUILOMBOLAS,
                     prazo_ou_condicao=None,
                     passos=[_passo("técnico", enc, "INCRA", INCRA_QUILOMBOLAS),
@@ -174,7 +188,7 @@ def _cartao(tipo: str, criterio: dict, uf: str | None) -> dict:
         orgao = "ICMBio (UC federal) ou órgão gestor da UC (ver CNUC)"
         return dict(por_que="Sobreposição com unidade de conservação: a atividade produtiva dentro dela depende do "
                             "órgão gestor e do plano de manejo; pesa na legalidade da produção "
-                            f"({NORMA_EUDR_LEGALIDADE}).",
+                            f"({_legalidade('b', 'proteção ambiental')}).",
                     bloqueia={"credito": TALVEZ, "eudr": TALVEZ}, orgao=orgao, link=CNUC, prazo_ou_condicao=None,
                     passos=[_passo("técnico", enc, "CNUC (MMA)", CNUC),
                             _passo("órgão", "Informar se a atividade é permitida pelo plano de manejo.", orgao,
@@ -245,7 +259,7 @@ def _faltante(tipo: str, c: dict) -> dict:
 
 def eh_gado(commodity: str | None) -> bool:
     texto = (commodity or "").lower()
-    return any(t in texto for t in TERMOS_GADO)
+    return bool(GADO.search(texto))
 
 
 def o_que_falta(ficha: dict, commodity: str | None = None) -> list[dict]:
@@ -283,7 +297,18 @@ def montar(ficha: dict, commodity: str | None = None) -> dict:
 
 # --- Saída em Markdown -----------------------------------------------------------------------------------------------
 
+def link_seguro(link: str | None) -> str | None:
+    """Só http/https viram link; o resto sai como texto."""
+    return link if link and re.match(r"https?://", link, re.IGNORECASE) else None
+
+
+def _celula(texto) -> str:
+    """Célula de tabela Markdown: sem quebra de linha e com | escapado."""
+    return re.sub(r"\s*[\r\n]+\s*", " ", str(texto or "")).replace("|", "\\|")
+
+
 def _md_link(texto: str | None, link: str | None) -> str:
+    link = link_seguro(link)
     return f"[{texto or link}]({link})" if link else (texto or "")
 
 
@@ -311,6 +336,7 @@ def markdown(blocos: dict) -> list[str]:
         md.append("Nenhuma entrada faltando.")
         return md
     md += ["| Entrada que falta | Destrava | Quem traz | Onde obter |", "|---|---|---|---|"]
-    md += [f"| {i['entrada']} | {i['destrava']} | {i['quem']} | {_md_link(i['onde'], i['link'])} |"
+    md += [f"| {_celula(i['entrada'])} | {_celula(i['destrava'])} | {_celula(i['quem'])} | "
+           f"{_celula(_md_link(i['onde'], i['link']))} |"
            for i in blocos["o_que_falta"]]
     return md

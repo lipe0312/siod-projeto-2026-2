@@ -2,9 +2,11 @@
 
 import json
 
+import pandas as pd
+
 from conftest import CPF_VALIDO
 
-from pipeline import config, ficha_html, plano_de_acao, prediagnostico
+from pipeline import carteira, config, ficha_html, plano_de_acao, prediagnostico
 from pipeline.prediagnostico import ENCAMINHAMENTO, _criterio
 
 
@@ -131,3 +133,38 @@ def test_json_markdown_e_html_trazem_os_dois_blocos_separados():
              html.split("<h2>Plano de ação</h2>")[1].split("<h2>Critérios</h2>")[0])
     for texto in novos:  # o plano nunca diz "conforme"
         assert "conforme" not in texto.replace("conformidade", "")
+
+
+def test_carteira_com_linha_de_gado_traz_o_item_gta_na_ficha(tmp_path):
+    from test_carteira import ficha_falsa
+
+    df = pd.DataFrame([{"id_produtor": "A", "cod_car": "MG-GADO", "documento": CPF_VALIDO, "commodity": "gado de corte"},
+                       {"id_produtor": "B", "cod_car": "MG-CAFE", "documento": None, "commodity": "café"}])
+    fichas = {}
+
+    def consultar(cod, *a, **k):
+        ficha = ficha_falsa()
+        ficha["imovel"] = {**ficha["imovel"], "cod_imovel": cod}
+        fichas[cod] = ficha
+        return ficha
+
+    carteira.processar(df, tmp_path, consultar=consultar)
+    gta = "Fornecedores indiretos e trânsito animal (GTA) não verificados"
+    gado = json.loads((tmp_path / "fichas" / "MG-GADO.json").read_text(encoding="utf-8"))
+    cafe = json.loads((tmp_path / "fichas" / "MG-CAFE.json").read_text(encoding="utf-8"))
+    assert gta in [i["entrada"] for i in gado["o_que_falta"]]
+    assert gta not in [i["entrada"] for i in cafe["o_que_falta"]]
+    assert "GTA" in (tmp_path / "fichas" / "MG-GADO.html").read_text(encoding="utf-8")
+    for arquivo in (tmp_path / "fichas").iterdir():
+        assert CPF_VALIDO not in arquivo.read_text(encoding="utf-8")
+
+
+def test_gado_por_palavra_inteira_e_markdown_e_link_seguros():
+    assert plano_de_acao.eh_gado("Boi gordo") and plano_de_acao.eh_gado("bovinos")
+    assert not plano_de_acao.eh_gado("boião") and not plano_de_acao.eh_gado("café") and not plano_de_acao.eh_gado(None)
+    assert plano_de_acao.link_seguro("javascript:alert(1)") is None
+    assert plano_de_acao.link_seguro("https://www.car.gov.br/") == "https://www.car.gov.br/"
+    linhas = plano_de_acao.markdown({"plano_de_acao": [], "o_que_falta": [
+        {"entrada": "a | b\nc", "destrava": "x", "quem": "técnico", "onde": "y", "link": "javascript:alert(1)"}]})
+    ultima = linhas[-1]
+    assert "a \\| b c" in ultima and "javascript" not in ultima and ultima.count(" | ") == 3

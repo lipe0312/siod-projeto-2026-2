@@ -455,6 +455,7 @@ def _impacto(rotulo: str, valor: str) -> str:
 
 
 def _link(texto: str | None, link: str | None) -> str:
+    link = plano_de_acao.link_seguro(link)  # só http/https
     texto = escape(texto or link or "")
     return f'<a href="{escape(link)}" rel="noopener">{texto}</a>' if link else texto
 
