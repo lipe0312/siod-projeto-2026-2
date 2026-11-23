@@ -26,7 +26,7 @@ HOSTS = ["127.0.0.1", "localhost"]
 TAMANHO_MAXIMO_PEDIDO = consulta.TAMANHO_MAXIMO_AREA + 64 * 1024
 ARQUIVO_FICHA = re.compile(r"[A-Za-z0-9_-]{1,80}\.(html|json)")
 CABECALHOS = {"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
-              "Content-Security-Policy": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+              "Content-Security-Policy": "default-src 'self'; img-src 'self' data: https://tiles.maps.eox.at; style-src 'self' 'unsafe-inline'; "
                                          "frame-ancestors 'none'"}
 
 ABAS = (("carteira", "Carteira"), ("consulta", "Nova consulta"), ("fontes", "Fontes"))

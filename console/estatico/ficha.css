@@ -113,6 +113,35 @@
 .rolar:focus-visible{outline:3px solid var(--fo)}
 @media(max-width:759px){.svg-tempo{min-width:720px}}
 
+/* mapa de satélite (#35): antes (2020) e depois lado a lado; no celular, um sobre o outro. Cores fixas e claras,
+   legíveis sobre a imagem; o mapa.js lê a cor de cada camada da amostra da legenda. */
+.sat-on .svg-mapa,.sat-on .svg-falta{display:none}
+.sat-par{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sat-m{margin:0;min-width:0;display:grid;gap:4px}
+.sat-m figcaption{font-size:14px;color:var(--mu)}
+.sat-m figcaption b{color:var(--tx)}
+.sat-mapa{height:300px;border:1px solid var(--bd);border-radius:var(--r);background:var(--sf2)}
+.sat-cred{font-size:12px;color:var(--mu);overflow-wrap:anywhere}
+.sat-camadas{border:1px solid var(--bd);border-radius:var(--r);margin:10px 0 0;padding:6px 12px 10px;
+  display:flex;flex-wrap:wrap;gap:0 16px;min-width:0}
+.sat-camadas legend{font-size:14px;color:var(--mu);padding:0 4px}
+.sat-camadas label{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:14px;cursor:pointer}
+.sat-camadas input{width:18px;height:18px;accent-color:var(--pri)}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35);background:#fff}
+.sw[data-sw=car]{background:#ffd166}.sw[data-sw=area_de_producao]{background:#ffffff}
+.sw[data-sw=alerta_deter],.sw[data-sw=alerta_deter_resto]{background:#ff8a1f}
+.sw[data-sw=prodes],.sw[data-sw=prodes_resto]{background:#c9a2ff}.sw[data-sw=embargo]{background:#ff3b30}
+.sw[data-sw=terra_indigena]{background:#f2b27a}.sw[data-sw=quilombola]{background:#4fd6e0}
+.sw[data-sw=unidade_conservacao]{background:#a6e86f}
+.leaflet-tooltip.sat-rot{background:rgba(20,15,13,.8);color:#fff;border:0;box-shadow:none;font:700 11px/1.2 var(--mono);
+  padding:0 3px;border-radius:3px}
+.leaflet-tooltip.sat-rot::before{display:none}
+.sat-pop{display:grid;gap:2px;font:14px/1.4 var(--sans);color:#241914}
+.sat-aviso{margin-bottom:10px}
+.nao-ver{margin-top:14px}
+.nao-ver h3{font-size:16px}
+.nao-ver ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+
 /* rastreabilidade: recolhida; trilho de auditoria (etapa que falta tracejada) */
 .rast{border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
 .rast summary{cursor:pointer;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-height:44px;padding:12px 16px}
@@ -151,6 +180,8 @@
   .cartao{border:1px solid #000;margin-bottom:10px}
   .bloco-h,h2,h3{break-after:avoid}
   .svg-tempo{min-width:0}
+  .sat,.sat-aviso{display:none!important}
+  .sat-on .svg-mapa{display:block!important}
   .rolar{overflow:visible}
   .svg-mapa svg.mapa,.svg-tempo svg{-webkit-print-color-adjust:exact;print-color-adjust:exact;max-height:120mm}
   .passos li::before{border:1px solid #000;background:none}

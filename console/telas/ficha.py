@@ -42,6 +42,15 @@ PERIGOSO = re.compile(r"<\s*(script|style|foreignobject|iframe|object|embed|imag
                       r"[\s\"'/]on[a-z]+\s*=|href\s*=\s*[\"'](?!#)", re.IGNORECASE)
 BLOCO_SVG = {"mapa": re.compile(r'<svg class="mapa".*?</svg>\s*<div class="legenda">.*?</div>', re.DOTALL),
              "tempo": re.compile(r'<svg class="tempo".*?</svg>\s*<div class="legenda">.*?</div>', re.DOTALL)}
+# Mapa de satélite (issue #35): fundo EOX Sentinel-2 cloudless (CC BY 4.0), 2020 = corte da EUDR (31/12/2020) e o
+# mosaico mais recente publicado (conferido em 23/11/2026). As camadas vêm do <nome>.camadas.geojson (#31).
+ANO_ANTES, ANO_DEPOIS = 2020, 2025
+LIMITE_CAMADAS = 2_000_000  # bytes; a #31 grava no máximo 1 MB
+CAMADAS_MAPA = {  # camada do GeoJSON → nome na legenda (ordem da legenda)
+    "car": "Perímetro do CAR", "area_de_producao": "Área de produção", "alerta_deter": "Alerta DETER",
+    "alerta_deter_resto": "Alerta DETER (resto do imóvel)", "prodes": "Desmatamento PRODES",
+    "prodes_resto": "PRODES (resto do imóvel)", "embargo": "Embargo IBAMA", "terra_indigena": "Terra indígena",
+    "quilombola": "Território quilombola", "unidade_conservacao": "Unidade de conservação"}
 
 
 class FichaIlegivel(ValueError):
@@ -150,7 +159,44 @@ def ler(pasta: Path, nome: str) -> tuple[dict, dict[str, str]]:
             or not isinstance(ficha.get("criterios"), list):
         raise FichaIlegivel("o arquivo não tem o resultado e os critérios de uma ficha")
     html = caminho.with_suffix(".html")
-    return ficha, svgs_da_ficha(html.read_text(encoding="utf-8") if html.is_file() else "")
+    svgs = svgs_da_ficha(html.read_text(encoding="utf-8") if html.is_file() else "")
+    geojson = caminho.with_name(f"{nome}.camadas.geojson")
+    if geojson.is_file() and geojson.stat().st_size <= LIMITE_CAMADAS:
+        camadas = camadas_da_ficha(geojson.read_text(encoding="utf-8", errors="replace"))
+        if camadas:
+            svgs["camadas"] = camadas
+    return ficha, svgs
+
+
+def _mascarar(valor):
+    if isinstance(valor, str):
+        return _sem_doc(valor)
+    if isinstance(valor, list):
+        return [_mascarar(v) for v in valor]
+    if isinstance(valor, dict):
+        return {k: _mascarar(v) for k, v in valor.items()}
+    return valor
+
+
+def camadas_da_ficha(texto: str) -> str | None:
+    """JSON das camadas (#31) pronto para embutir na página: só FeatureCollection com feições, texto sem documento
+    (máscara de CPF/CNPJ em toda string) e `<`, `>`, `&` como \\u003c etc., para nada fechar o <script>. None se o
+    arquivo não é uma FeatureCollection legível (a tela fica no SVG)."""
+    try:
+        dados = json.loads(texto or "")
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(dados, dict) or dados.get("type") != "FeatureCollection" \
+            or not isinstance(dados.get("features"), list):
+        return None
+    feicoes = [f for f in dados["features"] if isinstance(f, dict) and isinstance(f.get("geometry"), dict)
+               and isinstance(f.get("properties"), dict)]
+    if not feicoes:
+        return None
+    nao = [c for c in dados.get("camadas_nao_verificadas") or [] if isinstance(c, dict)]
+    saida = json.dumps(_mascarar({"type": "FeatureCollection", "camadas_nao_verificadas": nao, "features": feicoes}),
+                       ensure_ascii=False, separators=(",", ":"))
+    return saida.replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
 
 
 # --- partes da tela -------------------------------------------------------------------------------------------------
@@ -342,7 +388,7 @@ def _cartao(ficha: dict, i: int, c: dict) -> str:
     <div><dt>O que bloqueia</dt><dd><ul class="imps">{impactos}</ul></dd></div>
     <div><dt>Por quê</dt><dd>{_t(c.get("por_que"))}</dd></div>
     <div><dt>Evidência</dt><dd>{_t(_datas_br(c.get("evidencia")))}
-      <span class="no-mapa"><a class="leva" href="#mapa"><span>Ver no mapa</span>{_ico("arrow", "ico seta")}</a>{_no_mapa(ficha, c.get("chave", ""))}</span></dd></div>
+      <span class="no-mapa"><a class="leva" href="#mapa" data-rot="{escape(" ".join(letra for _, letra in LETRAS.get(c.get("chave", ""), ())))}"><span>Ver no mapa</span>{_ico("arrow", "ico seta")}</a>{_no_mapa(ficha, c.get("chave", ""))}</span></dd></div>
     {prazo}
   </dl>
   <h4 class="passos-h">O que fazer</h4>
@@ -422,15 +468,74 @@ def _mapa(ficha: dict, svgs: dict) -> str:
     elif "mapa" in svgs:
         corpo = f'<div class="svg-mapa">{svgs["mapa"]}</div>'
     else:
-        corpo = ('<p class="estado">Mapa indisponível: o desenho que acompanha a ficha (o arquivo .html ao lado do '
+        corpo = ('<p class="estado svg-falta">Mapa indisponível: o desenho que acompanha a ficha (o arquivo .html ao lado do '
                  'JSON) não foi encontrado. Refaça a consulta para gerá-lo de novo.</p>')
     sicar = next((p for p in ficha.get("procedencia") or [] if str(p.get("fonte", "")).startswith("SICAR")), None)
     nota = (f'<p class="mu nota">Perímetro do SICAR ({_t(_datas_br(sicar.get("data")))}); cada letra é uma evidência '
             'do plano de ação.</p>') if sicar and ficha.get("geometria_car") else ""
+    satelite = _satelite(svgs["camadas"]) if ficha.get("geometria_car") and svgs.get("camadas") else ""
     return f"""<section class="bloco ev" id="mapa" aria-labelledby="t-mapa" tabindex="-1">
   <h2 id="t-mapa">Mapa do imóvel</h2>
-  {corpo}{nota}
+  {satelite}{corpo}{nota}{_nao_verificadas(svgs.get("camadas"))}
 </section>"""
+
+
+def _atribuicao(ano: int) -> str:
+    return (f'<small class="sat-cred"><a href="https://s2maps.eu" rel="noopener" target="_blank">Sentinel-2 cloudless'
+            f'</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data {ano}), CC BY 4.0</small>')
+
+
+def _satelite(camadas: str) -> str:
+    """Bloco do mapa de satélite, antes (2020) e depois (mosaico mais recente) lado a lado. Fica `hidden` até o
+    mapa.js confirmar que a imagem carregou; sem rede (ou sem JS) a tela segue com o SVG da ficha."""
+    dados = json.loads(camadas)
+    por_camada: dict[str, list[str]] = {}
+    for f in dados["features"]:
+        p = f["properties"]
+        por_camada.setdefault(str(p.get("camada")), []).append(str(p.get("rotulo") or ""))
+    itens = []
+    for camada, nome in [*CAMADAS_MAPA.items(), *((c, c) for c in por_camada if c not in CAMADAS_MAPA)]:
+        if camada not in por_camada:
+            continue
+        rot = [r for r in por_camada[camada] if r and r != "CAR"]
+        faixa = rot[0] if len(rot) == 1 else f"{rot[0]}–{rot[-1]}" if rot else ""
+        itens.append(f'<label><input type="checkbox" checked data-camada="{escape(camada)}">'
+                     f'<i class="sw" data-sw="{escape(camada)}"></i>{_t(nome)}'
+                     f'{f" <span class=mono>{_t(faixa)}</span>" if faixa else ""}</label>')
+    figuras = "".join(
+        f'<figure class="sat-m"><figcaption><b>{titulo}</b> · mosaico {ano}{extra}</figcaption>'
+        f'<div class="sat-mapa" id="sat-{qual}" role="region" aria-label="Imagem de satélite de {ano} com as camadas '
+        f'da ficha"></div>{_atribuicao(ano)}</figure>'
+        for qual, titulo, ano, extra in (("antes", "Antes", ANO_ANTES, " (corte da EUDR: 31/12/2020)"),
+                                         ("depois", "Depois", ANO_DEPOIS, " (o mais recente publicado)")))
+    return f"""<div class="sat" data-sat data-antes="{ANO_ANTES}" data-depois="{ANO_DEPOIS}" hidden>
+  <div class="sat-par">{figuras}</div>
+  <p class="mu nota">Mosaico anual sem nuvens: junta imagens do ano inteiro, então pode ser anterior ao alerta. As duas
+    imagens andam juntas; clique num polígono para ver rótulo, fonte, data e área.</p>
+  <fieldset class="sat-camadas"><legend>Camadas (ligar ou desligar)</legend>{"".join(itens)}</fieldset>
+</div>
+<p class="estado sat-aviso" role="status" hidden>Imagem de satélite indisponível (sem internet ou o provedor não
+  respondeu): mostrando o mapa desenhado da ficha.</p>
+<script type="application/json" id="camadas-dados">{camadas}</script>
+<link rel="stylesheet" href="/estatico/leaflet/leaflet.css">
+<script src="/estatico/leaflet/leaflet.js" defer></script>
+<script src="/estatico/mapa.js" defer></script>
+"""
+
+
+def _nao_verificadas(camadas: str | None) -> str:
+    """Camadas que o GeoJSON não pôde desenhar (ADR 0013): listadas, nunca tomadas por "sem ocorrência"."""
+    if not camadas:
+        return ""
+    nao = json.loads(camadas).get("camadas_nao_verificadas") or []
+    if not nao:
+        return ""
+    itens = "".join(
+        f'<li><b>{_t(CAMADAS_MAPA.get(c.get("camada"), c.get("camada") or "camada"))}'
+        f'{" " + _t(c["rotulo"]) if c.get("rotulo") else ""}</b>: {_t(c.get("motivo") or "sem motivo registrado")}</li>'
+        for c in nao)
+    return (f'<div class="nao-ver"><h3>Fora do mapa (não verificado)</h3><p class="mu">A ausência destas camadas no mapa '
+            f'não quer dizer que não haja ocorrência.</p><ul>{itens}</ul></div>')
 
 
 def _tempo(ficha: dict, svgs: dict) -> str:
