@@ -1,4 +1,5 @@
-// Console local do AgroValid: busca Ctrl/⌘ K, formulário da nova consulta e cruzamento ao vivo (polling).
+// Console local do AgroValid: busca Ctrl/⌘ K, formulário da nova consulta, cruzamento ao vivo (polling) e, na ficha,
+// copiar (CAR, comando) e imprimir com a rastreabilidade aberta.
 // O documento só sai daqui num POST JSON; nunca vai para a URL nem para o armazenamento do navegador.
 (function () {
   'use strict';
@@ -48,6 +49,39 @@
     }
     busca.addEventListener('click', focarBusca);
   }
+
+  // Ficha: copiar o CAR inteiro ou o comando; imprimir abre os blocos recolhidos e fecha de novo depois
+  function copiado(b, ok) {
+    var t = b.querySelector('[data-copiar-txt]'); if (!t) return;
+    t.textContent = ok ? 'Copiado' : 'Selecione e copie';
+    if (ok) b.setAttribute('data-ok', ''); else b.removeAttribute('data-ok');
+    setTimeout(function () { t.textContent = 'Copiar'; b.removeAttribute('data-ok'); }, 2000);
+  }
+  function copiarReserva(texto) {
+    var a = el('textarea', { readonly: '', style: 'position:absolute;left:-9999px' }); a.value = texto;
+    document.body.appendChild(a); a.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(a); return ok;
+  }
+  document.querySelectorAll('[data-copiar]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var texto = b.getAttribute('data-copiar');
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(texto).then(function () { copiado(b, true); }, function () { copiado(b, copiarReserva(texto)); });
+      } else copiado(b, copiarReserva(texto));
+    });
+  });
+  var abertos = [];
+  window.addEventListener('beforeprint', function () {
+    abertos = [];
+    document.querySelectorAll('details:not([open])').forEach(function (d) { d.open = true; abertos.push(d); });
+  });
+  window.addEventListener('afterprint', function () { abertos.forEach(function (d) { d.open = false; }); abertos = []; });
+  document.querySelectorAll('[data-imprimir]').forEach(function (b) { b.addEventListener('click', function () { window.print(); }); });
+  var mapa = $('#mapa');
+  document.querySelectorAll('a[href="#mapa"]').forEach(function (a) {
+    a.addEventListener('click', function () { if (mapa) setTimeout(function () { mapa.focus({ preventScroll: true }); }, 0); });
+  });
 
   var form = $('#form-consulta');
   if (!form) return;
@@ -217,7 +251,7 @@
     }
     var botoes = el('div', { 'class': 'botoes' });
     if (e.ficha) {
-      botoes.appendChild(el('a', { 'class': 'btn b-pri leva', href: '/fichas/' + encodeURIComponent(e.ficha), target: '_blank', rel: 'noopener' },
+      botoes.appendChild(el('a', { 'class': 'btn b-pri leva', href: '/ficha/' + encodeURIComponent(e.ficha.replace(/\.html$/, '')) },
         [el('span', { text: 'Abrir a ficha' }), ico('arrow', 'ico seta')]));
     }
     if (e.estado === 'erro' || e.situacao === 'inconclusivo') {
@@ -236,4 +270,19 @@
   }
 
   form.addEventListener('submit', function (ev) { ev.preventDefault(); if (!botao.disabled) cruzar(); });
+
+  // Vindo da ficha ("Informar agora", "Refazer a consulta"): CAR (ou coordenada) preenchido e o campo que falta aberto
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('car')) { car.value = params.get('car').trim().toUpperCase().slice(0, 60); conferirCar(true); }
+  else if (params.get('lat') && params.get('lon')) {
+    var ponto = document.querySelector('input[name=modo][value=ponto]');
+    if (ponto) { ponto.checked = true; trocarModo(); }
+    $('#lat').value = params.get('lat').slice(0, 20); $('#lon').value = params.get('lon').slice(0, 20);
+  }
+  var informar = params.get('informar'), alvo = { documento: doc, area: area, car: car }[informar];
+  if (alvo) {
+    if (informar !== 'car') document.querySelector('.completar').open = true;
+    alvo.focus();
+    if (informar === 'car') alvo.select();
+  }
 })();

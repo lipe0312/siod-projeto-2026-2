@@ -1,0 +1,160 @@
+/* Tela "Ficha do imóvel" (#33). Estilo B, Mesa de triagem (DESIGN.md §4): à esquerda a fila (plano de ação, o que
+   falta), à direita o painel de evidência (mapa); abaixo de 960 px, uma coluna. Carimbo do veredito (item 6), selo
+   com o que bloqueia (item 2), trilho vertical de passos (item 3). Impressão: o formato de laudo, em preto e branco. */
+
+/* cores que o SVG da ficha (pipeline/ficha_html.py) usa, mapeadas para os tokens do console */
+.ficha{--card:var(--bg);--mut:var(--mu);--pend:var(--pend-i);--pendb:var(--pend-s);--nvb:var(--nao-s);
+  --car:var(--couro);--carf:rgba(92,54,33,.08);--emb:var(--pend-i);--alt:var(--indi-i);--prd:#6b4a9e;
+  --ti:#8d5524;--tq:#0f6e78;--uc:#4f6b2a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .ficha{--carf:rgba(240,124,67,.10);--prd:#b592e6;
+  --ti:#d9a066;--tq:#5cc6d0;--uc:#a9c77e}}
+:root[data-theme=dark] .ficha{--carf:rgba(240,124,67,.10);--prd:#b592e6;--ti:#d9a066;--tq:#5cc6d0;--uc:#a9c77e}
+
+.ficha{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;min-width:0}
+.ficha>*,.f-topo>*,.mesa-f>*{min-width:0}
+.ficha dt{color:var(--mu);font-size:14px}
+.ficha dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.ficha h2{font-size:22px}
+.apoio{max-width:64ch;margin-top:4px}
+.estado{background:var(--sf);border:1px dashed var(--ctl);border-radius:var(--r);padding:12px 14px;max-width:64ch}
+
+/* topo: identificação, carimbo e frase, eixos crédito/EUDR */
+.f-topo{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;padding-bottom:22px;border-bottom:1px solid var(--bd)}
+@media(min-width:960px){.f-topo{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);column-gap:32px}
+  .f-topo .eixos,.f-topo .motivo,.f-topo .f-acoes{grid-column:1/-1}}
+.sobre{color:var(--mu);font-weight:600;font-size:15px}
+.f-id h1{margin:2px 0 14px;overflow-wrap:anywhere}
+.fatos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 18px;margin:0}
+.fatos dd{font-weight:600}
+.fatos .f-car{grid-column:1/-1}
+.fatos .f-car dd{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.f-veredito{display:flex;gap:20px;align-items:flex-start}
+.frase{display:grid;gap:10px;justify-items:start;min-width:0}
+.veredito{font:700 21px/1.3 var(--slab);max-width:40ch}
+.ressalva{font-size:14px;color:var(--mu);max-width:56ch}
+.carimbo{flex:none;display:inline-grid;place-items:center;text-align:center;min-width:112px;padding:8px 14px;
+  border:3px solid var(--i);border-radius:8px;color:var(--t);font:700 14px/1.2 var(--slab);transform:rotate(-4deg);
+  animation:bate 260ms var(--ease) both}
+.carimbo big{display:block;font-size:40px;line-height:1;color:var(--i)}
+.carimbo b{display:block;font-size:17px;color:var(--i)}
+@keyframes bate{0%{transform:rotate(-4deg) scale(1.35);opacity:0}70%{transform:rotate(-4deg) scale(.96);opacity:1}
+  100%{transform:rotate(-4deg) scale(1)}}
+.eixos{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.eixo{display:flex;gap:10px;align-items:center;border:1px solid var(--bd);border-radius:var(--r);padding:10px 12px}
+.eixo .ico{color:var(--i);width:24px;height:24px}
+.eixo small{display:block;color:var(--mu);font-size:14px}
+.eixo b{font-size:17px}
+.motivo{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--inco-s);
+  color:var(--inco-t);border-radius:var(--r);padding:12px 14px}
+.f-acoes{display:flex;gap:12px;flex-wrap:wrap}
+.copiar{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:var(--r);
+  border:1px solid var(--ctl);background:var(--bg);color:var(--tx);font:600 14px var(--sans);cursor:pointer}
+.copiar:hover{background:var(--sf)}
+.copiar .ico{width:16px;height:16px}
+.copiar[data-ok]{color:var(--sem-t);border-color:var(--sem-i)}
+
+/* selo com o que bloqueia (chips de impacto) */
+.selo .chips{display:inline-flex;gap:4px;margin-left:4px}
+.selo .chips span{font-size:13px;font-weight:700;border-radius:3px;padding:0 6px;background:var(--bg);color:var(--t)}
+
+/* mesa: fila à esquerda, painel de evidência à direita (preso ao rolar a fila) */
+.mesa-f{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;min-width:0}
+@media(min-width:960px){.mesa-f{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:32px;align-items:start}
+  .painel-f{position:sticky;top:72px}}
+.fila-f{display:grid;gap:32px;min-width:0}
+.bloco{min-width:0}
+.bloco-h{display:flex;align-items:baseline;gap:10px}
+.conta{font:700 18px var(--slab);color:var(--mu)}
+
+/* cartão de ação: trilho vertical de passos, quem age, órgão e link; fonte e data no pé */
+.cartoes{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:14px}
+.cartao{border:1px solid var(--bd);border-radius:8px;padding:16px;background:var(--bg);scroll-margin-top:72px}
+.cartao-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.cartao-h h3{font-size:20px}
+.cartao-d{display:grid;gap:10px;margin:14px 0 0}
+.cartao-d dt{font-weight:700;color:var(--tx);font-size:15px}
+.imps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 16px}
+.imp b{font-weight:700}
+.imp.sim b{color:var(--pend-t)}.imp.talvez b{color:var(--indi-t)}.imp.nao b{color:var(--mu);font-weight:600}
+.no-mapa{display:inline-flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-left:6px}
+.no-mapa .leva{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;text-decoration:none}
+.no-mapa .leva .ico{width:16px;height:16px}
+.rot{font-size:14px;color:var(--mu)}
+.passos-h{font:700 15px var(--sans);margin-top:14px}
+.passos{list-style:none;margin:8px 0 0;padding:0;counter-reset:p}
+.passos li{counter-increment:p;position:relative;padding:0 0 14px 40px}
+.passos li::before{content:counter(p);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;background:var(--sf2);color:var(--tx);font:700 14px var(--slab)}
+.passos li:not(:last-child)::after{content:"";position:absolute;left:12px;top:28px;bottom:2px;width:2px;background:var(--bd)}
+.quem{display:inline-block;font-size:13px;font-weight:700;color:var(--mu);border:1px solid var(--bd);border-radius:4px;
+  padding:0 6px;margin-bottom:2px}
+.orgao{font-size:15px;color:var(--mu)}
+.cartao-pe{font-size:14px;color:var(--mu);border-top:1px solid var(--bd);padding-top:10px;overflow-wrap:anywhere}
+
+/* o que falta */
+.faltas{list-style:none;margin:14px 0 0;padding:0;border:1px solid var(--bd);border-radius:8px}
+.falta{display:grid;gap:10px;padding:14px 16px;align-items:start}
+.falta+.falta{border-top:1px solid var(--bd)}
+@media(min-width:720px){.falta{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}}
+.falta-t{display:grid;gap:2px;min-width:0;overflow-wrap:anywhere}
+.falta .btn{justify-self:start}
+.onde-link a{text-decoration:none}
+
+/* painel de evidência */
+.ev h2{margin-bottom:10px}
+.ev:focus{outline:none}
+.svg-mapa svg.mapa,.svg-tempo svg.tempo{display:block;width:100%;height:auto}
+.svg-mapa svg.mapa{border:1px solid var(--bd);border-radius:var(--r);background:var(--sf)}
+.legenda{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:14px;color:var(--mu);margin-top:10px}
+.legenda i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+.legenda .cobertura{color:var(--indi-t)}
+.nota{font-size:14px;margin-top:8px}
+.rolar{overflow-x:auto;margin-top:10px;border-radius:var(--r)}
+.rolar:focus-visible{outline:3px solid var(--fo)}
+@media(max-width:759px){.svg-tempo{min-width:720px}}
+
+/* rastreabilidade: recolhida; trilho de auditoria (etapa que falta tracejada) */
+.rast{border:1px solid var(--bd);border-radius:8px;background:var(--sf)}
+.rast summary{cursor:pointer;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-height:44px;padding:12px 16px}
+.rast summary h2{font-size:20px;display:inline}
+.rast[open] summary{border-bottom:1px solid var(--bd)}
+.rast>:not(summary){margin-left:16px;margin-right:16px}
+.rast h3{font-size:18px;margin-top:18px}
+.auditoria{list-style:none;padding:0;margin-top:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.auditoria li{border-top:3px solid var(--pri);padding-top:6px;display:grid;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.auditoria li.aberta{border-top-style:dashed;border-top-color:var(--ctl);color:var(--mu)}
+.auditoria span{color:var(--mu)}
+.rast-d{display:grid;gap:8px;margin-top:16px}
+@media(min-width:720px){.rast-d>div,.fontes dl>div{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px}}
+.fontes{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:12px}
+.fontes li{border-top:1px solid var(--bd);padding-top:10px}
+.fontes dl{display:grid;gap:4px;margin:6px 0 0}
+.hash{font-size:13px}
+.ficha .mono{font-family:var(--mono)}
+.cmd{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
+.cmd pre{flex:1 1 300px;margin:0;min-width:0;background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);
+  padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 var(--mono)}
+.rast>p.nota{margin-bottom:16px}
+
+/* impressão: laudo em preto e branco, sem cortar cartão */
+@media print{
+  @page{margin:14mm}
+  body{font-size:11pt}
+  .f-acoes,.copiar,.no-mapa .leva,.falta .btn,.onde-link,.motivo .btn,.abas,.busca{display:none!important}
+  .ficha,.ficha *{color:#000!important;box-shadow:none!important}
+  .selo,.eixo,.motivo,.estado,.rast,.cmd pre,.selo .chips span{background:none!important;border:1px solid #000!important}
+  .carimbo{animation:none;border-color:#000}
+  .mesa-f,.f-topo{display:block}
+  .painel-f{position:static}
+  .f-topo>*,.mesa-f>*,.fila-f>*{margin-bottom:14px}
+  .cartao,.falta,.fontes li,.eixo,.f-veredito,.auditoria{break-inside:avoid}
+  .cartao{border:1px solid #000;margin-bottom:10px}
+  .bloco-h,h2,h3{break-after:avoid}
+  .svg-tempo{min-width:0}
+  .rolar{overflow:visible}
+  .svg-mapa svg.mapa,.svg-tempo svg{-webkit-print-color-adjust:exact;print-color-adjust:exact;max-height:120mm}
+  .passos li::before{border:1px solid #000;background:none}
+  .auditoria li,.auditoria li.aberta{border-top-color:#000}
+  .cartao a[href^="http"]::after,.falta a[href^="http"]::after{content:" (" attr(href) ")";font-size:9pt;overflow-wrap:anywhere}
+  .sr{display:none}
+}
