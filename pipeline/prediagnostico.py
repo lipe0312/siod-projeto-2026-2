@@ -30,9 +30,9 @@ import requests
 import shapely
 from shapely.strtree import STRtree
 
-from pipeline import config, cruzamento, relatorio, territorio, vetor
+from pipeline import config, cruzamento, plano_de_acao, relatorio, territorio, vetor
 from pipeline.armazenamento import lago
-from pipeline.documentos import carregar_chave, pseudonimizar, somente_digitos
+from pipeline.documentos import carregar_chave, pseudonimizar, sem_documento, somente_digitos
 from pipeline.fontes import (ab_s, funai_terras_indigenas, incra_quilombolas, inpe_prodes, mma_unidades_conservacao,
                              sicar)
 from pipeline.validacao import ErroDeValidacao
@@ -628,12 +628,14 @@ def _registros(df: pd.DataFrame) -> list[dict]:
     return json.loads(df.to_json(orient="records", date_format="iso", force_ascii=False))
 
 
-def para_json(ficha: dict) -> dict:
-    """Ficha serializável: evidências como listas de registros, sem as geometrias dos objetos."""
-    return {**ficha, "evidencias": {k: _registros(v) for k, v in ficha["evidencias"].items()}}
+def para_json(ficha: dict, commodity: str | None = None) -> dict:
+    """Ficha serializável: evidências como listas de registros, sem as geometrias dos objetos, com o plano de ação e
+    o que falta (plano_de_acao.montar; `commodity` acrescenta o item do gado)."""
+    return {**ficha, "evidencias": {k: _registros(v) for k, v in ficha["evidencias"].items()},
+            **plano_de_acao.montar(ficha, commodity)}
 
 
-def para_markdown(ficha: dict) -> str:
+def para_markdown(ficha: dict, commodity: str | None = None) -> str:
     im, res = ficha["imovel"], ficha["resultado"]
     titulo = im.get("cod_imovel") or ficha["consulta"].get("cod_imovel") or "imóvel não localizado"
     md = [f"# Pré-diagnóstico — {titulo}", "",
@@ -647,21 +649,22 @@ def para_markdown(ficha: dict) -> str:
     for c in ficha["criterios"]:
         md.append(f"| {c['criterio']} | {c['criterio_ab_s'] or '—'} | **{c['situacao']}** | {c['evidencia']} | "
                   f"{c['encaminhamento']} |")
+    md += plano_de_acao.markdown(plano_de_acao.montar(ficha, commodity))
     md += ["", "## Procedência", "", "| Fonte | Como | Data | SHA-256 |", "|---|---|---|---|"]
     md += [f"| {p['fonte']} | {p['como']} | {p['data']} | `{str(p['sha256'])[:16]}…` |" for p in ficha["procedencia"]]
     return "\n".join(md) + "\n"
 
 
-def escrever(ficha: dict, pasta: Path = config.PREDIAGNOSTICO) -> dict[str, Path]:
+def escrever(ficha: dict, pasta: Path = config.PREDIAGNOSTICO, commodity: str | None = None) -> dict[str, Path]:
     from pipeline import ficha_html
 
     pasta.mkdir(parents=True, exist_ok=True)
     nome = ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}"
     caminhos = {ext: pasta / f"{nome}.{ext}" for ext in ("json", "md", "html")}
-    caminhos["json"].write_text(json.dumps(para_json(ficha), indent=2, ensure_ascii=False, default=str),
+    caminhos["json"].write_text(json.dumps(para_json(ficha, commodity), indent=2, ensure_ascii=False, default=str),
                                 encoding="utf-8")
-    caminhos["md"].write_text(para_markdown(ficha), encoding="utf-8")
-    caminhos["html"].write_text(ficha_html.renderizar(ficha), encoding="utf-8")
+    caminhos["md"].write_text(para_markdown(ficha, commodity), encoding="utf-8")
+    caminhos["html"].write_text(ficha_html.renderizar(ficha, commodity), encoding="utf-8")
     return caminhos
 
 
@@ -723,6 +726,8 @@ def main(argv=None) -> int:
         area = carteira.area_producao(arquivo.name, arquivo.parent)
     ficha = executar(args.car, lat, lon, args.documento, args.atualizar, not args.sem_baixar_prodes,
                      area_producao=area)
+    if args.commodity:  # o plano de ação lê daqui (item do gado); sem CPF/CNPJ em claro no texto livre
+        ficha["consulta"]["commodity"] = sem_documento({"commodity": args.commodity})["commodity"]
     caminhos = escrever(ficha)
     from pipeline import resultados
 
