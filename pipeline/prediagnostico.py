@@ -30,7 +30,7 @@ import requests
 import shapely
 from shapely.strtree import STRtree
 
-from pipeline import config, cruzamento, plano_de_acao, relatorio, territorio, vetor
+from pipeline import config, cruzamento, dossie_eudr, plano_de_acao, relatorio, territorio, vetor
 from pipeline.armazenamento import lago
 from pipeline.documentos import carregar_chave, pseudonimizar, sem_documento, somente_digitos
 from pipeline.fontes import (ab_s, funai_terras_indigenas, incra_quilombolas, inpe_prodes, mma_unidades_conservacao,
@@ -655,16 +655,121 @@ def para_markdown(ficha: dict, commodity: str | None = None) -> str:
     return "\n".join(md) + "\n"
 
 
+# Camadas do mapa em GeoJSON (<nome>.camadas.geojson): chave da evidência, prefixo do rótulo (o mesmo da ficha HTML),
+# nome da camada, fonte e coluna da data da imagem. Embargo e áreas protegidas não têm data de imagem.
+LIMITE_CAMADAS_BYTES = 1_000_000  # 1 MB por ficha (issue #31)
+CASAS_CAMADAS = 6  # graus com 6 casas: ~0,1 m
+# Tolerâncias de simplificação, em graus (0,00001° ~ 1 m), tentadas em ordem só se o arquivo passar do limite.
+TOLERANCIAS_CAMADAS = (0, 0.00001, 0.00003, 0.0001, 0.0003)
+MARGEM_RECORTE = 0.12  # a mesma margem do mapa da ficha: a área protegida é recortada ao entorno do CAR
+CAMADAS_DA_FICHA = (
+    # (evidência, rótulo, camada, fonte, coluna da data da imagem, coluna da situação)
+    ("terra_indigena", "T", "terra_indigena", "FUNAI", None, "classe"),
+    ("quilombola", "Q", "quilombola", "INCRA e IBGE 2022", None, "classe"),
+    ("unidade_conservacao", "U", "unidade_conservacao", "MMA (CNUC)", None, "classe"),
+    ("prodes_resto", "PR", "prodes_resto", "INPE PRODES", "data_imagem", "classe"),
+    ("alertas_resto", "AR", "alerta_deter_resto", "INPE DETER", "data_imagem", "situacao_prodes"),
+    ("prodes", "P", "prodes", "INPE PRODES", "data_imagem", "classe"),
+    ("alertas", "A", "alerta_deter", "INPE DETER", "data_imagem", "situacao_prodes"),
+    ("embargos", "E", "embargo", "IBAMA", None, "classe"),
+)
+
+
+def _arredondada(geom, tolerancia: float):
+    if tolerancia:
+        geom = shapely.simplify(geom, tolerancia, preserve_topology=True)
+    return shapely.transform(geom, lambda c: np.round(c, CASAS_CAMADAS))
+
+
+def _feicao(geom, camada, rotulo, situacao, data_imagem, fonte, ha, tolerancia) -> dict | None:
+    if geom is None or geom.is_empty:
+        return None
+    geom = _arredondada(geom, tolerancia)
+    if geom.is_empty:
+        return None
+    nulo = lambda v: None if v is None or pd.isna(v) else v  # noqa: E731
+    return {"type": "Feature", "geometry": json.loads(shapely.to_geojson(geom)),
+            "properties": {"camada": camada, "rotulo": rotulo, "situacao": nulo(situacao),
+                           "data_imagem": _data(data_imagem) if nulo(data_imagem) is not None else None,
+                           "fonte": fonte, "ha": None if nulo(ha) is None else round(float(ha), 2)}}
+
+
+def _feicoes_camadas(ficha: dict, tolerancia: float) -> list[dict]:
+    """Feições na ordem do mapa (CAR embaixo). O rótulo vem da posição da linha na evidência, como na ficha."""
+    car_geom = vetor.tornar_valida(shapely.from_wkt(ficha["geometria_car"]))
+    x0, y0, x1, y1 = car_geom.bounds
+    margem = MARGEM_RECORTE * max(x1 - x0, y1 - y0)
+    vista = (x0 - margem, y0 - margem, x1 + margem, y1 + margem)
+    situacao_car = next((c["situacao"] for c in ficha["criterios"] if c["chave"] == "car"), None)
+    feicoes = [_feicao(car_geom, "car", "CAR", situacao_car, None, "SICAR", ficha["imovel"].get("area_geom_ha"),
+                       tolerancia)]
+    if ficha.get("geometria_area_producao"):
+        area = ficha.get("area_producao") or {}
+        feicoes.append(_feicao(shapely.from_wkt(ficha["geometria_area_producao"]), "area_de_producao",
+                               "Área de produção", "declarada pelo produtor", None, "Produtor (arquivo da carteira)",
+                               area.get("area_ha"), tolerancia))
+    for chave, letra, camada, fonte, col_data, col_situacao in CAMADAS_DA_FICHA:
+        df = ficha["evidencias"].get(chave)
+        if df is None or "geometria_wkt" not in df:
+            continue
+        for i, r in enumerate(df.to_dict("records"), 1):
+            wkt = r.get("geometria_wkt")
+            if not isinstance(wkt, str):  # embargo achado pela coordenada ou pelo documento: sem polígono
+                continue
+            geom = vetor.tornar_valida(shapely.from_wkt(wkt))
+            if chave in ("terra_indigena", "quilombola", "unidade_conservacao") and geom.geom_type not in (
+                    "Point", "MultiPoint"):
+                geom = shapely.clip_by_rect(geom, *vista)  # a área protegida é muito maior que o imóvel
+            situacao = r.get(col_situacao)
+            if col_situacao == "situacao_prodes":  # alerta: a classe e o que o PRODES disse dele
+                situacao = f"{r.get('classe')}; PRODES: {situacao}"
+            feicoes.append(_feicao(geom, camada, f"{letra}{i}", situacao, r.get(col_data) if col_data else None,
+                                   r.get("base") or fonte if chave == "quilombola" else fonte, r.get("inter_ha"),
+                                   tolerancia))
+    return [f for f in feicoes if f]
+
+
+def camadas_geojson(ficha: dict) -> str | None:
+    """FeatureCollection (EPSG:4326, 6 casas) com o CAR, a área de produção e as evidências da ficha, com o mesmo
+    rótulo da tabela (A1, P1, E1, T1, Q1, U1). None se o imóvel não foi localizado. Se passar de
+    LIMITE_CAMADAS_BYTES, simplifica a geometria com tolerância crescente (TOLERANCIAS_CAMADAS); a simplificação
+    serve só ao mapa, não muda o cruzamento nem a ficha."""
+    if not ficha.get("geometria_car"):
+        return None
+    for tolerancia in TOLERANCIAS_CAMADAS:
+        texto = json.dumps({"type": "FeatureCollection", "name": "camadas_da_ficha",
+                            "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}},
+                            "features": _feicoes_camadas(ficha, tolerancia)},
+                           ensure_ascii=False, separators=(",", ":"))
+        if len(texto.encode("utf-8")) <= LIMITE_CAMADAS_BYTES:
+            break
+    else:
+        log.warning("Camadas da ficha acima de %d bytes mesmo com a maior simplificação", LIMITE_CAMADAS_BYTES)
+    return texto
+
+
 def escrever(ficha: dict, pasta: Path = config.PREDIAGNOSTICO, commodity: str | None = None) -> dict[str, Path]:
+    """Grava <nome>.json, .md, .html e, se o imóvel foi localizado, .camadas.geojson em `pasta`. O nome é o código do
+    CAR passado por dossie_eudr.nome_pasta (a mesma sanitização do dossiê): sem "/" nem "..", então nunca sai de
+    `pasta`; código normal (letras, dígitos e "-") mantém o nome."""
     from pipeline import ficha_html
 
+    pasta = Path(pasta)
     pasta.mkdir(parents=True, exist_ok=True)
-    nome = ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}"
+    nome = dossie_eudr.nome_pasta(ficha["imovel"].get("cod_imovel") or f"inconclusivo_{ficha['consulta']['gerado_em'][:10]}")
     caminhos = {ext: pasta / f"{nome}.{ext}" for ext in ("json", "md", "html")}
+    camadas = camadas_geojson(ficha)
+    if camadas:
+        caminhos["camadas"] = pasta / f"{nome}.camadas.geojson"
+    for caminho in caminhos.values():  # defesa extra: o caminho final tem de ficar dentro de `pasta`
+        if caminho.resolve().parent != pasta.resolve():
+            raise ValueError(f"Nome de arquivo fora da pasta de saída: {caminho.name}")
     caminhos["json"].write_text(json.dumps(para_json(ficha, commodity), indent=2, ensure_ascii=False, default=str),
                                 encoding="utf-8")
     caminhos["md"].write_text(para_markdown(ficha, commodity), encoding="utf-8")
     caminhos["html"].write_text(ficha_html.renderizar(ficha, commodity), encoding="utf-8")
+    if camadas:
+        caminhos["camadas"].write_text(camadas + "\n", encoding="utf-8")
     return caminhos
 
 

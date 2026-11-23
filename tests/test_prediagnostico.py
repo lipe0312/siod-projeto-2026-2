@@ -1,5 +1,6 @@
 import json
 
+import numpy as np
 import pandas as pd
 import pytest
 import shapely
@@ -180,6 +181,94 @@ def test_escreve_json_markdown_e_html_sem_documento_em_claro(tmp_path):
     for arquivo in caminhos.values():
         texto = arquivo.read_text()
         assert CPF_VALIDO not in texto and somente_digitos(pd.Series([CPF_VALIDO])).iloc[0] not in texto
+
+
+def _ficha_para_escrever(cod_imovel=None, **kwargs):
+    ficha = diagnosticar(**kwargs)
+    if cod_imovel:
+        ficha["imovel"]["cod_imovel"] = cod_imovel
+    return {"consulta": {"gerado_em": "2026-10-30 10:00:00", "documento_informado": False, "cod_imovel": None},
+            **ficha, "procedencia": []}
+
+
+def _camadas(caminhos):
+    return json.loads(caminhos["camadas"].read_text(encoding="utf-8"))
+
+
+def test_camadas_geojson_tem_os_rotulos_da_ficha_e_coordenadas_em_graus(tmp_path):
+    ficha = _ficha_para_escrever(
+        emb=embargos(("dentro", DENTRO, None, None), ("sem_poligono", None, (Y0 + 0.005, X0 + 0.005), None)),
+        alt=alertas(("a1", DENTRO, "2025-08-28"), ("a2", NA_DIVISA, "2025-09-10")),
+        prd=prodes(("p1", DENTRO, 2023, "2023-07-20")))
+    caminhos = prediagnostico.escrever(ficha, tmp_path)
+    colecao, html = _camadas(caminhos), caminhos["html"].read_text(encoding="utf-8")
+    assert colecao["type"] == "FeatureCollection" and "CRS84" in colecao["crs"]["properties"]["name"]
+    por_rotulo = {f["properties"]["rotulo"]: f for f in colecao["features"]}
+    assert set(por_rotulo) == {"CAR", "A1", "A2", "P1", "E1"}  # o embargo achado só pela coordenada não tem polígono
+    for rotulo in set(por_rotulo) - {"CAR"}:
+        assert f"<b>{rotulo}</b>" in html  # o mesmo rótulo da tabela da ficha
+    for f in colecao["features"]:
+        assert set(f["properties"]) == {"camada", "rotulo", "situacao", "data_imagem", "fonte", "ha"}
+        xs, ys = zip(*[c for anel in f["geometry"]["coordinates"] for c in anel])
+        assert all(-75 < x < -30 for x in xs) and all(-35 < y < 6 for y in ys)  # graus, não metros
+        assert all(round(v, 6) == v for v in (*xs, *ys))
+    assert por_rotulo["A1"]["properties"] | {"ha": None} == {
+        "camada": "alerta_deter", "rotulo": "A1", "situacao": por_rotulo["A1"]["properties"]["situacao"],
+        "data_imagem": "2025-08-28", "fonte": "INPE DETER", "ha": None}
+    assert por_rotulo["A1"]["properties"]["ha"] > 0 and por_rotulo["CAR"]["properties"]["ha"] == 115.0
+    assert por_rotulo["E1"]["properties"]["fonte"] == "IBAMA" and por_rotulo["P1"]["properties"]["fonte"] == "INPE PRODES"
+
+
+def test_camadas_recortam_a_area_protegida_ao_entorno_do_car(tmp_path):
+    from pipeline.fontes import funai_terras_indigenas
+
+    grande = shapely.box(X0 - 1, Y0 - 1, X0 + 1, Y0 + 0.005)  # muito maior que o CAR
+    ti = pd.DataFrame([{"terrai_codigo": "1", "nome": "TI Teste", "etnia": "X", "fase": "Regularizada",
+                        "modalidade": "T", "uf": "MG", "municipio": "Patrocínio", "superficie_ha": 1e6,
+                        "data_atualizacao": pd.Timestamp("2025-01-01"), "geometria_wkt": grande.wkt,
+                        "alertas": None}], columns=funai_terras_indigenas.COLUNAS_SAIDA)
+    ficha = prediagnostico.diagnosticar(
+        car(), embargos(), alertas(), lista_suja(), prodes(), None, ultimo_ano_prodes=2025,
+        protegidas={"terra_indigena": (ti, None), "quilombola": (pd.DataFrame(columns=["geometria_wkt"]), None),
+                    "unidade_conservacao": (pd.DataFrame(columns=["geometria_wkt"]), None)})
+    ficha = {"consulta": {"gerado_em": "2026-10-30 10:00:00"}, **ficha, "procedencia": []}
+    t1 = next(f for f in json.loads(prediagnostico.camadas_geojson(ficha))["features"]
+              if f["properties"]["rotulo"] == "T1")
+    xs, ys = zip(*t1["geometry"]["coordinates"][0])
+    assert min(xs) > X0 - 0.01 and min(ys) > Y0 - 0.01 and t1["properties"]["camada"] == "terra_indigena"
+
+
+def test_camadas_simplificam_so_quando_passam_de_1_mb(monkeypatch):
+    t = np.linspace(0, 2 * np.pi, 20000)
+    detalhado = shapely.Polygon(np.c_[X0 + 0.005 + 0.004 * np.cos(t), Y0 + 0.005 + 0.004 * np.sin(t)])
+    ficha = diagnosticar(emb=embargos(("dentro", detalhado, None, None)))
+    inteiro = prediagnostico.camadas_geojson(ficha)
+    assert len(inteiro.encode()) > 100_000
+    monkeypatch.setattr(prediagnostico, "LIMITE_CAMADAS_BYTES", 60_000)
+    simplificado = prediagnostico.camadas_geojson(ficha)
+    assert len(simplificado.encode()) <= 60_000 < len(inteiro.encode())
+    monkeypatch.setattr(prediagnostico, "LIMITE_CAMADAS_BYTES", 10**9)
+    assert prediagnostico.camadas_geojson(ficha) == inteiro  # abaixo do limite, a geometria não é mexida
+
+
+def test_nome_do_arquivo_sanitizado_nunca_sai_da_pasta_de_saida(tmp_path):
+    saida = tmp_path / "saida"
+    ficha = _ficha_para_escrever("../../fora/MG-1", alt=alertas(("a1", DENTRO, "2025-08-28")))
+    caminhos = prediagnostico.escrever(ficha, saida)
+    assert {c.parent for c in caminhos.values()} == {saida}
+    assert sorted(p.name for p in saida.iterdir()) == sorted(
+        [f"fora_MG-1.{e}" for e in ("json", "md", "html")] + ["fora_MG-1.camadas.geojson"])
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["saida"]  # nada em tmp_path nem acima
+    codigo = "MG-3148103-" + "A" * 32  # código normal: o mesmo nome de antes
+    assert prediagnostico.escrever(_ficha_para_escrever(codigo), saida)["camadas"].name == f"{codigo}.camadas.geojson"
+    assert prediagnostico.escrever(_ficha_para_escrever(codigo), saida)["html"].name == f"{codigo}.html"
+
+
+def test_ficha_sem_imovel_localizado_nao_grava_camadas(tmp_path):
+    ficha = {"consulta": {"gerado_em": "2026-10-30 10:00:00", "documento_informado": False},
+             **prediagnostico.ficha_inconclusiva("Coordenada fora do território"), "procedencia": []}
+    caminhos = prediagnostico.escrever(ficha, tmp_path)
+    assert set(caminhos) == {"json", "md", "html"} and not list(tmp_path.glob("*.geojson"))
 
 
 def test_html_mostra_como_o_resultado_se_formou_e_a_linha_do_tempo():
