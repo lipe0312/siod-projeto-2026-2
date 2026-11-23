@@ -1,7 +1,8 @@
 """Console local do operador (ADR 0027): FastAPI só em 127.0.0.1, importa pipeline/ direto.
 
-Rotas: páginas /consulta, /carteira, /fontes; POST /api/consultas (JSON; o documento só trafega aqui);
-GET /api/consultas/{id} (polling das etapas); GET /fichas/{arquivo} (HTML/JSON gerados em data/saidas/console/).
+Rotas: páginas /consulta, /carteira, /fontes; GET /ficha/{nome} (tela da ficha, lida do JSON gravado);
+POST /api/consultas (JSON; o documento só trafega aqui); GET /api/consultas/{id} (polling das etapas);
+GET /fichas/{arquivo} (HTML/JSON gerados em data/saidas/console/).
 HTML gerado aqui com html.escape; CSS e JS em console/estatico/.
 """
 
@@ -17,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from console import consulta
+from console.telas import ficha as tela_ficha
 
 ESTATICO = Path(__file__).parent / "estatico"
 HOSTS = ["127.0.0.1", "localhost"]
@@ -55,6 +57,10 @@ ICONES = {
     "file": ('0 0 24 24', '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 '
              '2 0 0 0 2 2h4"/>'),
     "redo": ('0 0 24 24', '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>'),
+    "copy": ('0 0 24 24', '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-'
+             '1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'),
+    "printer": ('0 0 24 24', '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>'
+                '<path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>'),
 }
 
 
@@ -67,7 +73,7 @@ def ico(nome: str, classe: str = "ico") -> str:
     return f'<svg class="{classe}" aria-hidden="true"><use href="#i-{nome}"/></svg>'
 
 
-def pagina(ativa: str, titulo: str, corpo: str) -> str:
+def pagina(ativa: str, titulo: str, corpo: str, estilos: tuple[str, ...] = ()) -> str:
     abas = "".join(
         f'<a class="aba" href="/{chave}"{" aria-current=\"page\"" if chave == ativa else ""}>'
         f'{ico({"carteira": "list", "consulta": "plus", "fontes": "file"}[chave])}<span>{escape(nome)}</span></a>'
@@ -80,6 +86,7 @@ def pagina(ativa: str, titulo: str, corpo: str) -> str:
 <title>{escape(titulo)} · AgroValid</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="/estatico/base.css">
+{"".join(f'<link rel="stylesheet" href="/estatico/{escape(e)}">' for e in estilos)}
 </head>
 <body data-pagina="{escape(ativa)}">
 {_sprite()}
@@ -203,6 +210,23 @@ def criar_app(executar: Callable[..., dict] | None = None, hosts: list[str] | No
     def fontes():
         return tela_vazia("fontes", "Fontes", "A data e a procedência de cada fonte pública aparecem aqui numa "
                           "próxima entrega; hoje elas estão no fim de cada ficha.")
+
+    @app.get("/ficha/{nome}", response_class=HTMLResponse)
+    def ficha_tela(nome: str):
+        """Tela da ficha: lê o JSON gravado em data/saidas/console/ (e o mapa do HTML ao lado); não recalcula."""
+        try:
+            dados, svgs = tela_ficha.ler(consulta.pasta_saida(), nome)
+            titulo, corpo = tela_ficha.renderizar(dados, nome, svgs)
+        except FileNotFoundError:
+            return HTMLResponse(pagina("ficha", "Ficha não encontrada", tela_ficha.erro(
+                "Ficha não encontrada", "Não há ficha com esse nome no console. Ela pode ter sido gerada em outra "
+                "máquina ou apagada; faça a consulta de novo."), ("ficha.css",)), status_code=404)
+        except (tela_ficha.FichaIlegivel, KeyError, TypeError, AttributeError) as e:
+            motivo = str(e) if isinstance(e, tela_ficha.FichaIlegivel) else "o arquivo não tem o formato de uma ficha"
+            return HTMLResponse(pagina("ficha", "Ficha ilegível", tela_ficha.erro(
+                "A ficha não pôde ser lida", f"Motivo: {motivo}. Refaça a consulta para gerar a ficha de novo."),
+                ("ficha.css",)), status_code=500)
+        return pagina("ficha", titulo, corpo, ("ficha.css",))
 
     @app.post("/api/consultas", status_code=202)
     async def nova(request: Request):
