@@ -1,6 +1,6 @@
 """Console local do operador (ADR 0027): FastAPI só em 127.0.0.1, importa pipeline/ direto.
 
-Rotas: páginas /consulta, /carteira, /fontes; GET /ficha/{nome} (tela da ficha, lida do JSON gravado);
+Rotas: / e /carteira (carteira gravada, página inicial), /consulta, /fontes; GET /ficha/{nome} (tela da ficha, lida do JSON gravado);
 POST /api/consultas (JSON; o documento só trafega aqui); GET /api/consultas/{id} (polling das etapas);
 GET /fichas/{arquivo} (HTML/JSON gerados em data/saidas/console/).
 HTML gerado aqui com html.escape; CSS e JS em console/estatico/.
@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from console import consulta
+from console.telas import carteira as tela_carteira
 from console.telas import ficha as tela_ficha
 
 ESTATICO = Path(__file__).parent / "estatico"
@@ -93,7 +94,7 @@ def pagina(ativa: str, titulo: str, corpo: str, estilos: tuple[str, ...] = ()) -
 <a class="pular" href="#principal">Pular para o conteúdo</a>
 <header class="barra">
   <div class="barra-in">
-    <a class="marca" href="/consulta">{ico("logo", "ico logo")}<span>AgroValid</span></a>
+    <a class="marca" href="/carteira">{ico("logo", "ico logo")}<span>AgroValid</span></a>
     <nav class="abas" aria-label="Telas">{abas}</nav>
     <button class="busca" type="button" data-busca aria-keyshortcuts="Control+K Meta+K">
       {ico("search")}<span class="busca-txt">CAR, produtor ou comando</span><kbd>Ctrl K</kbd>
@@ -191,7 +192,7 @@ def criar_app(executar: Callable[..., dict] | None = None, hosts: list[str] | No
 
     @app.get("/", include_in_schema=False)
     def raiz():
-        return RedirectResponse("/consulta", status_code=303)
+        return RedirectResponse("/carteira", status_code=303)
 
     @app.get("/favicon.ico", include_in_schema=False)
     def favicon():
@@ -203,19 +204,33 @@ def criar_app(executar: Callable[..., dict] | None = None, hosts: list[str] | No
 
     @app.get("/carteira", response_class=HTMLResponse)
     def carteira():
-        return tela_vazia("carteira", "Carteira", "A carteira da cooperativa, com os imóveis em ordem de prioridade, "
-                          "chega aqui numa próxima entrega. Por enquanto, consulte um imóvel de cada vez.")
+        """Lê a carteira gravada em data/saidas/console/<pasta>/ (CSV + fichas JSON); não recalcula."""
+        dados = tela_carteira.ler(consulta.pasta_saida())
+        if dados is None:
+            return pagina("carteira", "Carteira", tela_carteira.vazia(), ("carteira.css",))
+        return pagina("carteira", "Carteira", tela_carteira.renderizar(dados), ("carteira.css",))
 
     @app.get("/fontes", response_class=HTMLResponse)
     def fontes():
         return tela_vazia("fontes", "Fontes", "A data e a procedência de cada fonte pública aparecem aqui numa "
                           "próxima entrega; hoje elas estão no fim de cada ficha.")
 
+    def _ler_ficha(nome: str):
+        """A ficha da consulta avulsa (data/saidas/console/) e, se não houver, a de uma carteira gravada
+        (data/saidas/console/<pasta>/fichas/). `tela_ficha.ler` valida o nome e barra caminho fora da pasta."""
+        base = consulta.pasta_saida()
+        for pasta in (base, *tela_carteira.pastas_de_fichas(base)):
+            try:
+                return tela_ficha.ler(pasta, nome)
+            except FileNotFoundError:
+                continue
+        raise FileNotFoundError(nome)
+
     @app.get("/ficha/{nome}", response_class=HTMLResponse)
     def ficha_tela(nome: str):
         """Tela da ficha: lê o JSON gravado em data/saidas/console/ (e o mapa do HTML ao lado); não recalcula."""
         try:
-            dados, svgs = tela_ficha.ler(consulta.pasta_saida(), nome)
+            dados, svgs = _ler_ficha(nome)
             titulo, corpo = tela_ficha.renderizar(dados, nome, svgs)
         except FileNotFoundError:
             return HTMLResponse(pagina("ficha", "Ficha não encontrada", tela_ficha.erro(
