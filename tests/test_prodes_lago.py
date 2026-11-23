@@ -55,7 +55,8 @@ def test_repetir_nao_regrava_a_particao_e_o_sha256_so_muda_quando_ela_muda(tb): 
     assert r.saida["particoes_regravadas"] == {} and sha("MG") == antes["MG"] and sha("SP") == antes["SP"]
     # Versão nova do Cerrado, com o mesmo conteúdo: as peças são refeitas, mas a partição não muda.
     tb.versao["cerrado"] = "20271015"
-    r = inpe_prodes.executar_arquivos(HOJE + pd.Timedelta(days=45))
+    # A verificação acima (dia 29) renovou o intervalo; a seguinte vale a partir do dia 59.
+    r = inpe_prodes.executar_arquivos(HOJE + pd.Timedelta(days=60))
     assert r.entrada["biomas_refeitos"] == ["cerrado"] and r.saida["particoes_regravadas"] == {}
     assert sha("MG") == antes["MG"] and sha("SP") == antes["SP"]
     assert r.saida["tabelas"][TABELA]["inseridos"] == 0 and r.saida["tabelas"][TABELA]["alterados"] == 0

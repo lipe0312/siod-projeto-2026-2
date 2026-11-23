@@ -179,6 +179,20 @@ def test_dentro_do_mes_nao_consulta_o_servico(servico):
     assert servico.contagens > 0
 
 
+@pytest.mark.parametrize("base", ["2026-11-09", "2026-11-23", "2027-03-01"])
+def test_intervalo_da_verificacao_nao_depende_do_relogio_do_sistema(servico, base):
+    """Mesmo cenário com `hoje` em datas diferentes: a data gravada vem do `hoje` injetado (ADR 0015), não do relógio."""
+    base = pd.Timestamp(base)
+    inpe_prodes.executar(base)
+    assert inpe_prodes.ler_publicacao()["verificado_em_utc"][:10] == base.strftime("%Y-%m-%d")
+    servico.baixados = []
+    servico.poligonos[("cerrado", 2026)] = [(-47.2, "MINAS GERAIS")]
+    inpe_prodes.executar(base + pd.Timedelta(days=config.PRODES_INTERVALO_VERIFICACAO_DIAS - 1))
+    assert servico.baixados == []
+    inpe_prodes.executar(base + pd.Timedelta(days=config.PRODES_INTERVALO_VERIFICACAO_DIAS))
+    assert ("cerrado", 2026) in servico.baixados
+
+
 def test_ano_novo_e_detectado_e_so_ele_e_o_ultimo_sao_baixados(servico):
     inpe_prodes.executar(HOJE)
     servico.baixados = []
