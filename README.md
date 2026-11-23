@@ -241,7 +241,7 @@ Antes, rode `python -m pipeline` com todas as fontes. O PRODES de uma UF é baix
 ```bash
 python -m pipeline.prediagnostico --demo                                   # 17 CARs reais; abra data/saidas/prediagnostico/index.html
 python -m pipeline.prediagnostico --demo --sem-baixar-prodes               # sem baixar UF nova: imóvel de UF fora do lote sai inconclusivo
-python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento 111.444.777-35
+python -m pipeline.prediagnostico --car MG-3148103-6245AC9B371A4422B2FA8011CFCC5566 --documento <CPF ou CNPJ, opcional>
 python -m pipeline.prediagnostico --ponto -18.94 -46.99                    # CAR que contém a coordenada; a UF vem do contorno
 python -m pipeline.prediagnostico --car MG-3148103-... --dossie-eudr --commodity café --area-producao talhoes/area.kml
 ```

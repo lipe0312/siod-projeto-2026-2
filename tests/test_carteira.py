@@ -149,3 +149,15 @@ def test_faixa_com_datas_anteriores_diferentes():
     comp = {"primeira": False, "comparados": 2, "mudaram": 1, "desde": pd.Timestamp("2026-10-20 10:00"),
             "desde_min": pd.Timestamp("2026-09-02 10:00")}
     assert "desde a execução anterior de cada imóvel (02/09/2026 a 20/10/2026)" in carteira._faixa_mudancas(comp)
+
+
+def test_modelos_versionados_nao_trazem_cpf_nem_cnpj():
+    """Planilhas e KML em docs/modelos/ ficam sem documento: ele entra em memória (ADR 0002)."""
+    import re
+    from pathlib import Path
+    padrao = re.compile(r"\d{3}\.\d{3}\.\d{3}-\d{2}|\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}|(?<!\d)(\d{11}|\d{14})(?!\d)")
+    arquivos = [a for a in (Path(__file__).parent.parent / "docs" / "modelos").rglob("*")
+                if a.is_file() and a.suffix.lower() in (".csv", ".kml")]
+    assert arquivos
+    for arq in arquivos:
+        assert not padrao.search(arq.read_text(encoding="utf-8")), arq.name
