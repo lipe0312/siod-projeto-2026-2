@@ -94,3 +94,5 @@ def test_csp_libera_so_a_imagem_da_eox_e_leaflet_e_servido_localmente():
     assert "Leaflet 1.9.4" in (ESTATICO / "leaflet" / "leaflet.js").read_text(encoding="utf-8")[:200]
     js = (ESTATICO / "mapa.js").read_text(encoding="utf-8")
     assert "innerHTML" not in js and "s2cloudless-{ano}_3857" in js
+    # o Leaflet põe string de tooltip/popup no DOM como HTML: o texto do geojson só entra por elemento
+    assert not re.search(r"bind(Tooltip|Popup)\(\s*String\(", js)

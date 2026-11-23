@@ -87,7 +87,9 @@
       var camada = L.geoJSON(f, { style: function () { return estilo(c); } });
       camada.bindPopup(function () { return popup(f.properties); });
       if (c !== 'car' && f.properties.rotulo) {
-        camada.bindTooltip(String(f.properties.rotulo), { permanent: true, direction: 'center', className: 'sat-rot' });
+        var rot = document.createElement('span');
+        rot.textContent = String(f.properties.rotulo);  // string no Leaflet entra como HTML; elemento com textContent não
+        camada.bindTooltip(rot, { permanent: true, direction: 'center', className: 'sat-rot' });
       }
       (g[c] = g[c] || L.featureGroup().addTo(m)).addLayer(camada);
       if (f.properties.rotulo) r[f.properties.rotulo] = { camada: camada, c: c };
