@@ -38,8 +38,8 @@ SEM_MAPA = {"lista_suja": "evidência documental, sem polígono", "car": "o per�
 # Entradas que a tela de consulta recebe: "Informar agora" volta para ela com o CAR preenchido e o campo aberto.
 INFORMAR = (("Documento", "documento"), ("Área de produção", "area"), ("Localização do imóvel", "car"))
 SUBFONTES = {"deter", "prodes"}
-PERIGOSO = re.compile(r"<\s*(script|foreignobject|iframe|object|embed|image|a\b)|javascript:|\son[a-z]+\s*=|"
-                      r"href\s*=\s*[\"'](?!#)", re.IGNORECASE)
+PERIGOSO = re.compile(r"<\s*(script|style|foreignobject|iframe|object|embed|image|animate|set\b|a\b)|javascript:|"
+                      r"[\s\"'/]on[a-z]+\s*=|href\s*=\s*[\"'](?!#)", re.IGNORECASE)
 BLOCO_SVG = {"mapa": re.compile(r'<svg class="mapa".*?</svg>\s*<div class="legenda">.*?</div>', re.DOTALL),
              "tempo": re.compile(r'<svg class="tempo".*?</svg>\s*<div class="legenda">.*?</div>', re.DOTALL)}
 
@@ -50,9 +50,22 @@ class FichaIlegivel(ValueError):
 
 # --- texto ----------------------------------------------------------------------------------------------------------
 
+def _sem_doc(valor) -> str:
+    return FORMATO_CPF_CNPJ.sub(OMITIDO, "" if valor is None else str(valor))
+
+
 def _t(valor) -> str:
     """Texto seguro: sem documento (máscara de CPF/CNPJ) e escapado."""
-    return escape(FORMATO_CPF_CNPJ.sub(OMITIDO, "" if valor is None else str(valor)))
+    return escape(_sem_doc(valor))
+
+
+def _faltam(ficha: dict) -> int:
+    cont = ficha["resultado"].get("contagem") or {}
+    return cont.get("não verificado", 0) + cont.get("inconclusivo", 0)
+
+
+def _ressalva(n: int) -> str:
+    return f"nas fontes verificadas; {_plural(n, 'critério sem verificação', 'critérios sem verificação')}"
 
 
 def _ico(nome: str, classe: str = "ico") -> str:
@@ -103,7 +116,7 @@ def car_curto(cod: str | None) -> str:
 
 
 def _copiar(valor: str, rotulo: str) -> str:
-    return (f'<button class="copiar" type="button" data-copiar="{escape(valor)}" aria-label="{escape(rotulo)}">'
+    return (f'<button class="copiar" type="button" data-copiar="{_t(valor)}" aria-label="{escape(rotulo)}">'
             f'{_ico("copy")}<span data-copiar-txt>Copiar</span></button>')
 
 
@@ -116,7 +129,7 @@ def svgs_da_ficha(html: str) -> dict[str, str]:
     for chave, padrao in BLOCO_SVG.items():
         m = padrao.search(html or "")
         if m and not PERIGOSO.search(m[0]):
-            saida[chave] = m[0]
+            saida[chave] = _sem_doc(m[0])
     return saida
 
 
@@ -179,6 +192,14 @@ def veredito(ficha: dict) -> str:
     return frase
 
 
+def _selo_geral(ficha: dict) -> str:
+    """Selo do resultado; "sem pendência" com critério sem verificação fica neutro, nunca verde (ADR 0013)."""
+    sit = ficha["resultado"].get("situacao", "")
+    if sit == "sem pendência nas fontes verificadas" and _faltam(ficha):
+        return _selo("não verificado", rotulo=f"Sem pendência {_ressalva(_faltam(ficha))}")
+    return _selo(sit)
+
+
 def _carimbo(ficha: dict) -> str:
     res = ficha["resultado"]
     cont = res.get("contagem") or {}
@@ -191,6 +212,9 @@ def _carimbo(ficha: dict) -> str:
         miolo = f"<big>{pend}</big>{'pendência' if pend == 1 else 'pendências'}"
     elif indi:
         miolo = f"<big>{indi}</big>{'indício' if indi == 1 else 'indícios'}"
+    elif _faltam(ficha):
+        classe = "st-nao"
+        miolo = f"<b>sem pendência</b>{_ressalva(_faltam(ficha))}"
     else:
         miolo = "<b>sem pendência</b>nas fontes verificadas"
     return f'<div class="carimbo {classe}" aria-hidden="true">{miolo}</div>'
@@ -210,6 +234,8 @@ def _eixo(ficha: dict, chave: str, titulo: str, feminino: bool) -> str:
             texto = f"{'Bloqueada' if feminino else 'Bloqueado'}: {_plural(len(sim), 'motivo', 'motivos')}"
         elif talvez:
             icone, cor, texto = "indi", "st-indi", f"Conferir: {_plural(len(talvez), 'ponto', 'pontos')}"
+        elif _faltam(ficha):
+            icone, cor, texto = "nao", "st-nao", f"Sem bloqueio {_ressalva(_faltam(ficha))}"
         else:
             icone, cor, texto = "sem", "st-sem", "Sem bloqueio nas fontes verificadas"
     return (f'<div class="eixo {cor}">{_ico(icone)}<div><small>{_t(titulo)}</small><b>{_t(texto)}</b></div></div>')
@@ -233,7 +259,7 @@ def _topo(ficha: dict, nome: str) -> str:
     id_produtor = c.get("id_produtor") or im.get("id_produtor")
     status = im.get("status_texto")
     fatos = [
-        ("CAR", (f'<span class="mono" title="{escape(cod)}">{_t(car_curto(cod))}</span>'
+        ("CAR", (f'<span class="mono" title="{_t(cod)}">{_t(car_curto(cod))}</span>'
                  f'{_copiar(cod, "Copiar o código do CAR inteiro")}') if cod else '<span class="mu">não localizado</span>'),
         ("Produtor", _t(id_produtor) if id_produtor else '<span class="mu">não informado (consulta avulsa)</span>'),
         ("Área", _t(nome_area) if nome_area else '<span class="mu">não informada</span>'),
@@ -260,7 +286,7 @@ def _topo(ficha: dict, nome: str) -> str:
   <div class="f-veredito">
     {_carimbo(ficha)}
     <div class="frase">
-      {_selo(res.get("situacao", ""))}
+      {_selo_geral(ficha)}
       <p class="veredito">{_t(veredito(ficha))}</p>
       <p class="ressalva">Pré-diagnóstico com fonte e data (gerado em {_t(gerado)}, horário de Brasília); não é
         atestado de conformidade.</p>
@@ -473,7 +499,7 @@ def _rastreabilidade(ficha: dict, nome: str) -> str:
         fontes.append(f"""<li><b>{_t(p.get("fonte"))}</b>
   <dl><div><dt>Data do dado</dt><dd>{_t(_datas_br(p.get("data")) or "—")} <span class="mu">({_t(p.get("como") or "—")})</span></dd></div>
   <div><dt>Carga</dt><dd class="mono">{_t(carga)}</dd></div>
-  <div><dt>SHA-256</dt><dd class="mono hash">{_t(p.get("sha256") or "—")}</dd></div>
+  <div><dt>SHA-256</dt><dd class="mono hash">{escape(str(p.get("sha256") or "—"))}</dd></div>
   <div><dt>Arquivo</dt><dd class="mono">{_t(p.get("arquivo") or "—")}{f" · {url}" if url else ""}</dd></div></dl></li>""")
     lista = (f'<ul class="fontes">{"".join(fontes)}</ul>' if fontes else
              '<p class="estado">Nenhuma fonte registrada nesta ficha: o resultado não tem procedência para mostrar.</p>')

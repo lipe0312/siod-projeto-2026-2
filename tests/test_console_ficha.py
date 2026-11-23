@@ -155,3 +155,25 @@ def test_documento_em_texto_livre_e_svg_perigoso_nao_passam():
     _, html = tela_de("f5")
     sem_documento(html)
     assert "<script>x()" not in html and "Mapa indisponível" in html
+
+
+def test_sem_pendencia_com_criterio_sem_verificacao_nao_fica_verde():
+    ficha = ficha_sem_pendencia()
+    ficha["resultado"]["contagem"] = {"sem ocorrência": 3, "não verificado": 2}
+    gravar("f6", ficha, html=None)
+    _, html = tela_de("f6")
+    texto = unescape(html)
+    assert "Sem bloqueio nas fontes verificadas; 2 critérios sem verificação" in texto
+    assert '<div class="carimbo st-nao"' in texto and "st-sem" not in texto.split('id="plano"')[0]
+    assert "<b>Sem bloqueio nas fontes verificadas</b>" not in texto
+
+
+def test_svg_com_style_animate_ou_evento_colado_e_descartado_e_documento_mascarado():
+    perigosos = ['<svg class="mapa"><style>*{}</style></svg> <div class="legenda"></div>',
+                 '<svg class="mapa"><animate attributeName="x"/></svg> <div class="legenda"></div>',
+                 '<svg class="mapa"><set to="1"/></svg> <div class="legenda"></div>',
+                 '<svg class="mapa"><g x="1"onload="x()"/></svg> <div class="legenda"></div>']
+    for html in perigosos:
+        assert "mapa" not in tela.svgs_da_ficha(html), html
+    svgs = tela.svgs_da_ficha(f'<svg class="mapa"><text>{CPF_VALIDO}</text></svg> <div class="legenda">{DIGITOS}</div>')
+    assert CPF_VALIDO not in svgs["mapa"] and DIGITOS not in svgs["mapa"]
