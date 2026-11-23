@@ -13,6 +13,7 @@ Rascunho de 05/11/2026 (art. 37 da LGPD). Toda issue que trate dado pessoal novo
 | Proteção contra robôs | Sinais do navegador avaliados pelo Turnstile | Visitante | Controladora | Legítimo interesse (segurança) | Cloudflare (transferência internacional) | Conforme a Cloudflare |
 | Dados públicos com nome de pessoa | Lista Suja (empregador), embargos do IBAMA (autuado) | Pessoas listadas | Controladora | Dado tornado público pelo órgão (art. 7º, §3º e §4º), com finalidade compatível: verificação socioambiental | `ref`/`geo`, documento só como hash | Enquanto a fonte publicar; versões antigas pelo prazo de rastreabilidade |
 | Leitura pela API (`/v1/fichas`) | `registro_id` da evidência; na Lista Suja é o SHA-256 (32 dígitos) de `documento_hash` + estabelecimento + ano da ação fiscal + sequencial (`chave_registro` em `pipeline/fontes/mte_lista_suja.py`). Não reverte ao CPF/CNPJ sem a chave do HMAC, mas é identificador estável do empregador listado: dado pseudonimizado, ainda pessoal (art. 13, §4º) | Pessoas listadas | Operadora (para a cooperativa) | A do pré-diagnóstico: dado público com finalidade compatível (art. 7º, §3º e §4º) | `diag.evidencia`, Brasil; sai só para a chave da própria organização (RLS) | Igual ao pré-diagnóstico |
+| Imagem de satélite do mapa da ficha (console, #35) | Pedido de tile à EOX (`tiles.maps.eox.at`): o retângulo do imóvel no nível de zoom (z/x/y) e o IP da máquina do técnico. Nenhum identificador de pessoa, CAR ou documento sai | Técnico (IP); produtor só indiretamente (localização do imóvel) | Operadora | A da consulta pública já feita: verificação socioambiental do imóvel (mesma finalidade) | EOX IT Services (Áustria), só o pedido de imagem | Conforme a EOX; o console não guarda nada. Mitigação: sem rede, o mapa fica no SVG da ficha e nada é pedido |
 
 Pontos em aberto:
 - A base legal do CPF (consentimento ou legítimo interesse) é decisão com a cooperativa e com o jurídico. Consentimento pode ser revogado, e o sistema precisa apagar o hash quando for.
@@ -27,4 +28,5 @@ Pontos em aberto:
 | Banco gerenciado (Supabase, #9) | Banco e identidade | São Paulo | Contrato de tratamento do fornecedor |
 | Nuvem da API (Cloud Run ou Fly.io) | Executar a API | São Paulo | Contrato de tratamento do fornecedor |
 | Cloudflare | Borda, WAF, Turnstile, front estático | Global | Cláusulas-padrão (Resolução CD/ANPD nº 19/2024) |
+| EOX IT Services | Imagem Sentinel-2 cloudless do mapa da ficha (recebe z/x/y e o IP) | Áustria (UE) | Licença CC BY 4.0 do serviço público de tiles; nenhum dado de cadastro enviado |
 | GitHub | Código e CI | EUA | Sem dado pessoal real (só sintético) |
