@@ -76,10 +76,10 @@ def test_telas_abas_e_busca():
         assert texto in pagina.text
     assert 'aria-current="page"' in pagina.text and 'method="post"' in pagina.text
     assert pagina.headers["cache-control"] == "no-store"
-    for tela in ("/carteira", "/fontes"):
+    for tela in ("/fontes",):
         r = c.get(tela)
         assert r.status_code == 200 and "Fazer uma nova consulta" in r.text
-    assert c.get("/", follow_redirects=False).headers["location"] == "/consulta"
+    assert c.get("/", follow_redirects=False).headers["location"] == "/carteira"
     assert c.get("/estatico/base.css").status_code == 200 and c.get("/estatico/console.js").status_code == 200
 
 

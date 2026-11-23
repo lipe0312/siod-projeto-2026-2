@@ -1,0 +1,72 @@
+/* Carteira (issue #34): faixa de resumo que filtra, filtros, uma linha por imóvel; abaixo de 720 px vira lista. */
+.carteira{display:grid;gap:18px}
+.cart-topo{display:grid;gap:6px}
+
+/* faixa de resumo: número grande por situação (ícone + nome; cor nunca sozinha); clicar filtra */
+.resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cont{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i n" "r r" "a a";align-items:center;gap:2px 8px;
+  text-align:left;padding:12px 14px;min-height:44px;border-radius:var(--r);border:1px solid var(--bd);background:var(--bg);
+  color:var(--tx);font:inherit;cursor:pointer;box-shadow:inset 4px 0 var(--i)}
+.cont .ico{grid-area:i;color:var(--i);width:22px;height:22px}
+.cont-n{grid-area:n;font:700 34px/1 var(--slab)}
+.cont-r{grid-area:r;font-weight:700;color:var(--t)}
+.cont .mu{grid-area:a;font-size:14px}
+.cont:hover{background:var(--sf)}
+.cont[aria-pressed=true]{background:var(--s);border-color:var(--i)}
+
+.filtros{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.campo-busca{display:flex;align-items:center;gap:8px;flex:1 1 260px;max-width:420px;min-height:44px;padding:0 12px;
+  border:1px solid var(--ctl);border-radius:var(--r);background:var(--bg);color:var(--mu)}
+.campo-busca input{flex:1;min-width:0;border:0;background:transparent;color:var(--tx);font:16px var(--sans);min-height:42px}
+.campo-busca input:focus{outline:none}
+.campo-busca:focus-within{outline:3px solid var(--fo);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--ctl);background:var(--bg);color:var(--tx);
+  font:600 15px var(--sans);cursor:pointer}
+.chip:hover{background:var(--sf)}
+.chip[aria-pressed=true]{background:var(--pri);color:var(--on);border-color:var(--pri)}
+.chip.limpar{border-style:dashed;color:var(--mu)}
+.contagem-filtro{font-size:14px}
+
+/* tabela (≥ 720 px) */
+.lista-carteira{width:100%;border-collapse:collapse;font-size:15px}
+.lista-carteira th{text-align:left;font-size:13px;color:var(--mu);font-weight:600;padding:8px 10px;border-bottom:2px solid var(--bd)}
+.lista-carteira td{vertical-align:top;padding:12px 10px;border-bottom:1px solid var(--bd)}
+.lista-carteira td.n{font:700 20px var(--slab);width:2.5em}
+.lista-carteira td:nth-child(4){max-width:30ch}
+.lista-carteira td:nth-child(5){max-width:36ch;font-size:14px}
+.lista-carteira .selo{font-size:14px;min-height:28px}
+.lista-carteira td .mu{font-size:13.5px}
+.lista-carteira tr.mudou td:first-child{box-shadow:inset 4px 0 var(--inco-i)}
+.mudou{color:var(--inco-t);font-size:13.5px}
+.lista-carteira a.leva{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;white-space:nowrap}
+
+/* pé: o que mudou + fontes */
+.cart-pe{display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:8px}
+.cart-pe section{background:var(--sf);border-radius:var(--r);padding:14px 16px;display:grid;gap:8px;align-content:start}
+.cart-pe h2{font-size:19px}
+.cart-pe ul{margin:6px 0 0;padding-left:20px}
+.fontes-faixa dl{margin:0;display:grid;gap:6px}
+.fontes-faixa dl div{display:grid;grid-template-columns:9.5em 1fr;gap:8px}
+.fontes-faixa dt{font-weight:600}
+.fontes-faixa dd{margin:0}
+.st-txt-nao{color:var(--nao-t)}
+.comando{background:var(--sf);padding:10px 12px;border-radius:var(--r);white-space:pre-wrap;word-break:break-all;margin:0;max-width:100%}
+
+/* celular: a tabela vira lista (cada linha um cartão, rótulo antes do valor) */
+@media(max-width:719px){
+  .resumo{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cont-n{font-size:28px}
+  .campo-busca{max-width:none}
+  .lista-carteira thead{display:none}
+  .lista-carteira,.lista-carteira tbody,.lista-carteira tr,.lista-carteira td{display:block;width:auto;max-width:none}
+  .lista-carteira tr{border:1px solid var(--bd);border-radius:var(--r);padding:6px 12px;margin-bottom:12px}
+  .lista-carteira td{border:0;padding:6px 0}
+  .lista-carteira td[data-rot]:not(.n):not([data-rot="Imóvel"]):not([data-rot="Ficha"])::before{content:attr(data-rot);display:block;font-size:12.5px;color:var(--mu);font-weight:600}
+  .lista-carteira td.n::before{content:"#"}
+  .lista-carteira tr.mudou td:first-child{box-shadow:none}
+  .lista-carteira tr.mudou{border-left:4px solid var(--inco-i)}
+  .cart-pe{grid-template-columns:1fr}
+  .fontes-faixa dl div{grid-template-columns:1fr;gap:0}
+}
+@media print{.filtros,.contagem-filtro{display:none}.cont{box-shadow:none}}

@@ -83,6 +83,50 @@
     a.addEventListener('click', function () { if (mapa) setTimeout(function () { mapa.focus({ preventScroll: true }); }, 0); });
   });
 
+  // Carteira (#34): resumo que filtra, café/gado, "falta dado" e busca; contagem sobe de 0 em 600 ms ao abrir.
+  var tabela = $('.lista-carteira');
+  if (tabela) {
+    var linhas = Array.prototype.slice.call(tabela.querySelectorAll('tbody tr'));
+    var filtro = { grupo: null, commodity: null, falta: false, texto: '' };
+    var semAcento = function (s) { return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+    var aplicar = function () {
+      var n = 0, q = semAcento(filtro.texto.trim());
+      linhas.forEach(function (tr) {
+        var ok = (!filtro.grupo || tr.dataset.grupo === filtro.grupo) &&
+          (!filtro.commodity || tr.dataset.commodity === filtro.commodity) &&
+          (!filtro.falta || tr.dataset.falta === 'sim') && (!q || semAcento(tr.dataset.busca).indexOf(q) >= 0);
+        tr.hidden = !ok; if (ok) n++;
+      });
+      $('#contagem-filtro').textContent = 'Mostrando ' + n + ' de ' + linhas.length + '.';
+      $('#nenhum').hidden = n > 0;
+      document.querySelectorAll('[data-filtro-grupo]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filtroGrupo === filtro.grupo)); });
+      document.querySelectorAll('[data-filtro-commodity]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filtroCommodity === filtro.commodity)); });
+      var f = $('[data-filtro-falta]'); if (f) f.setAttribute('aria-pressed', String(filtro.falta));
+    };
+    document.querySelectorAll('[data-filtro-grupo]').forEach(function (b) {
+      b.addEventListener('click', function () { filtro.grupo = filtro.grupo === b.dataset.filtroGrupo ? null : b.dataset.filtroGrupo; aplicar(); });
+    });
+    document.querySelectorAll('[data-filtro-commodity]').forEach(function (b) {
+      b.addEventListener('click', function () { filtro.commodity = filtro.commodity === b.dataset.filtroCommodity ? null : b.dataset.filtroCommodity; aplicar(); });
+    });
+    var bf = $('[data-filtro-falta]'); if (bf) bf.addEventListener('click', function () { filtro.falta = !filtro.falta; aplicar(); });
+    var campo = $('#busca-carteira'); if (campo) campo.addEventListener('input', function () { filtro.texto = campo.value; aplicar(); });
+    var bl = $('[data-filtro-limpar]');
+    if (bl) bl.addEventListener('click', function () { filtro = { grupo: null, commodity: null, falta: false, texto: '' }; if (campo) campo.value = ''; aplicar(); });
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('[data-contar]').forEach(function (s) {
+        var alvo = +s.dataset.contar, t0 = null;
+        var passo = function (t) {
+          if (t0 === null) t0 = t;
+          var p = Math.min(1, (t - t0) / 600);
+          s.textContent = String(Math.round(alvo * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(passo);
+        };
+        s.textContent = '0'; requestAnimationFrame(passo);
+      });
+    }
+  }
+
   var form = $('#form-consulta');
   if (!form) return;
   if (window.location.hash === '#car') focarBusca();
