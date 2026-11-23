@@ -1,38 +1,34 @@
 ---
 name: ui-build
-description: OBRIGATÓRIA para qualquer tela, componente ou mudança visível ao usuário no CarroAberto (backoffice, Passaporte, TV, landing). Orquestra DESIGN.md → componentes existentes (shadcn MCP / src/components) → frontend-design → 21st Magic → verificação no Chrome → web-design-guidelines.
+description: OBRIGATÓRIA para qualquer tela, componente ou mudança visível no AgroValid (console local do técnico, ficha HTML, carteira HTML, dossiê EUDR, preview). Orquestra DESIGN.md → componentes que já existem → referências (shadcn MCP, ui-design-references) → frontend-design → verificação no Chrome (ui-verify) → web-design-guidelines → preview-aprovacao.
 ---
 
-# Construir UI (pipeline obrigatório)
+# Construir UI no AgroValid (pipeline obrigatório)
 
-Pule um passo só se ele não se aplica, e diga qual e por quê.
+Pule um passo só se não se aplica, e diga qual e por quê. Adaptada do CarroAberto em 23/11/2026.
 
-## 1. Contexto de design (≤ 2 min)
-- Leia `DESIGN.md` (raiz). É a fonte de tokens, tom e anti-padrões. Se a tela pedir algo que ele não cobre → skill `ui-design-references` antes de inventar.
-- Identifique a superfície: **Passaporte** (mobile, sol, 4G, comprador leigo) · **Backoffice** (denso, gerente) · **Pátio** (celular, 1 mão, < 15 s) · **TV** (distância 3 m) · **Landing** (conversão).
-
-- Confira a escolha vigente em `docs/brand/design-system/decisoes.md` (e veja funcionando no `preview.html`). **Obrigatório:** se a tela trouxer ideia nova de UI, componente, animação ou peça de marca, ou mudar uma escolha, atualize `decisoes.md` + `preview.html` no mesmo PR, antes do código. A escolha antiga vira alternativa, nunca é apagada.
+## 1. Contexto de design
+- Leia `DESIGN.md` (raiz): tokens, tom, situações, anti-padrões. A escolha vigente de cada item está em `docs/marca/design-system/decisoes.md`; as opções, em `docs/marca/design-system/preview-console.html`.
+- Superfície: **Console** (técnico na mesa, projetor na apresentação, 1280) · **Ficha impressa** (preto e branco, A4) · **Celular** (técnico em campo, 390, sol) · **Dossiê** (comprador europeu, leitura formal).
+- Ideia nova de UI, componente ou movimento → atualize `decisoes.md` + `preview-console.html` no mesmo PR, antes do código. A escolha antiga vira alternativa.
 
 ## 2. Reusar antes de criar
-1. `src/components/ui.tsx` + classes `.btn`, `.input`, `.label` em `src/app/globals.css` — o que existe hoje.
-2. **shadcn MCP** (sempre): liste/busque no registry o componente equivalente e leia o exemplo de uso.
-   - Sem `components.json` no projeto (ADR-0006 ainda proposto) → use o shadcn como **referência de estrutura e acessibilidade**, implemente com Tailwind + tokens do `DESIGN.md`. Não rode `npx shadcn init/add` sem o ADR aceito.
-   - Com `components.json` → `npx shadcn add <componente>` (pede aprovação) e adapte aos tokens.
-3. **21st Magic MCP** (`/ui …`): só para peça que não existe em 1 nem 2 (ex.: comparador antes/depois). Gasta cota — 1 geração por peça; reescreva o resultado com nossos tokens.
+1. O que existe: `pipeline/ficha_html.py` (selos, mapa SVG, linha do tempo, tabelas), CSS do console em `console/estatico/` (quando existir).
+2. **shadcn MCP** (`claude mcp add shadcn -s local -- npx -y shadcn@latest mcp`, já configurado neste checkout): busque o bloco ou componente equivalente e leia a **estrutura e a acessibilidade** (roles, aria, teclado). O console **não tem React nem Tailwind**: reimplemente em HTML + CSS com os tokens do `DESIGN.md` e JS puro. Nunca `npx shadcn add` aqui.
+3. Sem equivalente → skill `ui-design-references` (até 3 referências) antes de inventar.
 
 ## 3. Direção visual
-Aplique a skill **frontend-design** (plugin oficial) com as restrições do `DESIGN.md`: ela dá a intenção (tipografia, hierarquia, composição); o `DESIGN.md` vence em conflito. Nada de gradiente roxo, glassmorphism, emoji como ícone, sombra pesada, texto centralizado em tudo.
+Skill **frontend-design** com as restrições do `DESIGN.md` (ele vence). Nada de folha, gradiente, verde vivo, azul de banco, glassmorphism, emoji como ícone, quatro cartões de KPI iguais, caixa alta espaçada, animação ao rolar.
 
 ## 4. Implementar
-- Server Component por padrão; `"use client"` só para interação. Dados de runtime dentro de `<Suspense>` com `Skeleton`.
-- Textos pt-BR; texto ao comprador passa pela skill `mkt-copy`.
-- Mobile first (390 px). Alvo de toque ≥ 44 px. Contraste AA mínimo; Passaporte busca AAA no texto principal (uso sob sol).
-- Estado vazio, carregando e erro — os três.
+- HTML gerado no servidor (strings com `html.escape`, como o `ficha_html.py`); JS puro só para interação; sem dependência nova (regra 8).
+- pt-BR, linguagem de técnico de campo. Situação sempre com ícone + nome. Nunca "conforme".
+- Estados: vazio, carregando (etapas do cruzamento), erro (fonte fora do ar = inconclusivo com motivo) — os três.
+- Contraste AA mínimo, AAA no texto principal (projetor). Foco visível. `prefers-reduced-motion`. Impressão legível em preto e branco.
+- Nenhum CPF/CNPJ na tela, na URL ou no log; documento só por POST.
 
 ## 5. Ver de verdade
-Delegue ao subagente `ui-reviewer` (Chrome DevTools MCP + skill `ui-verify`) com as rotas tocadas. Corrija tudo que ele marcar como **Quebrado**.
+Skill `ui-verify` nas telas tocadas (Chrome). Corrija tudo que sair como **Quebrado**.
 
 ## 6. Conferência final
-Rode a skill **web-design-guidelines** nos arquivos tocados. Corrija acessibilidade e foco; o resto vai para "polimento" no PR.
-
-Entrega: screenshots antes/depois no resumo da skill `ship`.
+Skill `web-design-guidelines` nos arquivos tocados; acessibilidade e foco se corrigem, o resto vira "polimento" no PR. Depois, `preview-aprovacao` (simplificado) para o portão.

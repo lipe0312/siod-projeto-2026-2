@@ -1,6 +1,6 @@
 ---
 name: ui-design-references
-description: Busca referências de design limpo e templates prontos (getdesign.md, shadcn blocks, Vercel templates, galerias curadas) e converte em decisões no DESIGN.md do CarroAberto, evitando a "cara de IA". Use ao criar tela/seção nova sem padrão no DESIGN.md, landing page ou redesign.
+description: Busca referências de design limpo e templates prontos (getdesign.md, shadcn blocks, Vercel templates, galerias curadas) e converte em decisões no DESIGN.md do AgroValid, evitando a "cara de IA". Use ao criar tela/seção nova sem padrão no DESIGN.md, landing page ou redesign.
 ---
 
 # Referências que tiram a cara de IA
@@ -29,11 +29,11 @@ Busque com WebFetch na página específica (não na home). Traga no máximo 3 re
 - Números/depoimentos inventados
 
 ## O que dá cara de produto real
-- **Dados reais na tela** (placa mascarada, km, R$, dias de pátio) em vez de ilustração
+- **Dados reais na tela** (código do CAR encurtado, hectares, datas de imagem, TAD do embargo, SHA-256) em vez de ilustração
 - Tipografia com hierarquia forte e números tabulares (`tabular-nums`) em valores
-- Densidade adequada à persona (backoffice denso; Passaporte espaçado)
-- Uma cor de marca + semânticas (verde/âmbar/vermelho = margem/SLA). Neutros quentes (`#f7f7f5`)
-- Fotos do próprio carro e do pátio > qualquer ilustração
+- Densidade adequada à persona (console denso para o técnico; ficha impressa espaçada; dossiê formal)
+- Uma cor de marca (couro e brasa) + o semáforo das situações, sempre com ícone e nome. Neutros quentes (`#f7f4f1`)
+- Mapa e imagem de satélite do próprio imóvel > qualquer ilustração; referências boas: MapBiomas Alerta, Global Forest Watch, TerraBrasilis, painéis de due diligence EUDR
 
 ## Saída
 1. 3 referências: link · o que copiar (princípio) · o que NÃO copiar.

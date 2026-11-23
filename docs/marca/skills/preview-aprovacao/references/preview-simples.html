@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- Preview SIMPLIFICADO (skill preview-aprovacao §1). Copie, troque os {{CAMPOS}} e apague os blocos que não servem.
+     Sem app, sem Playwright, sem base64, sem JS. O "como era / como fica" é desenhado em HTML/CSS só do pedaço que muda.
+     Screenshots que o ui-reviewer já salvou: <img src="../screenshots/arquivo.png"> (caminho relativo, opcional). -->
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>#{{N}} · {{TITULO_CURTO}}</title>
+<style>
+:root{--asphalt:#241914;--c100:#f7f4f1;--c300:#e2dcd6;--c600:#5e534d;--brand:#5c3621;--brand50:#f3ece6;--accent:#ae4d15;--ok:#2d7a47;--warn:#a86200;--bad:#a51d14}
+*{box-sizing:border-box}body{margin:0;background:var(--c100);color:var(--asphalt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:960px;margin:0 auto;padding:16px}
+h1{font:700 30px/1.1 "Zilla Slab",Georgia,serif;margin:8px 0}
+h2{font:600 20px/1.2 "Zilla Slab",Georgia,serif;margin:0 0 8px}
+.card{background:#fff;border:1px solid var(--c300);border-radius:12px;padding:16px;margin:12px 0}
+.meta{color:var(--c600);font-size:13px}.ganha{background:var(--brand50);border-left:4px solid var(--brand);padding:10px 12px;border-radius:8px}
+.selo{display:inline-block;font-size:12px;border:1px dashed var(--c600);border-radius:6px;padding:2px 8px;color:var(--c600)}
+.lado{display:grid;gap:12px;grid-template-columns:1fr}@media(min-width:720px){.lado{grid-template-columns:1fr 1fr}}
+.tela{border:1px solid var(--c300);border-radius:10px;padding:12px;background:#fafbfc;min-height:120px}
+.tela b.tag{font-size:12px;color:var(--c600);display:block;margin-bottom:6px}
+.novo{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.mock-btn{display:inline-block;background:var(--brand);color:#fff;border-radius:8px;padding:6px 12px;font-size:14px}
+.mock-in{display:block;border:1px solid var(--c300);border-radius:8px;padding:6px 10px;background:#fff;margin:4px 0;color:var(--c600)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--c300);vertical-align:top}
+th{color:var(--c600);font-weight:600}.ok{color:var(--ok)}.bad{color:var(--bad)}
+ol.notas{padding-left:20px;margin:8px 0 0}footer{color:var(--c600);font-size:14px;margin:16px 0 32px}
+</style></head><body><main>
+<span class="selo">Preview simplificado · ilustração, não é a tela real · dados fictícios</span>
+<h1>{{TITULO}}</h1>
+<p class="meta">Issue #{{N}} · PR #{{PR}} · branch {{BRANCH}} · onde ver: {{ROTA}} (console local: python -m console → 127.0.0.1:8765)</p>
+<p class="ganha"><strong>O técnico ganha:</strong> {{GANHA}}</p>
+
+<section class="card"><h2>Como era → como fica</h2>
+ <div class="lado">
+  <div class="tela"><b class="tag">Antes</b>{{HTML_ANTES — ex.: <span class="mock-in">Km: 45.000 (só leitura)</span>}}</div>
+  <div class="tela"><b class="tag">Depois</b>{{HTML_DEPOIS — marque o que é novo com class="novo", ex.: <span class="mock-in novo">Km: [ 45.000 ] editável</span> <span class="mock-btn novo">Salvar</span>}}</div>
+ </div>
+ <ol class="notas"><li>{{NOTA_1 — o que mudou, em linguagem de técnico de campo}}</li><li>{{NOTA_2}}</li></ol>
+</section>
+
+<section class="card"><h2>Como funciona (sem tela: troque o bloco acima por este)</h2>
+ <ol><li>{{PASSO_1}}</li><li>{{PASSO_2}}</li><li>{{PASSO_3}}</li></ol>
+ <p class="meta">Quem vê o quê: {{ex.: o técnico vê só o documento_hash; o comprador vê só o dossiê}}</p>
+</section>
+
+<section class="card"><h2>Casos</h2>
+ <table><tr><th>Situação</th><th>O que acontece</th></tr>
+  <tr><td>{{CASO_COMUM}}</td><td class="ok">{{RESULTADO}}</td></tr>
+  <tr><td>{{CASO_BORDA}}</td><td>{{RESULTADO}}</td></tr>
+  <tr><td>{{CASO_ERRO}}</td><td class="bad">{{MENSAGEM_NA_TELA}}</td></tr>
+ </table>
+</section>
+
+<section class="card"><h2>Critérios de aceite</h2>
+ <table><tr><th>Critério</th><th>Feito</th><th>Onde conferir</th></tr>
+  <tr><td>{{CRITERIO_1}}</td><td class="ok">✓</td><td>{{ROTA/TESTE}}</td></tr>
+ </table>
+ <p class="meta">Gate: {{pytest ✓ · --banco n.a. · regressão 17/17 ✓}} · CI: {{verde | sem checks}} · Riscos: {{CPF ✓ · organizacao_id ✓ · contrato n.a. · inconclusivo ≠ sem ocorrência ✓}}</p>
+</section>
+<footer>Responda no chat: <strong>Aprovado merge</strong> · <strong>Ajustes: …</strong> · Fechar sem merge</footer>
+</main></body></html>

@@ -8,6 +8,7 @@ Situação em 03/11/2026: direção C (Marca de ferro) aprovada como base; situa
 |---|---|
 | `preview.html` | **Depois.** Prévia atual do design system: painel da carteira, situações, componentes, fundamentos. Abre no navegador, funciona offline (as fontes caem para a do sistema sem rede) |
 | `preview-direcoes.html` | **Antes.** As três direções da primeira rodada (A Curva de nível, B Grão, C Marca de ferro), com as cores de situação da v1 |
+| `design-system/preview-console.html` | Prancha do console do técnico (23/11/2026, #28): 3 estilos para a mesma ficha e 3 opções funcionando por item, com a escolha do dono marcada. A escolha está no `DESIGN.md` da raiz |
 | `design-system/decisoes.md` | Regras, tokens, situações e o que falta para virar padrão. As versões rejeitadas ficam descritas lá |
 | `design-system/canvas/` | Código das quatro pranchas do canvas (Fundamentos, Componentes, Carteira, Celular), formato `.dc.html` |
 | `design-system/situacoes.json` | Cores de situação v3 com as medidas |
@@ -15,7 +16,7 @@ Situação em 03/11/2026: direção C (Marca de ferro) aprovada como base; situa
 | `agrovalid/` | Pasta de trabalho da skill brand-identity: brief, `sets.json`, paleta, logos (SVG e PNG), cards e board de cada direção |
 | `favicons/` | Favicon de cada direção, com troca automática claro/escuro |
 | `gerar/` | Scripts que montaram as direções, as cores de situação e o preview antigo |
-| `skills/` | Cópia das skills de UI trazidas do projeto CarroAberto (a pasta `.claude` não é versionada) |
+| `skills/` | Cópia das skills de UI trazidas do projeto CarroAberto e adaptadas ao AgroValid em 23/11/2026 (`ui-build`, `ui-design-references`, `ui-verify`, `web-design-guidelines`, `preview-aprovacao`); a pasta `.claude` não é versionada |
 
 Para voltar a uma ideia anterior: as três direções estão em `preview-direcoes.html` e em `agrovalid/sets/A|B|C`; a v2 das situações (legenda de campo, só forma e cor) se regenera com `gerar/status_c.py`.
 
