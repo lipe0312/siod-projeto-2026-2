@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+<name>Talhão de demonstração CVC-03</name>
+<Placemark>
+<name>Talhão de demonstração CVC-03</name>
+<description>Talhão sintético de demonstração, desenhado dentro do CAR sobre os alertas (docs/evidencias/entrega-final/01_cooperativa_demonstracao.py).</description>
+<Polygon><outerBoundaryIs><LinearRing><coordinates>-46.949080,-19.070396,0 -46.947585,-19.070335,0 -46.941504,-19.067427,0 -46.941436,-19.067027,0 -46.941033,-19.066762,0 -46.940912,-19.066471,0 -46.940193,-19.066138,0 -46.940191,-19.065583,0 -46.939908,-19.065264,0 -46.941351,-19.063492,0 -46.941521,-19.063016,0 -46.942160,-19.062664,0 -46.942663,-19.062057,0 -46.950852,-19.064022,0 -46.951654,-19.065601,0 -46.952360,-19.066373,0 -46.952464,-19.067174,0 -46.952686,-19.067511,0 -46.949517,-19.070210,0 -46.949080,-19.070396,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+</Placemark>
+</Document>
+</kml>
